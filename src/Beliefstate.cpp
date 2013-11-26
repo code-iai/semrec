@@ -20,7 +20,9 @@ namespace beliefstate {
     
     // Do the actual init here.
     m_psPlugins = new PluginSystem(m_argc, m_argv);
-    m_psPlugins->loadPluginLibrary("/home/winkler/groovy_overlay_ws/devel/lib/libplugin_ros.so");
+    m_psPlugins->loadPluginLibrary("/home/winkler/groovy_overlay_ws/devel/lib/libbs_plugin_ros.so");
+    m_psPlugins->loadPluginLibrary("/home/winkler/groovy_overlay_ws/devel/lib/libbs_plugin_imagecapturer.so");
+    m_psPlugins->loadPluginLibrary("/home/winkler/groovy_overlay_ws/devel/lib/libbs_plugin_symboliclog.so");
     
     return resInit;
   }
@@ -49,7 +51,13 @@ namespace beliefstate {
 	    itEvent++) {
 	  Event evEvent = *itEvent;
 	  
+	  // Distribute the event
 	  this->spreadEvent(evEvent);
+	  
+	  // Clean up
+	  if(evEvent.cdDesignator) {
+	    delete evEvent.cdDesignator;
+	  }
 	}
       }
     } else {

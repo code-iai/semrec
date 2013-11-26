@@ -65,10 +65,22 @@ include_directories(
 )
 
 ## Declare a cpp library
-add_library(plugin_ros SHARED
+add_library(bs_plugin_ros SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
-  src/plugins/plugin_ros/PluginROS.cpp
+  src/plugins/ros/PluginROS.cpp
+)
+
+add_library(bs_plugin_symboliclog SHARED
+  src/GlobalFunctions.cpp
+  src/Plugin.cpp
+  src/plugins/symboliclog/PluginSymbolicLog.cpp
+)
+
+add_library(bs_plugin_imagecapturer SHARED
+  src/GlobalFunctions.cpp
+  src/Plugin.cpp
+  src/plugins/imagecapturer/PluginImageCapturer.cpp
 )
 
 ## Declare a cpp executable
@@ -82,17 +94,18 @@ add_executable(beliefstate
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(plugin_ros designator_integration_generate_messages_cpp)
+add_dependencies(bs_plugin_ros designator_integration_generate_messages_cpp)
 add_dependencies(beliefstate designator_integration_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(beliefstate
   dl
-#  ${catkin_LIBRARIES}
+  DesignatorIntegration
 )
 
-target_link_libraries(plugin_ros
+target_link_libraries(bs_plugin_ros
   ${catkin_LIBRARIES}
+  DesignatorIntegration
 )
 
 #############

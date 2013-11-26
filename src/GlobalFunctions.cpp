@@ -38,4 +38,12 @@ namespace beliefstate {
     
     return resDefault;
   }
+  
+  Event defaultEvent() {
+    Event evDefault;
+    evDefault.eiEventIdentifier = EI_UNDEFINED;
+    evDefault.cdDesignator = NULL;
+    
+    return evDefault;
+  }
 }

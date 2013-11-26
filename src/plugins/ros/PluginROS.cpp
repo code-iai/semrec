@@ -1,4 +1,4 @@
-#include <plugins/plugin_ros/PluginROS.h>
+#include <plugins/ros/PluginROS.h>
 
 
 namespace beliefstate {
@@ -40,6 +40,7 @@ namespace beliefstate {
     }
     
     Result PluginROS::deinit() {
+      return defaultResult();
     }
     
     Result PluginROS::cycle() {
@@ -62,9 +63,10 @@ namespace beliefstate {
     bool PluginROS::serviceCallbackBeginContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
       m_mtxEventsStore.lock();
       
-      Event evBeginContext;
+      Event evBeginContext = defaultEvent();
       evBeginContext.eiEventIdentifier = EI_BEGIN_CONTEXT;
       evBeginContext.nContextID = createContextID();
+      evBeginContext.cdDesignator = new CDesignator(req.request.designator);
       
       // TODO: Add designator information
       
@@ -78,8 +80,9 @@ namespace beliefstate {
     bool PluginROS::serviceCallbackEndContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
       m_mtxEventsStore.lock();
 
-      Event evEndContext;
+      Event evEndContext = defaultEvent();
       evEndContext.eiEventIdentifier = EI_END_CONTEXT;
+      evEndContext.cdDesignator = new CDesignator(req.request.designator);
       
       // TODO: Add designator information, like the context id and so
       // forth
@@ -93,13 +96,24 @@ namespace beliefstate {
 
     bool PluginROS::serviceCallbackAlterContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
       m_mtxEventsStore.lock();
-
-      Event evAlterContext;
       
-      // evAlterContext.eiEventIdentifier = EI_END_CONTEXT;
+      Event evAlterContext = defaultEvent();
+      evAlterContext.cdDesignator = new CDesignator(req.request.designator);
       
-      // TODO: Add designator information, like the context id and so
-      // forth
+      string strCommand = evAlterContext.cdDesignator->stringValue("command");
+      if(strCommand == "add-image") {
+	evAlterContext.eiEventIdentifier = EI_ADD_IMAGE_FROM_TOPIC;
+      } else if(strCommand == "add-failure") {
+	evAlterContext.eiEventIdentifier = EI_ADD_FAILURE;
+      } else if(strCommand == "add-designator") {
+	evAlterContext.eiEventIdentifier = EI_ADD_DESIGNATOR;
+      } else if(strCommand == "equate-designators") {
+	evAlterContext.eiEventIdentifier = EI_EQUATE_DESIGNATORS;
+      } else if(strCommand == "add-object") {
+	evAlterContext.eiEventIdentifier = EI_ADD_OBJECT;
+      } else if(strCommand == "extract-planlog") {
+	evAlterContext.eiEventIdentifier = EI_EXTRACT_PLANLOG;
+      }
       
       m_lstEvents.push_back(evAlterContext);
       

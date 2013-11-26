@@ -8,6 +8,8 @@ namespace beliefstate {
   }
   
   PluginSystem::~PluginSystem() {
+    m_lstLoadedPlugins.reverse();
+    
     for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
 	itPlugin != m_lstLoadedPlugins.end();
 	itPlugin++) {

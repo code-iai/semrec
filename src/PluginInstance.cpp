@@ -3,6 +3,9 @@
 
 namespace beliefstate {
   PluginInstance::PluginInstance() {
+    m_strName = "";
+    m_vdLibHandle = NULL;
+    m_piInstance = NULL;
   }
   
   PluginInstance::~PluginInstance() {
@@ -25,7 +28,9 @@ namespace beliefstate {
 	Result resInit = m_piInstance->init(argc, argv);
 	
 	if(resInit.bSuccess) {
-	  cout << "Loaded plugin" << endl;
+	  m_strName = strFilepath; // TODO: Replace this by just the
+				   // filename w/o extension!
+	  cout << "Loaded plugin '" << m_strName << "'" << endl;
 	} else {
 	  resLoad = resInit;
 	  dlclose(m_vdLibHandle);
@@ -52,7 +57,7 @@ namespace beliefstate {
     destroyInstance(m_piInstance);
     dlclose(m_vdLibHandle);
     
-    cout << "Unloaded plugin" << endl;
+    cout << "Unloaded plugin '" << m_strName << "'" << endl;
   }
   
   Result PluginInstance::cycle() {

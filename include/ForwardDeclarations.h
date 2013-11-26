@@ -14,6 +14,9 @@ namespace beliefstate {
   
   // Result container specific functions
   Result defaultResult();
+  
+  // Event container specific functions
+  Event defaultEvent();
 }
 
 

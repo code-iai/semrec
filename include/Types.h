@@ -5,6 +5,7 @@
 // System
 #include <string>
 #include <list>
+#include <designators/CDesignator.h>
 
 using namespace std;
 
@@ -18,15 +19,22 @@ namespace beliefstate {
   } ResultIdentifier;
   
   typedef enum {
+    EI_UNDEFINED,
     EI_BEGIN_CONTEXT,
     EI_END_CONTEXT,
     EI_ADD_DESIGNATOR,
-    EI_ADD_IMAGE
+    EI_ADD_IMAGE_FROM_FILE,
+    EI_ADD_IMAGE_FROM_TOPIC,
+    EI_ADD_OBJECT,
+    EI_ADD_FAILURE,
+    EI_EQUATE_DESIGNATORS,
+    EI_EXTRACT_PLANLOG
   } EventIdentifier;
   
   typedef struct {
     EventIdentifier eiEventIdentifier;
     int nContextID;
+    CDesignator* cdDesignator;
     string strSupplementary;
   } Event;
   

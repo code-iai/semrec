@@ -23,7 +23,7 @@ using namespace std;
 
 namespace beliefstate {
   namespace plugins {
-    class PluginROS : public Plugin{
+    class PluginROS : public Plugin {
     private:
       ros::NodeHandle* m_nhHandle;
       ros::ServiceServer m_srvBeginContext;

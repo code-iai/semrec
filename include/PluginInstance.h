@@ -22,6 +22,7 @@ namespace beliefstate {
   private:
     void* m_vdLibHandle;
     plugins::Plugin* m_piInstance;
+    string m_strName;
     
   public:
     PluginInstance();
