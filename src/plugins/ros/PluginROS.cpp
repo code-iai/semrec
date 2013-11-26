@@ -114,7 +114,9 @@ namespace beliefstate {
       } else if(strCommand == "extract-planlog") {
 	evAlterContext.eiEventIdentifier = EI_EXTRACT_PLANLOG;
       }
-      
+      //
+      evAlterContext.eiEventIdentifier = EI_ADD_IMAGE_FROM_TOPIC;
+      //
       m_lstEvents.push_back(evAlterContext);
       
       m_mtxEventsStore.unlock();

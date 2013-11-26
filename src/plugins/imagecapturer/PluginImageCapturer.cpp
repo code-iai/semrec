@@ -24,11 +24,27 @@ namespace beliefstate {
     Result PluginImageCapturer::cycle() {
       Result resCycle = defaultResult();
       
+      m_mtxEventsStore.lock();
+      resCycle.lstEvents = m_lstEvents;
+      m_lstEvents.clear();
+      m_mtxEventsStore.unlock();
+      
       return resCycle;
     }
     
     void PluginImageCapturer::consumeEvent(Event evEvent) {
       cout << "PluginImageCapturer: Consume event!" << endl;
+      
+      // NOTE(winkler): This is a dummy implementation to see if the
+      // event distribution works.
+      
+      Event evImage = defaultEvent();
+      evImage.eiEventIdentifier = EI_ADD_IMAGE_FROM_FILE;
+      // TODO(winkler): Add filename here!
+      
+      m_mtxEventsStore.lock();
+      m_lstEvents.push_back(evImage);
+      m_mtxEventsStore.unlock();
     }
   }
   
