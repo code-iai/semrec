@@ -71,6 +71,12 @@ add_library(bs_plugin_ros SHARED
   src/plugins/ros/PluginROS.cpp
 )
 
+add_library(bs_plugin_gazebo SHARED
+  src/GlobalFunctions.cpp
+  src/Plugin.cpp
+  src/plugins/gazebo/PluginGazebo.cpp
+)
+
 add_library(bs_plugin_symboliclog SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
@@ -106,6 +112,10 @@ target_link_libraries(beliefstate
 target_link_libraries(bs_plugin_ros
   ${catkin_LIBRARIES}
   DesignatorIntegration
+)
+
+target_link_libraries(bs_plugin_gazebo
+  ${catkin_LIBRARIES}
 )
 
 #############

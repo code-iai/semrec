@@ -23,6 +23,7 @@ namespace beliefstate {
     m_psPlugins->loadPluginLibrary("/home/winkler/groovy_overlay_ws/devel/lib/libbs_plugin_ros.so");
     m_psPlugins->loadPluginLibrary("/home/winkler/groovy_overlay_ws/devel/lib/libbs_plugin_imagecapturer.so");
     m_psPlugins->loadPluginLibrary("/home/winkler/groovy_overlay_ws/devel/lib/libbs_plugin_symboliclog.so");
+    m_psPlugins->loadPluginLibrary("/home/winkler/groovy_overlay_ws/devel/lib/libbs_plugin_gazebo.so");
     
     return resInit;
   }
