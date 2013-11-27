@@ -63,6 +63,7 @@ namespace beliefstate {
     bool bSuccess;
     ResultIdentifier riResultIdentifier;
     list<Event> lstEvents;
+    list<ServiceEvent> lstServiceEvents;
     
     // In case of failure
     string strErrorMessage;

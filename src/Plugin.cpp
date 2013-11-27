@@ -80,6 +80,11 @@ namespace beliefstate {
       resDeployTo.lstEvents = m_lstEvents;
       m_lstEvents.clear();
       m_mtxEventsStore.unlock();
+      
+      m_mtxServiceEventsStore.lock();
+      resDeployTo.lstServiceEvents = m_lstServiceEvents;
+      m_lstServiceEvents.clear();
+      m_mtxServiceEventsStore.unlock();
     }
   }
 }
