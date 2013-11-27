@@ -32,6 +32,7 @@ namespace beliefstate {
     Result deinit();
     
     void spreadEvent(Event evEvent);
+    void spreadServiceEvent(ServiceEvent seServiceEvent);
     bool cycle();
     
     void triggerShutdown();

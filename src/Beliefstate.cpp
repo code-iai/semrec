@@ -40,6 +40,10 @@ namespace beliefstate {
     m_psPlugins->spreadEvent(evEvent);
   }
   
+  void Beliefstate::spreadServiceEvent(ServiceEvent seServiceEvent) {
+    // TODO(winkler): Implement spreading of service events.
+  }
+  
   bool Beliefstate::cycle() {
     bool bContinue = true;
     
@@ -47,6 +51,7 @@ namespace beliefstate {
       Result resCycle = m_psPlugins->cycle();
       
       if(resCycle.bSuccess) {
+	// Events
 	for(list<Event>::iterator itEvent = resCycle.lstEvents.begin();
 	    itEvent != resCycle.lstEvents.end();
 	    itEvent++) {
@@ -58,6 +63,21 @@ namespace beliefstate {
 	  // Clean up
 	  if(evEvent.cdDesignator) {
 	    delete evEvent.cdDesignator;
+	  }
+	}
+	
+	// Services
+	for(list<ServiceEvent>::iterator itEvent = resCycle.lstServiceEvents.begin();
+	    itEvent != resCycle.lstServiceEvents.end();
+	    itEvent++) {
+	  ServiceEvent seServiceEvent = *itEvent;
+	  
+	  // Distribute the event
+	  this->spreadServiceEvent(seServiceEvent);
+	  
+	  // Clean up
+	  if(seServiceEvent.cdDesignator) {
+	    delete seServiceEvent.cdDesignator;
 	  }
 	}
       }

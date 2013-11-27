@@ -49,6 +49,7 @@ namespace beliefstate {
     int nServiceEventID;
     int nRequesterID;
     int nResponderID;
+    CDesignator* cdDesignator;
   } ServiceEvent;
   
   typedef struct {
