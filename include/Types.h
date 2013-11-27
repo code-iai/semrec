@@ -15,7 +15,8 @@ namespace beliefstate {
     RI_NONE,
     RI_PLUGIN_LOADING_FAILED,
     RI_CONFIG_FILE_NOT_FOUND,
-    RI_FILE_NOT_FOUND
+    RI_FILE_NOT_FOUND,
+    RI_PLUGIN_DEPENDENCY_NOT_MET
   } ResultIdentifier;
   
   typedef enum {

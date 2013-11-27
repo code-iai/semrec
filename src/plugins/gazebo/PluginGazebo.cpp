@@ -4,6 +4,7 @@
 namespace beliefstate {
   namespace plugins {
     PluginGazebo::PluginGazebo() {
+      this->addDependency("ros");
     }
     
     PluginGazebo::~PluginGazebo() {

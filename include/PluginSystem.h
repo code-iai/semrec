@@ -21,6 +21,7 @@ namespace beliefstate {
   private:
     list<PluginInstance*> m_lstLoadedPlugins;
     list<PluginInstance*> m_lstUnloadPlugins;
+    list<string> m_lstPluginSearchPaths;
     int m_argc;
     char** m_argv;
     
@@ -28,11 +29,14 @@ namespace beliefstate {
     PluginSystem(int argc, char** argv);
     ~PluginSystem();
     
+    bool pluginLoaded(string strPluginName);
     Result loadPluginLibrary(string strFilepath);
     void queueUnloadPluginInstance(PluginInstance* icUnload);
     
     void spreadEvent(Event evEvent);
     Result cycle();
+    
+    void addPluginSearchPath(string strPath);
   };
 }
 

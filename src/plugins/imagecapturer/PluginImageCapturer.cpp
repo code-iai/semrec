@@ -4,6 +4,7 @@
 namespace beliefstate {
   namespace plugins {
     PluginImageCapturer::PluginImageCapturer() {
+      this->addDependency("ros");
     }
     
     PluginImageCapturer::~PluginImageCapturer() {

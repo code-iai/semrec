@@ -49,5 +49,26 @@ namespace beliefstate {
     void Plugin::consumeEvent(Event evEvent) {
       // Dummy.
     }
+    
+    void Plugin::addDependency(string strPluginName) {
+      m_lstDependencies.remove(strPluginName);
+      m_lstDependencies.push_back(strPluginName);
+    }
+    
+    bool Plugin::dependsOn(string strPluginName) {
+      for(list<string>::iterator itDep = m_lstDependencies.begin();
+	  itDep != m_lstDependencies.end();
+	  itDep++) {
+	if(*itDep == strPluginName) {
+	  return true;
+	}
+      }
+      
+      return false;
+    }
+    
+    list<string> Plugin::dependencies() {
+      return m_lstDependencies;
+    }
   }
 }

@@ -28,13 +28,17 @@ namespace beliefstate {
     PluginInstance();
     ~PluginInstance();
     
-    Result loadPluginLibrary(string strFilepath, int argc, char** argv);
+    Result loadPluginLibrary(string strFilepath);
     void unload();
     
+    Result init(int argc, char** argv);
     Result cycle();
+    list<string> dependencies();
     
     bool subscribedToEvent(EventIdentifier eiEventIdentifier);
     void consumeEvent(Event evEvent);
+    
+    string name();
   };
 }
 

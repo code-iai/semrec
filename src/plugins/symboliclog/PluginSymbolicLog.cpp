@@ -4,6 +4,7 @@
 namespace beliefstate {
   namespace plugins {
     PluginSymbolicLog::PluginSymbolicLog() {
+      this->addDependency("imagecapturer");
     }
     
     PluginSymbolicLog::~PluginSymbolicLog() {

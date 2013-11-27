@@ -40,6 +40,8 @@ namespace beliefstate {
     }
     
     Result PluginROS::deinit() {
+      ros::shutdown();
+      
       return defaultResult();
     }
     

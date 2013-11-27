@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <mutex>
 #include <list>
+#include <string>
 
 // Private
 #include <Types.h>
@@ -18,6 +19,8 @@ namespace beliefstate {
   namespace plugins {
     class Plugin {
     private:
+      list<string> m_lstDependencies;
+      
     protected:
       list<Event> m_lstEvents;
       mutex m_mtxEventsStore;
@@ -35,6 +38,10 @@ namespace beliefstate {
       void setSubscribedToEvent(EventIdentifier eiEventIdentifier, bool bSubscribed);
       bool subscribedToEvent(EventIdentifier eiEventIdentifier);
       virtual void consumeEvent(Event evEvent);
+      
+      void addDependency(string strPluginName);
+      bool dependsOn(string strPluginName);
+      list<string> dependencies();
     };
   }
 }
