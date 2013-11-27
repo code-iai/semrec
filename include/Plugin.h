@@ -27,6 +27,7 @@ namespace beliefstate {
       list<EventIdentifier> m_lstSubscribedEventIdentifiers;
       list<ServiceEvent> m_lstServiceEvents;
       mutex m_mtxServiceEventsStore;
+      list<string> m_lstOfferedServices;
       
     public:
       Plugin();
@@ -40,6 +41,9 @@ namespace beliefstate {
       void setSubscribedToEvent(EventIdentifier eiEventIdentifier, bool bSubscribed);
       bool subscribedToEvent(EventIdentifier eiEventIdentifier);
       virtual void consumeEvent(Event evEvent);
+      
+      void setOffersService(string strServiceName, bool bOffering);
+      bool offersService(string strServiceName);
       virtual void consumeServiceEvent(ServiceEvent seServiceEvent);
       
       void addDependency(string strPluginName);

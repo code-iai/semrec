@@ -50,6 +50,26 @@ namespace beliefstate {
       // Dummy.
     }
     
+    void Plugin::setOffersService(string strServiceName, bool bOffering) {
+      m_lstOfferedServices.remove(strServiceName);
+      
+      if(bOffering) {
+	m_lstOfferedServices.push_back(strServiceName);
+      }
+    }
+    
+    bool Plugin::offersService(string strServiceName) {
+      for(list<string>::iterator itService = m_lstOfferedServices.begin();
+	  itService != m_lstOfferedServices.end();
+	  itService++) {
+	if(*itService == strServiceName) {
+	  return true;
+	}
+      }
+      
+      return false;
+    }
+    
     void Plugin::consumeServiceEvent(ServiceEvent seServiceEvent) {
       // Dummy.
     }

@@ -16,6 +16,8 @@ namespace beliefstate {
       ros::NodeHandle nh("~");
       m_srvTest = nh.advertiseService<PluginGazebo>("test", &PluginGazebo::serviceCallbackTest, this);
       
+      this->setOffersService("spawn_model", true);
+      
       return resInit;
     }
     

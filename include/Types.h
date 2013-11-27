@@ -46,6 +46,7 @@ namespace beliefstate {
   typedef struct {
     ServiceIdentifier siServiceIdentifier;
     ServiceModifier smResultModifier;
+    string strServiceName;
     int nServiceEventID;
     int nRequesterID;
     int nResponderID;
