@@ -22,8 +22,8 @@ namespace beliefstate {
     m_psPlugins = new PluginSystem(m_argc, m_argv);
     m_psPlugins->addPluginSearchPath("/home/winkler/groovy_overlay_ws/devel/lib/");
 
-    m_psPlugins->loadPluginLibrary("/home/winkler/groovy_overlay_ws/devel/lib/libbs_plugin_symboliclog.so");
-    m_psPlugins->loadPluginLibrary("/home/winkler/groovy_overlay_ws/devel/lib/libbs_plugin_gazebo.so");
+    m_psPlugins->loadPluginLibrary("symboliclog", true);
+    m_psPlugins->loadPluginLibrary("gazebo", true);
     
     return resInit;
   }

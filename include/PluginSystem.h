@@ -30,7 +30,7 @@ namespace beliefstate {
     ~PluginSystem();
     
     bool pluginLoaded(string strPluginName);
-    Result loadPluginLibrary(string strFilepath);
+    Result loadPluginLibrary(string strFilepath, bool bIsNameOnly = false);
     void queueUnloadPluginInstance(PluginInstance* icUnload);
     
     void spreadEvent(Event evEvent);

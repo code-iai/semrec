@@ -34,8 +34,14 @@ namespace beliefstate {
     return false;
   }
   
-  Result PluginSystem::loadPluginLibrary(string strFilepath) {
+  Result PluginSystem::loadPluginLibrary(string strFilepath, bool bIsNameOnly) {
     PluginInstance* icLoad = NULL;
+    string strPrefix = "libbs_plugin_";
+    string strSuffix = ".so";
+    
+    if(bIsNameOnly) {
+      strFilepath = strPrefix + strFilepath + strSuffix;
+    }
     
     list<string> lstSearchPaths = m_lstPluginSearchPaths;
     lstSearchPaths.push_front(""); // Add local path as search path
@@ -60,7 +66,7 @@ namespace beliefstate {
 	  string strDep = *itDep;
 	  
 	  if(this->pluginLoaded(strDep) == false) {
-	    Result resLoadDep = this->loadPluginLibrary("libbs_plugin_" + strDep + ".so");
+	    Result resLoadDep = this->loadPluginLibrary(strPrefix + strDep + strSuffix);
 	    
 	    if(resLoadDep.bSuccess == false) {
 	      cerr << "Unable to meet dependency of '" << strSearchFilepath << "': '" << strDep << "'" << endl;
