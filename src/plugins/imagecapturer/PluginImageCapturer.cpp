@@ -24,11 +24,7 @@ namespace beliefstate {
     
     Result PluginImageCapturer::cycle() {
       Result resCycle = defaultResult();
-      
-      m_mtxEventsStore.lock();
-      resCycle.lstEvents = m_lstEvents;
-      m_lstEvents.clear();
-      m_mtxEventsStore.unlock();
+      this->deployCycleData(resCycle);
       
       return resCycle;
     }

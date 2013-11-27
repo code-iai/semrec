@@ -50,6 +50,10 @@ namespace beliefstate {
       // Dummy.
     }
     
+    void Plugin::consumeServiceEvent(ServiceEvent seServiceEvent) {
+      // Dummy.
+    }
+    
     void Plugin::addDependency(string strPluginName) {
       m_lstDependencies.remove(strPluginName);
       m_lstDependencies.push_back(strPluginName);
@@ -69,6 +73,13 @@ namespace beliefstate {
     
     list<string> Plugin::dependencies() {
       return m_lstDependencies;
+    }
+    
+    void Plugin::deployCycleData(Result& resDeployTo) {
+      m_mtxEventsStore.lock();
+      resDeployTo.lstEvents = m_lstEvents;
+      m_lstEvents.clear();
+      m_mtxEventsStore.unlock();
     }
   }
 }

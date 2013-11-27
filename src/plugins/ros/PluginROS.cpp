@@ -47,14 +47,10 @@ namespace beliefstate {
     
     Result PluginROS::cycle() {
       Result resCycle = defaultResult();
+      this->deployCycleData(resCycle);
       
       if(ros::ok()) {
 	ros::spinOnce();
-	
-	m_mtxEventsStore.lock();
-	resCycle.lstEvents = m_lstEvents;
-	m_lstEvents.clear();
-	m_mtxEventsStore.unlock();
       } else {
 	resCycle.bSuccess = false;
       }

@@ -12,6 +12,17 @@ using namespace std;
 
 namespace beliefstate {
   typedef enum {
+    SI_REQUEST,
+    SI_RESPONSE
+  } ServiceIdentifier;
+  
+  typedef enum {
+    SM_FIRST_RESULT,
+    SM_AGGREGATE_RESULTS,
+    SM_IGNORE_RESULTS
+  } ServiceModifier;
+  
+  typedef enum {
     RI_NONE,
     RI_PLUGIN_LOADING_FAILED,
     RI_CONFIG_FILE_NOT_FOUND,
@@ -31,6 +42,14 @@ namespace beliefstate {
     EI_EQUATE_DESIGNATORS,
     EI_EXTRACT_PLANLOG
   } EventIdentifier;
+  
+  typedef struct {
+    ServiceIdentifier siServiceIdentifier;
+    ServiceModifier smResultModifier;
+    int nServiceEventID;
+    int nRequesterID;
+    int nResponderID;
+  } ServiceEvent;
   
   typedef struct {
     EventIdentifier eiEventIdentifier;
