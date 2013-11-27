@@ -20,6 +20,7 @@ namespace beliefstate {
     class Plugin {
     private:
       list<string> m_lstDependencies;
+      int m_nID;
       
     protected:
       list<Event> m_lstEvents;
@@ -33,6 +34,9 @@ namespace beliefstate {
       Plugin();
       ~Plugin();
       
+      void setPluginID(int nID);
+      int pluginID();
+      
       virtual Result init(int argc, char** argv);
       virtual Result deinit();
       
@@ -44,13 +48,16 @@ namespace beliefstate {
       
       void setOffersService(string strServiceName, bool bOffering);
       bool offersService(string strServiceName);
-      virtual void consumeServiceEvent(ServiceEvent seServiceEvent);
+      virtual Event consumeServiceEvent(ServiceEvent seServiceEvent);
       
       void addDependency(string strPluginName);
       bool dependsOn(string strPluginName);
       list<string> dependencies();
       
       void deployCycleData(Result& resDeployTo);
+      
+      void deployEvent(Event evDeploy);
+      void deployServiceEvent(ServiceEvent seDeploy);
     };
   }
 }

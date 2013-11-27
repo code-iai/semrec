@@ -41,7 +41,7 @@ namespace beliefstate {
   }
   
   void Beliefstate::spreadServiceEvent(ServiceEvent seServiceEvent) {
-    // TODO(winkler): Implement spreading of service events.
+    m_psPlugins->spreadServiceEvent(seServiceEvent);
   }
   
   bool Beliefstate::cycle() {

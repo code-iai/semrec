@@ -31,12 +31,16 @@ namespace beliefstate {
     Result loadPluginLibrary(string strFilepath);
     void unload();
     
+    int pluginID();
+    
     Result init(int argc, char** argv);
     Result cycle();
     list<string> dependencies();
     
     bool subscribedToEvent(EventIdentifier eiEventIdentifier);
     void consumeEvent(Event evEvent);
+    bool offersService(string strServiceName);
+    Event consumeServiceEvent(ServiceEvent seServiceEvent);
     
     string name();
   };

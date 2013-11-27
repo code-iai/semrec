@@ -118,6 +118,40 @@ namespace beliefstate {
     }
   }
   
+  void PluginSystem::spreadServiceEvent(ServiceEvent seServiceEvent) {
+    list<Event> lstResultEvents;
+    
+    for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
+	itPlugin != m_lstLoadedPlugins.end();
+	itPlugin++) {
+      PluginInstance* piPlugin = *itPlugin;
+      
+      if(piPlugin->offersService(seServiceEvent.strServiceName)) {
+	Event evResult = piPlugin->consumeServiceEvent(seServiceEvent);
+	
+	if(seServiceEvent.smResultModifier != SM_IGNORE_RESULTS) {
+	  evResult.nOriginID = piPlugin->pluginID();
+	  lstResultEvents.push_back(evResult);
+	  
+	  if(seServiceEvent.smResultModifier == SM_FIRST_RESULT) {
+	    break;
+	  } else {
+	    // Aggregate results
+	  }
+	}
+      }
+    }
+    
+    PluginInstance* piRequester = this->pluginInstanceByID(seServiceEvent.nRequesterID);
+    if(piRequester) {
+      ServiceEvent seResponses = seServiceEvent;
+      seResponses.lstResultEvents = lstResultEvents;
+      seResponses.siServiceIdentifier = SI_RESPONSE;
+      
+      piRequester->consumeServiceEvent(seServiceEvent);
+    }
+  }
+  
   Result PluginSystem::cycle() {
     Result resCycle = defaultResult();
     
@@ -134,6 +168,12 @@ namespace beliefstate {
 	    itEvent != resCurrent.lstEvents.end();
 	    itEvent++) {
 	  resCycle.lstEvents.push_back(*itEvent);
+	}
+	
+	for(list<ServiceEvent>::iterator itEvent = resCurrent.lstServiceEvents.begin();
+	    itEvent != resCurrent.lstServiceEvents.end();
+	    itEvent++) {
+	  resCycle.lstServiceEvents.push_back(*itEvent);
 	}
       }
     }
@@ -156,5 +196,19 @@ namespace beliefstate {
     m_lstPluginSearchPaths.remove(strPath);
     
     m_lstPluginSearchPaths.push_back(strPath);
+  }
+  
+  PluginInstance* PluginSystem::pluginInstanceByID(int nID) {
+    for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
+	itPlugin != m_lstLoadedPlugins.end();
+	itPlugin++) {
+      PluginInstance* icCurrent = *itPlugin;
+      
+      if(icCurrent->pluginID() == nID) {
+	return icCurrent;
+      }
+    }
+    
+    return NULL;
   }
 }

@@ -44,21 +44,22 @@ namespace beliefstate {
   } EventIdentifier;
   
   typedef struct {
+    EventIdentifier eiEventIdentifier;
+    int nContextID;
+    CDesignator* cdDesignator;
+    string strSupplementary;
+    int nOriginID;
+  } Event;
+  
+  typedef struct {
     ServiceIdentifier siServiceIdentifier;
     ServiceModifier smResultModifier;
     string strServiceName;
     int nServiceEventID;
     int nRequesterID;
-    int nResponderID;
     CDesignator* cdDesignator;
+    list<Event> lstResultEvents;
   } ServiceEvent;
-  
-  typedef struct {
-    EventIdentifier eiEventIdentifier;
-    int nContextID;
-    CDesignator* cdDesignator;
-    string strSupplementary;
-  } Event;
   
   typedef struct {
     // Generic fields

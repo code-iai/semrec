@@ -59,8 +59,6 @@ namespace beliefstate {
     }
     
     bool PluginROS::serviceCallbackBeginContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      m_mtxEventsStore.lock();
-      
       Event evBeginContext = defaultEvent();
       evBeginContext.eiEventIdentifier = EI_BEGIN_CONTEXT;
       evBeginContext.nContextID = createContextID();
@@ -68,16 +66,12 @@ namespace beliefstate {
       
       // TODO: Add designator information
       
-      m_lstEvents.push_back(evBeginContext);
-      
-      m_mtxEventsStore.unlock();
+      this->deployEvent(evBeginContext);
       
       return true;
     }
 
     bool PluginROS::serviceCallbackEndContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      m_mtxEventsStore.lock();
-
       Event evEndContext = defaultEvent();
       evEndContext.eiEventIdentifier = EI_END_CONTEXT;
       evEndContext.cdDesignator = new CDesignator(req.request.designator);
@@ -85,16 +79,12 @@ namespace beliefstate {
       // TODO: Add designator information, like the context id and so
       // forth
       
-      m_lstEvents.push_back(evEndContext);
-
-      m_mtxEventsStore.unlock();
+      this->deployEvent(evEndContext);
       
       return true;
     }
 
     bool PluginROS::serviceCallbackAlterContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      m_mtxEventsStore.lock();
-      
       Event evAlterContext = defaultEvent();
       evAlterContext.cdDesignator = new CDesignator(req.request.designator);
       
@@ -112,18 +102,27 @@ namespace beliefstate {
       } else if(strCommand == "extract-planlog") {
 	evAlterContext.eiEventIdentifier = EI_EXTRACT_PLANLOG;
       }
-      //
-      evAlterContext.eiEventIdentifier = EI_ADD_IMAGE_FROM_TOPIC;
-      //
-      m_lstEvents.push_back(evAlterContext);
       
-      m_mtxEventsStore.unlock();
+      this->deployEvent(evAlterContext);
+      
+      // BEGIN TESTING
+      ServiceEvent seTest = defaultServiceEvent("spawn_model");
+      this->deployServiceEvent(seTest);
+      // END TESTING
       
       return true;
     }
     
     void PluginROS::consumeEvent(Event evEvent) {
       cout << "PluginROS: Consume event!" << endl;
+    }
+    
+    Event PluginROS::consumeServiceEvent(ServiceEvent seServiceEvent) {
+      Event evService = defaultEvent();
+      
+      cout << "PluginROS: Consume service event of type '" << seServiceEvent.strServiceName << "'!" << endl;
+      
+      return evService;
     }
   }
   

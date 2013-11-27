@@ -34,9 +34,12 @@ namespace beliefstate {
     void queueUnloadPluginInstance(PluginInstance* icUnload);
     
     void spreadEvent(Event evEvent);
+    void spreadServiceEvent(ServiceEvent seServiceEvent);
     Result cycle();
     
     void addPluginSearchPath(string strPath);
+    
+    PluginInstance* pluginInstanceByID(int nID);
   };
 }
 

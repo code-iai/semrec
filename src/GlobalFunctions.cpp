@@ -3,6 +3,8 @@
 
 namespace beliefstate {
   list<int> g_lstContextIDs;
+  list<int> g_lstPluginIDs;
+  
   
   int createContextID() {
     int nID = 0;
@@ -30,6 +32,32 @@ namespace beliefstate {
     g_lstContextIDs.remove(nID);
   }
   
+  int createPluginID() {
+    int nID = 0;
+    
+    while(pluginIDTaken(nID)) {
+      nID++;
+    }
+    
+    return nID;
+  }
+  
+  bool pluginIDTaken(int nID) {
+    for(list<int>::iterator itID = g_lstPluginIDs.begin();
+	itID != g_lstPluginIDs.end();
+	itID++) {
+      if(*itID == nID) {
+	return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  void freePluginID(int nID) {
+    g_lstPluginIDs.remove(nID);
+  }
+  
   Result defaultResult() {
     Result resDefault;
     resDefault.bSuccess = true;
@@ -39,10 +67,21 @@ namespace beliefstate {
     return resDefault;
   }
   
+  ServiceEvent defaultServiceEvent(string strServiceName) {
+    ServiceEvent seDefault;
+    seDefault.strServiceName = strServiceName;
+    seDefault.siServiceIdentifier = SI_REQUEST;
+    seDefault.smResultModifier = SM_AGGREGATE_RESULTS;
+    seDefault.cdDesignator = NULL;
+    
+    return seDefault;
+  }
+  
   Event defaultEvent() {
     Event evDefault;
     evDefault.eiEventIdentifier = EI_UNDEFINED;
     evDefault.cdDesignator = NULL;
+    evDefault.nOriginID = -1;
     
     return evDefault;
   }

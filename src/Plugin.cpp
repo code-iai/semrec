@@ -4,11 +4,19 @@
 namespace beliefstate {
   namespace plugins {
     Plugin::Plugin() {
-      // Dummy.
+      m_nID = createPluginID();
     }
     
     Plugin::~Plugin() {
-      // Dummy.
+      freePluginID(m_nID);
+    }
+    
+    void Plugin::setPluginID(int nID) {
+      m_nID = nID;
+    }
+    
+    int Plugin::pluginID() {
+      return m_nID;
     }
     
     Result Plugin::init(int argc, char** argv) {
@@ -70,8 +78,10 @@ namespace beliefstate {
       return false;
     }
     
-    void Plugin::consumeServiceEvent(ServiceEvent seServiceEvent) {
+    Event Plugin::consumeServiceEvent(ServiceEvent seServiceEvent) {
+      Event evReturn = defaultEvent();
       // Dummy.
+      return evReturn;
     }
     
     void Plugin::addDependency(string strPluginName) {
@@ -104,6 +114,22 @@ namespace beliefstate {
       m_mtxServiceEventsStore.lock();
       resDeployTo.lstServiceEvents = m_lstServiceEvents;
       m_lstServiceEvents.clear();
+      m_mtxServiceEventsStore.unlock();
+    }
+    
+    void Plugin::deployEvent(Event evDeploy) {
+      evDeploy.nOriginID = this->pluginID();
+      
+      m_mtxEventsStore.lock();
+      m_lstEvents.push_back(evDeploy);
+      m_mtxEventsStore.unlock();
+    }
+    
+    void Plugin::deployServiceEvent(ServiceEvent seDeploy) {
+      seDeploy.nRequesterID = this->pluginID();
+      
+      m_mtxServiceEventsStore.lock();
+      m_lstServiceEvents.push_back(seDeploy);
       m_mtxServiceEventsStore.unlock();
     }
   }

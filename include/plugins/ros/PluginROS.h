@@ -44,6 +44,7 @@ namespace beliefstate {
       bool serviceCallbackAlterContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
       
       virtual void consumeEvent(Event evEvent);
+      virtual Event consumeServiceEvent(ServiceEvent seServiceEvent);
     };
     
   }

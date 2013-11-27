@@ -41,8 +41,12 @@ namespace beliefstate {
       cout << "PluginGazebo: Consume event!" << endl;
     }
     
-    void PluginGazebo::consumeServiceEvent(ServiceEvent seServiceEvent) {
-      cout << "PluginGazebo: Consume service event!" << endl;
+    Event PluginGazebo::consumeServiceEvent(ServiceEvent seServiceEvent) {
+      Event evService = defaultEvent();
+      
+      cout << "PluginGazebo: Consume service event of type '" << seServiceEvent.strServiceName << "'!" << endl;
+      
+      return evService;
     }
   }
   

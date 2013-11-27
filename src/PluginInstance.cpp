@@ -84,6 +84,10 @@ namespace beliefstate {
     }
   }
   
+  int PluginInstance::pluginID() {
+    return m_piInstance->pluginID();
+  }
+  
   Result PluginInstance::cycle() {
     return m_piInstance->cycle();
   }
@@ -98,6 +102,14 @@ namespace beliefstate {
   
   void PluginInstance::consumeEvent(Event evEvent) {
     m_piInstance->consumeEvent(evEvent);
+  }
+  
+  bool PluginInstance::offersService(string strServiceName) {
+    return m_piInstance->offersService(strServiceName);
+  }
+  
+  Event PluginInstance::consumeServiceEvent(ServiceEvent seServiceEvent) {
+    return m_piInstance->consumeServiceEvent(seServiceEvent);
   }
   
   string PluginInstance::name() {
