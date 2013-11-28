@@ -67,6 +67,13 @@ namespace beliefstate {
       this->info("When beginning context, received " + this->getDesignatorTypeString(evBeginContext.cdDesignator) + " designator");
       this->deployEvent(evBeginContext);
       
+      CDesignator *desigResponse = new CDesignator();
+      desigResponse->setType(ACTION);
+      desigResponse->setValue(string("_id"), evBeginContext.nContextID);
+      
+      res.response.designators.push_back(desigResponse->serializeToMessage());
+      delete desigResponse;
+      
       return true;
     }
 
