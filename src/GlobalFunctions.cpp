@@ -2,8 +2,8 @@
 
 
 namespace beliefstate {
-  list<int> g_lstContextIDs;
-  list<int> g_lstPluginIDs;
+  static list<int> g_lstContextIDs;
+  static list<int> g_lstPluginIDs;
   
   
   int createContextID() {
@@ -12,6 +12,8 @@ namespace beliefstate {
     while(contextIDTaken(nID)) {
       nID++;
     }
+    
+    g_lstContextIDs.push_back(nID);
     
     return nID;
   }
@@ -38,6 +40,8 @@ namespace beliefstate {
     while(pluginIDTaken(nID)) {
       nID++;
     }
+    
+    g_lstPluginIDs.push_back(nID);
     
     return nID;
   }

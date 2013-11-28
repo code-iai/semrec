@@ -33,8 +33,8 @@ namespace beliefstate {
     Result loadPluginLibrary(string strFilepath, bool bIsNameOnly = false);
     void queueUnloadPluginInstance(PluginInstance* icUnload);
     
-    void spreadEvent(Event evEvent);
-    void spreadServiceEvent(ServiceEvent seServiceEvent);
+    int spreadEvent(Event evEvent);
+    int spreadServiceEvent(ServiceEvent seServiceEvent);
     Result cycle();
     
     void addPluginSearchPath(string strPath);

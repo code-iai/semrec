@@ -7,6 +7,7 @@
 #include <mutex>
 #include <list>
 #include <string>
+#include <sstream>
 
 // Private
 #include <Types.h>
@@ -20,6 +21,7 @@ namespace beliefstate {
     class Plugin {
     private:
       list<string> m_lstDependencies;
+      string m_strName;
       int m_nID;
       
     protected:
@@ -36,6 +38,9 @@ namespace beliefstate {
       
       void setPluginID(int nID);
       int pluginID();
+      
+      void setPluginName(string strName);
+      string pluginName();
       
       virtual Result init(int argc, char** argv);
       virtual Result deinit();
@@ -58,6 +63,12 @@ namespace beliefstate {
       
       void deployEvent(Event evDeploy);
       void deployServiceEvent(ServiceEvent seDeploy);
+      
+      string pluginIdentifierString();
+      void warn(string strMessage);
+      void info(string strMessage);
+      
+      int getTimeStamp();
     };
   }
 }

@@ -64,8 +64,7 @@ namespace beliefstate {
       evBeginContext.nContextID = createContextID();
       evBeginContext.cdDesignator = new CDesignator(req.request.designator);
       
-      // TODO: Add designator information
-      
+      this->info("When beginning context, received " + this->getDesignatorTypeString(evBeginContext.cdDesignator) + " designator");
       this->deployEvent(evBeginContext);
       
       return true;
@@ -76,9 +75,7 @@ namespace beliefstate {
       evEndContext.eiEventIdentifier = EI_END_CONTEXT;
       evEndContext.cdDesignator = new CDesignator(req.request.designator);
       
-      // TODO: Add designator information, like the context id and so
-      // forth
-      
+      this->info("When ending context, received " + this->getDesignatorTypeString(evEndContext.cdDesignator) + " designator");
       this->deployEvent(evEndContext);
       
       return true;
@@ -88,7 +85,11 @@ namespace beliefstate {
       Event evAlterContext = defaultEvent();
       evAlterContext.cdDesignator = new CDesignator(req.request.designator);
       
+      this->info("When altering context, received " + this->getDesignatorTypeString(evAlterContext.cdDesignator) + " designator");
+      
       string strCommand = evAlterContext.cdDesignator->stringValue("command");
+      transform(strCommand.begin(), strCommand.end(), strCommand.begin(), ::tolower);
+      
       if(strCommand == "add-image") {
 	evAlterContext.eiEventIdentifier = EI_ADD_IMAGE_FROM_TOPIC;
       } else if(strCommand == "add-failure") {
@@ -101,14 +102,11 @@ namespace beliefstate {
 	evAlterContext.eiEventIdentifier = EI_ADD_OBJECT;
       } else if(strCommand == "extract-planlog") {
 	evAlterContext.eiEventIdentifier = EI_EXTRACT_PLANLOG;
+      } else {
+	this->warn("Unknown command when altering context: '" + strCommand + "'");
       }
       
       this->deployEvent(evAlterContext);
-      
-      // BEGIN TESTING
-      ServiceEvent seTest = defaultServiceEvent("spawn_model");
-      this->deployServiceEvent(seTest);
-      // END TESTING
       
       return true;
     }
@@ -123,6 +121,28 @@ namespace beliefstate {
       cout << "PluginROS: Consume service event of type '" << seServiceEvent.strServiceName << "'!" << endl;
       
       return evService;
+    }
+    
+    string PluginROS::getDesignatorTypeString(CDesignator* desigDesignator) {
+      string strDesigType = "UNKNOWN";
+      switch(desigDesignator->type()) {
+      case ACTION:
+	strDesigType = "ACTION";
+	break;
+	
+      case OBJECT:
+	strDesigType = "OBJECT";
+	break;
+	
+      case LOCATION:
+	strDesigType = "LOCATION";
+	break;
+	
+      default:
+	break;
+      }
+      
+      return strDesigType;
     }
   }
   

@@ -45,6 +45,7 @@ namespace beliefstate {
 	m_strName = m_strName.substr(strPrefix.size());
 	
 	cout << "Loaded plugin '" << m_strName << "'" << endl;
+	m_piInstance->setPluginName(m_strName);
       } else {
 	resLoad.riResultIdentifier = RI_PLUGIN_LOADING_FAILED;
 	resLoad.bSuccess = false;

@@ -80,6 +80,7 @@ add_library(bs_plugin_gazebo SHARED
 add_library(bs_plugin_symboliclog SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
+  src/plugins/symboliclog/Node.cpp
   src/plugins/symboliclog/PluginSymbolicLog.cpp
 )
 

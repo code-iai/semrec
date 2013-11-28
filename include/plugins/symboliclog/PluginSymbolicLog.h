@@ -17,6 +17,7 @@
 #include <Types.h>
 #include <ForwardDeclarations.h>
 #include <Plugin.h>
+#include <plugins/symboliclog/Node.h>
 
 using namespace std;
 
@@ -25,6 +26,9 @@ namespace beliefstate {
   namespace plugins {
     class PluginSymbolicLog : public Plugin {
     private:
+      list<Node*> m_lstNodes;
+      Node* m_ndActive;
+      
     public:
       PluginSymbolicLog();
       ~PluginSymbolicLog();
@@ -35,8 +39,11 @@ namespace beliefstate {
       virtual Result cycle();
       
       virtual void consumeEvent(Event evEvent);
+      
+      Node* addNode(string strName, int nContextID);
+      void setNodeAsActive(Node* ndActive);
+      Node* activeNode();
     };
-    
   }
   
   extern "C" plugins::PluginSymbolicLog* createInstance();

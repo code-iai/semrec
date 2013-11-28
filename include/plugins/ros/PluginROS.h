@@ -5,6 +5,7 @@
 // System
 #include <cstdlib>
 #include <iostream>
+#include <algorithm>
 
 // ROS
 #include <ros/ros.h>
@@ -45,6 +46,8 @@ namespace beliefstate {
       
       virtual void consumeEvent(Event evEvent);
       virtual Event consumeServiceEvent(ServiceEvent seServiceEvent);
+      
+      string getDesignatorTypeString(CDesignator* desigDesignator);
     };
     
   }

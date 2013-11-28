@@ -37,11 +37,29 @@ namespace beliefstate {
   }
   
   void Beliefstate::spreadEvent(Event evEvent) {
-    m_psPlugins->spreadEvent(evEvent);
+    if(m_psPlugins->spreadEvent(evEvent) == 0) {
+      cerr << "[beliefstate] Unhandled event dropped." << endl;
+      
+      if(evEvent.cdDesignator) {
+	cerr << "[beliefstate] Content was:" << endl;
+	evEvent.cdDesignator->printDesignator();
+      } else {
+	cerr << "[beliefstate] No content given." << endl;
+      }
+    }
   }
   
   void Beliefstate::spreadServiceEvent(ServiceEvent seServiceEvent) {
-    m_psPlugins->spreadServiceEvent(seServiceEvent);
+    if(m_psPlugins->spreadServiceEvent(seServiceEvent) == 0) {
+      cerr << "[beliefstate] Unhandled service event ('" << seServiceEvent.strServiceName << "') dropped." << endl;
+      
+      if(seServiceEvent.cdDesignator) {
+	cerr << "[beliefstate] Content was:" << endl;
+	seServiceEvent.cdDesignator->printDesignator();
+      } else {
+	cerr << "[beliefstate] No content given." << endl;
+      }
+    }
   }
   
   bool Beliefstate::cycle() {

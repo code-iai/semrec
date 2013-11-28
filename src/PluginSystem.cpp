@@ -106,7 +106,9 @@ namespace beliefstate {
     m_lstUnloadPlugins.push_back(icUnload);
   }
   
-  void PluginSystem::spreadEvent(Event evEvent) {
+  int PluginSystem::spreadEvent(Event evEvent) {
+    int nReceivers = 0;
+    
     for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
 	itPlugin != m_lstLoadedPlugins.end();
 	itPlugin++) {
@@ -114,12 +116,16 @@ namespace beliefstate {
       
       if(piPlugin->subscribedToEvent(evEvent.eiEventIdentifier)) {
 	piPlugin->consumeEvent(evEvent);
+	nReceivers++;
       }
     }
+    
+    return nReceivers;
   }
   
-  void PluginSystem::spreadServiceEvent(ServiceEvent seServiceEvent) {
+  int PluginSystem::spreadServiceEvent(ServiceEvent seServiceEvent) {
     list<Event> lstResultEvents;
+    int nReceivers = 0;
     
     for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
 	itPlugin != m_lstLoadedPlugins.end();
@@ -128,6 +134,7 @@ namespace beliefstate {
       
       if(piPlugin->offersService(seServiceEvent.strServiceName)) {
 	Event evResult = piPlugin->consumeServiceEvent(seServiceEvent);
+	nReceivers++;
 	
 	if(seServiceEvent.smResultModifier != SM_IGNORE_RESULTS) {
 	  evResult.nOriginID = piPlugin->pluginID();
@@ -150,6 +157,8 @@ namespace beliefstate {
       
       piRequester->consumeServiceEvent(seServiceEvent);
     }
+    
+    return nReceivers;
   }
   
   Result PluginSystem::cycle() {
@@ -162,6 +171,10 @@ namespace beliefstate {
       Result resCurrent = icCurrent->cycle();
       
       if(resCurrent.bSuccess == false) {
+	// NOTE(winkler): This might also be a good place to implement
+	// a recovery mechanism in case a plugin actually fails during
+	// its cycle. Reload plugins and notify all "depending"
+	// plugins (in order of dependency) to "recover".
 	this->queueUnloadPluginInstance(icCurrent);
       } else {
 	for(list<Event>::iterator itEvent = resCurrent.lstEvents.begin();

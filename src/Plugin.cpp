@@ -132,5 +132,34 @@ namespace beliefstate {
       m_lstServiceEvents.push_back(seDeploy);
       m_mtxServiceEventsStore.unlock();
     }
+    
+    void Plugin::setPluginName(string strName) {
+      m_strName = strName;
+    }
+    
+    string Plugin::pluginName() {
+      return m_strName;
+    }
+    
+    string Plugin::pluginIdentifierString() {
+      stringstream sts;
+      sts << "[" << this->pluginName() << "/";
+      sts << this->pluginID();
+      sts << "]";
+      
+      return sts.str();
+    }
+    
+    void Plugin::warn(string strMessage) {
+      cerr << this->pluginIdentifierString() << " " << strMessage << endl;
+    }
+    
+    void Plugin::info(string strMessage) {
+      cout << this->pluginIdentifierString() << " " << strMessage << endl;
+    }
+    
+    int Plugin::getTimeStamp() {
+      return std::time(0);
+    }
   }
 }
