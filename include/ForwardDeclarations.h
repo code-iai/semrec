@@ -25,6 +25,10 @@ namespace beliefstate {
   int createPluginID();
   bool pluginIDTaken(int nID);
   void freePluginID(int nID);
+  
+  // Output specific functions
+  string colorSpecifierForID(int nID, bool bBold);
+  string normalColorSpecifier();
 }
 
 

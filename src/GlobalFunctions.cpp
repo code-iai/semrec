@@ -89,4 +89,16 @@ namespace beliefstate {
     
     return evDefault;
   }
+  
+  string colorSpecifierForID(int nID, bool bBold) {
+    int nLength = 7;
+    string strColorCodes[] = {"31", "32", "33", "34", "35", "36", "37"};
+    
+    int nUseIndex = (nID + 3) % nLength;
+    return "\033[" + string(bBold ? "1" : "0") + ";" + strColorCodes[nUseIndex] + "m";
+  }
+  
+  string normalColorSpecifier() {
+    return "\033[0m";
+  }
 }

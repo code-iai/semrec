@@ -64,7 +64,7 @@ namespace beliefstate {
       void deployEvent(Event evDeploy);
       void deployServiceEvent(ServiceEvent seDeploy);
       
-      string pluginIdentifierString();
+      string pluginIdentifierString(bool bBold);
       void warn(string strMessage);
       void info(string strMessage);
       

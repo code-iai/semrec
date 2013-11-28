@@ -141,8 +141,9 @@ namespace beliefstate {
       return m_strName;
     }
     
-    string Plugin::pluginIdentifierString() {
+    string Plugin::pluginIdentifierString(bool bBold) {
       stringstream sts;
+      sts << colorSpecifierForID(this->pluginID(), bBold);
       sts << "[" << this->pluginName() << "/";
       sts << this->pluginID();
       sts << "]";
@@ -151,11 +152,11 @@ namespace beliefstate {
     }
     
     void Plugin::warn(string strMessage) {
-      cerr << this->pluginIdentifierString() << " " << strMessage << endl;
+      cerr << this->pluginIdentifierString(true) << " " << strMessage << normalColorSpecifier() << endl;
     }
     
     void Plugin::info(string strMessage) {
-      cout << this->pluginIdentifierString() << " " << strMessage << endl;
+      cout << this->pluginIdentifierString(false) << " " << strMessage << normalColorSpecifier() << endl;
     }
     
     int Plugin::getTimeStamp() {
