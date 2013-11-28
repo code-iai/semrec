@@ -13,6 +13,7 @@ namespace beliefstate {
 
   Node::Node(list<CKeyValuePair*> lstDescription) {
     this->init();
+    this->setPrematurelyEnded(false);
     this->setDescription(lstDescription);
   }
 
