@@ -52,15 +52,86 @@ namespace beliefstate {
     }
     
     void PluginSymbolicLog::consumeEvent(Event evEvent) {
-      cout << "PluginSymbolicLog: Consume event!" << endl;
+      //int nID = (evEvent.nContextID == -1 ? (evEvent.cdDesignator ? (int)evEvent.cdDesignator->floatValue("_id") : -1) : evEvent.nContextID);
       
       switch(evEvent.eiEventIdentifier) {
       case EI_BEGIN_CONTEXT: {
 	string strName = evEvent.cdDesignator->stringValue("_name");
 	Node* ndNew = this->addNode(strName, evEvent.nContextID);
+	
+	stringstream stsTimeStart;
+	stsTimeStart << this->getTimeStamp();
+	ndNew->metaInformation()->setValue(string("time-start"), stsTimeStart.str());
+	
+	int nDetailLevel = (int)evEvent.cdDesignator->floatValue("_detail-level");
+	ndNew->metaInformation()->setValue(string("detail-level"), nDetailLevel);
       } break;
 	
       case EI_END_CONTEXT: {
+	int nID = (int)evEvent.cdDesignator->floatValue("_id");
+	//cout << nID << endl;
+	int nSuccess = (int)evEvent.cdDesignator->floatValue("_success");
+	Node *ndCurrent = this->activeNode();
+	
+	if(ndCurrent) {
+	  if(ndCurrent->id() == nID) {
+	    stringstream sts;
+	    sts << "Received stop context designator for ID " << nID << " (success: " << (nSuccess ? "yes" : "no") << ")";
+	    this->info(sts.str());
+	    
+	    ndCurrent->metaInformation()->setValue(string("success"), nSuccess);
+	    stringstream stsTimeEnd;
+	    stsTimeEnd << this->getTimeStamp();
+	    ndCurrent->metaInformation()->setValue(string("time-end"), stsTimeEnd.str());
+	    
+	    Node *ndParent = ndCurrent->parent();
+	    this->setNodeAsActive(ndParent);
+	    
+	    while(ndParent) {
+	      if(ndParent->prematurelyEnded()) {
+		ndParent = ndParent->parent();
+		this->setNodeAsActive(ndParent);
+	      } else {
+		this->setNodeAsActive(ndParent);
+		break;
+	      }
+	    }
+	  } else {
+	    stringstream sts;
+	    sts << "Received stop node designator for ID " << nID << " while ID " << ndCurrent->id() << " is active.";
+	    this->info(sts.str());
+	    
+	    Node *ndEndedPrematurely = NULL;
+	    Node *ndSearchTemp = ndCurrent->parent();
+	    
+	    while(ndSearchTemp) {
+	      if(ndSearchTemp->id() == nID) {
+		ndEndedPrematurely = ndSearchTemp;
+		ndSearchTemp = NULL;
+	      } else {
+		ndSearchTemp = ndSearchTemp->parent();
+	      }
+	    }
+	    
+	    if(ndEndedPrematurely) {
+	      // Found the prematurely ended node in this branch
+	      stringstream sts;
+	      sts << "Marking node " << nID << " as prematurely ended.";
+	      this->info(sts.str());
+	      
+	      ndEndedPrematurely->setPrematurelyEnded(true);
+	    } else {
+	      // Didn't find the prematurely ended node in this branch
+	      stringstream sts;
+	      sts << "The apparently prematurely ended node " << nID << " was not found. This is probably a problem.";
+	      this->warn(sts.str());
+	    }
+	  }
+	} else {
+	  stringstream sts;
+	  sts << "Received stop node designator for ID " << nID << " while in top-level.";
+	  this->warn(sts.str());
+	}
       } break;
 	
       case EI_ADD_IMAGE_FROM_FILE: {
