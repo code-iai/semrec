@@ -29,11 +29,16 @@ namespace beliefstate {
     }
     
     void PluginOWLExporter::consumeEvent(Event evEvent) {
-      ServiceEvent seGetPlanTree = defaultServiceEvent("symbolic-plan-tree");
-      seGetPlanTree.cdDesignator = new CDesignator(evEvent.cdDesignator);
-      this->deployServiceEvent(seGetPlanTree);
-      
-      cout << "PluginOWLExporter: Consume event!" << endl;
+      if(evEvent.cdDesignator) {
+	string strFormat = evEvent.cdDesignator->stringValue("format");
+	transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
+	
+	if(strFormat == "owl") {
+	  ServiceEvent seGetPlanTree = defaultServiceEvent("symbolic-plan-tree");
+	  seGetPlanTree.cdDesignator = new CDesignator(evEvent.cdDesignator);
+	  this->deployServiceEvent(seGetPlanTree);
+	}
+      }
     }
     
     Event PluginOWLExporter::consumeServiceEvent(ServiceEvent seServiceEvent) {
@@ -41,18 +46,25 @@ namespace beliefstate {
       
       if(seServiceEvent.siServiceIdentifier == SI_RESPONSE) {
 	if(seServiceEvent.strServiceName == "symbolic-plan-tree") {
-	  this->info("OWLExporter Plugin received plan log data. Do this:");
-	  seServiceEvent.cdDesignator->printDesignator();
-	  
-	  this->info("We got an answer for the tree: ");
-	  Event evCar = seServiceEvent.lstResultEvents.front();
-	  
-	  for(list<Node*>::iterator itN = evCar.lstNodes.begin();
-	      itN != evCar.lstNodes.end();
-	      itN++) {
-	    Node* ndNode = *itN;
+	  if(seServiceEvent.cdDesignator) {
+	    string strFormat = seServiceEvent.cdDesignator->stringValue("format");
+	    transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
 	    
-	    cout << ndNode->title() << endl;
+	    if(strFormat == "owl") {
+	      this->info("OWLExporter Plugin received plan log data. Do this:");
+	      seServiceEvent.cdDesignator->printDesignator();
+	      
+	      this->info("We got an answer for the tree: ");
+	      Event evCar = seServiceEvent.lstResultEvents.front();
+	      
+	      for(list<Node*>::iterator itN = evCar.lstNodes.begin();
+		  itN != evCar.lstNodes.end();
+		  itN++) {
+		Node* ndNode = *itN;
+		
+		cout << ndNode->title() << endl;
+	      }
+	    }
 	  }
 	}
       }
