@@ -68,27 +68,29 @@ include_directories(
 add_library(bs_plugin_ros SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
-  src/plugins/ros/PluginROS.cpp
-)
+  src/plugins/ros/PluginROS.cpp)
 
 add_library(bs_plugin_gazebo SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
-  src/plugins/gazebo/PluginGazebo.cpp
-)
+  src/plugins/gazebo/PluginGazebo.cpp)
 
 add_library(bs_plugin_symboliclog SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
-  src/plugins/symboliclog/Node.cpp
-  src/plugins/symboliclog/PluginSymbolicLog.cpp
-)
+  src/Node.cpp
+  src/plugins/symboliclog/PluginSymbolicLog.cpp)
 
 add_library(bs_plugin_imagecapturer SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
-  src/plugins/imagecapturer/PluginImageCapturer.cpp
-)
+  src/plugins/imagecapturer/PluginImageCapturer.cpp)
+
+add_library(bs_plugin_owlexporter SHARED
+  src/GlobalFunctions.cpp
+  src/Plugin.cpp
+  src/Node.cpp
+  src/plugins/owlexporter/PluginOWLExporter.cpp)
 
 ## Declare a cpp executable
 add_executable(beliefstate
@@ -97,6 +99,7 @@ add_executable(beliefstate
   src/PluginSystem.cpp
   src/PluginInstance.cpp
   src/Plugin.cpp
+  src/Node.cpp
   src/Beliefstate.cpp)
 
 ## Add cmake target dependencies of the executable/library
@@ -116,6 +119,10 @@ target_link_libraries(bs_plugin_ros
 )
 
 target_link_libraries(bs_plugin_gazebo
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(bs_plugin_owlexporter
   ${catkin_LIBRARIES}
 )
 

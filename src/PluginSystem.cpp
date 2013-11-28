@@ -44,7 +44,7 @@ namespace beliefstate {
     }
     
     list<string> lstSearchPaths = m_lstPluginSearchPaths;
-    lstSearchPaths.push_front(""); // Add local path as search path
+    lstSearchPaths.push_front("./"); // Add local path as search path
     
     Result resLoad = defaultResult();
     resLoad.bSuccess = false;
@@ -53,10 +53,11 @@ namespace beliefstate {
 	itSP != lstSearchPaths.end();
 	itSP++) {
       string strSP = *itSP;
-      string strSearchFilepath = strSP + (strSP[strSP.size() - 1] != '/' && strFilepath[0] != '/' ? "/" : "") + strFilepath;
+      string strSearchFilepath = strSP + (strSP[strSP.size() - 1] != '/' && strFilepath[0] != '/' && strSP.size() > 0 ? "/" : "") + strFilepath;
       
       icLoad = new PluginInstance();
       resLoad = icLoad->loadPluginLibrary(strSearchFilepath);
+      
       if(resLoad.bSuccess) {
 	// Check and meet dependencies
 	list<string> lstDeps = icLoad->dependencies();
@@ -89,6 +90,8 @@ namespace beliefstate {
       } else {
 	resLoad.bSuccess = false;
 	resLoad.riResultIdentifier = RI_PLUGIN_LOADING_FAILED;
+	
+	cerr << "Failed to load plugin file '" << strSearchFilepath << "'" << endl;
       }
       
       if(resLoad.bSuccess == false) {
@@ -155,7 +158,7 @@ namespace beliefstate {
       seResponses.lstResultEvents = lstResultEvents;
       seResponses.siServiceIdentifier = SI_RESPONSE;
       
-      piRequester->consumeServiceEvent(seServiceEvent);
+      piRequester->consumeServiceEvent(seResponses);
     }
     
     return nReceivers;

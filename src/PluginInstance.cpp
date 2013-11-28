@@ -50,6 +50,7 @@ namespace beliefstate {
 	resLoad.riResultIdentifier = RI_PLUGIN_LOADING_FAILED;
 	resLoad.bSuccess = false;
 	resLoad.strErrorMessage = "Failed to load library `" + strFilepath + "'.";
+	cout << "Could not open shared library: " << dlerror() << endl;
       }
     } else {
       resLoad.riResultIdentifier = RI_FILE_NOT_FOUND;

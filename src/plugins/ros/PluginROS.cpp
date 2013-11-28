@@ -107,8 +107,8 @@ namespace beliefstate {
 	evAlterContext.eiEventIdentifier = EI_EQUATE_DESIGNATORS;
       } else if(strCommand == "add-object") {
 	evAlterContext.eiEventIdentifier = EI_ADD_OBJECT;
-      } else if(strCommand == "extract-planlog") {
-	evAlterContext.eiEventIdentifier = EI_EXTRACT_PLANLOG;
+      } else if(strCommand == "export-planlog") {
+	evAlterContext.eiEventIdentifier = EI_EXPORT_PLANLOG;
       } else {
 	this->warn("Unknown command when altering context: '" + strCommand + "'");
       }

@@ -7,6 +7,9 @@
 #include <list>
 #include <designators/CDesignator.h>
 
+// Private
+#include <Node.h>
+
 using namespace std;
 
 
@@ -40,7 +43,7 @@ namespace beliefstate {
     EI_ADD_OBJECT,
     EI_ADD_FAILURE,
     EI_EQUATE_DESIGNATORS,
-    EI_EXTRACT_PLANLOG
+    EI_EXPORT_PLANLOG
   } EventIdentifier;
   
   typedef struct {
@@ -49,6 +52,7 @@ namespace beliefstate {
     CDesignator* cdDesignator;
     string strSupplementary;
     int nOriginID;
+    list<Node*> lstNodes;
   } Event;
   
   typedef struct {

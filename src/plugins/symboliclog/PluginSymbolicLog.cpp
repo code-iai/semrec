@@ -33,6 +33,9 @@ namespace beliefstate {
       this->setSubscribedToEvent(EI_ADD_DESIGNATOR, true);
       this->setSubscribedToEvent(EI_ADD_IMAGE_FROM_FILE, true);
       
+      // Information supply services
+      this->setOffersService("symbolic-plan-tree", true);
+      
       return resInit;
     }
     
@@ -49,6 +52,18 @@ namespace beliefstate {
       m_mtxEventsStore.unlock();
       
       return resCycle;
+    }
+    
+    Event PluginSymbolicLog::consumeServiceEvent(ServiceEvent seServiceEvent) {
+      Event evReturn = defaultEvent();
+      
+      if(seServiceEvent.siServiceIdentifier == SI_REQUEST) {
+	if(seServiceEvent.strServiceName == "symbolic-plan-tree") {
+	  evReturn.lstNodes = m_lstNodes;
+	}
+      }
+      
+      return evReturn;
     }
     
     void PluginSymbolicLog::consumeEvent(Event evEvent) {
@@ -149,7 +164,7 @@ namespace beliefstate {
       case EI_ADD_OBJECT: {
       } break;
 	
-      case EI_EXTRACT_PLANLOG: {
+      case EI_EXPORT_PLANLOG: {
       } break;
 	
       default: {

@@ -1,4 +1,4 @@
-#include <plugins/symboliclog/Node.h>
+#include <Node.h>
 
 
 namespace beliefstate {

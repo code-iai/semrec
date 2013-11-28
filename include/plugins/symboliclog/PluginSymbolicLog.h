@@ -17,7 +17,7 @@
 #include <Types.h>
 #include <ForwardDeclarations.h>
 #include <Plugin.h>
-#include <plugins/symboliclog/Node.h>
+#include <Node.h>
 
 using namespace std;
 
@@ -39,6 +39,7 @@ namespace beliefstate {
       virtual Result cycle();
       
       virtual void consumeEvent(Event evEvent);
+      virtual Event consumeServiceEvent(ServiceEvent seServiceEvent);
       
       Node* addNode(string strName, int nContextID);
       void setNodeAsActive(Node* ndActive);

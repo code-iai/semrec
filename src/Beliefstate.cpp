@@ -23,7 +23,7 @@ namespace beliefstate {
     m_psPlugins->addPluginSearchPath("/home/winkler/groovy_overlay_ws/devel/lib/");
 
     m_psPlugins->loadPluginLibrary("symboliclog", true);
-    m_psPlugins->loadPluginLibrary("gazebo", true);
+    m_psPlugins->loadPluginLibrary("owlexporter", true);
     
     return resInit;
   }
