@@ -90,6 +90,9 @@ add_library(bs_plugin_owlexporter SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
   src/Node.cpp
+  src/CExporter.cpp
+  src/CExporterFileoutput.cpp
+  src/plugins/owlexporter/CExporterOwl.cpp
   src/plugins/owlexporter/PluginOWLExporter.cpp)
 
 ## Declare a cpp executable
