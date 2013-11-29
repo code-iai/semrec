@@ -54,15 +54,27 @@ namespace beliefstate {
 	      this->info("OWLExporter Plugin received plan log data. Do this:");
 	      seServiceEvent.cdDesignator->printDesignator();
 	      
-	      this->info("We got an answer for the tree: ");
+	      CExporterOwl *expOwl = new CExporterOwl();
+	      expOwl->configuration()->setValue(string("display-successes"), (int)seServiceEvent.cdDesignator->floatValue("show-successes"));
+	      expOwl->configuration()->setValue(string("display-failures"), (int)seServiceEvent.cdDesignator->floatValue("show-fails"));
+	      expOwl->configuration()->setValue(string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));
+
+	      this->info("We got an answer for the tree, preparing OWL exporter.");
 	      Event evCar = seServiceEvent.lstResultEvents.front();
 	      
 	      for(list<Node*>::iterator itN = evCar.lstNodes.begin();
 		  itN != evCar.lstNodes.end();
 		  itN++) {
 		Node* ndNode = *itN;
-		
-		cout << ndNode->title() << endl;
+		cout << "Has subnodes: " << ndNode->subnodes().size() << endl;
+		expOwl->addNode(ndNode);
+	      }
+	      
+	      expOwl->setOutputFilename("/home/winkler/test-exp.owl");
+	      if(expOwl->runExporter(NULL)) {
+		this->info("Successfully exported OWL file '" + expOwl->outputFilename() + "'");
+	      } else {
+		this->warn("Failed to export to OWL file '" + expOwl->outputFilename() + "'");
 	      }
 	    }
 	  }
