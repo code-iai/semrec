@@ -213,23 +213,23 @@ namespace beliefstate {
 
   string CExporterOwl::generateEventIndividualsForNodes(list<Node*> lstNodes, string strNamespace) {
     string strDot = "";
-  
+    
     Node *ndLastDisplayed = NULL;
     for(list<Node*>::iterator itNode = lstNodes.begin();
 	itNode != lstNodes.end();
 	itNode++) {
       Node *ndCurrent = *itNode;
-    
+      
       if(this->nodeDisplayable(ndCurrent)) {
 	string strOwlClass = this->owlClassForNode(ndCurrent);
 	strDot += this->generateEventIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
-      
+	
 	strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
 	strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
 	strDot += "        <knowrob:taskContext rdf:datatype=\"&xsd;string\">" + ndCurrent->title() + "</knowrob:taskContext>\n";
 	strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-start") + "\"/>\n";
 	strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-end") + "\"/>\n";
-      
+	
 	if(ndCurrent->title() == "GOAL-ACHIEVE") {
 	  list<CKeyValuePair*> lstDescription = ndCurrent->description();
 	  string strPattern = "";
@@ -685,7 +685,7 @@ namespace beliefstate {
 
   bool CExporterOwl::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
     this->renewUniqueIDs();
-  
+    
     if(this->outputFilename() != "") {
       string strOwl = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\n";
       // NOTE(winkler): This used to be `random'. Changed this due to
@@ -693,27 +693,27 @@ namespace beliefstate {
       // this->generateRandomIdentifier("namespace_", 8);
       string strNamespaceID = "log";
       string strNamespace = "http://ias.cs.tum.edu/kb/cram_log.owl";// + strNamespaceID;
-    
+      
       // Prepare content
       this->prepareEntities(strNamespaceID, strNamespace);
-    
+      
       // Generate source
       strOwl += this->generateOwlStringForNodes(this->nodes(), strNamespaceID, strNamespace);
-    
+      
       // Write the .owl file
       return this->writeToFile(strOwl);
     }
-  
+    
     return false;
   }
-
+  
   string CExporterOwl::owlEscapeString(string strValue) {
     return strValue;
   }
-
+  
   string CExporterOwl::generateOwlStringForNodes(list<Node*> lstNodes, string strNamespaceID, string strNamespace) {
     string strOwl = "";
-  
+    
     // Assemble OWL source
     strOwl += this->generateDocTypeBlock();
     strOwl += this->generateXMLNSBlock(strNamespace);
