@@ -28,6 +28,9 @@ namespace beliefstate {
     private:
       list<Node*> m_lstNodes;
       Node* m_ndActive;
+      list< pair<string, string> > m_lstDesignatorIDs;
+      list< pair<string, string> > m_lstDesignatorEquations;
+      list< pair<string, string> > m_lstDesignatorEquationTimes;
       
     public:
       PluginSymbolicLog();
@@ -44,6 +47,11 @@ namespace beliefstate {
       Node* addNode(string strName, int nContextID);
       void setNodeAsActive(Node* ndActive);
       Node* activeNode();
+      
+      string getDesignatorID(string strMemoryAddress);
+      string getUniqueDesignatorID(string strMemoryAddress);
+      string generateRandomIdentifier(string strPrefix, unsigned int unLength);
+      void equateDesignators(string strMAChild, string strMAParent);
     };
   }
   

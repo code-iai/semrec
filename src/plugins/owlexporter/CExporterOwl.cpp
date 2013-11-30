@@ -316,10 +316,10 @@ namespace beliefstate {
 	    strDot += "        <knowrob:eventFailure rdf:resource=\"&" + strNamespace + ";" + sts.str() + "\"/>\n";
 	  }
 	}
-      
+	
 	// Designator references here.
 	CKeyValuePair *ckvpDesignators = ndCurrent->metaInformation()->childForKey("designators");
-      
+	
 	if(ckvpDesignators) {
 	  list<CKeyValuePair*> lstDesignators = ckvpDesignators->children();
 	
@@ -328,11 +328,11 @@ namespace beliefstate {
 	      itDesignator != lstDesignators.end();
 	      itDesignator++, unIndex++) {
 	    CKeyValuePair *ckvpDesignator = *itDesignator;
-	  
+	    
 	    string strDesigPurpose;
 	    string strAnnotation = ckvpDesignator->stringValue("annotation");
 	    string strDesigID = ckvpDesignator->stringValue("id");
-	  
+	    
 	    if(strAnnotation == "perception-request") {
 	      strDesigPurpose = "perceptionRequest";
 	    } else if(strAnnotation == "perception-result") {
@@ -350,12 +350,12 @@ namespace beliefstate {
 	    strDot += "        <knowrob:" + strDesigPurpose + " rdf:resource=\"&" + strNamespace + ";" + strDesigID + "\"/>\n";
 	  }
 	}
-      
+	
 	strDot += "    </owl:namedIndividual>\n\n";
 	ndLastDisplayed = ndCurrent;
       }
     }
-  
+    
     return strDot;
   }
 
@@ -372,14 +372,14 @@ namespace beliefstate {
 
   string CExporterOwl::generateFailureIndividualsForNodes(list<Node*> lstNodes, string strNamespace) {
     string strDot = "";
-  
+    
     for(list<Node*>::iterator itNode = lstNodes.begin();
 	itNode != lstNodes.end();
 	itNode++) {
       Node *ndCurrent = *itNode;
-    
+      
       CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
-    
+      
       if(ckvpFailures) {
 	list<CKeyValuePair*> lstFailures = ckvpFailures->children();
       
@@ -552,14 +552,14 @@ namespace beliefstate {
 
   string CExporterOwl::generateDesignatorIndividuals(string strNamespace) {
     string strDot = "    <!-- Designator Individuals -->\n\n";
-  
+    
     list<string> lstDesigIDs = this->designatorIDs();
-  
+    
     for(list<string>::iterator itID = lstDesigIDs.begin();
 	itID != lstDesigIDs.end();
 	itID++) {
       string strID = *itID;
-    
+      
       strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + strID + "\">\n";
       strDot += "        <rdf:type rdf:resource=\"&knowrob;CRAMDesignator\"/>\n";
     

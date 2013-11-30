@@ -22,10 +22,10 @@ namespace beliefstate {
   public:
     CExporterOwl();
     ~CExporterOwl();
-  
+    
     list<string> gatherClassesForNodes(list<Node*> lstNodes);
     list<string> gatherTimepointsForNodes(list<Node*> lstNodes);
-  
+    
     void prepareEntities(string strNamespaceID, string strNamespace);
     string generateDocTypeBlock();
     string generateXMLNSBlock(string strNamespace);

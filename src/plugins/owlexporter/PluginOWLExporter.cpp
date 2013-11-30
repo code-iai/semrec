@@ -47,34 +47,38 @@ namespace beliefstate {
       if(seServiceEvent.siServiceIdentifier == SI_RESPONSE) {
 	if(seServiceEvent.strServiceName == "symbolic-plan-tree") {
 	  if(seServiceEvent.cdDesignator) {
-	    string strFormat = seServiceEvent.cdDesignator->stringValue("format");
-	    transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
-	    
-	    if(strFormat == "owl") {
-	      this->info("OWLExporter Plugin received plan log data. Do this:");
-	      seServiceEvent.cdDesignator->printDesignator();
-	      
-	      CExporterOwl *expOwl = new CExporterOwl();
-	      expOwl->configuration()->setValue(string("display-successes"), (int)seServiceEvent.cdDesignator->floatValue("show-successes"));
-	      expOwl->configuration()->setValue(string("display-failures"), (int)seServiceEvent.cdDesignator->floatValue("show-fails"));
-	      expOwl->configuration()->setValue(string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));
-
-	      this->info("We got an answer for the tree, preparing OWL exporter.");
+	    if(seServiceEvent.lstResultEvents.size() > 0) {
 	      Event evCar = seServiceEvent.lstResultEvents.front();
 	      
-	      for(list<Node*>::iterator itN = evCar.lstNodes.begin();
-		  itN != evCar.lstNodes.end();
-		  itN++) {
-		Node* ndNode = *itN;
-		cout << "Has subnodes: " << ndNode->subnodes().size() << endl;
-		expOwl->addNode(ndNode);
-	      }
+	      string strFormat = seServiceEvent.cdDesignator->stringValue("format");
+	      transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
 	      
-	      expOwl->setOutputFilename("/home/winkler/test-exp.owl");
-	      if(expOwl->runExporter(NULL)) {
-		this->info("Successfully exported OWL file '" + expOwl->outputFilename() + "'");
-	      } else {
-		this->warn("Failed to export to OWL file '" + expOwl->outputFilename() + "'");
+	      if(strFormat == "owl") {
+		this->info("OWLExporter Plugin received plan log data. Exporting symbolic log.");
+		//seServiceEvent.cdDesignator->printDesignator();
+		
+		CExporterOwl *expOwl = new CExporterOwl();
+		expOwl->configuration()->setValue(string("display-successes"), (int)seServiceEvent.cdDesignator->floatValue("show-successes"));
+		expOwl->configuration()->setValue(string("display-failures"), (int)seServiceEvent.cdDesignator->floatValue("show-fails"));
+		expOwl->configuration()->setValue(string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));
+		
+		for(list<Node*>::iterator itN = evCar.lstNodes.begin();
+		    itN != evCar.lstNodes.end();
+		    itN++) {
+		  Node* ndNode = *itN;
+		  expOwl->addNode(ndNode);
+		}
+		
+		expOwl->setDesignatorIDs(evCar.lstDesignatorIDs);
+		expOwl->setDesignatorEquations(evCar.lstEquations);
+		expOwl->setDesignatorEquationTimes(evCar.lstEquationTimes);
+		
+		expOwl->setOutputFilename("/home/winkler/test-exp.owl");
+		if(expOwl->runExporter(NULL)) {
+		  this->info("Successfully exported OWL file '" + expOwl->outputFilename() + "'");
+		} else {
+		  this->warn("Failed to export to OWL file '" + expOwl->outputFilename() + "'");
+		}
 	      }
 	    }
 	  }

@@ -117,4 +117,12 @@ namespace beliefstate {
   string PluginInstance::name() {
     return m_strName;
   }
+  
+  void PluginInstance::setBaseDataDirectory(string strBaseDataDirectory) {
+    m_piInstance->setBaseDataDirectory(strBaseDataDirectory);
+  }
+  
+  string PluginInstance::baseDataDirectory() {
+    return m_piInstance->baseDataDirectory();
+  }
 }

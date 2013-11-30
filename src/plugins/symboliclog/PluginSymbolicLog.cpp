@@ -32,6 +32,7 @@ namespace beliefstate {
       this->setSubscribedToEvent(EI_ADD_OBJECT, true);
       this->setSubscribedToEvent(EI_ADD_DESIGNATOR, true);
       this->setSubscribedToEvent(EI_ADD_IMAGE_FROM_FILE, true);
+      this->setSubscribedToEvent(EI_EQUATE_DESIGNATORS, true);
       
       // Information supply services
       this->setOffersService("symbolic-plan-tree", true);
@@ -60,6 +61,10 @@ namespace beliefstate {
       if(seServiceEvent.siServiceIdentifier == SI_REQUEST) {
 	if(seServiceEvent.strServiceName == "symbolic-plan-tree") {
 	  evReturn.lstNodes = m_lstNodes;
+	  
+	  evReturn.lstDesignatorIDs = m_lstDesignatorIDs;
+	  evReturn.lstEquations = m_lstDesignatorEquations;
+	  evReturn.lstEquationTimes = m_lstDesignatorEquationTimes;
 	}
       }
       
@@ -150,21 +155,94 @@ namespace beliefstate {
       } break;
 	
       case EI_ADD_IMAGE_FROM_FILE: {
+	this->warn("Adding images from file is not yet implemented!");
       } break;
 	
       case EI_ADD_FAILURE: {
+	if(evEvent.cdDesignator) {
+	  if(this->activeNode()) {
+	    // Adding a failure to a node also means to set its success state to 'false'.
+	    string strCondition = evEvent.cdDesignator->stringValue("condition");
+	    
+	    stringstream stsTimeFail;
+	    stsTimeFail << this->getTimeStamp();
+	    
+	    this->activeNode()->addFailure(strCondition, stsTimeFail.str());
+	    this->activeNode()->setSuccess(false);
+	    
+	    stringstream sts;
+	    sts << this->activeNode()->id();
+	    this->info("Added failure to active node (id " + sts.str() + "): '" + strCondition.c_str() + "'");
+	  } else {
+	    this->warn("No node context available. Cannot add failure while on top-level.");
+	  }
+	}
       } break;
 	
       case EI_ADD_DESIGNATOR: {
+	if(evEvent.cdDesignator) {
+	  if(this->activeNode()) {
+	    string strType = evEvent.cdDesignator->stringValue("type");
+	    string strAnnotation = evEvent.cdDesignator->stringValue("annotation");
+	    string strMemAddr = evEvent.cdDesignator->stringValue("memory-address");
+	    
+	    CKeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description");
+	    list<CKeyValuePair*> lstDescription = ckvpDesc->children();
+	    
+	    bool bDesigExists = (this->getDesignatorID(strMemAddr) != "");
+	    string strUniqueID = this->getUniqueDesignatorID(strMemAddr);
+	    
+	    this->activeNode()->addDesignator(strType, lstDescription, strUniqueID, strAnnotation);
+	    
+	    stringstream sts;
+	    sts << this->activeNode()->id();
+	    this->info("Added '" + strType + "' designator (addr=" + strMemAddr + ") to active context (id " + sts.str() + "): '" + strUniqueID + "'");
+	    // desigResponse->setValue("id", strUniqueID);
+	    // desigResponse->setValue(string("is-new"), (bDesigExists ? 0.0 : 1.0));
+	    
+	    //bReturnvalue = true;
+	  } else {
+	    this->warn("No node context available. Cannot add designator while on top-level.");
+	  }
+	}
       } break;
 	
       case EI_EQUATE_DESIGNATORS: {
+	if(evEvent.cdDesignator) {
+	  string strMemAddrChild = evEvent.cdDesignator->stringValue("memory-address-child");
+	  string strMemAddrParent = evEvent.cdDesignator->stringValue("memory-address-parent");
+	  
+	  if(strMemAddrChild != "" && strMemAddrParent != "") {
+	    if(this->activeNode()) {
+	      this->equateDesignators(strMemAddrChild, strMemAddrParent);
+	    }
+	  }
+	}
       } break;
 	
       case EI_ADD_OBJECT: {
-      } break;
-	
-      case EI_EXPORT_PLANLOG: {
+	if(evEvent.cdDesignator) {
+	  CKeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description");
+	  
+	  if(ckvpDesc) {
+	    if(this->activeNode()) {
+	      string strType = evEvent.cdDesignator->stringValue("type");
+	      string strMemAddr = evEvent.cdDesignator->stringValue("memory-address");
+	      
+	      bool bDesigExists = (this->getDesignatorID(strMemAddr) != "");
+	      string strUniqueID = this->getUniqueDesignatorID(strMemAddr);
+	      
+	      ckvpDesc->setValue("__id", strUniqueID);
+	      this->activeNode()->addObject(ckvpDesc->children());
+	      
+	      stringstream sts;
+	      sts << this->activeNode()->id();
+	      this->info("Added object (" + strUniqueID + ") to active node (id " + sts.str() + ").");
+	    } else {
+	      this->warn("No node context available. Cannot add object while on top-level.");
+	    }
+	  }
+	}
       } break;
 	
       default: {
@@ -213,6 +291,65 @@ namespace beliefstate {
     
     Node* PluginSymbolicLog::activeNode() {
       return m_ndActive;
+    }
+    
+    string PluginSymbolicLog::getDesignatorID(string strMemoryAddress) {
+      string strID = "";
+      
+      for(list< pair<string, string> >::iterator itPair = m_lstDesignatorIDs.begin();
+	  itPair != m_lstDesignatorIDs.end();
+	  itPair++) {
+	pair<string, string> prPair = *itPair;
+	
+	if(prPair.first == strMemoryAddress) {
+	  strID = prPair.second;
+	  break;
+	}
+      }
+      
+      return strID;
+    }
+    
+    string PluginSymbolicLog::getUniqueDesignatorID(string strMemoryAddress) {
+      string strID = this->getDesignatorID(strMemoryAddress);
+      
+      if(strID == "") {
+	strID = this->generateRandomIdentifier("designator_", 14);
+	m_lstDesignatorIDs.push_back(make_pair(strMemoryAddress, strID));
+      }
+      
+      return strID;
+    }
+    
+    string PluginSymbolicLog::generateRandomIdentifier(string strPrefix, unsigned int unLength) {
+      stringstream sts;
+      sts << strPrefix;
+      
+      for(unsigned int unI = 0; unI < unLength; unI++) {
+	int nRandom;
+	do {
+	  nRandom = rand() % 122 + 48;
+	} while(nRandom < 48 ||
+		(nRandom > 57 && nRandom < 65) ||
+		(nRandom > 90 && nRandom < 97) ||
+		nRandom > 122);
+	
+	char cRandom = (char)nRandom;
+	sts << cRandom;
+      }
+      
+      return sts.str();
+    }
+    
+    void PluginSymbolicLog::equateDesignators(string strMAChild, string strMAParent) {
+      string strIDChild = this->getUniqueDesignatorID(strMAChild);
+      string strIDParent = this->getUniqueDesignatorID(strMAParent);
+      
+      stringstream stsTimeEquate;
+      stsTimeEquate << this->getTimeStamp();
+      
+      m_lstDesignatorEquations.push_back(make_pair(strIDParent, strIDChild));
+      m_lstDesignatorEquationTimes.push_back(make_pair(strIDChild, stsTimeEquate.str()));
     }
   }
   

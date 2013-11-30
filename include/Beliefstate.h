@@ -23,6 +23,7 @@ namespace beliefstate {
     bool m_bRun;
     int m_argc;
     char** m_argv;
+    string m_strBaseDataDirectory;
     
   public:
     Beliefstate(int argc, char** argv);
@@ -36,6 +37,9 @@ namespace beliefstate {
     bool cycle();
     
     void triggerShutdown();
+    
+    void setBaseDataDirectory(string strBaseDataDirectory);
+    string baseDataDirectory();
   };
 }
 

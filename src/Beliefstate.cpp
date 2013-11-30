@@ -7,6 +7,7 @@ namespace beliefstate {
     m_bRun = true;
     m_argc = argc;
     m_argv = argv;
+    m_strBaseDataDirectory = "";
   }
   
   Beliefstate::~Beliefstate() {
@@ -108,5 +109,14 @@ namespace beliefstate {
   
   void Beliefstate::triggerShutdown() {
     m_bRun = false;
+  }
+  
+  void Beliefstate::setBaseDataDirectory(string strBaseDataDirectory) {
+    m_strBaseDataDirectory = strBaseDataDirectory;
+    m_psPlugins->setBaseDataDirectory(strBaseDataDirectory);
+  }
+  
+  string Beliefstate::baseDataDirectory() {
+    return m_strBaseDataDirectory;
   }
 }

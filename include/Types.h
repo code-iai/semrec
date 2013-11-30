@@ -53,6 +53,9 @@ namespace beliefstate {
     string strSupplementary;
     int nOriginID;
     list<Node*> lstNodes;
+    list< pair<string, string> > lstDesignatorIDs;
+    list< pair<string, string> > lstEquations;
+    list< pair<string, string> > lstEquationTimes;
   } Event;
   
   typedef struct {

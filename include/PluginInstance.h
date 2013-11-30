@@ -43,6 +43,9 @@ namespace beliefstate {
     Event consumeServiceEvent(ServiceEvent seServiceEvent);
     
     string name();
+    
+    void setBaseDataDirectory(string strBaseDataDirectory);
+    string baseDataDirectory();
   };
 }
 

@@ -24,6 +24,7 @@ namespace beliefstate {
     list<string> m_lstPluginSearchPaths;
     int m_argc;
     char** m_argv;
+    string m_strBaseDataDirectory;
     
   public:
     PluginSystem(int argc, char** argv);
@@ -40,6 +41,9 @@ namespace beliefstate {
     void addPluginSearchPath(string strPath);
     
     PluginInstance* pluginInstanceByID(int nID);
+    
+    void setBaseDataDirectory(string strBaseDataDirectory);
+    string baseDataDirectory();
   };
 }
 
