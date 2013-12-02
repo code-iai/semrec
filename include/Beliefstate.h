@@ -29,6 +29,7 @@ namespace beliefstate {
     int m_argc;
     char** m_argv;
     string m_strBaseDataDirectory;
+    string m_strExperimentNameMask;
     list<string> m_lstPluginsToLoad;
     
     // MongoDB specific settings

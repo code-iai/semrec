@@ -46,6 +46,9 @@ namespace beliefstate {
     }
     
     if(bConfigLoaded) {
+      // Set the settings concerning MongoDB, and experiment name mask
+      // for each plugin here (through PluginSystem).
+      
       for(list<string>::iterator itPluginName = m_lstPluginsToLoad.begin();
 	  itPluginName != m_lstPluginsToLoad.end();
 	  itPluginName++) {
@@ -84,6 +87,10 @@ namespace beliefstate {
 	sMongoDB.lookupValue("port", m_nMongoDBPort);
 	sMongoDB.lookupValue("database", m_strMongoDBDatabase);
       }
+      
+      // Section: Experiment data
+      Setting &sExperimentData = cfgConfig.lookup("experiment-data");
+      sExperimentData.lookupValue("experiment-name-mask", m_strExperimentNameMask);
       
       // Section: Plugins
       Setting &sPluginsLoad = cfgConfig.lookup("plugins.load");
