@@ -81,9 +81,9 @@ namespace beliefstate {
     return seDefault;
   }
   
-  Event defaultEvent() {
+  Event defaultEvent(string strEventName) {
     Event evDefault;
-    evDefault.eiEventIdentifier = EI_UNDEFINED;
+    evDefault.strEventName = strEventName;
     evDefault.cdDesignator = NULL;
     evDefault.nOriginID = -1;
     

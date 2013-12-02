@@ -12,7 +12,7 @@ namespace beliefstate {
     Result PluginOWLExporter::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
-      this->setSubscribedToEvent(EI_EXPORT_PLANLOG, true);
+      this->setSubscribedToEvent("export-planlog", true);
       
       return resInit;
     }

@@ -59,8 +59,7 @@ namespace beliefstate {
     }
     
     bool PluginROS::serviceCallbackBeginContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      Event evBeginContext = defaultEvent();
-      evBeginContext.eiEventIdentifier = EI_BEGIN_CONTEXT;
+      Event evBeginContext = defaultEvent("begin-context");
       evBeginContext.nContextID = createContextID();
       evBeginContext.cdDesignator = new CDesignator(req.request.designator);
       
@@ -78,8 +77,7 @@ namespace beliefstate {
     }
 
     bool PluginROS::serviceCallbackEndContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      Event evEndContext = defaultEvent();
-      evEndContext.eiEventIdentifier = EI_END_CONTEXT;
+      Event evEndContext = defaultEvent("end-context");
       evEndContext.cdDesignator = new CDesignator(req.request.designator);
       
       this->info("When ending context, received " + this->getDesignatorTypeString(evEndContext.cdDesignator) + " designator");
@@ -98,17 +96,17 @@ namespace beliefstate {
       transform(strCommand.begin(), strCommand.end(), strCommand.begin(), ::tolower);
       
       if(strCommand == "add-image") {
-	evAlterContext.eiEventIdentifier = EI_ADD_IMAGE_FROM_TOPIC;
+	evAlterContext.strEventName = "add-image-from-topic";
       } else if(strCommand == "add-failure") {
-	evAlterContext.eiEventIdentifier = EI_ADD_FAILURE;
+	evAlterContext.strEventName = "add-failure";
       } else if(strCommand == "add-designator") {
-	evAlterContext.eiEventIdentifier = EI_ADD_DESIGNATOR;
+	evAlterContext.strEventName = "add-designator";
       } else if(strCommand == "equate-designators") {
-	evAlterContext.eiEventIdentifier = EI_EQUATE_DESIGNATORS;
+	evAlterContext.strEventName = "equate-designators";
       } else if(strCommand == "add-object") {
-	evAlterContext.eiEventIdentifier = EI_ADD_OBJECT;
+	evAlterContext.strEventName = "add-object";
       } else if(strCommand == "export-planlog") {
-	evAlterContext.eiEventIdentifier = EI_EXPORT_PLANLOG;
+	evAlterContext.strEventName = "export-planlog";
       } else {
 	this->warn("Unknown command when altering context: '" + strCommand + "'");
       }

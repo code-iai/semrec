@@ -28,7 +28,7 @@ namespace beliefstate {
     protected:
       list<Event> m_lstEvents;
       mutex m_mtxEventsStore;
-      list<EventIdentifier> m_lstSubscribedEventIdentifiers;
+      list<string> m_lstSubscribedEventNames;
       list<ServiceEvent> m_lstServiceEvents;
       mutex m_mtxServiceEventsStore;
       list<string> m_lstOfferedServices;
@@ -51,8 +51,8 @@ namespace beliefstate {
       
       virtual Result cycle();
       
-      void setSubscribedToEvent(EventIdentifier eiEventIdentifier, bool bSubscribed);
-      bool subscribedToEvent(EventIdentifier eiEventIdentifier);
+      void setSubscribedToEvent(string strEventName, bool bSubscribed);
+      bool subscribedToEvent(string strEventName);
       virtual void consumeEvent(Event evEvent);
       
       void setOffersService(string strServiceName, bool bOffering);

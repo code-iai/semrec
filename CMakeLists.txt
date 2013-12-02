@@ -4,7 +4,7 @@ project(beliefstate)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp roslib designator_integration designator_integration_msgs)
+find_package(catkin REQUIRED COMPONENTS roscpp roslib designator_integration designator_integration_msgs sensor_msgs cv_bridge roslib)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -36,7 +36,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11")
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  designator_integration_msgs
+  designator_integration_msgs sensor_msgs
 )
 
 ###################################
@@ -50,7 +50,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp roslib designator_integration designator_integration_msgs
+  CATKIN_DEPENDS roscpp roslib designator_integration designator_integration_msgs sensor_msgs cv_bridge
 )
 
 ###########
@@ -84,6 +84,7 @@ add_library(bs_plugin_symboliclog SHARED
 add_library(bs_plugin_imagecapturer SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
+  src/plugins/imagecapturer/CImageCapturer.cpp
   src/plugins/imagecapturer/PluginImageCapturer.cpp)
 
 add_library(bs_plugin_owlexporter SHARED
@@ -126,6 +127,10 @@ target_link_libraries(bs_plugin_gazebo
 )
 
 target_link_libraries(bs_plugin_owlexporter
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(bs_plugin_imagecapturer
   ${catkin_LIBRARIES}
 )
 

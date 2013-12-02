@@ -37,7 +37,7 @@ namespace beliefstate {
     Result cycle();
     list<string> dependencies();
     
-    bool subscribedToEvent(EventIdentifier eiEventIdentifier);
+    bool subscribedToEvent(string strEventName);
     void consumeEvent(Event evEvent);
     bool offersService(string strServiceName);
     Event consumeServiceEvent(ServiceEvent seServiceEvent);

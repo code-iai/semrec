@@ -24,15 +24,15 @@ namespace beliefstate {
       Result resInit = defaultResult();
       
       // Plan node control events
-      this->setSubscribedToEvent(EI_BEGIN_CONTEXT, true);
-      this->setSubscribedToEvent(EI_END_CONTEXT, true);
+      this->setSubscribedToEvent("begin-context", true);
+      this->setSubscribedToEvent("end-context", true);
       
       // Extra information assertion
-      this->setSubscribedToEvent(EI_ADD_FAILURE, true);
-      this->setSubscribedToEvent(EI_ADD_OBJECT, true);
-      this->setSubscribedToEvent(EI_ADD_DESIGNATOR, true);
-      this->setSubscribedToEvent(EI_ADD_IMAGE_FROM_FILE, true);
-      this->setSubscribedToEvent(EI_EQUATE_DESIGNATORS, true);
+      this->setSubscribedToEvent("add-failure", true);
+      this->setSubscribedToEvent("add-object", true);
+      this->setSubscribedToEvent("add-failure", true);
+      this->setSubscribedToEvent("add-image-from-file", true);
+      this->setSubscribedToEvent("equate-designators", true);
       
       // Information supply services
       this->setOffersService("symbolic-plan-tree", true);
@@ -74,8 +74,7 @@ namespace beliefstate {
     void PluginSymbolicLog::consumeEvent(Event evEvent) {
       //int nID = (evEvent.nContextID == -1 ? (evEvent.cdDesignator ? (int)evEvent.cdDesignator->floatValue("_id") : -1) : evEvent.nContextID);
       
-      switch(evEvent.eiEventIdentifier) {
-      case EI_BEGIN_CONTEXT: {
+      if(evEvent.strEventName == "begin-context") {
 	string strName = evEvent.cdDesignator->stringValue("_name");
 	Node* ndNew = this->addNode(strName, evEvent.nContextID);
 	
@@ -85,9 +84,7 @@ namespace beliefstate {
 	
 	int nDetailLevel = (int)evEvent.cdDesignator->floatValue("_detail-level");
 	ndNew->metaInformation()->setValue(string("detail-level"), nDetailLevel);
-      } break;
-	
-      case EI_END_CONTEXT: {
+      } else if(evEvent.strEventName == "end-context") {
 	int nID = (int)evEvent.cdDesignator->floatValue("_id");
 	//cout << nID << endl;
 	int nSuccess = (int)evEvent.cdDesignator->floatValue("_success");
@@ -152,13 +149,9 @@ namespace beliefstate {
 	  sts << "Received stop node designator for ID " << nID << " while in top-level.";
 	  this->warn(sts.str());
 	}
-      } break;
-	
-      case EI_ADD_IMAGE_FROM_FILE: {
+      } else if(evEvent.strEventName == "add-image-from-file") {
 	this->warn("Adding images from file is not yet implemented!");
-      } break;
-	
-      case EI_ADD_FAILURE: {
+      } else if(evEvent.strEventName == "add-failure") {
 	if(evEvent.cdDesignator) {
 	  if(this->activeNode()) {
 	    // Adding a failure to a node also means to set its success state to 'false'.
@@ -177,9 +170,7 @@ namespace beliefstate {
 	    this->warn("No node context available. Cannot add failure while on top-level.");
 	  }
 	}
-      } break;
-	
-      case EI_ADD_DESIGNATOR: {
+      } else if(evEvent.strEventName == "add-designator") {
 	if(evEvent.cdDesignator) {
 	  if(this->activeNode()) {
 	    string strType = evEvent.cdDesignator->stringValue("type");
@@ -205,9 +196,7 @@ namespace beliefstate {
 	    this->warn("No node context available. Cannot add designator while on top-level.");
 	  }
 	}
-      } break;
-	
-      case EI_EQUATE_DESIGNATORS: {
+      } else if(evEvent.strEventName == "equate-designators") {
 	if(evEvent.cdDesignator) {
 	  string strMemAddrChild = evEvent.cdDesignator->stringValue("memory-address-child");
 	  string strMemAddrParent = evEvent.cdDesignator->stringValue("memory-address-parent");
@@ -218,9 +207,7 @@ namespace beliefstate {
 	    }
 	  }
 	}
-      } break;
-	
-      case EI_ADD_OBJECT: {
+      } else if(evEvent.strEventName == "add-object") {
 	if(evEvent.cdDesignator) {
 	  CKeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description");
 	  
@@ -243,11 +230,8 @@ namespace beliefstate {
 	    }
 	  }
 	}
-      } break;
-	
-      default: {
-	this->warn("Unknown event identifier");
-      } break;
+      } else {
+	this->warn("Unknown event name: '" + evEvent.strEventName + "'");
       }
     }
     

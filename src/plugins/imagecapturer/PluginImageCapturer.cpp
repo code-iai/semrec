@@ -4,6 +4,7 @@
 namespace beliefstate {
   namespace plugins {
     PluginImageCapturer::PluginImageCapturer() {
+      m_icapImageCapturer = NULL;
       this->addDependency("ros");
     }
     
@@ -13,12 +14,17 @@ namespace beliefstate {
     Result PluginImageCapturer::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
-      this->setSubscribedToEvent(EI_ADD_IMAGE_FROM_TOPIC, true);
+      m_icapImageCapturer = new CImageCapturer();
+      this->setSubscribedToEvent("add-image-from-topic", true);
       
       return resInit;
     }
     
     Result PluginImageCapturer::deinit() {
+      if(m_icapImageCapturer) {
+	delete m_icapImageCapturer;
+      }
+      
       return defaultResult();
     }
     
@@ -30,18 +36,37 @@ namespace beliefstate {
     }
     
     void PluginImageCapturer::consumeEvent(Event evEvent) {
-      cout << "PluginImageCapturer: Consume event!" << endl;
-      
-      // NOTE(winkler): This is a dummy implementation to see if the
-      // event distribution works.
-      
-      Event evImage = defaultEvent();
-      evImage.eiEventIdentifier = EI_ADD_IMAGE_FROM_FILE;
-      // TODO(winkler): Add filename here!
-      
-      m_mtxEventsStore.lock();
-      m_lstEvents.push_back(evImage);
-      m_mtxEventsStore.unlock();
+      if(evEvent.strEventName == "add-image-from-topic") {
+	if(evEvent.cdDesignator) {
+	  string strTopic = evEvent.cdDesignator->stringValue("origin");
+	  string strFilename = evEvent.cdDesignator->stringValue("filename");
+	  
+	  if(strTopic != "") {
+	    if(strFilename == "") {
+	      strFilename = strTopic;
+	      replace(strFilename.begin(), strFilename.end(), '/', '_');
+	      strFilename += ".png";
+	    }
+	    
+	    if(m_icapImageCapturer->captureFromTopic(strTopic, strFilename, "/home/winkler/tempicap")) {
+	      cout << "Wrote image from topic '" << strTopic << "' to file '" << strFilename << "'" << endl;
+	      
+	      Event evImage = defaultEvent("add-image-from-file");
+	      evImage.cdDesignator = new CDesignator();
+	      evImage.cdDesignator->setType(ACTION);
+	      evImage.cdDesignator->setValue("filename", strFilename);
+	      
+	      m_mtxEventsStore.lock();
+	      m_lstEvents.push_back(evImage);
+	      m_mtxEventsStore.unlock();
+	    } else {
+	      this->warn("Failed to capture image from topic '" + strTopic + "' and write it to '" + strFilename + "'.");
+	    }
+	  } else {
+	    this->warn("No topic was given when requesting to capture an image from a topic.");
+	  }
+	}
+      }
     }
   }
   

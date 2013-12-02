@@ -118,7 +118,7 @@ namespace beliefstate {
 	itPlugin++) {
       PluginInstance* piPlugin = *itPlugin;
       
-      if(piPlugin->subscribedToEvent(evEvent.eiEventIdentifier)) {
+      if(piPlugin->subscribedToEvent(evEvent.strEventName)) {
 	piPlugin->consumeEvent(evEvent);
 	nReceivers++;
       }

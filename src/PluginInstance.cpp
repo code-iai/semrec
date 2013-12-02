@@ -98,8 +98,8 @@ namespace beliefstate {
     return m_piInstance->dependencies();
   }
   
-  bool PluginInstance::subscribedToEvent(EventIdentifier eiEventIdentifier) {
-    return m_piInstance->subscribedToEvent(eiEventIdentifier);
+  bool PluginInstance::subscribedToEvent(string strEventName) {
+    return m_piInstance->subscribedToEvent(strEventName);
   }
   
   void PluginInstance::consumeEvent(Event evEvent) {

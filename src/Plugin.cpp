@@ -42,19 +42,19 @@ namespace beliefstate {
       return defaultResult();
     }
     
-    void Plugin::setSubscribedToEvent(EventIdentifier eiEventIdentifier, bool bSubscribed) {
-      m_lstSubscribedEventIdentifiers.remove(eiEventIdentifier);
+    void Plugin::setSubscribedToEvent(string strEventName, bool bSubscribed) {
+      m_lstSubscribedEventNames.remove(strEventName);
       
       if(bSubscribed) {
-	m_lstSubscribedEventIdentifiers.push_back(eiEventIdentifier);
+	m_lstSubscribedEventNames.push_back(strEventName);
       }
     }
     
-    bool Plugin::subscribedToEvent(EventIdentifier eiEventIdentifier) {
-      for(list<EventIdentifier>::iterator itEI = m_lstSubscribedEventIdentifiers.begin();
-	  itEI != m_lstSubscribedEventIdentifiers.end();
+    bool Plugin::subscribedToEvent(string strEventName) {
+      for(list<string>::iterator itEI = m_lstSubscribedEventNames.begin();
+	  itEI != m_lstSubscribedEventNames.end();
 	  itEI++) {
-	if(*itEI == eiEventIdentifier) {
+	if(*itEI == strEventName) {
 	  return true;
 	}
       }

@@ -17,6 +17,7 @@
 #include <Types.h>
 #include <ForwardDeclarations.h>
 #include <Plugin.h>
+#include <plugins/imagecapturer/CImageCapturer.h>
 
 using namespace std;
 
@@ -25,6 +26,8 @@ namespace beliefstate {
   namespace plugins {
     class PluginImageCapturer : public Plugin {
     private:
+      CImageCapturer* m_icapImageCapturer;
+      
     public:
       PluginImageCapturer();
       ~PluginImageCapturer();
