@@ -113,8 +113,10 @@ add_dependencies(beliefstate designator_integration_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(beliefstate
+  ${catkin_LIBRARIES}
   dl
   DesignatorIntegration
+  config++
 )
 
 target_link_libraries(bs_plugin_ros

@@ -25,17 +25,21 @@ int main(int argc, char** argv) {
   cout << "Starting beliefstate system." << endl;
   
   bsBeliefstate = new Beliefstate(argc, argv);
-  bsBeliefstate->init();
+  Result resInit = bsBeliefstate->init();
   
-  // Catch SIGTERM and SIGINT and bind them to the callback function
-  // catchSIGTERMandSIGINT.
-  struct sigaction action;
-  memset(&action, 0, sizeof(struct sigaction));
-  action.sa_handler = catchSIGTERMandSIGINT;
-  sigaction(SIGTERM, &action, NULL);
-  sigaction(SIGINT, &action, NULL);
-  
-  while(bsBeliefstate->cycle()) {
+  if(resInit.bSuccess) {
+    // Catch SIGTERM and SIGINT and bind them to the callback function
+    // catchSIGTERMandSIGINT.
+    struct sigaction action;
+    memset(&action, 0, sizeof(struct sigaction));
+    action.sa_handler = catchSIGTERMandSIGINT;
+    sigaction(SIGTERM, &action, NULL);
+    sigaction(SIGINT, &action, NULL);
+    
+    while(bsBeliefstate->cycle()) {
+    }
+  } else {
+    cerr << "Initialization of the beliefstate system failed. Being a quitter." << endl;
   }
   
   cout << "Exiting gracefully." << endl;

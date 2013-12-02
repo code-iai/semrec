@@ -7,6 +7,10 @@
 #include <cstdlib>
 #include <list>
 #include <string>
+#include <libconfig.h++>
+
+// ROS
+#include <ros/package.h>
 
 // Private
 #include <ForwardDeclarations.h>
@@ -14,6 +18,7 @@
 #include <PluginSystem.h>
 
 using namespace std;
+using namespace libconfig;
 
 
 namespace beliefstate {
@@ -24,13 +29,22 @@ namespace beliefstate {
     int m_argc;
     char** m_argv;
     string m_strBaseDataDirectory;
+    list<string> m_lstPluginsToLoad;
+    
+    // MongoDB specific settings
+    bool m_bUseMongoDB;
+    string m_strMongoDBHost;
+    int m_nMongoDBPort;
+    string m_strMongoDBDatabase;
     
   public:
     Beliefstate(int argc, char** argv);
     ~Beliefstate();
     
-    Result init();
+    Result init(string strConfigFile = "");
     Result deinit();
+    
+    bool loadConfigFile(string strConfigFile);
     
     void spreadEvent(Event evEvent);
     void spreadServiceEvent(ServiceEvent seServiceEvent);

@@ -16,15 +16,45 @@ namespace beliefstate {
     }
   }
   
-  Result Beliefstate::init() {
+  Result Beliefstate::init(string strConfigFile) {
     Result resInit = defaultResult();
+    
+    list<string> lstConfigFileLocations;
+    lstConfigFileLocations.push_back("./");
+    lstConfigFileLocations.push_back("~/.beliefstate/");
+    lstConfigFileLocations.push_back(ros::package::getPath("beliefstate"));
     
     // Do the actual init here.
     m_psPlugins = new PluginSystem(m_argc, m_argv);
-    m_psPlugins->addPluginSearchPath("/home/winkler/groovy_overlay_ws/devel/lib/");
-
-    m_psPlugins->loadPluginLibrary("symboliclog", true);
-    m_psPlugins->loadPluginLibrary("owlexporter", true);
+    
+    bool bConfigLoaded = false;
+    if(strConfigFile != "") {
+      bConfigLoaded = this->loadConfigFile(strConfigFile);
+    }
+    
+    if(!bConfigLoaded) {
+      for(list<string>::iterator itPath = lstConfigFileLocations.begin();
+	  itPath != lstConfigFileLocations.end();
+	  itPath++) {
+	string strPath = *itPath;
+	
+	if(this->loadConfigFile(strPath + "/config.cfg")) {
+	  bConfigLoaded = true;
+	  break;
+	}
+      }
+    }
+    
+    if(bConfigLoaded) {
+      for(list<string>::iterator itPluginName = m_lstPluginsToLoad.begin();
+	  itPluginName != m_lstPluginsToLoad.end();
+	  itPluginName++) {
+	m_psPlugins->loadPluginLibrary(*itPluginName, true);
+      }
+    } else {
+      cerr << "Failed to load a valid config file.";
+      resInit.bSuccess = false;
+    }
     
     return resInit;
   }
@@ -35,6 +65,47 @@ namespace beliefstate {
     // Do the actual deinit here.
     
     return resInit;
+  }
+  
+  bool Beliefstate::loadConfigFile(string strConfigFile) {
+    Config cfgConfig;
+    
+    try {
+      cfgConfig.readFile(strConfigFile.c_str());
+      
+      // Section: Persistent data storage
+      Setting &sPersistentDataStorage = cfgConfig.lookup("persistent-data-storage");
+      sPersistentDataStorage.lookupValue("base-data-directory", m_strBaseDataDirectory);
+      sPersistentDataStorage.lookupValue("use-mongodb", m_bUseMongoDB);
+      
+      if(m_bUseMongoDB) {
+	Setting &sMongoDB = cfgConfig.lookup("persistent-data-storage.mongodb");
+	sMongoDB.lookupValue("host", m_strMongoDBHost);
+	sMongoDB.lookupValue("port", m_nMongoDBPort);
+	sMongoDB.lookupValue("database", m_strMongoDBDatabase);
+      }
+      
+      // Section: Plugins
+      Setting &sPluginsLoad = cfgConfig.lookup("plugins.load");
+      for(int nI = 0; nI < sPluginsLoad.getLength(); nI++) {
+	string strLoad = sPluginsLoad[nI];
+	m_lstPluginsToLoad.push_back(strLoad);
+      }
+      
+      Setting &sPluginsPaths = cfgConfig.lookup("plugins.search-paths");
+      for(int nI = 0; nI < sPluginsPaths.getLength(); nI++) {
+	string strPath = sPluginsPaths[nI];
+	m_psPlugins->addPluginSearchPath(strPath);
+      }
+      
+      return true;
+    } catch(ParseException e) {
+      cerr << "Error while parsing config file '" << strConfigFile << "': " << e.getError() << endl;
+    } catch(...) {
+      cerr << "Undefined error while parsig config file '" << strConfigFile << "'" << endl;
+    }
+    
+    return false;
   }
   
   void Beliefstate::spreadEvent(Event evEvent) {
