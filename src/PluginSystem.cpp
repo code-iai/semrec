@@ -21,6 +21,29 @@ namespace beliefstate {
     }
   }
   
+  string PluginSystem::pluginNameFromPath(string strPath) {
+    // Remove path
+    const size_t last_slash_idx = strPath.find_last_of("\\/");
+    if(std::string::npos != last_slash_idx) {
+      strPath.erase(0, last_slash_idx + 1);
+    }
+    
+    // Remove extension
+    const size_t period_idx = strPath.rfind('.');
+    if(std::string::npos != period_idx) {
+      strPath.erase(period_idx);
+    }
+    
+    // Remove plugin prefix
+    string strPrefix = "libbs_plugin_";
+    
+    if(strPath.substr(0, strPrefix.size()) == strPrefix) {
+      strPath = strPath.substr(strPrefix.size());
+    }
+    
+    return strPath;
+  }
+  
   bool PluginSystem::pluginLoaded(string strPluginName) {
     for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
 	itPlugin != m_lstLoadedPlugins.end();
@@ -50,54 +73,59 @@ namespace beliefstate {
     Result resLoad = defaultResult();
     resLoad.bSuccess = false;
     
-    for(list<string>::iterator itSP = lstSearchPaths.begin();
-	itSP != lstSearchPaths.end();
-	itSP++) {
-      string strSP = *itSP;
-      string strSearchFilepath = strSP + (strSP[strSP.size() - 1] != '/' && strFilepath[0] != '/' && strSP.size() > 0 ? "/" : "") + strFilepath;
+    if(this->pluginLoaded(this->pluginNameFromPath(strFilepath))) {
+      cout << "Plugin '" << this->pluginNameFromPath(strFilepath) << "' already loaded." << endl;
+      resLoad.bSuccess = true;
+    } else {
+      for(list<string>::iterator itSP = lstSearchPaths.begin();
+	  itSP != lstSearchPaths.end();
+	  itSP++) {
+	string strSP = *itSP;
+	string strSearchFilepath = strSP + (strSP[strSP.size() - 1] != '/' && strFilepath[0] != '/' && strSP.size() > 0 ? "/" : "") + strFilepath;
       
-      icLoad = new PluginInstance();
-      resLoad = icLoad->loadPluginLibrary(strSearchFilepath);
+	icLoad = new PluginInstance();
+	resLoad = icLoad->loadPluginLibrary(strSearchFilepath);
       
-      if(resLoad.bSuccess) {
-	// Check and meet dependencies
-	list<string> lstDeps = icLoad->dependencies();
-	for(list<string>::iterator itDep = lstDeps.begin();
-	    itDep != lstDeps.end();
-	    itDep++) {
-	  string strDep = *itDep;
+	if(resLoad.bSuccess) {
+	  // Check and meet dependencies
+	  list<string> lstDeps = icLoad->dependencies();
+	  for(list<string>::iterator itDep = lstDeps.begin();
+	      itDep != lstDeps.end();
+	      itDep++) {
+	    string strDep = *itDep;
 	  
-	  if(this->pluginLoaded(strDep) == false) {
-	    Result resLoadDep = this->loadPluginLibrary(strPrefix + strDep + strSuffix);
+	    if(this->pluginLoaded(strDep) == false) {
+	      Result resLoadDep = this->loadPluginLibrary(strPrefix + strDep + strSuffix);
 	    
-	    if(resLoadDep.bSuccess == false) {
-	      cerr << "Unable to meet dependency of '" << strSearchFilepath << "': '" << strDep << "'" << endl;
+	      if(resLoadDep.bSuccess == false) {
+		cerr << "Unable to meet dependency of '" << strSearchFilepath << "': '" << strDep << "'" << endl;
 	      
-	      resLoad.bSuccess = false;
-	      resLoad.riResultIdentifier = RI_PLUGIN_DEPENDENCY_NOT_MET;
-	      resLoad.strErrorMessage = strDep;
+		resLoad.bSuccess = false;
+		resLoad.riResultIdentifier = RI_PLUGIN_DEPENDENCY_NOT_MET;
+		resLoad.strErrorMessage = strDep;
 	      
-	      break;
+		break;
+	      }
 	    }
 	  }
-	}
 	
-	if(resLoad.bSuccess) {
-	  // Initialize the plugin
-	  icLoad->init(m_argc, m_argv);
-	  m_lstLoadedPlugins.push_back(icLoad);
+	  if(resLoad.bSuccess) {
+	    // Initialize the plugin
+	    icLoad->init(m_argc, m_argv);
+	    m_lstLoadedPlugins.push_back(icLoad);
+	    break;
+	  }
+	} else {
+	  resLoad.bSuccess = false;
+	  resLoad.riResultIdentifier = RI_PLUGIN_LOADING_FAILED;
+	}
+      
+	if(resLoad.bSuccess == false) {
+	  icLoad->unload();
+	  delete icLoad;
+	} else {
 	  break;
 	}
-      } else {
-	resLoad.bSuccess = false;
-	resLoad.riResultIdentifier = RI_PLUGIN_LOADING_FAILED;
-      }
-      
-      if(resLoad.bSuccess == false) {
-	icLoad->unload();
-	delete icLoad;
-      } else {
-	break;
       }
     }
     
