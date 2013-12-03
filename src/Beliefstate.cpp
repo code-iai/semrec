@@ -55,7 +55,7 @@ namespace beliefstate {
 	m_psPlugins->loadPluginLibrary(*itPluginName, true);
       }
     } else {
-      cerr << "Failed to load a valid config file.";
+      cerr << "Failed to load a valid config file." << endl;
       resInit.bSuccess = false;
     }
     
@@ -71,48 +71,80 @@ namespace beliefstate {
   }
   
   bool Beliefstate::loadConfigFile(string strConfigFile) {
-    Config cfgConfig;
-    
-    try {
-      cfgConfig.readFile(strConfigFile.c_str());
+    if(this->fileExists(strConfigFile)) {
+      Config cfgConfig;
       
-      // Section: Persistent data storage
-      Setting &sPersistentDataStorage = cfgConfig.lookup("persistent-data-storage");
-      sPersistentDataStorage.lookupValue("base-data-directory", m_strBaseDataDirectory);
-      sPersistentDataStorage.lookupValue("use-mongodb", m_bUseMongoDB);
-      
-      if(m_bUseMongoDB) {
-	Setting &sMongoDB = cfgConfig.lookup("persistent-data-storage.mongodb");
-	sMongoDB.lookupValue("host", m_strMongoDBHost);
-	sMongoDB.lookupValue("port", m_nMongoDBPort);
-	sMongoDB.lookupValue("database", m_strMongoDBDatabase);
+      try {
+	cfgConfig.readFile(strConfigFile.c_str());
+	
+	// Section: Persistent data storage
+	Setting &sPersistentDataStorage = cfgConfig.lookup("persistent-data-storage");
+	sPersistentDataStorage.lookupValue("base-data-directory", m_strBaseDataDirectory);
+	sPersistentDataStorage.lookupValue("use-mongodb", m_bUseMongoDB);
+	
+	if(m_bUseMongoDB) {
+	  Setting &sMongoDB = cfgConfig.lookup("persistent-data-storage.mongodb");
+	  sMongoDB.lookupValue("host", m_strMongoDBHost);
+	  sMongoDB.lookupValue("port", m_nMongoDBPort);
+	  sMongoDB.lookupValue("database", m_strMongoDBDatabase);
+	}
+	
+	// Section: Experiment data
+	Setting &sExperimentData = cfgConfig.lookup("experiment-data");
+	sExperimentData.lookupValue("experiment-name-mask", m_strExperimentNameMask);
+	
+	// Section: Plugins
+	Setting &sPluginsLoad = cfgConfig.lookup("plugins.load");
+	m_lstPluginsToLoad.clear();
+	for(int nI = 0; nI < sPluginsLoad.getLength(); nI++) {
+	  string strLoad = sPluginsLoad[nI];
+	  m_lstPluginsToLoad.push_back(strLoad);
+	}
+	
+	Setting &sPluginsPaths = cfgConfig.lookup("plugins.search-paths");
+	for(int nI = 0; nI < sPluginsPaths.getLength(); nI++) {
+	  string strPath = sPluginsPaths[nI];
+	  
+	  // Replace environment variables
+	  const char* cROSWorkspace = getenv("ROS_WORKSPACE");
+	  if(cROSWorkspace) {
+	    string strROSWorkspace = cROSWorkspace;
+	    this->replaceStringInPlace(strPath, "$ROS_WORKSPACE", strROSWorkspace);
+	  }
+	  
+	  m_psPlugins->addPluginSearchPath(strPath);
+	}
+	
+	return true;
+      } catch(ParseException e) {
+	cerr << "Error while parsing config file '" << strConfigFile << "': " << e.getError() << endl;
+      } catch(...) {
+	cerr << "Undefined error while parsing config file '" << strConfigFile << "'" << endl;
       }
-      
-      // Section: Experiment data
-      Setting &sExperimentData = cfgConfig.lookup("experiment-data");
-      sExperimentData.lookupValue("experiment-name-mask", m_strExperimentNameMask);
-      
-      // Section: Plugins
-      Setting &sPluginsLoad = cfgConfig.lookup("plugins.load");
-      for(int nI = 0; nI < sPluginsLoad.getLength(); nI++) {
-	string strLoad = sPluginsLoad[nI];
-	m_lstPluginsToLoad.push_back(strLoad);
-      }
-      
-      Setting &sPluginsPaths = cfgConfig.lookup("plugins.search-paths");
-      for(int nI = 0; nI < sPluginsPaths.getLength(); nI++) {
-	string strPath = sPluginsPaths[nI];
-	m_psPlugins->addPluginSearchPath(strPath);
-      }
-      
-      return true;
-    } catch(ParseException e) {
-      cerr << "Error while parsing config file '" << strConfigFile << "': " << e.getError() << endl;
-    } catch(...) {
-      cerr << "Undefined error while parsig config file '" << strConfigFile << "'" << endl;
     }
     
     return false;
+  }
+  
+  bool Beliefstate::fileExists(string strFileName) {
+    ifstream ifile(strFileName.c_str());
+  
+    if(ifile) {
+      ifile.close();
+      
+      return true;
+    }
+  
+    return false;
+  }
+  
+  void Beliefstate::replaceStringInPlace(string& subject, const string& search, const string& replace) {
+    size_t pos = 0;
+    
+    while((pos = subject.find(search, pos)) != string::npos) {
+      subject.replace(pos, search.length(), replace);
+      pos += replace.length();
+    }
   }
   
   void Beliefstate::spreadEvent(Event evEvent) {

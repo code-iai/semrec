@@ -91,8 +91,6 @@ namespace beliefstate {
       } else {
 	resLoad.bSuccess = false;
 	resLoad.riResultIdentifier = RI_PLUGIN_LOADING_FAILED;
-	
-	cerr << "Failed to load plugin file '" << strSearchFilepath << "'" << endl;
       }
       
       if(resLoad.bSuccess == false) {
@@ -101,6 +99,10 @@ namespace beliefstate {
       } else {
 	break;
       }
+    }
+    
+    if(resLoad.bSuccess == false) {
+      cerr << "Failed to load plugin '" << strFilepath << "'" << endl;
     }
     
     return resLoad;
