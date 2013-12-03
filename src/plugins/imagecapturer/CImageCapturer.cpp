@@ -76,7 +76,6 @@ namespace beliefstate {
 	cv::imwrite(strFileName, imgMat);
 	
 	if(m_strImagesTopic != "") {
-	  // This is just for republishing purposes. Not used at the moment.
 	  m_pubImages.publish(m_imgReceived);
 	}
 	

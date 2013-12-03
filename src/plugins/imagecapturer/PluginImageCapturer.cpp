@@ -15,6 +15,7 @@ namespace beliefstate {
       Result resInit = defaultResult();
       
       m_icapImageCapturer = new CImageCapturer();
+      m_icapImageCapturer->publishImages("/logged_images");
       this->setSubscribedToEvent("add-image-from-topic", true);
       
       return resInit;
@@ -48,7 +49,7 @@ namespace beliefstate {
 	      strFilename += ".png";
 	    }
 	    
-	    if(m_icapImageCapturer->captureFromTopic(strTopic, strFilename, "/home/winkler/tempicap")) {
+	    if(m_icapImageCapturer->captureFromTopic(strTopic, strFilename, "/home/winkler/tempicap/")) {
 	      this->info("Wrote image from topic '" + strTopic + "' to file '" + strFilename + "'");
 	      
 	      Event evImage = defaultEvent("add-image-from-file");
