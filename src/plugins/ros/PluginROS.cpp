@@ -17,9 +17,10 @@ namespace beliefstate {
       Result resInit = defaultResult();
       
       if(!ros::ok()) {
-	cout << "Starting ROS node." << endl;
+	string strROSNodeName = "beliefstate_ros";
+	this->info("Starting ROS node '" + strROSNodeName + "'.");
 	
-	ros::init(argc, argv, "beliefstate_ros");
+	ros::init(argc, argv, strROSNodeName);
 	m_nhHandle = new ros::NodeHandle("~");
 	
 	if(ros::ok()) {
@@ -27,13 +28,13 @@ namespace beliefstate {
 	  m_srvEndContext = m_nhHandle->advertiseService<PluginROS>("end_context", &PluginROS::serviceCallbackEndContext, this);
 	  m_srvAlterContext = m_nhHandle->advertiseService<PluginROS>("alter_context", &PluginROS::serviceCallbackAlterContext, this);
 	  
-	  cout << "ROS node started." << endl;
+	  this->info("ROS node started.");
 	} else {
 	  resInit.bSuccess = false;
 	  resInit.strErrorMessage = "Failed to start ROS node.";
 	}
       } else {
-	cout << "ROS node already started." << endl;
+      	this->warn("ROS node already started.");
       }
       
       return resInit;
@@ -117,13 +118,13 @@ namespace beliefstate {
     }
     
     void PluginROS::consumeEvent(Event evEvent) {
-      cout << "PluginROS: Consume event!" << endl;
+      this->info("Consume event!");
     }
     
     Event PluginROS::consumeServiceEvent(ServiceEvent seServiceEvent) {
       Event evService = defaultEvent();
       
-      cout << "PluginROS: Consume service event of type '" << seServiceEvent.strServiceName << "'!" << endl;
+      this->info("Consume service event of type '" + seServiceEvent.strServiceName + "'!");
       
       return evService;
     }
