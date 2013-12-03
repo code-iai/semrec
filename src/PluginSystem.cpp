@@ -11,6 +11,23 @@ namespace beliefstate {
   PluginSystem::~PluginSystem() {
     m_lstLoadedPlugins.reverse();
     
+    // Trigger kill signals
+    for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
+	itPlugin != m_lstLoadedPlugins.end();
+	itPlugin++) {
+      PluginInstance* icCurrent = *itPlugin;
+      icCurrent->setRunning(false);
+    }
+    
+    // Join all threads
+    for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
+	itPlugin != m_lstLoadedPlugins.end();
+	itPlugin++) {
+      PluginInstance* icCurrent = *itPlugin;
+      icCurrent->waitForJoin();
+    }
+    
+    // Delete all structures
     for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
 	itPlugin != m_lstLoadedPlugins.end();
 	itPlugin++) {
@@ -113,6 +130,7 @@ namespace beliefstate {
 	    // Initialize the plugin
 	    icLoad->init(m_argc, m_argv);
 	    m_lstLoadedPlugins.push_back(icLoad);
+	    
 	    break;
 	  }
 	} else {

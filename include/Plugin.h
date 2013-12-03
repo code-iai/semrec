@@ -50,6 +50,7 @@ namespace beliefstate {
       virtual Result deinit();
       
       virtual Result cycle();
+      Result cycleResults();
       
       void setSubscribedToEvent(string strEventName, bool bSubscribed);
       bool subscribedToEvent(string strEventName);

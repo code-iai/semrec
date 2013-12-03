@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <string>
 #include <dlfcn.h>
+#include <thread>
 
 // Private
 #include <Types.h>
@@ -23,6 +24,10 @@ namespace beliefstate {
     void* m_vdLibHandle;
     plugins::Plugin* m_piInstance;
     string m_strName;
+    thread* m_thrdPluginCycle;
+    bool m_bRunCycle;
+    mutex m_mtxCycleResults;
+    Result m_resCycleResult;
     
   public:
     PluginInstance();
@@ -35,6 +40,7 @@ namespace beliefstate {
     
     Result init(int argc, char** argv);
     Result cycle();
+    void spinCycle();
     list<string> dependencies();
     
     bool subscribedToEvent(string strEventName);
@@ -46,6 +52,10 @@ namespace beliefstate {
     
     void setBaseDataDirectory(string strBaseDataDirectory);
     string baseDataDirectory();
+    
+    Result currentResult();
+    void setRunning(bool bRunCycle);
+    void waitForJoin();
   };
 }
 

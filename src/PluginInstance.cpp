@@ -6,6 +6,9 @@ namespace beliefstate {
     m_strName = "";
     m_vdLibHandle = NULL;
     m_piInstance = NULL;
+    m_thrdPluginCycle = NULL;
+    m_bRunCycle = true;
+    m_resCycleResult = defaultResult();
   }
   
   PluginInstance::~PluginInstance() {
@@ -91,7 +94,33 @@ namespace beliefstate {
   }
   
   Result PluginInstance::cycle() {
-    return m_piInstance->cycle();
+    if(m_thrdPluginCycle == NULL) {
+      m_thrdPluginCycle = new thread(&PluginInstance::spinCycle, this);
+    }
+    
+    return this->currentResult();//m_piInstance->cycle();
+  }
+  
+  void PluginInstance::spinCycle() {
+    while(m_bRunCycle) {
+      Result resCycle = m_piInstance->cycle();
+      
+      m_mtxCycleResults.lock();
+      for(list<Event>::iterator itEvt = resCycle.lstEvents.begin();
+	  itEvt != resCycle.lstEvents.end();
+	  itEvt++) {
+	m_resCycleResult.lstEvents.push_back(*itEvt);
+      }
+      resCycle.lstEvents.clear();
+      
+      for(list<ServiceEvent>::iterator itEvt = resCycle.lstServiceEvents.begin();
+	  itEvt != resCycle.lstServiceEvents.end();
+	  itEvt++) {
+	m_resCycleResult.lstServiceEvents.push_back(*itEvt);
+      }
+      resCycle.lstServiceEvents.clear();
+      m_mtxCycleResults.unlock();
+    }
   }
   
   list<string> PluginInstance::dependencies() {
@@ -124,5 +153,23 @@ namespace beliefstate {
   
   string PluginInstance::baseDataDirectory() {
     return m_piInstance->baseDataDirectory();
+  }
+  
+  Result PluginInstance::currentResult() {
+    m_mtxCycleResults.lock();
+    Result resReturn = m_resCycleResult;
+    m_resCycleResult = defaultResult();
+    m_mtxCycleResults.unlock();
+    
+    return resReturn;
+  }
+  
+  void PluginInstance::setRunning(bool bRunCycle) {
+    m_bRunCycle = bRunCycle;
+  }
+  
+  void PluginInstance::waitForJoin() {
+    m_thrdPluginCycle->join();
+    delete m_thrdPluginCycle;
   }
 }
