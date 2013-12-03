@@ -72,17 +72,14 @@ namespace beliefstate {
 	} else {
 	  strFileName = strWorkingDirectory + strFileName;
 	}
-      
-	cv::imwrite(strFileName, imgMat);
-      
-	cout << "Image from topic '" << strTopicName << "' file written to '" << strFileName << "'" << endl;
-      
-	if(m_strImagesTopic != "") {
-	  m_pubImages.publish(m_imgReceived);
 	
-	  cout << "Image from topic '" << strTopicName << "' published to '" << m_strImagesTopic << "'" << endl;
+	cv::imwrite(strFileName, imgMat);
+	
+	if(m_strImagesTopic != "") {
+	  // This is just for republishing purposes. Not used at the moment.
+	  m_pubImages.publish(m_imgReceived);
 	}
-      
+	
 	bReturnvalue = true;
       } catch (cv_bridge::Exception& e) {
       }

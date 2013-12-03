@@ -49,7 +49,7 @@ namespace beliefstate {
 	    }
 	    
 	    if(m_icapImageCapturer->captureFromTopic(strTopic, strFilename, "/home/winkler/tempicap")) {
-	      cout << "Wrote image from topic '" << strTopic << "' to file '" << strFilename << "'" << endl;
+	      this->info("Wrote image from topic '" + strTopic + "' to file '" + strFilename + "'");
 	      
 	      Event evImage = defaultEvent("add-image-from-file");
 	      evImage.cdDesignator = new CDesignator();

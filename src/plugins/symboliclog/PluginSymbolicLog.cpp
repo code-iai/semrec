@@ -86,7 +86,7 @@ namespace beliefstate {
 	ndNew->metaInformation()->setValue(string("detail-level"), nDetailLevel);
       } else if(evEvent.strEventName == "end-context") {
 	int nID = (int)evEvent.cdDesignator->floatValue("_id");
-	//cout << nID << endl;
+	
 	int nSuccess = (int)evEvent.cdDesignator->floatValue("_success");
 	Node *ndCurrent = this->activeNode();
 	
