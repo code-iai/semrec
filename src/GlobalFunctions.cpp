@@ -4,6 +4,7 @@
 namespace beliefstate {
   static list<int> g_lstContextIDs;
   static list<int> g_lstPluginIDs;
+  static ConfigSettings g_cfgsetSettings;
   
   
   int createContextID() {
@@ -100,5 +101,13 @@ namespace beliefstate {
   
   string normalColorSpecifier() {
     return "\033[0m";
+  }
+  
+  ConfigSettings configSettings() {
+    return g_cfgsetSettings;
+  }
+  
+  void setConfigSettings(ConfigSettings cfgsetSettings) {
+    g_cfgsetSettings = cfgsetSettings;
   }
 }

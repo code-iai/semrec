@@ -65,6 +65,9 @@ namespace beliefstate {
     // In case of failure
     string strErrorMessage;
   } Result;
+  
+  typedef struct {
+  } ConfigSettings;
 }
 
 

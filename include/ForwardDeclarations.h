@@ -29,6 +29,10 @@ namespace beliefstate {
   // Output specific functions
   string colorSpecifierForID(int nID, bool bBold);
   string normalColorSpecifier();
+  
+  // Global config settings specific functions
+  ConfigSettings configSettings();
+  void setConfigSettings(ConfigSettings cfgsetSettings);
 }
 
 
