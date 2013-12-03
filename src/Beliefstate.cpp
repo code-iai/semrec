@@ -98,6 +98,8 @@ namespace beliefstate {
 	m_lstPluginsToLoad.clear();
 	for(int nI = 0; nI < sPluginsLoad.getLength(); nI++) {
 	  string strLoad = sPluginsLoad[nI];
+	  
+	  m_lstPluginsToLoad.remove(strLoad);
 	  m_lstPluginsToLoad.push_back(strLoad);
 	}
 	
