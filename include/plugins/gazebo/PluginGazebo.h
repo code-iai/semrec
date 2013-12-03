@@ -25,8 +25,6 @@ namespace beliefstate {
   namespace plugins {
     class PluginGazebo : public Plugin {
     private:
-      ros::ServiceServer m_srvTest;
-      
     public:
       PluginGazebo();
       ~PluginGazebo();

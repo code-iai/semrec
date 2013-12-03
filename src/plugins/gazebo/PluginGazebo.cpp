@@ -13,9 +13,6 @@ namespace beliefstate {
     Result PluginGazebo::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
-      ros::NodeHandle nh("~");
-      m_srvTest = nh.advertiseService<PluginGazebo>("test", &PluginGazebo::serviceCallbackTest, this);
-      
       this->setOffersService("spawn_model", true);
       
       return resInit;
@@ -23,11 +20,6 @@ namespace beliefstate {
     
     Result PluginGazebo::deinit() {
       return defaultResult();
-    }
-    
-    bool PluginGazebo::serviceCallbackTest(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      cout << "!" << endl;
-      return true;
     }
     
     Result PluginGazebo::cycle() {
@@ -38,13 +30,13 @@ namespace beliefstate {
     }
     
     void PluginGazebo::consumeEvent(Event evEvent) {
-      cout << "PluginGazebo: Consume event!" << endl;
+      this->info("Consume event!");
     }
     
     Event PluginGazebo::consumeServiceEvent(ServiceEvent seServiceEvent) {
       Event evService = defaultEvent();
       
-      cout << "PluginGazebo: Consume service event of type '" << seServiceEvent.strServiceName << "'!" << endl;
+      this->info("Consume service event of type '" + seServiceEvent.strServiceName + "'!");
       
       return evService;
     }
