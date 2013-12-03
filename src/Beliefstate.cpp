@@ -224,11 +224,13 @@ namespace beliefstate {
   }
   
   void Beliefstate::setBaseDataDirectory(string strBaseDataDirectory) {
-    m_strBaseDataDirectory = strBaseDataDirectory;
-    m_psPlugins->setBaseDataDirectory(strBaseDataDirectory);
+    ConfigSettings cfgsetCurrent = configSettings();
+    cfgsetCurrent.strBaseDataDirectory = strBaseDataDirectory;
+    setConfigSettings(cfgsetCurrent);
   }
   
   string Beliefstate::baseDataDirectory() {
-    return m_strBaseDataDirectory;
+    ConfigSettings cfgsetCurrent = configSettings();
+    return cfgsetCurrent.strBaseDataDirectory;
   }
 }

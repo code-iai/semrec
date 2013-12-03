@@ -5,6 +5,7 @@ namespace beliefstate {
   static list<int> g_lstContextIDs;
   static list<int> g_lstPluginIDs;
   static ConfigSettings g_cfgsetSettings;
+  static mutex g_mtxGlobalSettings;
   
   
   int createContextID() {
@@ -104,10 +105,16 @@ namespace beliefstate {
   }
   
   ConfigSettings configSettings() {
-    return g_cfgsetSettings;
+    g_mtxGlobalSettings.lock();
+    ConfigSettings cfgsetReturn = g_cfgsetSettings;
+    g_mtxGlobalSettings.unlock();
+    
+    return cfgsetReturn;
   }
   
   void setConfigSettings(ConfigSettings cfgsetSettings) {
+    g_mtxGlobalSettings.lock();
     g_cfgsetSettings = cfgsetSettings;
+    g_mtxGlobalSettings.unlock();
   }
 }

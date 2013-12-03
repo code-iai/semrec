@@ -147,14 +147,6 @@ namespace beliefstate {
     return m_strName;
   }
   
-  void PluginInstance::setBaseDataDirectory(string strBaseDataDirectory) {
-    m_piInstance->setBaseDataDirectory(strBaseDataDirectory);
-  }
-  
-  string PluginInstance::baseDataDirectory() {
-    return m_piInstance->baseDataDirectory();
-  }
-  
   Result PluginInstance::currentResult() {
     m_mtxCycleResults.lock();
     Result resReturn = m_resCycleResult;

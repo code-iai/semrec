@@ -11,14 +11,6 @@ namespace beliefstate {
       freePluginID(m_nID);
     }
     
-    void Plugin::setBaseDataDirectory(string strBaseDataDirectory) {
-      m_strBaseDataDirectory = strBaseDataDirectory;
-    }
-    
-    string Plugin::baseDataDirectory() {
-      return m_strBaseDataDirectory;
-    }
-    
     void Plugin::setPluginID(int nID) {
       m_nID = nID;
     }

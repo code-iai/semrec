@@ -5,7 +5,6 @@ namespace beliefstate {
   PluginSystem::PluginSystem(int argc, char** argv) {
     m_argc = argc;
     m_argv = argv;
-    m_strBaseDataDirectory = "";
   }
   
   PluginSystem::~PluginSystem() {
@@ -275,21 +274,5 @@ namespace beliefstate {
     }
     
     return NULL;
-  }
-  
-  void PluginSystem::setBaseDataDirectory(string strBaseDataDirectory) {
-    m_strBaseDataDirectory = strBaseDataDirectory;
-    
-    for(list<PluginInstance*>::iterator itP = m_lstLoadedPlugins.begin();
-	itP != m_lstLoadedPlugins.end();
-	itP++) {
-      PluginInstance* piCurrent = *itP;
-      
-      piCurrent->setBaseDataDirectory(strBaseDataDirectory);
-    }
-  }
-  
-  string PluginSystem::baseDataDirectory() {
-    return m_strBaseDataDirectory;
   }
 }

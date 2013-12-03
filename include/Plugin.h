@@ -23,7 +23,6 @@ namespace beliefstate {
       list<string> m_lstDependencies;
       string m_strName;
       int m_nID;
-      string m_strBaseDataDirectory;
       
     protected:
       list<Event> m_lstEvents;
@@ -36,9 +35,6 @@ namespace beliefstate {
     public:
       Plugin();
       ~Plugin();
-      
-      void setBaseDataDirectory(string strBaseDataDirectory);
-      string baseDataDirectory();
       
       void setPluginID(int nID);
       int pluginID();

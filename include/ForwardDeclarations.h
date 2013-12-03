@@ -4,6 +4,7 @@
 
 // Private
 #include <Types.h>
+#include <mutex>
 
 
 namespace beliefstate {

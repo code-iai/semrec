@@ -50,9 +50,6 @@ namespace beliefstate {
     
     string name();
     
-    void setBaseDataDirectory(string strBaseDataDirectory);
-    string baseDataDirectory();
-    
     Result currentResult();
     void setRunning(bool bRunCycle);
     void waitForJoin();

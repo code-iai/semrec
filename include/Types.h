@@ -67,6 +67,7 @@ namespace beliefstate {
   } Result;
   
   typedef struct {
+    string strBaseDataDirectory;
   } ConfigSettings;
 }
 
