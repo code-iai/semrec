@@ -28,7 +28,7 @@ namespace beliefstate {
       this->setSubscribedToEvent("end-context", true);
       
       // Extra information assertion
-      this->setSubscribedToEvent("add-failure", true);
+      this->setSubscribedToEvent("add-designator", true);
       this->setSubscribedToEvent("add-object", true);
       this->setSubscribedToEvent("add-failure", true);
       this->setSubscribedToEvent("add-image-from-file", true);

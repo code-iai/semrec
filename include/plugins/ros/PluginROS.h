@@ -30,6 +30,7 @@ namespace beliefstate {
       ros::ServiceServer m_srvBeginContext;
       ros::ServiceServer m_srvEndContext;
       ros::ServiceServer m_srvAlterContext;
+      ros::Publisher m_pubLoggedDesignators;
       
     public:
       PluginROS();

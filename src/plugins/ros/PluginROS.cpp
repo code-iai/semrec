@@ -27,6 +27,7 @@ namespace beliefstate {
 	  m_srvBeginContext = m_nhHandle->advertiseService<PluginROS>("begin_context", &PluginROS::serviceCallbackBeginContext, this);
 	  m_srvEndContext = m_nhHandle->advertiseService<PluginROS>("end_context", &PluginROS::serviceCallbackEndContext, this);
 	  m_srvAlterContext = m_nhHandle->advertiseService<PluginROS>("alter_context", &PluginROS::serviceCallbackAlterContext, this);
+	  m_pubLoggedDesignators = m_nhHandle->advertise<designator_integration_msgs::Designator>("/logged_designators", 1);
 	  
 	  this->info("ROS node started.");
 	} else {
@@ -102,6 +103,20 @@ namespace beliefstate {
 	evAlterContext.strEventName = "add-failure";
       } else if(strCommand == "add-designator") {
 	evAlterContext.strEventName = "add-designator";
+	
+	CKeyValuePair* ckvpDescription = evAlterContext.cdDesignator->childForKey("description");
+	if(ckvpDescription) {
+	  DesignatorType dType = ACTION;
+	  if(evAlterContext.cdDesignator->stringValue("type") == "LOCATION") {
+	    dType = LOCATION;
+	  } else if(evAlterContext.cdDesignator->stringValue("type") == "OBJECT") {
+	    dType = OBJECT;
+	  }
+	  
+	  CDesignator* cdPublish = new CDesignator(dType, ckvpDescription->children());
+	  m_pubLoggedDesignators.publish(cdPublish->serializeToMessage());
+	  delete cdPublish;
+	}
       } else if(strCommand == "equate-designators") {
 	evAlterContext.strEventName = "equate-designators";
       } else if(strCommand == "add-object") {
