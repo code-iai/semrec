@@ -80,8 +80,9 @@ namespace beliefstate {
 	cfgConfig.readFile(strConfigFile.c_str());
 	
 	// Section: Persistent data storage
+	string strBaseDataDirectory;
 	Setting &sPersistentDataStorage = cfgConfig.lookup("persistent-data-storage");
-	sPersistentDataStorage.lookupValue("base-data-directory", m_strBaseDataDirectory);
+	sPersistentDataStorage.lookupValue("base-data-directory", strBaseDataDirectory);
 	
 	bool bUseMongoDB;
 	string strMongoDBHost;
@@ -108,6 +109,7 @@ namespace beliefstate {
 	cfgsetCurrent.nMongoDBPort = nMongoDBPort;
 	cfgsetCurrent.strMongoDBDatabase = strMongoDBDatabase;
 	cfgsetCurrent.strExperimentNameMask = strExperimentNameMask;
+	cfgsetCurrent.strBaseDataDirectory = strBaseDataDirectory;
 	setConfigSettings(cfgsetCurrent);
 	
 	// Section: Plugins
@@ -168,13 +170,11 @@ namespace beliefstate {
   
   void Beliefstate::spreadEvent(Event evEvent) {
     if(m_psPlugins->spreadEvent(evEvent) == 0) {
-      cerr << "[beliefstate] Unhandled event dropped." << endl;
+      cerr << "[beliefstate] Unhandled event dropped: '" << evEvent.strEventName << "'" << endl;
       
       if(evEvent.cdDesignator) {
 	cerr << "[beliefstate] Content was:" << endl;
 	evEvent.cdDesignator->printDesignator();
-      } else {
-	cerr << "[beliefstate] No content given." << endl;
       }
     }
   }

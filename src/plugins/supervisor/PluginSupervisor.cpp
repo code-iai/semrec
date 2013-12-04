@@ -31,7 +31,50 @@ namespace beliefstate {
     
     void PluginSupervisor::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "start-new-experiment") {
-	this->warn("Start new experiment not yet implemented.");
+	// Signal global experiment shut down.
+	this->deployEvent(defaultEvent("experiment-shutdown"));
+	
+	// Wait 1 sec for all plugins to realize what to do when
+	// shutting down an experiment.
+	sleep(1);
+	
+	ConfigSettings cfgsetCurrent = configSettings();
+	// Create base data directory
+	mkdir(cfgsetCurrent.strBaseDataDirectory.c_str(), 0777);
+	
+	int nIndex = 0;
+	bool bExists;
+	string strNewName;
+	string strNewExp;
+	
+	do {
+	  // This is a hardcoded length. If the length of the numeric
+	  // identifier in the string actually exceeds this, this will
+	  // probably result in a segfault. This should very rarely be
+	  // the case, though. We're assuming no problem here.
+	  char cName[cfgsetCurrent.strExperimentNameMask.size() + 10];
+	  sprintf(cName, (const char*)(cfgsetCurrent.strExperimentNameMask.c_str()), nIndex);
+	  strNewName = cfgsetCurrent.strBaseDataDirectory + "/" + cName + "/";
+	  strNewExp = cName;
+	  nIndex++;
+	  
+	  struct stat sb;
+	  int nReturnStat = stat(strNewName.c_str(), &sb);
+	  bExists = (nReturnStat == 0);
+	} while(bExists);
+	
+	mkdir(strNewName.c_str(), 0777);
+	cfgsetCurrent.strExperimentDirectory = strNewName;
+	this->info("Created new experiment space: '" + strNewExp + "'.");
+	setConfigSettings(cfgsetCurrent);
+	
+	string strSymlink = cfgsetCurrent.strBaseDataDirectory + "/current-experiment";
+	remove(strSymlink.c_str());
+	symlink(strNewName.c_str(), strSymlink.c_str());
+	this->info("Symlink set accordingly.");
+	
+	// Signal global experiment start.
+	this->deployEvent(defaultEvent("experiment-start"));
       } else if(evEvent.strEventName == "startup-complete") {
 	this->deployEvent(defaultEvent("start-new-experiment"));
       }

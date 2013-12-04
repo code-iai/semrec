@@ -5,6 +5,8 @@
 // System
 #include <cstdlib>
 #include <iostream>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 // Private
 #include <Types.h>

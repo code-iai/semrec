@@ -73,6 +73,9 @@ namespace beliefstate {
     string strBaseDataDirectory;
     string strExperimentNameMask;
     
+    // Current Experiment Instance
+    string strExperimentDirectory;
+    
     // MongoDB
     bool bUseMongoDB;
     string strMongoDBHost;
