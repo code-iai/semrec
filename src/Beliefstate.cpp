@@ -59,6 +59,8 @@ namespace beliefstate {
       resInit.bSuccess = false;
     }
     
+    m_lstGlobalEvents.push_back(defaultEvent("startup-complete"));
+    
     return resInit;
   }
   
@@ -195,6 +197,13 @@ namespace beliefstate {
     
     if(m_bRun) {
       Result resCycle = m_psPlugins->cycle();
+      
+      for(list<Event>::iterator itEv = m_lstGlobalEvents.begin();
+	  itEv != m_lstGlobalEvents.end();
+	  itEv++) {
+	resCycle.lstEvents.push_back(*itEv);
+      }
+      m_lstGlobalEvents.clear();
       
       if(resCycle.bSuccess) {
 	// Events

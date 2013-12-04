@@ -12,6 +12,7 @@ namespace beliefstate {
     Result PluginSupervisor::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
+      this->setSubscribedToEvent("startup-complete", true);
       this->setSubscribedToEvent("start-new-experiment", true);
       
       return resInit;
@@ -31,6 +32,8 @@ namespace beliefstate {
     void PluginSupervisor::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "start-new-experiment") {
 	this->warn("Start new experiment not yet implemented.");
+      } else if(evEvent.strEventName == "startup-complete") {
+	this->deployEvent(defaultEvent("start-new-experiment"));
       }
     }
   }

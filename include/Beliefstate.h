@@ -31,6 +31,7 @@ namespace beliefstate {
     string m_strBaseDataDirectory;
     string m_strExperimentNameMask;
     list<string> m_lstPluginsToLoad;
+    list<Event> m_lstGlobalEvents;
     
     // MongoDB specific settings
     bool m_bUseMongoDB;
