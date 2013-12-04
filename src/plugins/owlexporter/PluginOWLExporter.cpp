@@ -55,7 +55,6 @@ namespace beliefstate {
 	      
 	      if(strFormat == "owl") {
 		this->info("OWLExporter Plugin received plan log data. Exporting symbolic log.");
-		//seServiceEvent.cdDesignator->printDesignator();
 		
 		CExporterOwl *expOwl = new CExporterOwl();
 		expOwl->configuration()->setValue(string("display-successes"), (int)seServiceEvent.cdDesignator->floatValue("show-successes"));
@@ -73,7 +72,9 @@ namespace beliefstate {
 		expOwl->setDesignatorEquations(evCar.lstEquations);
 		expOwl->setDesignatorEquationTimes(evCar.lstEquationTimes);
 		
-		expOwl->setOutputFilename("/home/winkler/test-exp.owl");
+		ConfigSettings cfgsetCurrent = configSettings();
+		expOwl->setOutputFilename(cfgsetCurrent.strExperimentDirectory + seServiceEvent.cdDesignator->stringValue("filename"));
+		
 		if(expOwl->runExporter(NULL)) {
 		  this->info("Successfully exported OWL file '" + expOwl->outputFilename() + "'");
 		} else {
