@@ -118,12 +118,16 @@ namespace beliefstate {
       m_mtxServiceEventsStore.unlock();
     }
     
-    void Plugin::deployEvent(Event evDeploy) {
+    void Plugin::deployEvent(Event evDeploy, bool bWaitForEvent) {
       evDeploy.nOriginID = this->pluginID();
       
       m_mtxEventsStore.lock();
       m_lstEvents.push_back(evDeploy);
       m_mtxEventsStore.unlock();
+      
+      if(bWaitForEvent) {
+	this->waitForEvent(evDeploy);
+      }
     }
     
     void Plugin::deployServiceEvent(ServiceEvent seDeploy) {
@@ -208,6 +212,14 @@ namespace beliefstate {
       m_mtxRunCycle.unlock();
       
       return bReturn;
+    }
+    
+    void Plugin::waitForEvent(Event evWait) {
+      if(evWait.nOpenRequestID != -1) {
+	while(this->isRequestIDOpen(evWait.nOpenRequestID) && this->running()) {
+	  // Do nothing and wait.
+	}
+      }
     }
   }
 }

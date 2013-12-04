@@ -81,6 +81,11 @@ add_library(bs_plugin_symboliclog SHARED
   src/Node.cpp
   src/plugins/symboliclog/PluginSymbolicLog.cpp)
 
+add_library(bs_plugin_supervisor SHARED
+  src/GlobalFunctions.cpp
+  src/Plugin.cpp
+  src/plugins/supervisor/PluginSupervisor.cpp)
+
 add_library(bs_plugin_imagecapturer SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
@@ -133,6 +138,10 @@ target_link_libraries(bs_plugin_owlexporter
 )
 
 target_link_libraries(bs_plugin_imagecapturer
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(bs_plugin_supervisor
   ${catkin_LIBRARIES}
 )
 

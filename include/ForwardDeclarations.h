@@ -18,6 +18,7 @@ namespace beliefstate {
   
   // Event container specific functions
   Event defaultEvent(string strEventName = "");
+  Event eventInResponseTo(Event evRequest, string strEventName = "");
   
   // Service event container specific functions
   ServiceEvent defaultServiceEvent(string strServiceName = "");

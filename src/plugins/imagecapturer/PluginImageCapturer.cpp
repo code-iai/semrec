@@ -52,12 +52,10 @@ namespace beliefstate {
 	    if(m_icapImageCapturer->captureFromTopic(strTopic, strFilename, "/home/winkler/tempicap/")) {
 	      this->info("Wrote image from topic '" + strTopic + "' to file '" + strFilename + "'");
 	      
-	      Event evImage = defaultEvent("add-image-from-file");
+	      Event evImage = eventInResponseTo(evEvent, "add-image-from-file");
 	      evImage.cdDesignator = new CDesignator();
 	      evImage.cdDesignator->setType(ACTION);
 	      evImage.cdDesignator->setValue("filename", strFilename);
-	      evImage.nOpenRequestID = evEvent.nOpenRequestID;
-	      evImage.bRequest = false;
 	      
 	      m_mtxEventsStore.lock();
 	      m_lstEvents.push_back(evImage);
@@ -65,9 +63,7 @@ namespace beliefstate {
 	    } else {
 	      this->warn("Failed to capture image from topic '" + strTopic + "' and write it to '" + strFilename + "'.");
 	      
-	      Event evImage = defaultEvent("add-image-from-topic");
-	      evImage.nOpenRequestID = evEvent.nOpenRequestID;
-	      evImage.bRequest = false;
+	      Event evImage = eventInResponseTo(evEvent);
 	      
 	      m_mtxEventsStore.lock();
 	      m_lstEvents.push_back(evImage);

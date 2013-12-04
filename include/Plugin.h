@@ -65,7 +65,7 @@ namespace beliefstate {
       
       void deployCycleData(Result& resDeployTo);
       
-      void deployEvent(Event evDeploy);
+      void deployEvent(Event evDeploy, bool bWaitForEvent = false);
       void deployServiceEvent(ServiceEvent seDeploy);
       
       string pluginIdentifierString(bool bBold);
@@ -81,6 +81,8 @@ namespace beliefstate {
       
       void setRunning(bool bRunCycle);
       bool running();
+      
+      void waitForEvent(Event evWait);
     };
   }
 }

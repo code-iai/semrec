@@ -94,6 +94,18 @@ namespace beliefstate {
     return evDefault;
   }
   
+  Event eventInResponseTo(Event evRequest, string strEventName) {
+    if(strEventName == "") {
+      strEventName = evRequest.strEventName;
+    }
+    
+    Event evDefault = defaultEvent(strEventName);
+    evDefault.nOpenRequestID = evRequest.nOpenRequestID;
+    evDefault.bRequest = false;
+    
+    return evDefault;
+  }
+  
   string colorSpecifierForID(int nID, bool bBold) {
     int nLength = 7;
     string strColorCodes[] = {"31", "32", "33", "34", "35", "36", "37"};

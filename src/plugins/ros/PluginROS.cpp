@@ -128,17 +128,13 @@ namespace beliefstate {
 	evAlterContext.strEventName = "add-object";
       } else if(strCommand == "export-planlog") {
 	evAlterContext.strEventName = "export-planlog";
+      } else if(strCommand == "start-new-experiment") {
+	evAlterContext.strEventName = "start-new-experiment";
       } else {
 	this->warn("Unknown command when altering context: '" + strCommand + "'");
       }
       
-      this->deployEvent(evAlterContext);
-      
-      if(evAlterContext.nOpenRequestID != -1) {
-	while(this->isRequestIDOpen(evAlterContext.nOpenRequestID) && this->running()) {
-	  // Do nothing and wait.
-	}
-      }
+      this->deployEvent(evAlterContext, true);
       
       return true;
     }
