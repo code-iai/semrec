@@ -7,7 +7,6 @@ namespace beliefstate {
     m_bRun = true;
     m_argc = argc;
     m_argv = argv;
-    m_strBaseDataDirectory = "";
   }
   
   Beliefstate::~Beliefstate() {
@@ -83,6 +82,7 @@ namespace beliefstate {
 	string strBaseDataDirectory;
 	Setting &sPersistentDataStorage = cfgConfig.lookup("persistent-data-storage");
 	sPersistentDataStorage.lookupValue("base-data-directory", strBaseDataDirectory);
+	strBaseDataDirectory = this->resolveDirectoryTokens(strBaseDataDirectory);
 	
 	bool bUseMongoDB;
 	string strMongoDBHost;
@@ -129,40 +129,7 @@ namespace beliefstate {
 	for(int nI = 0; nI < sPluginsPaths.getLength(); nI++) {
 	  string strPath = sPluginsPaths[nI];
 	  
-	  // Replace environment variables
-	  const char* cROSWorkspace = getenv("ROS_WORKSPACE");
-	  const char* cCMAKEPrefixPath = getenv("CMAKE_PREFIX_PATH");
-	  
-	  string strWorkspaceReplacement = "";
-	  string strROSWorkspace = "";
-	  string strCMAKEPrefixPath = "";
-	  if(cROSWorkspace) {
-	    strROSWorkspace = cROSWorkspace;
-	  }
-	  
-	  if(cCMAKEPrefixPath) {
-	    strCMAKEPrefixPath = cCMAKEPrefixPath;
-	  }
-	  
-	  // ROS_WORKSPACE takes precedence over CMAKE_PREFIX_PATH
-	  if(strROSWorkspace != "") {
-	    strWorkspaceReplacement = strROSWorkspace;
-	  } else {
-	    if(strCMAKEPrefixPath != "") {
-	      // The first entry is the one we're using. This could be
-	      // improved, but is okay for now.
-	      const size_t szFirstColon = strCMAKEPrefixPath.find_first_of(":");
-	      if(szFirstColon != string::npos) {
-		strCMAKEPrefixPath.erase(szFirstColon);
-		strWorkspaceReplacement = strCMAKEPrefixPath;
-	      }
-	    }
-	  }
-	  
-	  if(strWorkspaceReplacement != "") {
-	    this->replaceStringInPlace(strPath, "$WORKSPACE", strWorkspaceReplacement);
-	  }
-	  
+	  strPath = this->resolveDirectoryTokens(strPath);
 	  m_psPlugins->addPluginSearchPath(strPath);
 	}
 	
@@ -286,5 +253,48 @@ namespace beliefstate {
   string Beliefstate::baseDataDirectory() {
     ConfigSettings cfgsetCurrent = configSettings();
     return cfgsetCurrent.strBaseDataDirectory;
+  }
+  
+  string Beliefstate::resolveDirectoryTokens(string strPath) {
+    const char* cROSWorkspace = getenv("ROS_WORKSPACE");
+    const char* cCMAKEPrefixPath = getenv("CMAKE_PREFIX_PATH");
+    
+    string strWorkspaceReplacement = "";
+    string strROSWorkspace = "";
+    string strCMAKEPrefixPath = "";
+    if(cROSWorkspace) {
+      strROSWorkspace = cROSWorkspace;
+    }
+    
+    if(cCMAKEPrefixPath) {
+      strCMAKEPrefixPath = cCMAKEPrefixPath;
+    }
+    
+    // ROS_WORKSPACE takes precedence over CMAKE_PREFIX_PATH
+    if(strROSWorkspace != "") {
+      strWorkspaceReplacement = strROSWorkspace;
+    } else {
+      if(strCMAKEPrefixPath != "") {
+	// The first entry is the one we're using. This could be
+	// improved, but is okay for now.
+	const size_t szFirstColon = strCMAKEPrefixPath.find_first_of(":");
+	if(szFirstColon != string::npos) {
+	  strCMAKEPrefixPath.erase(szFirstColon);
+	  strWorkspaceReplacement = strCMAKEPrefixPath;
+	}
+      }
+    }
+    
+    if(strWorkspaceReplacement != "") {
+      this->replaceStringInPlace(strPath, "$WORKSPACE", strWorkspaceReplacement);
+    }
+    
+    char* cHome = getenv("HOME");
+    if(cHome) {
+      string strHome = cHome;
+      this->replaceStringInPlace(strPath, "$HOME", strHome);
+    }
+    
+    return strPath;
   }
 }
