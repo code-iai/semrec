@@ -75,6 +75,7 @@ namespace beliefstate {
     
     // Current Experiment Instance
     string strExperimentDirectory;
+    string strSymlinkName;
     
     // MongoDB
     bool bUseMongoDB;

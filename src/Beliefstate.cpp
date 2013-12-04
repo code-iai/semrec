@@ -99,8 +99,10 @@ namespace beliefstate {
 	
 	// Section: Experiment data
 	string strExperimentNameMask;
+	string strSymlinkName;
 	Setting &sExperimentData = cfgConfig.lookup("experiment-data");
 	sExperimentData.lookupValue("experiment-name-mask", strExperimentNameMask);
+	sExperimentData.lookupValue("symlink-name", strSymlinkName);
 	
 	// -> Set the global settings
 	ConfigSettings cfgsetCurrent = configSettings();
@@ -110,6 +112,7 @@ namespace beliefstate {
 	cfgsetCurrent.strMongoDBDatabase = strMongoDBDatabase;
 	cfgsetCurrent.strExperimentNameMask = strExperimentNameMask;
 	cfgsetCurrent.strBaseDataDirectory = strBaseDataDirectory;
+	cfgsetCurrent.strSymlinkName = strSymlinkName;
 	setConfigSettings(cfgsetCurrent);
 	
 	// Section: Plugins

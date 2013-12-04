@@ -68,7 +68,7 @@ namespace beliefstate {
 	this->info("Created new experiment space: '" + strNewExp + "'.");
 	setConfigSettings(cfgsetCurrent);
 	
-	string strSymlink = cfgsetCurrent.strBaseDataDirectory + "/current-experiment";
+	string strSymlink = cfgsetCurrent.strBaseDataDirectory + "/" + cfgsetCurrent.strSymlinkName;
 	remove(strSymlink.c_str());
 	symlink(strNewName.c_str(), strSymlink.c_str());
 	this->info("Symlink set accordingly.");
