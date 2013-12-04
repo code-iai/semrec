@@ -49,19 +49,22 @@ namespace beliefstate {
 	      strFilename += ".png";
 	    }
 	    
-	    if(m_icapImageCapturer->captureFromTopic(strTopic, strFilename, "/home/winkler/tempicap/")) {
-	      this->info("Wrote image from topic '" + strTopic + "' to file '" + strFilename + "'");
+	    ConfigSettings cfgsetCurrent = configSettings();
+	    
+	    if(m_icapImageCapturer->captureFromTopic(strTopic, strFilename, cfgsetCurrent.strExperimentDirectory)) {
+	      string strFilepath = cfgsetCurrent.strExperimentDirectory + strFilename;
+	      this->info("Wrote image from topic '" + strTopic + "' to file '" + strFilepath + "'");
 	      
 	      Event evImage = eventInResponseTo(evEvent, "add-image-from-file");
 	      evImage.cdDesignator = new CDesignator();
 	      evImage.cdDesignator->setType(ACTION);
-	      evImage.cdDesignator->setValue("filename", strFilename);
+	      evImage.cdDesignator->setValue("filename", strFilepath);
 	      
 	      m_mtxEventsStore.lock();
 	      m_lstEvents.push_back(evImage);
 	      m_mtxEventsStore.unlock();
 	    } else {
-	      this->warn("Failed to capture image from topic '" + strTopic + "' and write it to '" + strFilename + "'.");
+	      this->warn("Failed to capture image from topic '" + strTopic + "' and write it to '" + cfgsetCurrent.strExperimentDirectory + strFilename + "'.");
 	      
 	      Event evImage = eventInResponseTo(evEvent);
 	      
