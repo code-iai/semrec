@@ -23,6 +23,8 @@ namespace beliefstate {
       list<string> m_lstDependencies;
       string m_strName;
       int m_nID;
+      bool m_bRunCycle;
+      mutex m_mtxRunCycle;
       
     protected:
       list<Event> m_lstEvents;
@@ -31,6 +33,7 @@ namespace beliefstate {
       list<ServiceEvent> m_lstServiceEvents;
       mutex m_mtxServiceEventsStore;
       list<string> m_lstOfferedServices;
+      list<int> m_lstOpenRequestIDs;
       
     public:
       Plugin();
@@ -70,6 +73,14 @@ namespace beliefstate {
       void info(string strMessage);
       
       int getTimeStamp();
+      
+      int openNewRequestID();
+      bool isRequestIDOpen(int nID);
+      void closeRequestID(int nID);
+      bool isAnyRequestIDOpen();
+      
+      void setRunning(bool bRunCycle);
+      bool running();
     };
   }
 }

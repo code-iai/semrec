@@ -88,6 +88,8 @@ namespace beliefstate {
     evDefault.strEventName = strEventName;
     evDefault.cdDesignator = NULL;
     evDefault.nOriginID = -1;
+    evDefault.nOpenRequestID = -1;
+    evDefault.bRequest = true;
     
     return evDefault;
   }

@@ -56,12 +56,22 @@ namespace beliefstate {
 	      evImage.cdDesignator = new CDesignator();
 	      evImage.cdDesignator->setType(ACTION);
 	      evImage.cdDesignator->setValue("filename", strFilename);
+	      evImage.nOpenRequestID = evEvent.nOpenRequestID;
+	      evImage.bRequest = false;
 	      
 	      m_mtxEventsStore.lock();
 	      m_lstEvents.push_back(evImage);
 	      m_mtxEventsStore.unlock();
 	    } else {
 	      this->warn("Failed to capture image from topic '" + strTopic + "' and write it to '" + strFilename + "'.");
+	      
+	      Event evImage = defaultEvent("add-image-from-topic");
+	      evImage.nOpenRequestID = evEvent.nOpenRequestID;
+	      evImage.bRequest = false;
+	      
+	      m_mtxEventsStore.lock();
+	      m_lstEvents.push_back(evImage);
+	      m_mtxEventsStore.unlock();
 	    }
 	  } else {
 	    this->warn("No topic was given when requesting to capture an image from a topic.");

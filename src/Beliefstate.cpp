@@ -80,18 +80,33 @@ namespace beliefstate {
 	// Section: Persistent data storage
 	Setting &sPersistentDataStorage = cfgConfig.lookup("persistent-data-storage");
 	sPersistentDataStorage.lookupValue("base-data-directory", m_strBaseDataDirectory);
-	sPersistentDataStorage.lookupValue("use-mongodb", m_bUseMongoDB);
 	
-	if(m_bUseMongoDB) {
+	bool bUseMongoDB;
+	string strMongoDBHost;
+	int nMongoDBPort;
+	string strMongoDBDatabase;
+	sPersistentDataStorage.lookupValue("use-mongodb", bUseMongoDB);
+	
+	if(bUseMongoDB) {
 	  Setting &sMongoDB = cfgConfig.lookup("persistent-data-storage.mongodb");
-	  sMongoDB.lookupValue("host", m_strMongoDBHost);
-	  sMongoDB.lookupValue("port", m_nMongoDBPort);
-	  sMongoDB.lookupValue("database", m_strMongoDBDatabase);
+	  sMongoDB.lookupValue("host", strMongoDBHost);
+	  sMongoDB.lookupValue("port", nMongoDBPort);
+	  sMongoDB.lookupValue("database", strMongoDBDatabase);
 	}
 	
 	// Section: Experiment data
+	string strExperimentNameMask;
 	Setting &sExperimentData = cfgConfig.lookup("experiment-data");
-	sExperimentData.lookupValue("experiment-name-mask", m_strExperimentNameMask);
+	sExperimentData.lookupValue("experiment-name-mask", strExperimentNameMask);
+	
+	// -> Set the global settings
+	ConfigSettings cfgsetCurrent = configSettings();
+	cfgsetCurrent.bUseMongoDB = bUseMongoDB;
+	cfgsetCurrent.strMongoDBHost = strMongoDBHost;
+	cfgsetCurrent.nMongoDBPort = nMongoDBPort;
+	cfgsetCurrent.strMongoDBDatabase = strMongoDBDatabase;
+	cfgsetCurrent.strExperimentNameMask = strExperimentNameMask;
+	setConfigSettings(cfgsetCurrent);
 	
 	// Section: Plugins
 	Setting &sPluginsLoad = cfgConfig.lookup("plugins.load");

@@ -5,6 +5,7 @@ namespace beliefstate {
   namespace plugins {
     Plugin::Plugin() {
       m_nID = createPluginID();
+      m_bRunCycle = true;
     }
     
     Plugin::~Plugin() {
@@ -161,6 +162,52 @@ namespace beliefstate {
     
     int Plugin::getTimeStamp() {
       return std::time(0);
+    }
+    
+    
+    int Plugin::openNewRequestID() {
+      int nID = 0;
+      
+      while(this->isRequestIDOpen(nID)) {
+	nID++;
+      }
+      
+      m_lstOpenRequestIDs.push_back(nID);
+      return nID;
+    }
+    
+    bool Plugin::isRequestIDOpen(int nID) {
+      for(list<int>::iterator itID = m_lstOpenRequestIDs.begin();
+	  itID != m_lstOpenRequestIDs.end();
+	  itID++) {
+	if(*itID == nID) {
+	  return true;
+	}
+      }
+      
+      return false;
+    }
+    
+    void Plugin::closeRequestID(int nID) {
+      m_lstOpenRequestIDs.remove(nID);
+    }
+    
+    bool Plugin::isAnyRequestIDOpen() {
+      return (m_lstOpenRequestIDs.size() > 0);
+    }
+    
+    void Plugin::setRunning(bool bRunCycle) {
+      m_mtxRunCycle.lock();
+      m_bRunCycle = bRunCycle;
+      m_mtxRunCycle.unlock();
+    }
+    
+    bool Plugin::running() {
+      m_mtxRunCycle.lock();
+      bool bReturn = m_bRunCycle;
+      m_mtxRunCycle.unlock();
+      
+      return bReturn;
     }
   }
 }

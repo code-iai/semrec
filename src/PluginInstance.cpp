@@ -98,7 +98,7 @@ namespace beliefstate {
       m_thrdPluginCycle = new thread(&PluginInstance::spinCycle, this);
     }
     
-    return this->currentResult();//m_piInstance->cycle();
+    return this->currentResult();
   }
   
   void PluginInstance::spinCycle() {
@@ -148,16 +148,21 @@ namespace beliefstate {
   }
   
   Result PluginInstance::currentResult() {
-    m_mtxCycleResults.lock();
-    Result resReturn = m_resCycleResult;
-    m_resCycleResult = defaultResult();
-    m_mtxCycleResults.unlock();
+    Result resReturn = defaultResult();
+    
+    if(m_mtxCycleResults.try_lock()) {
+      resReturn = m_resCycleResult;
+      m_resCycleResult = defaultResult();
+      m_mtxCycleResults.unlock();
+    }
     
     return resReturn;
   }
   
   void PluginInstance::setRunning(bool bRunCycle) {
     m_bRunCycle = bRunCycle;
+    
+    m_piInstance->setRunning(bRunCycle);
   }
   
   void PluginInstance::waitForJoin() {

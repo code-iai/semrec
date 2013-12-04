@@ -31,6 +31,8 @@ namespace beliefstate {
       ros::ServiceServer m_srvEndContext;
       ros::ServiceServer m_srvAlterContext;
       ros::Publisher m_pubLoggedDesignators;
+      bool m_bStartedSpinning;
+      ros::AsyncSpinner* m_aspnAsyncSpinner;
       
     public:
       PluginROS();
@@ -50,7 +52,6 @@ namespace beliefstate {
       
       string getDesignatorTypeString(CDesignator* desigDesignator);
     };
-    
   }
   
   extern "C" plugins::PluginROS* createInstance();

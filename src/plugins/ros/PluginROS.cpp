@@ -5,16 +5,24 @@ namespace beliefstate {
   namespace plugins {
     PluginROS::PluginROS() {
       m_nhHandle = NULL;
+      m_aspnAsyncSpinner = NULL;
     }
     
     PluginROS::~PluginROS() {
       if(m_nhHandle) {
 	delete m_nhHandle;
       }
+      
+      if(m_aspnAsyncSpinner) {
+	delete m_aspnAsyncSpinner;
+      }
     }
     
     Result PluginROS::init(int argc, char** argv) {
       Result resInit = defaultResult();
+      
+      this->setSubscribedToEvent("add-image-from-file", true);
+      this->setSubscribedToEvent("add-image-from-topic", true);
       
       if(!ros::ok()) {
 	string strROSNodeName = "beliefstate_ros";
@@ -29,7 +37,9 @@ namespace beliefstate {
 	  m_srvAlterContext = m_nhHandle->advertiseService<PluginROS>("alter_context", &PluginROS::serviceCallbackAlterContext, this);
 	  m_pubLoggedDesignators = m_nhHandle->advertise<designator_integration_msgs::Designator>("/logged_designators", 1);
 	  
-	  this->info("ROS node started.");
+	  this->info("ROS node started. Starting to spin (4 threads).");
+	  m_aspnAsyncSpinner = new ros::AsyncSpinner(4);
+	  m_aspnAsyncSpinner->start();
 	} else {
 	  resInit.bSuccess = false;
 	  resInit.strErrorMessage = "Failed to start ROS node.";
@@ -50,12 +60,6 @@ namespace beliefstate {
     Result PluginROS::cycle() {
       Result resCycle = defaultResult();
       this->deployCycleData(resCycle);
-      
-      if(ros::ok()) {
-	ros::spinOnce();
-      } else {
-	resCycle.bSuccess = false;
-      }
       
       return resCycle;
     }
@@ -99,6 +103,7 @@ namespace beliefstate {
       
       if(strCommand == "add-image") {
 	evAlterContext.strEventName = "add-image-from-topic";
+	evAlterContext.nOpenRequestID = this->openNewRequestID();
       } else if(strCommand == "add-failure") {
 	evAlterContext.strEventName = "add-failure";
       } else if(strCommand == "add-designator") {
@@ -129,11 +134,20 @@ namespace beliefstate {
       
       this->deployEvent(evAlterContext);
       
+      if(evAlterContext.nOpenRequestID != -1) {
+	while(this->isRequestIDOpen(evAlterContext.nOpenRequestID) && this->running()) {
+	  // Do nothing and wait.
+	}
+      }
+      
       return true;
     }
     
     void PluginROS::consumeEvent(Event evEvent) {
-      this->info("Consume event!");
+      if(evEvent.bRequest == false) {
+	this->closeRequestID(evEvent.nOpenRequestID);
+      }
+      //this->info("Consume event!");
     }
     
     Event PluginROS::consumeServiceEvent(ServiceEvent seServiceEvent) {

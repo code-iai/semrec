@@ -39,6 +39,8 @@ namespace beliefstate {
     CDesignator* cdDesignator;
     string strSupplementary;
     int nOriginID;
+    int nOpenRequestID;
+    bool bRequest;
     list<Node*> lstNodes;
     list< pair<string, string> > lstDesignatorIDs;
     list< pair<string, string> > lstEquations;
@@ -67,7 +69,15 @@ namespace beliefstate {
   } Result;
   
   typedef struct {
+    // Basics
     string strBaseDataDirectory;
+    string strExperimentNameMask;
+    
+    // MongoDB
+    bool bUseMongoDB;
+    string strMongoDBHost;
+    int nMongoDBPort;
+    string strMongoDBDatabase;
   } ConfigSettings;
 }
 
