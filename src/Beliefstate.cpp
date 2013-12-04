@@ -131,9 +131,36 @@ namespace beliefstate {
 	  
 	  // Replace environment variables
 	  const char* cROSWorkspace = getenv("ROS_WORKSPACE");
+	  const char* cCMAKEPrefixPath = getenv("CMAKE_PREFIX_PATH");
+	  
+	  string strWorkspaceReplacement = "";
+	  string strROSWorkspace = "";
+	  string strCMAKEPrefixPath = "";
 	  if(cROSWorkspace) {
-	    string strROSWorkspace = cROSWorkspace;
-	    this->replaceStringInPlace(strPath, "$ROS_WORKSPACE", strROSWorkspace);
+	    strROSWorkspace = cROSWorkspace;
+	  }
+	  
+	  if(cCMAKEPrefixPath) {
+	    strCMAKEPrefixPath = cCMAKEPrefixPath;
+	  }
+	  
+	  // ROS_WORKSPACE takes precedence over CMAKE_PREFIX_PATH
+	  if(strROSWorkspace != "") {
+	    strWorkspaceReplacement = strROSWorkspace;
+	  } else {
+	    if(strCMAKEPrefixPath != "") {
+	      // The first entry is the one we're using. This could be
+	      // improved, but is okay for now.
+	      const size_t szFirstColon = strCMAKEPrefixPath.find_first_of(":");
+	      if(szFirstColon != string::npos) {
+		strCMAKEPrefixPath.erase(szFirstColon);
+		strWorkspaceReplacement = strCMAKEPrefixPath;
+	      }
+	    }
+	  }
+	  
+	  if(strWorkspaceReplacement != "") {
+	    this->replaceStringInPlace(strPath, "$WORKSPACE", strWorkspaceReplacement);
 	  }
 	  
 	  m_psPlugins->addPluginSearchPath(strPath);
