@@ -83,6 +83,10 @@ namespace beliefstate {
 	
 	int nDetailLevel = (int)evEvent.cdDesignator->floatValue("_detail-level");
 	ndNew->metaInformation()->setValue(string("detail-level"), nDetailLevel);
+	
+	Event evSymbolicBeginCtx = defaultEvent("symbolic-begin-context");
+	evSymbolicBeginCtx.lstNodes.push_back(ndNew);
+	this->deployEvent(evSymbolicBeginCtx);
       } else if(evEvent.strEventName == "end-context") {
 	int nID = (int)evEvent.cdDesignator->floatValue("_id");
 	
@@ -112,6 +116,10 @@ namespace beliefstate {
 		break;
 	      }
 	    }
+	    
+	    Event evSymbolicEndCtx = defaultEvent("symbolic-end-context");
+	    evSymbolicEndCtx.lstNodes.push_back(ndCurrent);
+	    this->deployEvent(evSymbolicEndCtx);
 	  } else {
 	    stringstream sts;
 	    sts << "Received stop node designator for ID " << nID << " while ID " << ndCurrent->id() << " is active.";
