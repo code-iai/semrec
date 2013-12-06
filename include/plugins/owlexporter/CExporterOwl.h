@@ -43,7 +43,7 @@ namespace beliefstate {
     string generateFailureIndividuals(string strNamespace);
     string generateTimepointIndividuals(string strNamespace);
   
-    string owlClassForNode(Node *ndNode, bool bClassOnly = false);
+    string owlClassForNode(Node *ndNode, bool bClassOnly = false, bool bPrologSyntax = false);
     string owlClassForObject(CKeyValuePair *ckvpObject);  
     virtual string nodeIDPrefix(Node* ndInQuestion, string strProposition);
   

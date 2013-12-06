@@ -617,11 +617,13 @@ namespace beliefstate {
     return strDot;
   }
 
-  string CExporterOwl::owlClassForNode(Node *ndNode, bool bClassOnly) {
+  string CExporterOwl::owlClassForNode(Node *ndNode, bool bClassOnly, bool bPrologSyntax) {
     string strName = ndNode->title();
-    string strPrefix = "&knowrob;";
+    
+    string strPlainPrefix = "knowrob";
+    string strPrefix = (bPrologSyntax ? strPlainPrefix + ":" : "&" + strPlainPrefix + ";");
     string strClass = "CRAMAction";
-  
+    
     if(strName == "WITH-DESIGNATORS") {
       // Is this right? Or is there a more fitting type for that?
       strClass = "WithDesignators";
@@ -679,10 +681,10 @@ namespace beliefstate {
     } else if(strName == "VOLUNTARY-BODY-MOVEMENT") {
       strClass = "VoluntaryBodyMovement";
     }
-  
-    return (bClassOnly ? "" : strPrefix) + strClass;
+    
+    return (bClassOnly ? "" : strPrefix) + (bPrologSyntax ? "'" + strClass + "'" : strClass);
   }
-
+  
   bool CExporterOwl::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
     this->renewUniqueIDs();
     
