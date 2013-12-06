@@ -61,8 +61,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  include
-)
+  include)
 
 ## Declare a cpp library
 add_library(bs_plugin_ros SHARED

@@ -255,7 +255,7 @@ namespace beliefstate {
     return cfgsetCurrent.strBaseDataDirectory;
   }
   
-  string Beliefstate::resolveDirectoryTokens(string strPath) {
+  string Beliefstate::workspaceDirectory() {
     const char* cROSWorkspace = getenv("ROS_WORKSPACE");
     const char* cCMAKEPrefixPath = getenv("CMAKE_PREFIX_PATH");
     
@@ -285,16 +285,90 @@ namespace beliefstate {
       }
     }
     
-    if(strWorkspaceReplacement != "") {
-      this->replaceStringInPlace(strPath, "$WORKSPACE", strWorkspaceReplacement);
-    }
+    return strWorkspaceReplacement;
+  }
+  
+  string Beliefstate::homeDirectory() {
+    string strHome = "";
     
     char* cHome = getenv("HOME");
     if(cHome) {
-      string strHome = cHome;
-      this->replaceStringInPlace(strPath, "$HOME", strHome);
+      strHome = cHome;
     }
     
-    return strPath;
+    return strHome;
+  }
+  
+  string Beliefstate::resolveDirectoryTokens(string strSubject) {
+    // First, make list of things to replace
+    list< pair<string, bool> > lstTokens;
+  
+    size_t pos = 0;
+    while((pos = strSubject.find("$", pos)) != string::npos) {
+      size_t offset = 1;
+    
+      if(pos < strSubject.size() - 1) {
+	if(strSubject.at(pos + 1) != ' ') {
+	  string strToken = "";
+	  bool bInBrackets = false;
+	
+	  if(strSubject.at(pos + 1) == '{') {
+	    offset++;
+	    size_t pos_endbracket = strSubject.find("}", pos + 1);
+	  
+	    if(pos_endbracket != string::npos) {
+	      strToken = strSubject.substr(pos + 2, pos_endbracket - (pos + 2));
+	      offset += 1 + pos_endbracket - (pos + 2);
+	      bInBrackets = true;
+	    } else {
+	      // This token is invalid (no ending bracket).
+	    }
+	  } else {
+	    size_t pos_space_or_end = strSubject.find_first_of(" /.~_-\\$", pos + 1);
+	    if(pos_space_or_end == string::npos) {
+	      // The rest of the string is part of the token
+	      strToken = strSubject.substr(pos + 1);
+	      offset += pos + 1;
+	    } else {
+	      // The token is delimited by a space
+	      strToken = strSubject.substr(pos + 1, pos_space_or_end - (pos + 1));
+	      offset += pos_space_or_end - (pos + 1);
+	    }
+	  }
+	
+	  if(strToken != "") {
+	    lstTokens.push_back(make_pair(strToken, bInBrackets));
+	  }
+	}
+      }
+    
+      pos += offset;
+    }
+    
+    for(list< pair<string, bool> >::iterator itToken = lstTokens.begin();
+	  itToken != lstTokens.end();
+	  itToken++) {
+      pair<string, bool> prToken = *itToken;
+      string strToken = prToken.first;
+      bool bInBrackets = prToken.second;
+      string strToReplace = (bInBrackets ? "${" + strToken + "}" : "$" + strToken);
+      string strReplacement = "";
+      
+      if(strToken.size() > 8) {
+	if(strToken.substr(0, 8) == "PACKAGE ") {
+	  string strPackage = strToken.substr(8);
+	  
+	  strReplacement = ros::package::getPath(strPackage);
+	} else if(strToken == "WORKSPACE") {
+	  strReplacement = this->workspaceDirectory();
+	}
+      } else if(strToken == "HOME") {
+	strReplacement = this->homeDirectory();
+      }
+      
+      replaceStringInPlace(strSubject, strToReplace, strReplacement);
+    }
+    
+    return strSubject;
   }
 }

@@ -51,6 +51,9 @@ namespace beliefstate {
     void setBaseDataDirectory(string strBaseDataDirectory);
     string baseDataDirectory();
     string resolveDirectoryTokens(string strPath);
+    
+    string workspaceDirectory();
+    string homeDirectory();
   };
 }
 
