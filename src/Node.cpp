@@ -205,4 +205,28 @@ namespace beliefstate {
   bool Node::success() {
     return (this->metaInformation()->floatValue(string("success")) == 1 ? true : false);
   }
+  
+  Node* Node::previousNode() {
+    Node* ndPrevious = NULL;
+    
+    if(m_ndParent != NULL) {
+      list<Node*> lstNodes = m_ndParent->subnodes();
+      Node* ndLast = NULL;
+      
+      for(list<Node*>::iterator itNode = lstNodes.begin();
+	  itNode != lstNodes.end();
+	  itNode++) {
+	Node* ndNode = *itNode;
+	
+	if(ndNode == this) {
+	  ndPrevious = ndLast;
+	  break;
+	} else {
+	  ndLast = ndNode;
+	}
+      }
+    }
+    
+    return ndPrevious;
+  }
 }

@@ -69,6 +69,8 @@ namespace beliefstate {
   
     void setSuccess(bool bSuccess);
     bool success();
+    
+    Node* previousNode();
   };
 }
 
