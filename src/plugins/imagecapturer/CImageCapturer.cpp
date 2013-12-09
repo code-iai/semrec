@@ -22,7 +22,8 @@ namespace beliefstate {
   void CImageCapturer::freeFilename(string& strFileName, string strWorkingDirectory) {
     int nIndex = 0;
     string strBase = strWorkingDirectory + strFileName;
-  
+    string strFile = strFileName;
+    
     while(this->fileExists(strBase)) {
       stringstream sts;
       sts << nIndex;
@@ -30,13 +31,14 @@ namespace beliefstate {
       sts << strFileName;
     
       nIndex++;
-    
+      
+      strFile = sts.str();
       strBase = strWorkingDirectory + sts.str();
     }
-  
-    strFileName = strBase;
+    
+    strFileName = strFile;
   }
-
+  
   bool CImageCapturer::captureFromTopic(string strTopicName, string& strFileName, string strWorkingDirectory, bool bUseFreeName) {
     int nTimeout = 1000;
     bool bReturnvalue = false;
@@ -66,14 +68,16 @@ namespace beliefstate {
 	cv_ptr = cv_bridge::toCvCopy(m_imgReceived, sensor_msgs::image_encodings::BGR8);
       
 	cv::Mat imgMat = cv_ptr->image;
-      
+	
+	string strUseFilename = "";
 	if(bUseFreeName) {
 	  this->freeFilename(strFileName, strWorkingDirectory);
+	  strUseFilename = strWorkingDirectory + strFileName;
 	} else {
-	  strFileName = strWorkingDirectory + strFileName;
+	  strUseFilename = strWorkingDirectory + strFileName;
 	}
-	
-	cv::imwrite(strFileName, imgMat);
+	cout << "Using " << strUseFilename << endl;
+	cv::imwrite(strUseFilename, imgMat);
 	
 	if(m_strImagesTopic != "") {
 	  m_pubImages.publish(m_imgReceived);

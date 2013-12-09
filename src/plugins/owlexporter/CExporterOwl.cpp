@@ -86,6 +86,9 @@ namespace beliefstate {
     lstProperties.push_back("&knowrob;successorDesignator");
     lstProperties.push_back("&knowrob;taskContext");
     lstProperties.push_back("&knowrob;goalContext");
+    lstProperties.push_back("&knowrob;capturedImage");
+    lstProperties.push_back("&knowrob;rostopic");
+    lstProperties.push_back("&knowrob;filename");
   
     for(list<string>::iterator itProperty = lstProperties.begin();
 	itProperty != lstProperties.end();
@@ -298,7 +301,26 @@ namespace beliefstate {
 	    }
 	  }
 	}
-      
+	
+	// Image references here.
+	CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
+	
+	if(ckvpImages) {
+	  list<CKeyValuePair*> lstImages = ckvpImages->children();
+	  
+	  unsigned int unIndex = 0;
+	  for(list<CKeyValuePair*>::iterator itImage = lstImages.begin();
+	      itImage != lstImages.end();
+	      itImage++, unIndex++) {
+	    CKeyValuePair *ckvpImage = *itImage;
+	    
+	    stringstream sts;
+	    sts << ndCurrent->uniqueID() << "_image_" << unIndex;
+	    
+	    strDot += "        <knowrob:capturedImage rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+	  }
+	}
+	
 	// Failure references here.
 	CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
       
