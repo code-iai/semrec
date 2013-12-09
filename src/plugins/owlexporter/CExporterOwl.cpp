@@ -524,19 +524,22 @@ namespace beliefstate {
 	    itImage != lstImages.end();
 	    itImage++, unIndex++) {
 	  CKeyValuePair *ckvpImage = *itImage;
-	
+	  
 	  stringstream sts;
 	  sts << ndCurrent->uniqueID() << "_image_" << unIndex;
-	
-	  // 	string strDesignatorID = ckvpObject->stringValue("__id");
+	  
 	  string strOwlClass = "&knowrob;CameraImage";
+	  string strFilename = ckvpImage->stringValue("filename");
+	  string strTopic = ckvpImage->stringValue("origin");
+	  
 	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
-	  //strDot += "        <knowrob:designator rdf:resource=\"&" + strNamespace + ";" + strDesignatorID + "\"/>\n";
+	  strDot += "        <knowrob:filename rdf:datatype=\"&xsd;string\">" + strFilename + "</knowrob:filename>\n";
+	  strDot += "        <knowrob:rostopic rdf:datatype=\"&xsd;string\">" + strTopic + "</knowrob:rostopic>\n";
 	  strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
 	  strDot += "    </owl:namedIndividual>\n\n";
 	}
       }
-    
+      
       strDot += this->generateImageIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
     }
   

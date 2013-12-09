@@ -59,7 +59,13 @@ namespace beliefstate {
 	      evImage.cdDesignator = new CDesignator();
 	      evImage.cdDesignator->setType(ACTION);
 	      evImage.cdDesignator->setValue("origin", strTopic);
-	      evImage.cdDesignator->setValue("filename", strFilepath);
+	      // NOTE(winkler): We just use the filename here, not the
+	      // global filepath. This is due to the fact that all
+	      // images are stored relative to the generated .owl file
+	      // (i.e. in the same directory). When moving all files
+	      // somewhere else, global paths would make finding of
+	      // files very difficult.
+	      evImage.cdDesignator->setValue("filename", strFilename);
 	      
 	      m_mtxEventsStore.lock();
 	      m_lstEvents.push_back(evImage);
