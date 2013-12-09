@@ -80,6 +80,8 @@ namespace beliefstate {
 		} else {
 		  this->warn("Failed to export to OWL file '" + expOwl->outputFilename() + "'");
 		}
+		
+		delete expOwl;
 	      }
 	    }
 	  }

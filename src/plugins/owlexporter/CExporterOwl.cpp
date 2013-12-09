@@ -509,16 +509,16 @@ namespace beliefstate {
 
   string CExporterOwl::generateImageIndividualsForNodes(list<Node*> lstNodes, string strNamespace) {
     string strDot = "";
-  
+    
     for(list<Node*>::iterator itNode = lstNodes.begin();
 	itNode != lstNodes.end();
 	itNode++) {
       Node *ndCurrent = *itNode;
       CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
-    
+      
       if(ckvpImages) {
 	list<CKeyValuePair*> lstImages = ckvpImages->children();
-      
+	
 	unsigned int unIndex = 0;
 	for(list<CKeyValuePair*>::iterator itImage = lstImages.begin();
 	    itImage != lstImages.end();
