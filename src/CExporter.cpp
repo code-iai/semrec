@@ -7,7 +7,14 @@ namespace beliefstate {
   }
 
   CExporter::~CExporter() {
-    this->clearNodes();
+    // NOTE(winkler): We used to delete the nodes when the exporter
+    // shuts down. As in the new system the nodes are managed by a
+    // central `symbolic log' entity, this is not necessary
+    // anymore. In fact, its harmful to do (as the symbolic log will
+    // try to `free' the same node addresses -- this results in a
+    // segfault).
+
+    //this->clearNodes();
     delete m_ckvpConfiguration;
   }
 
