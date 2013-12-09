@@ -100,6 +100,15 @@ add_library(bs_plugin_owlexporter SHARED
   src/plugins/owlexporter/CExporterOwl.cpp
   src/plugins/owlexporter/PluginOWLExporter.cpp)
 
+add_library(bs_plugin_dotexporter SHARED
+  src/GlobalFunctions.cpp
+  src/Plugin.cpp
+  src/Node.cpp
+  src/CExporter.cpp
+  src/CExporterFileoutput.cpp
+  src/plugins/dotexporter/CExporterDot.cpp
+  src/plugins/dotexporter/PluginDOTExporter.cpp)
+
 ## Declare a cpp executable
 add_executable(beliefstate
   src/main.cpp
@@ -133,6 +142,10 @@ target_link_libraries(bs_plugin_gazebo
 )
 
 target_link_libraries(bs_plugin_owlexporter
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(bs_plugin_dotexporter
   ${catkin_LIBRARIES}
 )
 

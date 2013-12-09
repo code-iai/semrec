@@ -171,10 +171,10 @@ namespace beliefstate {
     ckvpImage->setValue(string("origin"), strOrigin);
     ckvpImage->setValue(string("filename"), strFilename);
   }
-
+  
   void Node::addObject(list<CKeyValuePair*> lstDescription) {
     CKeyValuePair* ckvpObject = this->addDescriptionListItem("objects", "object");
-  
+    
     for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
 	itPair != lstDescription.end();
 	itPair++) {
