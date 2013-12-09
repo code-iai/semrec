@@ -60,7 +60,7 @@ namespace beliefstate {
   
     void setPrematurelyEnded(bool bPrematurelyEnded);
     bool prematurelyEnded();
-  
+    
     CKeyValuePair* addDescriptionListItem(string strDomain, string strPrefix);
     void addImage(string strOrigin, string strFilename);
     void addObject(list<CKeyValuePair*> lstDescription);

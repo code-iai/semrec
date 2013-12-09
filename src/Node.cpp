@@ -164,7 +164,7 @@ namespace beliefstate {
   
     return ckvpList->addChild(sts.str());
   }
-
+  
   void Node::addImage(string strOrigin, string strFilename) {
     CKeyValuePair* ckvpImage = this->addDescriptionListItem("images", "image");
   

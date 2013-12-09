@@ -157,6 +157,25 @@ namespace beliefstate {
 	  this->warn(sts.str());
 	}
       } else if(evEvent.strEventName == "add-image-from-file") {
+	if(evEvent.cdDesignator) {
+	  if(this->activeNode()) {
+	    string strFilepath = evEvent.cdDesignator->stringValue("filename");
+	    string strTopic = evEvent.cdDesignator->stringValue("origin");
+	    
+	    if(strFilepath != "") {
+	      this->activeNode()->addImage(strTopic, strFilepath);
+	      
+	      stringstream sts;
+	      sts << this->activeNode()->id();
+	      this->info("Added image to active node (id " + sts.str() + "): '" + strFilepath + "'");
+	    } else {
+	      this->warn("No filename given. Will not add unnamed image to active node. The designator was:");
+	      evEvent.cdDesignator->printDesignator();
+	    }
+	  } else {
+	    this->warn("No node context available. Cannot add image from file while on top-level.");
+	  }
+	}
 	this->warn("Adding images from file is not yet implemented!");
       } else if(evEvent.strEventName == "add-failure") {
 	if(evEvent.cdDesignator) {

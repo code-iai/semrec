@@ -58,6 +58,7 @@ namespace beliefstate {
 	      Event evImage = eventInResponseTo(evEvent, "add-image-from-file");
 	      evImage.cdDesignator = new CDesignator();
 	      evImage.cdDesignator->setType(ACTION);
+	      evImage.cdDesignator->setValue("origin", strTopic);
 	      evImage.cdDesignator->setValue("filename", strFilepath);
 	      
 	      m_mtxEventsStore.lock();
