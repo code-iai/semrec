@@ -75,6 +75,8 @@ namespace beliefstate {
       
       if(evEvent.strEventName == "begin-context") {
 	string strName = evEvent.cdDesignator->stringValue("_name");
+	
+	Node* ndFormerParent = this->activeNode();
 	Node* ndNew = this->addNode(strName, evEvent.nContextID);
 	
 	stringstream stsTimeStart;
@@ -87,6 +89,13 @@ namespace beliefstate {
 	Event evSymbolicBeginCtx = defaultEvent("symbolic-begin-context");
 	evSymbolicBeginCtx.lstNodes.push_back(ndNew);
 	this->deployEvent(evSymbolicBeginCtx);
+	
+	if(ndFormerParent) {
+	  Event evSymbolicSetSubcontext = defaultEvent("symbolic-set-subcontext");
+	  evSymbolicSetSubcontext.lstNodes.push_back(ndFormerParent);
+	  evSymbolicSetSubcontext.lstNodes.push_back(ndNew);
+	  this->deployEvent(evSymbolicSetSubcontext);
+	}
       } else if(evEvent.strEventName == "end-context") {
 	int nID = (int)evEvent.cdDesignator->floatValue("_id");
 	
@@ -168,6 +177,14 @@ namespace beliefstate {
 	      stringstream sts;
 	      sts << this->activeNode()->id();
 	      this->info("Added image to active node (id " + sts.str() + "): '" + strFilepath + "'");
+	      
+	      Event evSymbolicAddImage = defaultEvent("symbolic-add-image");
+	      evSymbolicAddImage.lstNodes.push_back(this->activeNode());
+	      evSymbolicAddImage.cdDesignator = new CDesignator();
+	      evSymbolicAddImage.cdDesignator->setType(ACTION);
+	      evSymbolicAddImage.cdDesignator->setValue("origin", strTopic);
+	      evSymbolicAddImage.cdDesignator->setValue("filename", strFilepath);
+	      this->deployEvent(evSymbolicAddImage);
 	    } else {
 	      this->warn("No filename given. Will not add unnamed image to active node. The designator was:");
 	      evEvent.cdDesignator->printDesignator();
