@@ -231,10 +231,14 @@ namespace beliefstate {
 	    stringstream sts;
 	    sts << this->activeNode()->id();
 	    this->info("Added '" + strType + "' designator (addr=" + strMemAddr + ") to active context (id " + sts.str() + "): '" + strUniqueID + "'");
-	    // desigResponse->setValue("id", strUniqueID);
-	    // desigResponse->setValue(string("is-new"), (bDesigExists ? 0.0 : 1.0));
 	    
-	    //bReturnvalue = true;
+	    CDesignator* cdTemp = new CDesignator((strType == "ACTION" ? ACTION : (strType == "OBJECT" ? OBJECT : LOCATION)),
+						  lstDescription);
+	    cdTemp->setValue("_id", strUniqueID);
+	    
+	    Event evLoggedDesignator = defaultEvent("logged-designator");
+	    evLoggedDesignator.cdDesignator = cdTemp;
+	    this->deployEvent(evLoggedDesignator);
 	  } else {
 	    this->warn("No node context available. Cannot add designator while on top-level.");
 	  }

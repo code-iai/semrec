@@ -23,6 +23,7 @@ namespace beliefstate {
       
       this->setSubscribedToEvent("add-image-from-file", true);
       this->setSubscribedToEvent("add-image-from-topic", true);
+      this->setSubscribedToEvent("logged-designator", true);
       
       if(!ros::ok()) {
 	string strROSNodeName = "beliefstate_ros";
@@ -108,20 +109,6 @@ namespace beliefstate {
 	evAlterContext.strEventName = "add-failure";
       } else if(strCommand == "add-designator") {
 	evAlterContext.strEventName = "add-designator";
-	
-	CKeyValuePair* ckvpDescription = evAlterContext.cdDesignator->childForKey("description");
-	if(ckvpDescription) {
-	  DesignatorType dType = ACTION;
-	  if(evAlterContext.cdDesignator->stringValue("type") == "LOCATION") {
-	    dType = LOCATION;
-	  } else if(evAlterContext.cdDesignator->stringValue("type") == "OBJECT") {
-	    dType = OBJECT;
-	  }
-	  
-	  CDesignator* cdPublish = new CDesignator(dType, ckvpDescription->children());
-	  m_pubLoggedDesignators.publish(cdPublish->serializeToMessage());
-	  delete cdPublish;
-	}
       } else if(strCommand == "equate-designators") {
 	evAlterContext.strEventName = "equate-designators";
       } else if(strCommand == "add-object") {
@@ -142,8 +129,26 @@ namespace beliefstate {
     void PluginROS::consumeEvent(Event evEvent) {
       if(evEvent.bRequest == false) {
 	this->closeRequestID(evEvent.nOpenRequestID);
+      } else {
+	if(evEvent.strEventName == "logged-designator") {
+	  if(evEvent.cdDesignator) {
+	    m_pubLoggedDesignators.publish(evEvent.cdDesignator->serializeToMessage());
+	  }
+	  // CKeyValuePair* ckvpDescription = evEvent.cdDesignator->childForKey("description");
+	  
+	  // if(ckvpDescription) {
+	  //   DesignatorType dType = ACTION;
+	  //   if(evEvent.cdDesignator->stringValue("type") == "LOCATION") {
+	  //     dType = LOCATION;
+	  //   } else if(evEvent.cdDesignator->stringValue("type") == "OBJECT") {
+	  //     dType = OBJECT;
+	  //   }
+	  
+	  //   CDesignator* cdPublish = new CDesignator(dType, ckvpDescription->children());
+	  //   m_pubLoggedDesignators.publish(cdPublish->serializeToMessage());
+	  //   delete cdPublish;
+	}
       }
-      //this->info("Consume event!");
     }
     
     Event PluginROS::consumeServiceEvent(ServiceEvent seServiceEvent) {

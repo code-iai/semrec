@@ -157,7 +157,7 @@ namespace beliefstate {
 
   CKeyValuePair* Node::addDescriptionListItem(string strDomain, string strPrefix) {
     CKeyValuePair* ckvpList = this->metaInformation()->addChild(strDomain);
-  
+    
     stringstream sts;
     sts << strPrefix << "-";
     sts << ckvpList->children().size();
@@ -191,7 +191,7 @@ namespace beliefstate {
 
   void Node::addDesignator(string strType, list<CKeyValuePair*> lstDescription, string strUniqueID, string strAnnotation) {
     CKeyValuePair* ckvpDesignator = this->addDescriptionListItem("designators", "designator");
-  
+    
     ckvpDesignator->setValue(string("type"), strType);
     // TODO(winkler): Add description here!
     ckvpDesignator->setValue(string("id"), strUniqueID);
