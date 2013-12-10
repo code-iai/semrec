@@ -43,9 +43,8 @@ namespace beliefstate {
       virtual Result cycle();
       
       virtual void consumeEvent(Event evEvent);
-      virtual Event consumeServiceEvent(ServiceEvent seServiceEvent);
       
-      bool serviceCallbackTest(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
+      InteractiveObject* addInteractiveObject(InteractiveObject* ioAdd);
     };
   }
   
