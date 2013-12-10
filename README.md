@@ -1,7 +1,7 @@
 beliefstate
 ===
 
-The beliefstate package supplied a ROS driven system with recording capabilities on low (sensor messages), and on high (symbolic) data level. Its sole idea is to keep track of the contexts in which a high level plan execution system performs actions, record its parameters, and give a detailed output about what happened during execution.
+The beliefstate package supplies a ROS driven system with recording capabilities on low (sensor messages), and on high (symbolic) data level. Its sole idea is to keep track of the contexts in which a high level plan execution system performs actions, record its parameters, and give a detailed output about what happened during execution.
 
 Using low level timing information (timestamps), information from different sources can be combined and associated. Given a plan structure, for example images taken from a camera during specific times can be associated with symbolic events.
 

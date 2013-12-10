@@ -4,7 +4,7 @@ project(beliefstate)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp roslib designator_integration designator_integration_msgs sensor_msgs cv_bridge roslib)
+find_package(catkin REQUIRED COMPONENTS roscpp roslib designator_integration designator_integration_msgs sensor_msgs cv_bridge roslib interactive_markers visualization_msgs)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -36,7 +36,7 @@ set(CMAKE_CXX_FLAGS "-std=c++0x")
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  designator_integration_msgs sensor_msgs
+  designator_integration_msgs sensor_msgs visualization_msgs
 )
 
 ###################################
@@ -50,7 +50,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp roslib designator_integration designator_integration_msgs sensor_msgs cv_bridge
+  CATKIN_DEPENDS roscpp roslib designator_integration designator_integration_msgs sensor_msgs cv_bridge interactive_markers visualization_msgs
 )
 
 ###########
@@ -73,6 +73,12 @@ add_library(bs_plugin_gazebo SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
   src/plugins/gazebo/PluginGazebo.cpp)
+
+add_library(bs_plugin_interactive SHARED
+  src/GlobalFunctions.cpp
+  src/Plugin.cpp
+  src/plugins/interactive/PluginInteractive.cpp
+  src/plugins/interactive/InteractiveObject.cpp)
 
 add_library(bs_plugin_symboliclog SHARED
   src/GlobalFunctions.cpp
@@ -138,6 +144,10 @@ target_link_libraries(bs_plugin_ros
 )
 
 target_link_libraries(bs_plugin_gazebo
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(bs_plugin_interactive
   ${catkin_LIBRARIES}
 )
 
