@@ -250,7 +250,18 @@ namespace beliefstate {
 	  
 	  if(strMemAddrChild != "" && strMemAddrParent != "") {
 	    if(this->activeNode()) {
-	      this->equateDesignators(strMemAddrChild, strMemAddrParent);
+	      string strEquationTime = this->equateDesignators(strMemAddrChild, strMemAddrParent);
+	      
+	      string strUniqueIDParent = this->getUniqueDesignatorID(strMemAddrParent);
+	      string strUniqueIDChild = this->getUniqueDesignatorID(strMemAddrChild);
+	      
+	      Event evEquateDesigs = defaultEvent("symbolic-equate-designators");
+	      evEquateDesigs.cdDesignator = new CDesignator();
+	      evEquateDesigs.cdDesignator->setType(ACTION);
+	      evEquateDesigs.cdDesignator->setValue("parent-id", strUniqueIDParent);
+	      evEquateDesigs.cdDesignator->setValue("child-id", strUniqueIDChild);
+	      evEquateDesigs.cdDesignator->setValue("equation-time", strEquationTime);
+	      this->deployEvent(evEquateDesigs);
 	    }
 	  }
 	}
@@ -372,7 +383,7 @@ namespace beliefstate {
       return sts.str();
     }
     
-    void PluginSymbolicLog::equateDesignators(string strMAChild, string strMAParent) {
+    string PluginSymbolicLog::equateDesignators(string strMAChild, string strMAParent) {
       string strIDChild = this->getUniqueDesignatorID(strMAChild);
       string strIDParent = this->getUniqueDesignatorID(strMAParent);
       
@@ -381,6 +392,8 @@ namespace beliefstate {
       
       m_lstDesignatorEquations.push_back(make_pair(strIDParent, strIDChild));
       m_lstDesignatorEquationTimes.push_back(make_pair(strIDChild, stsTimeEquate.str()));
+      
+      return stsTimeEquate.str();
     }
   }
   

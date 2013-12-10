@@ -51,7 +51,7 @@ namespace beliefstate {
       string getDesignatorID(string strMemoryAddress);
       string getUniqueDesignatorID(string strMemoryAddress);
       string generateRandomIdentifier(string strPrefix, unsigned int unLength);
-      void equateDesignators(string strMAChild, string strMAParent);
+      string equateDesignators(string strMAChild, string strMAParent);
     };
   }
   
