@@ -20,6 +20,8 @@ namespace beliefstate {
   namespace plugins {
     class PluginSupervisor : public Plugin {
     private:
+      bool m_bFirstExperiment;
+      
     public:
       PluginSupervisor();
       ~PluginSupervisor();

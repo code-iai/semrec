@@ -55,7 +55,15 @@ namespace beliefstate {
     }
     
     if(bFound) {
-      cout << imeEntry.strIdentifier << "(" << imeEntry.strParameter << ", " << feedback->marker_name << ")" << endl;
+      // Send out the symbolic event containing the callback result.
+      InteractiveObjectCallbackResult iocrResult;
+      iocrResult.strObject = feedback->marker_name;
+      iocrResult.strCommand = imeEntry.strIdentifier;
+      iocrResult.strParameter = imeEntry.strParameter;
+      
+      m_mtxCallbackResults.lock();
+      m_lstCallbackResults.push_back(iocrResult);
+      m_mtxCallbackResults.unlock();
     }
   }
   
@@ -108,10 +116,15 @@ namespace beliefstate {
 	itIME++) {
       if((*itIME).strIdentifier == strIdentifier && (*itIME).strParameter == strParameter) {
 	m_lstMenuEntries.erase(itIME);
-      } else {
-	MenuHandler::EntryHandle entEntry = m_mhMenu.insert((*itIME).strLabel, boost::bind(&InteractiveObject::clickCallback, this, _1));
-	m_mhMenu.setCheckState(entEntry, MenuHandler::NO_CHECKBOX);
+	break;
       }
+    }
+    
+    for(list<InteractiveMenuEntry>::iterator itIME = m_lstMenuEntries.begin();
+	itIME != m_lstMenuEntries.end();
+	itIME++) {
+      MenuHandler::EntryHandle entEntry = m_mhMenu.insert((*itIME).strLabel, boost::bind(&InteractiveObject::clickCallback, this, _1));
+      m_mhMenu.setCheckState(entEntry, MenuHandler::NO_CHECKBOX);
     }
     
     m_mhMenu = mhMenu;
@@ -119,5 +132,16 @@ namespace beliefstate {
     if(m_imsServer) {
       this->insertIntoServer(m_imsServer);
     }
+  }
+  
+  list<InteractiveObjectCallbackResult> InteractiveObject::callbackResults() {
+    list<InteractiveObjectCallbackResult> lstResults;
+    
+    m_mtxCallbackResults.lock();
+    lstResults = m_lstCallbackResults;
+    m_lstCallbackResults.clear();
+    m_mtxCallbackResults.unlock();
+    
+    return lstResults;
   }
 }

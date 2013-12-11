@@ -48,6 +48,7 @@ namespace beliefstate {
       InteractiveObject* addInteractiveObject(string strName);
       InteractiveObject* interactiveObjectForName(string strName);
       InteractiveObject* updatePoseForInteractiveObject(string strName, geometry_msgs::Pose posUpdate);
+      void removeInteractiveObject(string strName);
     };
   }
   

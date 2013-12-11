@@ -283,6 +283,14 @@ namespace beliefstate {
 	      stringstream sts;
 	      sts << this->activeNode()->id();
 	      this->info("Added object (" + strUniqueID + ") to active node (id " + sts.str() + ").");
+	      
+	      // Signal symbolic addition of object
+	      Event evSymAddObj = defaultEvent("symbolic-add-object");
+	      evSymAddObj.cdDesignator = new CDesignator();
+	      evSymAddObj.cdDesignator->setType(OBJECT);
+	      evSymAddObj.cdDesignator->setValue("name", strUniqueID);
+	      
+	      this->deployEvent(evSymAddObj);
 	    } else {
 	      this->warn("No node context available. Cannot add object while on top-level.");
 	    }

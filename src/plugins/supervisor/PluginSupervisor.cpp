@@ -4,6 +4,7 @@
 namespace beliefstate {
   namespace plugins {
     PluginSupervisor::PluginSupervisor() {
+      m_bFirstExperiment = true;
     }
     
     PluginSupervisor::~PluginSupervisor() {
@@ -32,7 +33,13 @@ namespace beliefstate {
     void PluginSupervisor::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "start-new-experiment") {
 	// Signal global experiment shut down.
-	this->deployEvent(defaultEvent("experiment-shutdown"));
+	if(m_bFirstExperiment) {
+	  // Only signal an experiment shutdown if this is not the
+	  // first experiment.
+	  m_bFirstExperiment = false;
+	} else {
+	  this->deployEvent(defaultEvent("experiment-shutdown"));
+	}
 	
 	// Wait 1 sec for all plugins to realize what to do when
 	// shutting down an experiment.

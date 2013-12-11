@@ -4,6 +4,7 @@
 
 // System
 #include <iostream>
+#include <mutex>
 
 // ROS
 #include <interactive_markers/interactive_marker_server.h>
@@ -22,6 +23,12 @@ namespace beliefstate {
     uint8_t unMenuEntryID;
   } InteractiveMenuEntry;
   
+  typedef struct {
+    string strObject;
+    string strCommand;
+    string strParameter;
+  } InteractiveObjectCallbackResult;
+  
   class InteractiveObject {
   private:
     Marker m_mkrMarker;
@@ -30,6 +37,8 @@ namespace beliefstate {
     InteractiveMarkerServer* m_imsServer;
     InteractiveMarkerControl m_imcControl;
     list<InteractiveMenuEntry> m_lstMenuEntries;
+    list<InteractiveObjectCallbackResult> m_lstCallbackResults;
+    mutex m_mtxCallbackResults;
     
   public:
     InteractiveObject(string strName);
@@ -45,6 +54,8 @@ namespace beliefstate {
     string name();
     void addMenuEntry(string strLabel, string strIdentifier, string strParameter = "");
     void removeMenuEntry(string strIdentifier, string strParameter = "");
+    
+    list<InteractiveObjectCallbackResult> callbackResults();
   };
 }
 
