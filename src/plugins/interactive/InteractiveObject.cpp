@@ -108,7 +108,6 @@ namespace beliefstate {
 	itIME++) {
       if((*itIME).strIdentifier == strIdentifier && (*itIME).strParameter == strParameter) {
 	m_lstMenuEntries.erase(itIME);
-	break;
       } else {
 	MenuHandler::EntryHandle entEntry = m_mhMenu.insert((*itIME).strLabel, boost::bind(&InteractiveObject::clickCallback, this, _1));
 	m_mhMenu.setCheckState(entEntry, MenuHandler::NO_CHECKBOX);
