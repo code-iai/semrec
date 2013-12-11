@@ -28,11 +28,27 @@ namespace beliefstate {
       m_imsServer = new InteractiveMarkerServer("interactive", "", false);
       
       // Just for development: Add objects
-      InteractiveObject* ioNew = this->addInteractiveObject(new InteractiveObject("object0"));
-      ioNew->addMenuEntry("Pick up (left gripper)", "pickup", "left_gripper");
-      ioNew->addMenuEntry("Pick up (right gripper)", "pickup", "right_gripper");
+      InteractiveObject* ioNew = this->addInteractiveObject("object0");
+      ioNew->addMenuEntry("Pick up", "pickup");
+      ioNew->removeMenuEntry("pickup");
       
       return resInit;
+    }
+    
+    InteractiveObject* PluginInteractive::updatePoseForInteractiveObject(string strName, geometry_msgs::Pose posUpdate) {
+      InteractiveObject* ioUpdate = this->interactiveObjectForName(strName);
+      
+      if(!ioUpdate) {
+	ioUpdate = this->addInteractiveObject(strName);
+      }
+      
+      ioUpdate->setPose(posUpdate);
+      
+      return ioUpdate;
+    }
+    
+    InteractiveObject* PluginInteractive::addInteractiveObject(string strName) {
+      return this->addInteractiveObject(new InteractiveObject(strName));
     }
     
     InteractiveObject* PluginInteractive::addInteractiveObject(InteractiveObject* ioAdd) {
@@ -40,6 +56,20 @@ namespace beliefstate {
       ioAdd->insertIntoServer(m_imsServer);
       
       return ioAdd;
+    }
+    
+    InteractiveObject* PluginInteractive::interactiveObjectForName(string strName) {
+      for(list<InteractiveObject*>::iterator itIO = m_lstInteractiveObjects.begin();
+	  itIO != m_lstInteractiveObjects.end();
+	  itIO++) {
+	InteractiveObject* ioCurrent = *itIO;
+	
+	if(ioCurrent->name() == strName) {
+	  return ioCurrent;
+	}
+      }
+      
+      return NULL;
     }
     
     Result PluginInteractive::deinit() {

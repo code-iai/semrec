@@ -29,6 +29,10 @@ namespace beliefstate {
     this->insertIntoServer(m_imsServer);
   }
   
+  void InteractiveObject::setPose(geometry_msgs::Pose posPose) {
+    this->setPose(m_imMarker.header.frame_id, posPose);
+  }
+  
   void InteractiveObject::setMarker(visualization_msgs::Marker mkrMarker) {
     m_mkrMarker = mkrMarker;
     
@@ -59,17 +63,17 @@ namespace beliefstate {
     if(imsServer) {
       m_imcControl.interaction_mode = InteractiveMarkerControl::BUTTON;
       m_imcControl.always_visible = true;
-    
+      
       m_imcControl.markers.clear();
       m_imcControl.markers.push_back(m_mkrMarker);
-    
+      
       m_imMarker.controls.clear();
       m_imMarker.controls.push_back(m_imcControl);
-    
+      
       imsServer->insert(m_imMarker);
       m_mhMenu.apply(*imsServer, m_imMarker.name);
       imsServer->applyChanges();
-    
+      
       m_imsServer = imsServer;
     }
   }
@@ -97,13 +101,24 @@ namespace beliefstate {
   }
   
   void InteractiveObject::removeMenuEntry(string strIdentifier, string strParameter) {
+    MenuHandler mhMenu;
+    
     for(list<InteractiveMenuEntry>::iterator itIME = m_lstMenuEntries.begin();
 	itIME != m_lstMenuEntries.end();
 	itIME++) {
       if((*itIME).strIdentifier == strIdentifier && (*itIME).strParameter == strParameter) {
 	m_lstMenuEntries.erase(itIME);
 	break;
+      } else {
+	MenuHandler::EntryHandle entEntry = m_mhMenu.insert((*itIME).strLabel, boost::bind(&InteractiveObject::clickCallback, this, _1));
+	m_mhMenu.setCheckState(entEntry, MenuHandler::NO_CHECKBOX);
       }
+    }
+    
+    m_mhMenu = mhMenu;
+    
+    if(m_imsServer) {
+      this->insertIntoServer(m_imsServer);
     }
   }
 }

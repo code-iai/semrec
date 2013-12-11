@@ -45,6 +45,9 @@ namespace beliefstate {
       virtual void consumeEvent(Event evEvent);
       
       InteractiveObject* addInteractiveObject(InteractiveObject* ioAdd);
+      InteractiveObject* addInteractiveObject(string strName);
+      InteractiveObject* interactiveObjectForName(string strName);
+      InteractiveObject* updatePoseForInteractiveObject(string strName, geometry_msgs::Pose posUpdate);
     };
   }
   

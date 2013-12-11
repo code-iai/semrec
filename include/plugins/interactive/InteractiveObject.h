@@ -40,10 +40,11 @@ namespace beliefstate {
     
     void setMarker(visualization_msgs::Marker mkrMarker);
     void setPose(string strFixedFrame, geometry_msgs::Pose posPose);
+    void setPose(geometry_msgs::Pose posPose);
     
     string name();
-    void addMenuEntry(string strLabel, string strIdentifier, string strParameter);
-    void removeMenuEntry(string strIdentifier, string strParameter);
+    void addMenuEntry(string strLabel, string strIdentifier, string strParameter = "");
+    void removeMenuEntry(string strIdentifier, string strParameter = "");
   };
 }
 
