@@ -29,6 +29,14 @@ namespace beliefstate {
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       this->info("Consume event!");
     }
+    
+    Event PLUGIN_CLASS::consumeServiceEvent(ServiceEvent seServiceEvent) {
+      this->info("Consume service event!");
+    }
+    
+    void PLUGIN_CLASS::queueActiveEvent(ActiveEvent aeQueue) {
+      m_lstActiveEvents.push_back(aeQueue);
+    }
   }
   
   extern "C" plugins::PLUGIN_CLASS* createInstance() {

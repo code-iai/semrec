@@ -22,8 +22,16 @@ using namespace std;
 
 namespace beliefstate {
   namespace plugins {
+    typedef struct {
+      string strCommand;
+      string strObject;
+      string strParameter;
+    } ActiveEvent;
+    
     class PLUGIN_CLASS : public Plugin {
     private:
+      list<ActiveEvent> m_lstActiveEvents;
+      
     public:
       PLUGIN_CLASS();
       ~PLUGIN_CLASS();
@@ -34,6 +42,9 @@ namespace beliefstate {
       virtual Result cycle();
       
       virtual void consumeEvent(Event evEvent);
+      virtual Event consumeServiceEvent(ServiceEvent seServiceEvent);
+      
+      void queueActiveEvent(ActiveEvent aeQueue);
     };
   }
   
