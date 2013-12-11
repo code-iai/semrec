@@ -25,7 +25,11 @@ namespace beliefstate {
       Result resInit = defaultResult();
       
       // Initialize server
-      m_imsServer = new InteractiveMarkerServer("interactive", "", false);
+      m_imsServer = new InteractiveMarkerServer("interactive_beliefstate", "", false);
+      
+      // Subscribe to internal events
+      this->setSubscribedToEvent("symbolic-add-object", true);
+      this->setSubscribedToEvent("symbolic-update-object-pose", true);
       
       // Just for development: Add objects
       InteractiveObject* ioNew = this->addInteractiveObject("object0");
@@ -84,7 +88,11 @@ namespace beliefstate {
     }
     
     void PluginInteractive::consumeEvent(Event evEvent) {
-      this->info("Consume event!");
+      if(evEvent.strEventName == "symbolic-add-object") {
+	this->warn("Adding objects via events not yet implemented.");
+      } else if(evEvent.strEventName == "symbolic-update-object-pose") {
+	this->warn("Updating object poses via events not yet implemented.");
+      }
     }
   }
   
