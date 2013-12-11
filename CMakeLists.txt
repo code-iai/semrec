@@ -74,6 +74,11 @@ add_library(bs_plugin_gazebo SHARED
   src/Plugin.cpp
   src/plugins/gazebo/PluginGazebo.cpp)
 
+add_library(bs_plugin_experiment_knowledge SHARED
+  src/GlobalFunctions.cpp
+  src/Plugin.cpp
+  src/plugins/experiment-knowledge/PluginExperimentKnowledge.cpp)
+
 add_library(bs_plugin_interactive SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
@@ -144,6 +149,10 @@ target_link_libraries(bs_plugin_ros
 )
 
 target_link_libraries(bs_plugin_gazebo
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(bs_plugin_experiment_knowledge
   ${catkin_LIBRARIES}
 )
 
