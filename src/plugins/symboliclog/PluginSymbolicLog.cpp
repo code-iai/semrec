@@ -35,6 +35,7 @@ namespace beliefstate {
       
       // Information supply services
       this->setOffersService("symbolic-plan-tree", true);
+      this->setOffersService("symbolic-plan-context", true);
       
       return resInit;
     }
@@ -59,11 +60,20 @@ namespace beliefstate {
       
       if(seServiceEvent.siServiceIdentifier == SI_REQUEST) {
 	if(seServiceEvent.strServiceName == "symbolic-plan-tree") {
+	  // Requested the whole symbolic plan log
 	  evReturn.lstNodes = m_lstNodes;
 	  
 	  evReturn.lstDesignatorIDs = m_lstDesignatorIDs;
 	  evReturn.lstEquations = m_lstDesignatorEquations;
 	  evReturn.lstEquationTimes = m_lstDesignatorEquationTimes;
+	} else if(seServiceEvent.strServiceName == "symbolic-plan-context") {
+	  // Requested the current path in the symbolic plan log
+	  Node* ndCurrent = this->activeNode();
+	  
+	  while(ndCurrent) {
+	    evReturn.lstNodes.push_back(ndCurrent);
+	    ndCurrent = ndCurrent->parent();
+	  }
 	}
       }
       
