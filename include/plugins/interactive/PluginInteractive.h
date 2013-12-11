@@ -2,6 +2,9 @@
 #define __PLUGIN_INTERACTIVE_H__
 
 
+#define PLUGIN_CLASS PluginInteractive
+
+
 // System
 #include <cstdlib>
 #include <iostream>
@@ -28,14 +31,14 @@ using namespace interactive_markers;
 
 namespace beliefstate {
   namespace plugins {
-    class PluginInteractive : public Plugin {
+    class PLUGIN_CLASS : public Plugin {
     private:
       InteractiveMarkerServer* m_imsServer;
       list<InteractiveObject*> m_lstInteractiveObjects;
       
     public:
-      PluginInteractive();
-      ~PluginInteractive();
+      PLUGIN_CLASS();
+      ~PLUGIN_CLASS();
       
       virtual Result init(int argc, char** argv);
       virtual Result deinit();
@@ -52,8 +55,8 @@ namespace beliefstate {
     };
   }
   
-  extern "C" plugins::PluginInteractive* createInstance();
-  extern "C" void destroyInstance(plugins::PluginInteractive* icDestroy);
+  extern "C" plugins::PLUGIN_CLASS* createInstance();
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy);
 }
 
 

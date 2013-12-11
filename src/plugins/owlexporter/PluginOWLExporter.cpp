@@ -3,13 +3,13 @@
 
 namespace beliefstate {
   namespace plugins {
-    PluginOWLExporter::PluginOWLExporter() {
+    PLUGIN_CLASS::PLUGIN_CLASS() {
     }
     
-    PluginOWLExporter::~PluginOWLExporter() {
+    PLUGIN_CLASS::~PLUGIN_CLASS() {
     }
     
-    Result PluginOWLExporter::init(int argc, char** argv) {
+    Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
       this->setSubscribedToEvent("export-planlog", true);
@@ -17,18 +17,18 @@ namespace beliefstate {
       return resInit;
     }
     
-    Result PluginOWLExporter::deinit() {
+    Result PLUGIN_CLASS::deinit() {
       return defaultResult();
     }
     
-    Result PluginOWLExporter::cycle() {
+    Result PLUGIN_CLASS::cycle() {
       Result resCycle = defaultResult();
       this->deployCycleData(resCycle);
       
       return resCycle;
     }
     
-    void PluginOWLExporter::consumeEvent(Event evEvent) {
+    void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.cdDesignator) {
 	string strFormat = evEvent.cdDesignator->stringValue("format");
 	transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
@@ -41,7 +41,7 @@ namespace beliefstate {
       }
     }
     
-    Event PluginOWLExporter::consumeServiceEvent(ServiceEvent seServiceEvent) {
+    Event PLUGIN_CLASS::consumeServiceEvent(ServiceEvent seServiceEvent) {
       Event evResult = defaultEvent();
       
       if(seServiceEvent.siServiceIdentifier == SI_RESPONSE) {
@@ -92,11 +92,11 @@ namespace beliefstate {
     }
   }
   
-  extern "C" plugins::PluginOWLExporter* createInstance() {
-    return new plugins::PluginOWLExporter();
+  extern "C" plugins::PLUGIN_CLASS* createInstance() {
+    return new plugins::PLUGIN_CLASS();
   }
   
-  extern "C" void destroyInstance(plugins::PluginOWLExporter* icDestroy) {
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy) {
     delete icDestroy;
   }
 }

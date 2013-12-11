@@ -3,14 +3,14 @@
 
 namespace beliefstate {
   namespace plugins {
-    PluginSupervisor::PluginSupervisor() {
+    PLUGIN_CLASS::PLUGIN_CLASS() {
       m_bFirstExperiment = true;
     }
     
-    PluginSupervisor::~PluginSupervisor() {
+    PLUGIN_CLASS::~PLUGIN_CLASS() {
     }
     
-    Result PluginSupervisor::init(int argc, char** argv) {
+    Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
       this->setSubscribedToEvent("startup-complete", true);
@@ -19,18 +19,18 @@ namespace beliefstate {
       return resInit;
     }
     
-    Result PluginSupervisor::deinit() {
+    Result PLUGIN_CLASS::deinit() {
       return defaultResult();
     }
     
-    Result PluginSupervisor::cycle() {
+    Result PLUGIN_CLASS::cycle() {
       Result resCycle = defaultResult();
       this->deployCycleData(resCycle);
       
       return resCycle;
     }
     
-    void PluginSupervisor::consumeEvent(Event evEvent) {
+    void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "start-new-experiment") {
 	// Signal global experiment shut down.
 	if(m_bFirstExperiment) {
@@ -88,11 +88,11 @@ namespace beliefstate {
     }
   }
   
-  extern "C" plugins::PluginSupervisor* createInstance() {
-    return new plugins::PluginSupervisor();
+  extern "C" plugins::PLUGIN_CLASS* createInstance() {
+    return new plugins::PLUGIN_CLASS();
   }
   
-  extern "C" void destroyInstance(plugins::PluginSupervisor* icDestroy) {
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy) {
     delete icDestroy;
   }
 }

@@ -2,6 +2,9 @@
 #define __PLUGIN_DOTEXPORTER_H__
 
 
+#define PLUGIN_CLASS PLUGIN_CLASS
+
+
 // System
 #include <cstdlib>
 #include <iostream>
@@ -24,11 +27,11 @@ using namespace std;
 
 namespace beliefstate {
   namespace plugins {
-    class PluginDOTExporter : public Plugin {
+    class PLUGIN_CLASS : public Plugin {
     private:
     public:
-      PluginDOTExporter();
-      ~PluginDOTExporter();
+      PLUGIN_CLASS();
+      ~PLUGIN_CLASS();
       
       virtual Result init(int argc, char** argv);
       virtual Result deinit();
@@ -40,8 +43,8 @@ namespace beliefstate {
     };
   }
   
-  extern "C" plugins::PluginDOTExporter* createInstance();
-  extern "C" void destroyInstance(plugins::PluginDOTExporter* icDestroy);
+  extern "C" plugins::PLUGIN_CLASS* createInstance();
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy);
 }
 
 

@@ -2,6 +2,9 @@
 #define __PLUGIN_OWLEXPORTER_H__
 
 
+#define PLUGIN_CLASS PluginOWLExporter
+
+
 // System
 #include <cstdlib>
 #include <iostream>
@@ -24,11 +27,11 @@ using namespace std;
 
 namespace beliefstate {
   namespace plugins {
-    class PluginOWLExporter : public Plugin {
+    class PLUGIN_CLASS : public Plugin {
     private:
     public:
-      PluginOWLExporter();
-      ~PluginOWLExporter();
+      PLUGIN_CLASS();
+      ~PLUGIN_CLASS();
       
       virtual Result init(int argc, char** argv);
       virtual Result deinit();
@@ -40,8 +43,8 @@ namespace beliefstate {
     };
   }
   
-  extern "C" plugins::PluginOWLExporter* createInstance();
-  extern "C" void destroyInstance(plugins::PluginOWLExporter* icDestroy);
+  extern "C" plugins::PLUGIN_CLASS* createInstance();
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy);
 }
 
 

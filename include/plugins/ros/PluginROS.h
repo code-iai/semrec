@@ -2,6 +2,9 @@
 #define __PLUGIN_ROS_H__
 
 
+#define PLUGIN_CLASS PluginROS
+
+
 // System
 #include <cstdlib>
 #include <iostream>
@@ -24,7 +27,7 @@ using namespace std;
 
 namespace beliefstate {
   namespace plugins {
-    class PluginROS : public Plugin {
+    class PLUGIN_CLASS : public Plugin {
     private:
       ros::NodeHandle* m_nhHandle;
       ros::ServiceServer m_srvBeginContext;
@@ -35,8 +38,8 @@ namespace beliefstate {
       ros::AsyncSpinner* m_aspnAsyncSpinner;
       
     public:
-      PluginROS();
-      ~PluginROS();
+      PLUGIN_CLASS();
+      ~PLUGIN_CLASS();
       
       virtual Result init(int argc, char** argv);
       virtual Result deinit();
@@ -54,8 +57,8 @@ namespace beliefstate {
     };
   }
   
-  extern "C" plugins::PluginROS* createInstance();
-  extern "C" void destroyInstance(plugins::PluginROS* icDestroy);
+  extern "C" plugins::PLUGIN_CLASS* createInstance();
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy);
 }
 
 

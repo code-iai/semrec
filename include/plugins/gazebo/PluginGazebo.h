@@ -2,6 +2,9 @@
 #define __PLUGIN_GAZEBO_H__
 
 
+#define PLUGIN_CLASS PluginGazebo
+
+
 // System
 #include <cstdlib>
 #include <iostream>
@@ -23,11 +26,11 @@ using namespace std;
 
 namespace beliefstate {
   namespace plugins {
-    class PluginGazebo : public Plugin {
+    class PLUGIN_CLASS : public Plugin {
     private:
     public:
-      PluginGazebo();
-      ~PluginGazebo();
+      PLUGIN_CLASS();
+      ~PLUGIN_CLASS();
       
       virtual Result init(int argc, char** argv);
       virtual Result deinit();
@@ -41,8 +44,8 @@ namespace beliefstate {
     };
   }
   
-  extern "C" plugins::PluginGazebo* createInstance();
-  extern "C" void destroyInstance(plugins::PluginGazebo* icDestroy);
+  extern "C" plugins::PLUGIN_CLASS* createInstance();
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy);
 }
 
 

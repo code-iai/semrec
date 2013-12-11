@@ -3,11 +3,11 @@
 
 namespace beliefstate {
   namespace plugins {
-    PluginSymbolicLog::PluginSymbolicLog() {
+    PLUGIN_CLASS::PLUGIN_CLASS() {
       m_ndActive = NULL;
     }
     
-    PluginSymbolicLog::~PluginSymbolicLog() {
+    PLUGIN_CLASS::~PLUGIN_CLASS() {
       for(list<Node*>::iterator itNode = m_lstNodes.begin();
 	  itNode != m_lstNodes.end();
 	  itNode++) {
@@ -19,7 +19,7 @@ namespace beliefstate {
       m_lstNodes.clear();
     }
     
-    Result PluginSymbolicLog::init(int argc, char** argv) {
+    Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
       // Plan node control events
@@ -39,11 +39,11 @@ namespace beliefstate {
       return resInit;
     }
     
-    Result PluginSymbolicLog::deinit() {
+    Result PLUGIN_CLASS::deinit() {
       return defaultResult();
     }
     
-    Result PluginSymbolicLog::cycle() {
+    Result PLUGIN_CLASS::cycle() {
       Result resCycle = defaultResult();
       
       m_mtxEventsStore.lock();
@@ -54,7 +54,7 @@ namespace beliefstate {
       return resCycle;
     }
     
-    Event PluginSymbolicLog::consumeServiceEvent(ServiceEvent seServiceEvent) {
+    Event PLUGIN_CLASS::consumeServiceEvent(ServiceEvent seServiceEvent) {
       Event evReturn = defaultEvent();
       
       if(seServiceEvent.siServiceIdentifier == SI_REQUEST) {
@@ -70,7 +70,7 @@ namespace beliefstate {
       return evReturn;
     }
     
-    void PluginSymbolicLog::consumeEvent(Event evEvent) {
+    void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       //int nID = (evEvent.nContextID == -1 ? (evEvent.cdDesignator ? (int)evEvent.cdDesignator->floatValue("_id") : -1) : evEvent.nContextID);
       
       if(evEvent.strEventName == "begin-context") {
@@ -301,7 +301,7 @@ namespace beliefstate {
       }
     }
     
-    Node* PluginSymbolicLog::addNode(string strName, int nContextID) {
+    Node* PLUGIN_CLASS::addNode(string strName, int nContextID) {
       Node *ndNew = new Node(strName);
       ndNew->setID(nContextID);
       
@@ -327,7 +327,7 @@ namespace beliefstate {
       return ndNew;
     }
     
-    void PluginSymbolicLog::setNodeAsActive(Node* ndActive) {
+    void PLUGIN_CLASS::setNodeAsActive(Node* ndActive) {
       m_ndActive = ndActive;
       
       if(m_ndActive) {
@@ -339,11 +339,11 @@ namespace beliefstate {
       }
     }
     
-    Node* PluginSymbolicLog::activeNode() {
+    Node* PLUGIN_CLASS::activeNode() {
       return m_ndActive;
     }
     
-    string PluginSymbolicLog::getDesignatorID(string strMemoryAddress) {
+    string PLUGIN_CLASS::getDesignatorID(string strMemoryAddress) {
       string strID = "";
       
       for(list< pair<string, string> >::iterator itPair = m_lstDesignatorIDs.begin();
@@ -360,7 +360,7 @@ namespace beliefstate {
       return strID;
     }
     
-    string PluginSymbolicLog::getUniqueDesignatorID(string strMemoryAddress) {
+    string PLUGIN_CLASS::getUniqueDesignatorID(string strMemoryAddress) {
       string strID = this->getDesignatorID(strMemoryAddress);
       
       if(strID == "") {
@@ -371,7 +371,7 @@ namespace beliefstate {
       return strID;
     }
     
-    string PluginSymbolicLog::generateRandomIdentifier(string strPrefix, unsigned int unLength) {
+    string PLUGIN_CLASS::generateRandomIdentifier(string strPrefix, unsigned int unLength) {
       stringstream sts;
       sts << strPrefix;
       
@@ -391,7 +391,7 @@ namespace beliefstate {
       return sts.str();
     }
     
-    string PluginSymbolicLog::equateDesignators(string strMAChild, string strMAParent) {
+    string PLUGIN_CLASS::equateDesignators(string strMAChild, string strMAParent) {
       string strIDChild = this->getUniqueDesignatorID(strMAChild);
       string strIDParent = this->getUniqueDesignatorID(strMAParent);
       
@@ -405,11 +405,11 @@ namespace beliefstate {
     }
   }
   
-  extern "C" plugins::PluginSymbolicLog* createInstance() {
-    return new plugins::PluginSymbolicLog();
+  extern "C" plugins::PLUGIN_CLASS* createInstance() {
+    return new plugins::PLUGIN_CLASS();
   }
   
-  extern "C" void destroyInstance(plugins::PluginSymbolicLog* icDestroy) {
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy) {
     delete icDestroy;
   }
 }

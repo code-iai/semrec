@@ -3,15 +3,15 @@
 
 namespace beliefstate {
   namespace plugins {
-    PluginImageCapturer::PluginImageCapturer() {
+    PLUGIN_CLASS::PLUGIN_CLASS() {
       m_icapImageCapturer = NULL;
       this->addDependency("ros");
     }
     
-    PluginImageCapturer::~PluginImageCapturer() {
+    PLUGIN_CLASS::~PLUGIN_CLASS() {
     }
     
-    Result PluginImageCapturer::init(int argc, char** argv) {
+    Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
       m_icapImageCapturer = new CImageCapturer();
@@ -21,7 +21,7 @@ namespace beliefstate {
       return resInit;
     }
     
-    Result PluginImageCapturer::deinit() {
+    Result PLUGIN_CLASS::deinit() {
       if(m_icapImageCapturer) {
 	delete m_icapImageCapturer;
       }
@@ -29,14 +29,14 @@ namespace beliefstate {
       return defaultResult();
     }
     
-    Result PluginImageCapturer::cycle() {
+    Result PLUGIN_CLASS::cycle() {
       Result resCycle = defaultResult();
       this->deployCycleData(resCycle);
       
       return resCycle;
     }
     
-    void PluginImageCapturer::consumeEvent(Event evEvent) {
+    void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "add-image-from-topic") {
 	if(evEvent.cdDesignator) {
 	  string strTopic = evEvent.cdDesignator->stringValue("origin");
@@ -87,11 +87,11 @@ namespace beliefstate {
     }
   }
   
-  extern "C" plugins::PluginImageCapturer* createInstance() {
-    return new plugins::PluginImageCapturer();
+  extern "C" plugins::PLUGIN_CLASS* createInstance() {
+    return new plugins::PLUGIN_CLASS();
   }
   
-  extern "C" void destroyInstance(plugins::PluginImageCapturer* icDestroy) {
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy) {
     delete icDestroy;
   }
 }

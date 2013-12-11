@@ -3,14 +3,14 @@
 
 namespace beliefstate {
   namespace plugins {
-    PluginGazebo::PluginGazebo() {
+    PLUGIN_CLASS::PLUGIN_CLASS() {
       this->addDependency("ros");
     }
     
-    PluginGazebo::~PluginGazebo() {
+    PLUGIN_CLASS::~PLUGIN_CLASS() {
     }
     
-    Result PluginGazebo::init(int argc, char** argv) {
+    Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
       this->setOffersService("spawn_model", true);
@@ -18,22 +18,22 @@ namespace beliefstate {
       return resInit;
     }
     
-    Result PluginGazebo::deinit() {
+    Result PLUGIN_CLASS::deinit() {
       return defaultResult();
     }
     
-    Result PluginGazebo::cycle() {
+    Result PLUGIN_CLASS::cycle() {
       Result resCycle = defaultResult();
       this->deployCycleData(resCycle);
       
       return resCycle;
     }
     
-    void PluginGazebo::consumeEvent(Event evEvent) {
+    void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       this->info("Consume event!");
     }
     
-    Event PluginGazebo::consumeServiceEvent(ServiceEvent seServiceEvent) {
+    Event PLUGIN_CLASS::consumeServiceEvent(ServiceEvent seServiceEvent) {
       Event evService = defaultEvent();
       
       this->info("Consume service event of type '" + seServiceEvent.strServiceName + "'!");
@@ -42,11 +42,11 @@ namespace beliefstate {
     }
   }
   
-  extern "C" plugins::PluginGazebo* createInstance() {
-    return new plugins::PluginGazebo();
+  extern "C" plugins::PLUGIN_CLASS* createInstance() {
+    return new plugins::PLUGIN_CLASS();
   }
   
-  extern "C" void destroyInstance(plugins::PluginGazebo* icDestroy) {
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy) {
     delete icDestroy;
   }
 }

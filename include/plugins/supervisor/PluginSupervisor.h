@@ -2,6 +2,9 @@
 #define __PLUGIN_SUPERVISOR_H__
 
 
+#define PLUGIN_CLASS PluginSupervisor
+
+
 // System
 #include <cstdlib>
 #include <iostream>
@@ -18,13 +21,13 @@ using namespace std;
 
 namespace beliefstate {
   namespace plugins {
-    class PluginSupervisor : public Plugin {
+    class PLUGIN_CLASS : public Plugin {
     private:
       bool m_bFirstExperiment;
       
     public:
-      PluginSupervisor();
-      ~PluginSupervisor();
+      PLUGIN_CLASS();
+      ~PLUGIN_CLASS();
       
       virtual Result init(int argc, char** argv);
       virtual Result deinit();
@@ -35,8 +38,8 @@ namespace beliefstate {
     };
   }
   
-  extern "C" plugins::PluginSupervisor* createInstance();
-  extern "C" void destroyInstance(plugins::PluginSupervisor* icDestroy);
+  extern "C" plugins::PLUGIN_CLASS* createInstance();
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy);
 }
 
 

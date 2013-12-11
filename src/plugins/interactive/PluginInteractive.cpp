@@ -3,13 +3,13 @@
 
 namespace beliefstate {
   namespace plugins {
-    PluginInteractive::PluginInteractive() {
+    PLUGIN_CLASS::PLUGIN_CLASS() {
       this->addDependency("ros");
       
       m_imsServer = NULL;
     }
     
-    PluginInteractive::~PluginInteractive() {
+    PLUGIN_CLASS::~PLUGIN_CLASS() {
       if(m_imsServer) {
 	delete m_imsServer;
       }
@@ -21,7 +21,7 @@ namespace beliefstate {
       }
     }
     
-    Result PluginInteractive::init(int argc, char** argv) {
+    Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
       // Initialize server
@@ -40,7 +40,7 @@ namespace beliefstate {
       return resInit;
     }
     
-    InteractiveObject* PluginInteractive::updatePoseForInteractiveObject(string strName, geometry_msgs::Pose posUpdate) {
+    InteractiveObject* PLUGIN_CLASS::updatePoseForInteractiveObject(string strName, geometry_msgs::Pose posUpdate) {
       InteractiveObject* ioUpdate = this->interactiveObjectForName(strName);
       
       if(!ioUpdate) {
@@ -52,18 +52,18 @@ namespace beliefstate {
       return ioUpdate;
     }
     
-    InteractiveObject* PluginInteractive::addInteractiveObject(string strName) {
+    InteractiveObject* PLUGIN_CLASS::addInteractiveObject(string strName) {
       return this->addInteractiveObject(new InteractiveObject(strName));
     }
     
-    InteractiveObject* PluginInteractive::addInteractiveObject(InteractiveObject* ioAdd) {
+    InteractiveObject* PLUGIN_CLASS::addInteractiveObject(InteractiveObject* ioAdd) {
       m_lstInteractiveObjects.push_back(ioAdd);
       ioAdd->insertIntoServer(m_imsServer);
       
       return ioAdd;
     }
     
-    InteractiveObject* PluginInteractive::interactiveObjectForName(string strName) {
+    InteractiveObject* PLUGIN_CLASS::interactiveObjectForName(string strName) {
       for(list<InteractiveObject*>::iterator itIO = m_lstInteractiveObjects.begin();
 	  itIO != m_lstInteractiveObjects.end();
 	  itIO++) {
@@ -77,7 +77,7 @@ namespace beliefstate {
       return NULL;
     }
     
-    void PluginInteractive::removeInteractiveObject(string strName) {
+    void PLUGIN_CLASS::removeInteractiveObject(string strName) {
       for(list<InteractiveObject*>::iterator itIO = m_lstInteractiveObjects.begin();
 	  itIO != m_lstInteractiveObjects.end();
 	  itIO++) {
@@ -88,11 +88,11 @@ namespace beliefstate {
       }
     }
     
-    Result PluginInteractive::deinit() {
+    Result PLUGIN_CLASS::deinit() {
       return defaultResult();
     }
     
-    Result PluginInteractive::cycle() {
+    Result PLUGIN_CLASS::cycle() {
       Result resCycle = defaultResult();
       
       for(list<InteractiveObject*>::iterator itIO = m_lstInteractiveObjects.begin();
@@ -121,7 +121,7 @@ namespace beliefstate {
       return resCycle;
     }
     
-    void PluginInteractive::consumeEvent(Event evEvent) {
+    void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "symbolic-add-object") {
 	if(evEvent.cdDesignator) {
 	  string strObjectName = evEvent.cdDesignator->stringValue("name");
@@ -144,11 +144,11 @@ namespace beliefstate {
     }
   }
   
-  extern "C" plugins::PluginInteractive* createInstance() {
-    return new plugins::PluginInteractive();
+  extern "C" plugins::PLUGIN_CLASS* createInstance() {
+    return new plugins::PLUGIN_CLASS();
   }
   
-  extern "C" void destroyInstance(plugins::PluginInteractive* icDestroy) {
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy) {
     delete icDestroy;
   }
 }

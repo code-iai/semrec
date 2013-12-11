@@ -2,6 +2,9 @@
 #define __PLUGIN_SYMBOLIC_LOG_H__
 
 
+#define PLUGIN_CLASS PluginSymbolicLog
+
+
 // System
 #include <cstdlib>
 #include <iostream>
@@ -24,7 +27,7 @@ using namespace std;
 
 namespace beliefstate {
   namespace plugins {
-    class PluginSymbolicLog : public Plugin {
+    class PLUGIN_CLASS : public Plugin {
     private:
       list<Node*> m_lstNodes;
       Node* m_ndActive;
@@ -33,8 +36,8 @@ namespace beliefstate {
       list< pair<string, string> > m_lstDesignatorEquationTimes;
       
     public:
-      PluginSymbolicLog();
-      ~PluginSymbolicLog();
+      PLUGIN_CLASS();
+      ~PLUGIN_CLASS();
       
       virtual Result init(int argc, char** argv);
       virtual Result deinit();

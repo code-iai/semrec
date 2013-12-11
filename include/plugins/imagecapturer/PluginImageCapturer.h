@@ -2,6 +2,9 @@
 #define __PLUGIN_IMAGE_CAPTURER_H__
 
 
+#define PLUGIN_CLASS PluginImageCapturer
+
+
 // System
 #include <cstdlib>
 #include <iostream>
@@ -24,13 +27,13 @@ using namespace std;
 
 namespace beliefstate {
   namespace plugins {
-    class PluginImageCapturer : public Plugin {
+    class PLUGIN_CLASS : public Plugin {
     private:
       CImageCapturer* m_icapImageCapturer;
       
     public:
-      PluginImageCapturer();
-      ~PluginImageCapturer();
+      PLUGIN_CLASS();
+      ~PLUGIN_CLASS();
       
       virtual Result init(int argc, char** argv);
       virtual Result deinit();
@@ -41,8 +44,8 @@ namespace beliefstate {
     };
   }
   
-  extern "C" plugins::PluginImageCapturer* createInstance();
-  extern "C" void destroyInstance(plugins::PluginImageCapturer* icDestroy);
+  extern "C" plugins::PLUGIN_CLASS* createInstance();
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy);
 }
 
 
