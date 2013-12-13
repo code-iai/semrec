@@ -219,6 +219,14 @@ namespace beliefstate {
 	    stringstream sts;
 	    sts << this->activeNode()->id();
 	    this->info("Added failure to active node (id " + sts.str() + "): '" + strCondition.c_str() + "'");
+	    
+	    Event evSymbAddFailure = defaultEvent("symbolic-add-failure");
+	    evSymbAddFailure.lstNodes.push_back(this->activeNode());
+	    evSymbAddFailure.cdDesignator = new CDesignator();
+	    evSymbAddFailure.cdDesignator->setType(ACTION);
+	    evSymbAddFailure.cdDesignator->setValue("condition", strCondition);
+	    evSymbAddFailure.cdDesignator->setValue("time-failure", stsTimeFail.str());
+	    this->deployEvent(evSymbAddFailure);
 	  } else {
 	    this->warn("No node context available. Cannot add failure while on top-level.");
 	  }

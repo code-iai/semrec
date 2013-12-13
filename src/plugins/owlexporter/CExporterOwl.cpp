@@ -391,7 +391,66 @@ namespace beliefstate {
   string CExporterOwl::owlClassForObject(CKeyValuePair *ckvpObject) {
     return "&knowrob;HumanScaleObject";
   }
-
+  
+  string CExporterOwl::failureClassForCondition(string strCondition) {
+    string strFailureClass = "genericPlanFailure";
+    list< pair<string, string> > lstFailureMapping;
+    
+    // NOTE(winkler): Define all known failure class mappings here.
+    // CRAM-PLAN-FAILURES
+    lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:OBJECT-NOT-FOUND", "ObjectNotFound"));
+    lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:OBJECT-NOT-FOUND-DESIG", "ObjectNotFound"));
+    lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:OBJECT-LOST", "ObjectLost"));
+    lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:MANIPULATION-FAILURE", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:MANIPULATION-FAILED", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:MANIPULATION-PICKUP-FAILED", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:MANIPULATION-POSE-OCCUPIED", "ManipulationPoseOccupied"));
+    lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:MANIPULATION-POSE-UNREACHABLE", "ManipulationPoseUnreachable"));
+    lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:LOCATION-NOT-REACHED-FAILURE", "LocationNotReached"));
+    lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:NAVIGATION-FAILURE", "LocationNotReached"));
+    lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:NAVIGATION-FAILURE-LOCATION", "LocationNotReached"));
+    lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:LOCATION-REACHED-BUT-NOT-TERMINATED", "LocationNotReached"));
+    // CRAM-MOVEIT
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:MOVEIT-FAILURE", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:PLANNING-FAILED", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:INVALID-MOTION-PLAN", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:MOTION-PLAN-INVALIDATED-BY-ENVIRONMENT-CHANGE", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:CONTROL-FAILED", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:UNABLE-TO-ACQUIRE-SENSOR-DATA", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:TIMED-OUT", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:PREEMPTED", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:START-STATE-IN-COLLISION", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:START-STATE-VIOLATES-PATH-CONSTRAINTS", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:GOAL-IN-COLLISION", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:GOAL-VIOLATES-PATH-CONSTRAINTS", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:GOAL-CONSTRAINTS-VIOLATED", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:INVALID-GROUP-NAME", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:INVALID-GOAL-CONSTRAINT", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:INVALID-ROBOT-STATE", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:INVALID-LINK-NAME", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:INVALID-OBJECT-NAME", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:FRAME-TRANSFORM-FAILURE", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:COLLISION-CHECKING-UNAVAILABLE", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:ROBOT-STATE-STALE", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:SENSOR-INFO-STALE", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:NO-IK-SOLUTION", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:NO-COLLISION-SHAPES-DEFINED", "ManipulationFailed"));
+    lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:POSE-NOT-TRANSFORMABLE-INTO-LINK", "ManipulationFailed"));
+    
+    for(list< pair<string, string> >::iterator itPair = lstFailureMapping.begin();
+	itPair != lstFailureMapping.end();
+	itPair++) {
+      pair<string, string> prCurrent = *itPair;
+      
+      if(strCondition == prCurrent.first) {
+	strFailureClass = prCurrent.second;
+	break;
+      }
+    }
+    
+    return strFailureClass;
+  }
+  
   string CExporterOwl::generateFailureIndividualsForNodes(list<Node*> lstNodes, string strNamespace) {
     string strDot = "";
     
@@ -416,62 +475,9 @@ namespace beliefstate {
 	
 	  string strCondition = ckvpFailure->stringValue("condition");
 	  string strTimestamp = ckvpFailure->stringValue("time-fail");
-	
-	  string strFailureClass = "genericPlanFailure";
-	  list< pair<string, string> > lstFailureMapping;
-	
-	  // NOTE(winkler): Define all known failure class mappings here.
-	  // CRAM-PLAN-FAILURES
-	  lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:OBJECT-NOT-FOUND", "ObjectNotFound"));
-	  lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:OBJECT-NOT-FOUND-DESIG", "ObjectNotFound"));
-	  lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:OBJECT-LOST", "ObjectLost"));
-	  lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:MANIPULATION-FAILURE", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:MANIPULATION-FAILED", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:MANIPULATION-PICKUP-FAILED", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:MANIPULATION-POSE-OCCUPIED", "ManipulationPoseOccupied"));
-	  lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:MANIPULATION-POSE-UNREACHABLE", "ManipulationPoseUnreachable"));
-	  lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:LOCATION-NOT-REACHED-FAILURE", "LocationNotReached"));
-	  lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:NAVIGATION-FAILURE", "LocationNotReached"));
-	  lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:NAVIGATION-FAILURE-LOCATION", "LocationNotReached"));
-	  lstFailureMapping.push_back(make_pair("CRAM-PLAN-FAILURES:LOCATION-REACHED-BUT-NOT-TERMINATED", "LocationNotReached"));
-	  // CRAM-MOVEIT
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:MOVEIT-FAILURE", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:PLANNING-FAILED", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:INVALID-MOTION-PLAN", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:MOTION-PLAN-INVALIDATED-BY-ENVIRONMENT-CHANGE", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:CONTROL-FAILED", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:UNABLE-TO-ACQUIRE-SENSOR-DATA", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:TIMED-OUT", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:PREEMPTED", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:START-STATE-IN-COLLISION", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:START-STATE-VIOLATES-PATH-CONSTRAINTS", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:GOAL-IN-COLLISION", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:GOAL-VIOLATES-PATH-CONSTRAINTS", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:GOAL-CONSTRAINTS-VIOLATED", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:INVALID-GROUP-NAME", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:INVALID-GOAL-CONSTRAINT", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:INVALID-ROBOT-STATE", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:INVALID-LINK-NAME", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:INVALID-OBJECT-NAME", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:FRAME-TRANSFORM-FAILURE", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:COLLISION-CHECKING-UNAVAILABLE", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:ROBOT-STATE-STALE", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:SENSOR-INFO-STALE", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:NO-IK-SOLUTION", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:NO-COLLISION-SHAPES-DEFINED", "ManipulationFailed"));
-	  lstFailureMapping.push_back(make_pair("CRAM-MOVEIT:POSE-NOT-TRANSFORMABLE-INTO-LINK", "ManipulationFailed"));
-	
-	  for(list< pair<string, string> >::iterator itPair = lstFailureMapping.begin();
-	      itPair != lstFailureMapping.end();
-	      itPair++) {
-	    pair<string, string> prCurrent = *itPair;
 	  
-	    if(strCondition == prCurrent.first) {
-	      strFailureClass = prCurrent.second;
-	      break;
-	    }
-	  }
-	
+	  string strFailureClass = this->failureClassForCondition(strCondition);
+	  
 	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
 	  strDot += "        <rdf:type rdf:resource=\"&knowrob;" + strFailureClass + "\"/>\n";
 	  strDot += "        <rdfs:label rdf:datatype=\"&xsd;string\">" + this->owlEscapeString(strCondition) + "</rdfs:label>\n";

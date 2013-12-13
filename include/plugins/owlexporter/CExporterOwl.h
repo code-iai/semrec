@@ -50,6 +50,8 @@ namespace beliefstate {
     virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);
     string owlEscapeString(string strValue);
     string generateOwlStringForNodes(list<Node*> lstNodes, string strNamespaceID, string strNamespace);
+    
+    string failureClassForCondition(string strCondition);
   };
 }
 
