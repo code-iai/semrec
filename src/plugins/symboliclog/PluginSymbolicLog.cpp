@@ -253,10 +253,16 @@ namespace beliefstate {
 	    CDesignator* cdTemp = new CDesignator((strType == "ACTION" ? ACTION : (strType == "OBJECT" ? OBJECT : LOCATION)),
 						  lstDescription);
 	    cdTemp->setValue("_id", strUniqueID);
+
+	    if(strAnnotation != "") {
+	      cdTemp->setValue("_annotation", strAnnotation);
+	    }
 	    
 	    // First, symbolically create the designator
 	    Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
 	    evLoggedDesignator.cdDesignator = cdTemp;
+	    evLoggedDesignator.strAnnotation = strAnnotation;
+	    
 	    this->deployEvent(evLoggedDesignator);
 	    
 	    // Second, symbolically add it to the current event

@@ -38,6 +38,7 @@ namespace beliefstate {
     int nContextID;
     CDesignator* cdDesignator;
     string strSupplementary;
+    string strAnnotation;
     int nOriginID;
     int nOpenRequestID;
     bool bRequest;
