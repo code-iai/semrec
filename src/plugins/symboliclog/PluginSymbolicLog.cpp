@@ -254,9 +254,16 @@ namespace beliefstate {
 						  lstDescription);
 	    cdTemp->setValue("_id", strUniqueID);
 	    
-	    Event evLoggedDesignator = defaultEvent("symbolic-add-designator");
+	    // First, symbolically create the designator
+	    Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
 	    evLoggedDesignator.cdDesignator = cdTemp;
 	    this->deployEvent(evLoggedDesignator);
+	    
+	    // Second, symbolically add it to the current event
+	    Event evAddedDesignator = defaultEvent("symbolic-add-designator");
+	    evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
+	    evAddedDesignator.lstNodes.push_back(this->activeNode());
+	    this->deployEvent(evAddedDesignator);
 	  } else {
 	    this->warn("No node context available. Cannot add designator while on top-level.");
 	  }

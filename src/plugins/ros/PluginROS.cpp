@@ -23,7 +23,7 @@ namespace beliefstate {
       
       this->setSubscribedToEvent("add-image-from-file", true);
       this->setSubscribedToEvent("add-image-from-topic", true);
-      this->setSubscribedToEvent("symbolic-add-designator", true);
+      this->setSubscribedToEvent("symbolic-create-designator", true);
       
       if(!ros::ok()) {
 	string strROSNodeName = "beliefstate_ros";
@@ -130,7 +130,7 @@ namespace beliefstate {
       if(evEvent.bRequest == false) {
 	this->closeRequestID(evEvent.nOpenRequestID);
       } else {
-	if(evEvent.strEventName == "symbolic-add-designator") {
+	if(evEvent.strEventName == "symbolic-create-designator") {
 	  if(evEvent.cdDesignator) {
 	    m_pubLoggedDesignators.publish(evEvent.cdDesignator->serializeToMessage());
 	  }
