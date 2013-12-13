@@ -254,7 +254,7 @@ namespace beliefstate {
 						  lstDescription);
 	    cdTemp->setValue("_id", strUniqueID);
 	    
-	    Event evLoggedDesignator = defaultEvent("logged-designator");
+	    Event evLoggedDesignator = defaultEvent("symbolic-add-designator");
 	    evLoggedDesignator.cdDesignator = cdTemp;
 	    this->deployEvent(evLoggedDesignator);
 	  } else {

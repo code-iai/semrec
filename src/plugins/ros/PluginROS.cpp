@@ -23,7 +23,7 @@ namespace beliefstate {
       
       this->setSubscribedToEvent("add-image-from-file", true);
       this->setSubscribedToEvent("add-image-from-topic", true);
-      this->setSubscribedToEvent("logged-designator", true);
+      this->setSubscribedToEvent("symbolic-add-designator", true);
       
       if(!ros::ok()) {
 	string strROSNodeName = "beliefstate_ros";
@@ -130,23 +130,10 @@ namespace beliefstate {
       if(evEvent.bRequest == false) {
 	this->closeRequestID(evEvent.nOpenRequestID);
       } else {
-	if(evEvent.strEventName == "logged-designator") {
+	if(evEvent.strEventName == "symbolic-add-designator") {
 	  if(evEvent.cdDesignator) {
 	    m_pubLoggedDesignators.publish(evEvent.cdDesignator->serializeToMessage());
 	  }
-	  // CKeyValuePair* ckvpDescription = evEvent.cdDesignator->childForKey("description");
-	  
-	  // if(ckvpDescription) {
-	  //   DesignatorType dType = ACTION;
-	  //   if(evEvent.cdDesignator->stringValue("type") == "LOCATION") {
-	  //     dType = LOCATION;
-	  //   } else if(evEvent.cdDesignator->stringValue("type") == "OBJECT") {
-	  //     dType = OBJECT;
-	  //   }
-	  
-	  //   CDesignator* cdPublish = new CDesignator(dType, ckvpDescription->children());
-	  //   m_pubLoggedDesignators.publish(cdPublish->serializeToMessage());
-	  //   delete cdPublish;
 	}
       }
     }
