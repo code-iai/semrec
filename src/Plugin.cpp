@@ -164,6 +164,10 @@ namespace beliefstate {
       cout << this->pluginIdentifierString(false) << " " << strMessage << normalColorSpecifier() << endl;
     }
     
+    void Plugin::unimplemented(string strMessage) {
+      cout << this->pluginIdentifierString(false) << " NOT IMPLEMENTED: " << strMessage << normalColorSpecifier() << endl;
+    }
+    
     int Plugin::getTimeStamp() {
       return std::time(0);
     }

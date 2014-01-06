@@ -37,7 +37,7 @@ namespace beliefstate {
       
     public:
       Plugin();
-      ~Plugin();
+      virtual ~Plugin();
       
       void setPluginID(int nID);
       int pluginID();
@@ -71,6 +71,7 @@ namespace beliefstate {
       string pluginIdentifierString(bool bBold);
       void warn(string strMessage);
       void info(string strMessage);
+      void unimplemented(string strMessage);
       
       int getTimeStamp();
       

@@ -10,25 +10,25 @@ namespace beliefstate {
 
   bool CExporterDot::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
     this->renewUniqueIDs();
-  
+    
     if(this->outputFilename() != "") {
       string strGraphID = this->generateRandomIdentifier("plangraph_", 8);
       string strToplevelID = this->generateUniqueID("node_", 8);
-    
+      
       string strDot = "digraph " + strGraphID + " {\n";
-    
+      
       strDot += "  " + strToplevelID + " [shape=doublecircle, style=bold, label=\"top-level\"];\n";
-    
+      
       strDot += this->generateDotStringForNodes(this->nodes(), strToplevelID);
-    
+      
       strDot += "}\n";
-    
+      
       return this->writeToFile(strDot);
     }
-  
+    
     return false;
   }
-
+  
   string CExporterDot::generateDotStringForDescription(list<CKeyValuePair*> lstDescription) {
     string strDot = "";
   

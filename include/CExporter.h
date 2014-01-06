@@ -32,7 +32,7 @@ namespace beliefstate {
   
   public:
     CExporter();
-    ~CExporter();
+    virtual ~CExporter();
   
     CKeyValuePair* configuration();
   

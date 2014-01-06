@@ -135,11 +135,11 @@ namespace beliefstate {
 	  this->warn("No designator given when adding interactive object!");
 	}
       } else if(evEvent.strEventName == "symbolic-remove-object") {
-	this->warn("Removing objects via events not yet implemented.");
+	this->unimplemented("Removing objects via events not yet implemented.");
       } else if(evEvent.strEventName == "symbolic-update-object-pose") {
-	this->warn("Updating object poses via events not yet implemented.");
+	this->unimplemented("Updating object poses via events not yet implemented.");
       } else if(evEvent.strEventName == "symbolic-set-interactive-object-menu") {
-	this->warn("Updating object menu via events not yet implemented.");
+	this->unimplemented("Updating object menu via events not yet implemented.");
       }
     }
   }
