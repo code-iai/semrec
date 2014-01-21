@@ -67,7 +67,7 @@ namespace beliefstate {
     }
   }
   
-  void InteractiveObject::insertIntoServer(InteractiveMarkerServer* imsServer) {
+  bool InteractiveObject::insertIntoServer(InteractiveMarkerServer* imsServer) {
     if(imsServer) {
       m_imcControl.interaction_mode = InteractiveMarkerControl::BUTTON;
       m_imcControl.always_visible = true;
@@ -83,7 +83,22 @@ namespace beliefstate {
       imsServer->applyChanges();
       
       m_imsServer = imsServer;
+      
+      return true;
     }
+    
+    return false;
+  }
+  
+  bool InteractiveObject::removeFromServer() {
+    if(m_imsServer) {
+      m_imsServer->erase(m_imMarker.name);
+      m_imsServer->applyChanges();
+      
+      return true;
+    }
+    
+    return false;
   }
   
   string InteractiveObject::name() {

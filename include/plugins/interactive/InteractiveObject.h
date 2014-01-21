@@ -44,7 +44,8 @@ namespace beliefstate {
     InteractiveObject(string strName);
     ~InteractiveObject();
     
-    void insertIntoServer(InteractiveMarkerServer* imsServer);
+    bool insertIntoServer(InteractiveMarkerServer* imsServer);
+    bool removeFromServer();
     void clickCallback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
     
     void setMarker(visualization_msgs::Marker mkrMarker);
