@@ -74,6 +74,14 @@ namespace beliefstate {
     return false;
   }
   
+  void PluginSystem::setLoadDevelopmentPlugins(bool bLoadDevelopmentPlugins) {
+    m_bLoadDevelopmentPlugins = bLoadDevelopmentPlugins;
+  }
+  
+  bool PluginSystem::loadDevelopmentPlugins() {
+    return m_bLoadDevelopmentPlugins;
+  }
+  
   Result PluginSystem::loadPluginLibrary(string strFilepath, bool bIsNameOnly) {
     PluginInstance* icLoad = NULL;
     string strPrefix = "libbs_plugin_";
@@ -103,28 +111,40 @@ namespace beliefstate {
 	resLoad = icLoad->loadPluginLibrary(strSearchFilepath);
       
 	if(resLoad.bSuccess) {
-	  // Check and meet dependencies
-	  list<string> lstDeps = icLoad->dependencies();
-	  for(list<string>::iterator itDep = lstDeps.begin();
-	      itDep != lstDeps.end();
-	      itDep++) {
-	    string strDep = *itDep;
-	  
-	    if(this->pluginLoaded(strDep) == false) {
-	      Result resLoadDep = this->loadPluginLibrary(strPrefix + strDep + strSuffix);
+	  // Check if this is a development plugin and if we're supposed to load it.
+	  if((icLoad->developmentPlugin() && m_bLoadDevelopmentPlugins) || !icLoad->developmentPlugin()) {
+	    if(icLoad->developmentPlugin()) {
+	      cout << "This is a development plugin: '" << strFilepath << "'" << endl;
+	    }
 	    
-	      if(resLoadDep.bSuccess == false) {
-		cerr << "Unable to meet dependency of '" << strSearchFilepath << "': '" << strDep << "'" << endl;
+	    // Check and meet dependencies
+	    list<string> lstDeps = icLoad->dependencies();
+	    for(list<string>::iterator itDep = lstDeps.begin();
+		itDep != lstDeps.end();
+		itDep++) {
+	      string strDep = *itDep;
 	      
-		resLoad.bSuccess = false;
-		resLoad.riResultIdentifier = RI_PLUGIN_DEPENDENCY_NOT_MET;
-		resLoad.strErrorMessage = strDep;
+	      if(this->pluginLoaded(strDep) == false) {
+		Result resLoadDep = this->loadPluginLibrary(strPrefix + strDep + strSuffix);
+	    
+		if(resLoadDep.bSuccess == false) {
+		  cerr << "Unable to meet dependency of '" << strSearchFilepath << "': '" << strDep << "'" << endl;
 	      
-		break;
+		  resLoad.bSuccess = false;
+		  resLoad.riResultIdentifier = RI_PLUGIN_DEPENDENCY_NOT_MET;
+		  resLoad.strErrorMessage = strDep;
+	      
+		  break;
+		}
 	      }
 	    }
+	  } else {
+	    cout << "Not loading development plugin: '" << strFilepath << "'" << endl;
+	    
+	    resLoad.bSuccess = false;
+	    resLoad.riResultIdentifier = RI_PLUGIN_DEVELOPMENT_NOT_LOADING;
 	  }
-	
+	  
 	  if(resLoad.bSuccess) {
 	    // Initialize the plugin
 	    icLoad->init(m_argc, m_argv);

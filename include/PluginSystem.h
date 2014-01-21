@@ -24,10 +24,14 @@ namespace beliefstate {
     list<string> m_lstPluginSearchPaths;
     int m_argc;
     char** m_argv;
+    bool m_bLoadDevelopmentPlugins;
     
   public:
     PluginSystem(int argc, char** argv);
     ~PluginSystem();
+    
+    void setLoadDevelopmentPlugins(bool bLoadDevelopmentPlugins);
+    bool loadDevelopmentPlugins();
     
     string pluginNameFromPath(string strPath);
     bool pluginLoaded(string strPluginName);

@@ -36,6 +36,9 @@ namespace beliefstate {
     Result loadPluginLibrary(string strFilepath);
     void unload();
     
+    void setDevelopmentPlugin(bool bDevelopmentPlugin);
+    bool developmentPlugin();
+    
     int pluginID();
     
     Result init(int argc, char** argv);

@@ -6,10 +6,19 @@ namespace beliefstate {
     Plugin::Plugin() {
       m_nID = createPluginID();
       m_bRunCycle = true;
+      m_bDevelopmentPlugin = false;
     }
     
     Plugin::~Plugin() {
       freePluginID(m_nID);
+    }
+    
+    void Plugin::setDevelopmentPlugin(bool bDevelopmentPlugin) {
+      m_bDevelopmentPlugin = bDevelopmentPlugin;
+    }
+    
+    bool Plugin::developmentPlugin() {
+      return m_bDevelopmentPlugin;
     }
     
     void Plugin::setPluginID(int nID) {

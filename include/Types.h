@@ -30,7 +30,8 @@ namespace beliefstate {
     RI_PLUGIN_LOADING_FAILED,
     RI_CONFIG_FILE_NOT_FOUND,
     RI_FILE_NOT_FOUND,
-    RI_PLUGIN_DEPENDENCY_NOT_MET
+    RI_PLUGIN_DEPENDENCY_NOT_MET,
+    RI_PLUGIN_DEVELOPMENT_NOT_LOADING
   } ResultIdentifier;
   
   typedef struct {
@@ -83,6 +84,9 @@ namespace beliefstate {
     string strMongoDBHost;
     int nMongoDBPort;
     string strMongoDBDatabase;
+    
+    // Plugin loading
+    bool bLoadDevelopmentPlugins;
   } ConfigSettings;
 }
 

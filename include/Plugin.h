@@ -25,6 +25,7 @@ namespace beliefstate {
       int m_nID;
       bool m_bRunCycle;
       mutex m_mtxRunCycle;
+      bool m_bDevelopmentPlugin;
       
     protected:
       list<Event> m_lstEvents;
@@ -50,6 +51,9 @@ namespace beliefstate {
       
       virtual Result cycle();
       Result cycleResults();
+      
+      void setDevelopmentPlugin(bool bDevelopmentPlugin);
+      bool developmentPlugin();
       
       void setSubscribedToEvent(string strEventName, bool bSubscribed);
       bool subscribedToEvent(string strEventName);

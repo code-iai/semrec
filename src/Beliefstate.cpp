@@ -45,9 +45,12 @@ namespace beliefstate {
     }
     
     if(bConfigLoaded) {
+      // Set the global PluginSystem settings.
+      ConfigSettings cfgsetCurrent = configSettings();
+      m_psPlugins->setLoadDevelopmentPlugins(cfgsetCurrent.bLoadDevelopmentPlugins);
+      
       // Set the settings concerning MongoDB, and experiment name mask
       // for each plugin here (through PluginSystem).
-      
       for(list<string>::iterator itPluginName = m_lstPluginsToLoad.begin();
 	  itPluginName != m_lstPluginsToLoad.end();
 	  itPluginName++) {
@@ -104,18 +107,26 @@ namespace beliefstate {
 	sExperimentData.lookupValue("experiment-name-mask", strExperimentNameMask);
 	sExperimentData.lookupValue("symlink-name", strSymlinkName);
 	
-	// -> Set the global settings
-	ConfigSettings cfgsetCurrent = configSettings();
-	cfgsetCurrent.bUseMongoDB = bUseMongoDB;
-	cfgsetCurrent.strMongoDBHost = strMongoDBHost;
-	cfgsetCurrent.nMongoDBPort = nMongoDBPort;
-	cfgsetCurrent.strMongoDBDatabase = strMongoDBDatabase;
-	cfgsetCurrent.strExperimentNameMask = strExperimentNameMask;
-	cfgsetCurrent.strBaseDataDirectory = strBaseDataDirectory;
-	cfgsetCurrent.strSymlinkName = strSymlinkName;
-	setConfigSettings(cfgsetCurrent);
-	
+	// Check to see if the data given so far is valid. If it is
+	// not, abort loading and notify the user.
+	if((bUseMongoDB == true && (strMongoDBHost == "" || strMongoDBDatabase == "")) ||
+	   (strSymlinkName == "" || strExperimentNameMask == "" || strExperimentNameMask.find("%d") == string::npos) ||
+	   strBaseDataDirectory == "") {
+	  // Something is wrong -- notify the user and abort loading.
+	  cerr << "Error while loading the config file. The value fields are not filled correctly. Check the following settings:" << endl;
+	  cerr << " - If using a MongoDB database, fill host name, and database name" << endl;
+	  cerr << " - The symlink name may not be empty" << endl;
+	  cerr << " - The experiment name mask may not be empty, and *must* include the \%d escape sequence for numbering" << endl;
+	  
+	  return false;
+	}
+
 	// Section: Plugins
+	bool bLoadDevelopmentPlugins;
+	
+	Setting &sPlugins = cfgConfig.lookup("plugins");
+	sPlugins.lookupValue("load-development-plugins", bLoadDevelopmentPlugins);
+	
 	Setting &sPluginsLoad = cfgConfig.lookup("plugins.load");
 	m_lstPluginsToLoad.clear();
 	for(int nI = 0; nI < sPluginsLoad.getLength(); nI++) {
@@ -132,6 +143,18 @@ namespace beliefstate {
 	  strPath = this->resolveDirectoryTokens(strPath);
 	  m_psPlugins->addPluginSearchPath(strPath);
 	}
+	
+	// -> Set the global settings
+	ConfigSettings cfgsetCurrent = configSettings();
+	cfgsetCurrent.bLoadDevelopmentPlugins = bLoadDevelopmentPlugins;
+	cfgsetCurrent.bUseMongoDB = bUseMongoDB;
+	cfgsetCurrent.strMongoDBHost = strMongoDBHost;
+	cfgsetCurrent.nMongoDBPort = nMongoDBPort;
+	cfgsetCurrent.strMongoDBDatabase = strMongoDBDatabase;
+	cfgsetCurrent.strExperimentNameMask = strExperimentNameMask;
+	cfgsetCurrent.strBaseDataDirectory = strBaseDataDirectory;
+	cfgsetCurrent.strSymlinkName = strSymlinkName;
+	setConfigSettings(cfgsetCurrent);
 	
 	return true;
       } catch(ParseException e) {

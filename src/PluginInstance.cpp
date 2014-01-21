@@ -76,6 +76,20 @@ namespace beliefstate {
     return resInit;
   }
   
+  void PluginInstance::setDevelopmentPlugin(bool bDevelopmentPlugin) {
+    if(m_vdLibHandle) {
+      m_piInstance->setDevelopmentPlugin(bDevelopmentPlugin);
+    }
+  }
+  
+  bool PluginInstance::developmentPlugin() {
+    if(m_vdLibHandle) {
+      return m_piInstance->developmentPlugin();
+    }
+    
+    return false;
+  }
+  
   void PluginInstance::unload() {
     if(m_vdLibHandle) {
       m_piInstance->deinit();
