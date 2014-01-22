@@ -2,7 +2,7 @@
 #define __PLUGIN_DOTEXPORTER_H__
 
 
-#define PLUGIN_CLASS PLUGIN_CLASS
+#define PLUGIN_CLASS PluginDotExporter
 
 
 // System
