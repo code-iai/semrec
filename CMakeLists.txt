@@ -81,6 +81,8 @@ add_library(bs_plugin_experiment_knowledge SHARED
 
 add_library(bs_plugin_experiment_context SHARED
   src/GlobalFunctions.cpp
+  src/CExporter.cpp
+  src/CExporterFileoutput.cpp
   src/Plugin.cpp
   src/plugins/experiment-context/PluginExperimentContext.cpp)
 

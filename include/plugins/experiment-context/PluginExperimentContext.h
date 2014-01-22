@@ -6,6 +6,7 @@
 
 
 // System
+#include <map>
 #include <cstdlib>
 #include <iostream>
 #include <sys/stat.h>
@@ -16,6 +17,7 @@
 #include <ForwardDeclarations.h>
 #include <Plugin.h>
 #include <plugins/dotexporter/CExporterDot.h>
+#include <CExporterFileoutput.h>
 
 using namespace std;
 
@@ -24,6 +26,9 @@ namespace beliefstate {
   namespace plugins {
     class PLUGIN_CLASS : public Plugin {
     private:
+      map<string, string> m_mapValues;
+      CExporterFileoutput* m_expFileExporter;
+      
     public:
       PLUGIN_CLASS();
       ~PLUGIN_CLASS();

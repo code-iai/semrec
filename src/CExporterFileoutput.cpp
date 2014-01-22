@@ -5,18 +5,18 @@ namespace beliefstate {
   CExporterFileoutput::CExporterFileoutput() {
     this->setOutputFilename("");
   }
-
+  
   CExporterFileoutput::~CExporterFileoutput() {
   }
-
+  
   void CExporterFileoutput::setOutputFilename(string strFilename) {
     this->configuration()->setValue("filename", strFilename);
   }
-
+  
   string CExporterFileoutput::outputFilename() {
     return this->configuration()->stringValue("filename");
   }
-
+  
   bool CExporterFileoutput::writeToFile(string strContent, string strFilename) {
     if(strFilename == "") {
       strFilename = this->configuration()->stringValue("filename");

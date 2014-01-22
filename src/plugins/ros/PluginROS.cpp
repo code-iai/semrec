@@ -117,6 +117,8 @@ namespace beliefstate {
 	evAlterContext.strEventName = "export-planlog";
       } else if(strCommand == "start-new-experiment") {
 	evAlterContext.strEventName = "start-new-experiment";
+      } else if(strCommand == "set-experiment-meta-data") {
+	evAlterContext.strEventName = "set-experiment-meta-data";
       } else {
 	this->warn("Unknown command when altering context: '" + strCommand + "'");
       }
