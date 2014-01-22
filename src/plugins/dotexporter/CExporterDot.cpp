@@ -77,13 +77,15 @@ namespace beliefstate {
 	
 	  strValue = stsPS.str();
 	} else {
-	  cout << "Careful: unknown type code for field (" << (int)ckvpCurrent->type() << ")" << endl;
+	  stringstream sts;
+	  sts << (int)ckvpCurrent->type();
+	  this->warn("Careful: unknown type code for field (" + sts.str() + ")");
 	}
-      
+	
 	if(bEscape) {
 	  strValue = this->dotEscapeString(strValue);
 	}
-      
+	
 	strDot += "|{" + this->dotEscapeString(ckvpCurrent->key()) + " | " + strValue + "}";
       }
     }

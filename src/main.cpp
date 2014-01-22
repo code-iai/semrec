@@ -22,7 +22,7 @@ void catchSIGTERMandSIGINT(int nSignum) {
 }
 
 int main(int argc, char** argv) {
-  cout << "Starting beliefstate system." << endl;
+  cout << "[ core ] Starting beliefstate system." << endl;
   
   bsBeliefstate = new Beliefstate(argc, argv);
   Result resInit = bsBeliefstate->init();
@@ -39,10 +39,10 @@ int main(int argc, char** argv) {
     while(bsBeliefstate->cycle()) {
     }
   } else {
-    cerr << "Initialization of the beliefstate system failed. Being a quitter." << endl;
+    cerr << "\033[1;31m[ core ]Initialization of the beliefstate system failed. Being a quitter." << "\033[0m" << endl;
   }
   
-  cout << "Exiting gracefully." << endl;
+  cout << "[ core ] Exiting gracefully." << endl;
   
   bsBeliefstate->deinit();
   delete bsBeliefstate;

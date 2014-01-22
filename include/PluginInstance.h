@@ -14,12 +14,13 @@
 #include <Types.h>
 #include <ForwardDeclarations.h>
 #include <Plugin.h>
+#include <UtilityBase.h>
 
 using namespace std;
 
 
 namespace beliefstate {
-  class PluginInstance {
+  class PluginInstance : public UtilityBase {
   private:
     void* m_vdLibHandle;
     plugins::Plugin* m_piInstance;

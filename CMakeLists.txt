@@ -122,6 +122,7 @@ add_library(bs_plugin_dotexporter SHARED
 
 ## Declare a cpp executable
 add_executable(beliefstate
+  src/UtilityBase.cpp
   src/main.cpp
   src/GlobalFunctions.cpp
   src/PluginSystem.cpp

@@ -12,12 +12,13 @@
 
 // Private
 #include <Node.h>
+#include <UtilityBase.h>
 
 using namespace std;
 
 
 namespace beliefstate {
-  class CExporter {
+  class CExporter : public UtilityBase {
   private:
     list<Node*> m_lstNodes;
     list< pair<string, string> > m_lstDesignatorIDs;

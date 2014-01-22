@@ -76,7 +76,7 @@ namespace beliefstate {
 	} else {
 	  strUseFilename = strWorkingDirectory + strFileName;
 	}
-	cout << "Using " << strUseFilename << endl;
+	
 	cv::imwrite(strUseFilename, imgMat);
 	
 	if(m_strImagesTopic != "") {

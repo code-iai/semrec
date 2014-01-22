@@ -16,13 +16,14 @@
 #include <ForwardDeclarations.h>
 #include <Types.h>
 #include <PluginSystem.h>
+#include <UtilityBase.h>
 
 using namespace std;
 using namespace libconfig;
 
 
 namespace beliefstate {
-  class Beliefstate {
+  class Beliefstate : public UtilityBase {
   private:
     PluginSystem* m_psPlugins;
     bool m_bRun;

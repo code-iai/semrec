@@ -7,6 +7,8 @@ namespace beliefstate {
     m_bRun = true;
     m_argc = argc;
     m_argv = argv;
+    
+    this->setMessagePrefixLabel("core");
   }
   
   Beliefstate::~Beliefstate() {
@@ -57,7 +59,7 @@ namespace beliefstate {
 	m_psPlugins->loadPluginLibrary(*itPluginName, true);
       }
     } else {
-      cerr << "Failed to load a valid config file." << endl;
+      this->fail("Failed to load a valid config file.");
       resInit.bSuccess = false;
     }
     
@@ -113,10 +115,10 @@ namespace beliefstate {
 	   (strSymlinkName == "" || strExperimentNameMask == "" || strExperimentNameMask.find("%d") == string::npos) ||
 	   strBaseDataDirectory == "") {
 	  // Something is wrong -- notify the user and abort loading.
-	  cerr << "Error while loading the config file. The value fields are not filled correctly. Check the following settings:" << endl;
-	  cerr << " - If using a MongoDB database, fill host name, and database name" << endl;
-	  cerr << " - The symlink name may not be empty" << endl;
-	  cerr << " - The experiment name mask may not be empty, and *must* include the \%d escape sequence for numbering" << endl;
+	  this->fail("Error while loading the config file. The value fields are not filled correctly. Check the following settings:");
+	  this->fail(" - If using a MongoDB database, fill host name, and database name");
+	  this->fail(" - The symlink name may not be empty");
+	  this->fail(" - The experiment name mask may not be empty, and *must* include the \%d escape sequence for numbering");
 	  
 	  return false;
 	}
@@ -158,9 +160,9 @@ namespace beliefstate {
 	
 	return true;
       } catch(ParseException e) {
-	cerr << "Error while parsing config file '" << strConfigFile << "': " << e.getError() << endl;
+	this->fail("Error while parsing config file '" + strConfigFile + "': " + e.getError());
       } catch(...) {
-	cerr << "Undefined error while parsing config file '" << strConfigFile << "'" << endl;
+	this->fail("Undefined error while parsing config file '" + strConfigFile + "'");
       }
     }
     
@@ -190,10 +192,10 @@ namespace beliefstate {
   
   void Beliefstate::spreadEvent(Event evEvent) {
     if(m_psPlugins->spreadEvent(evEvent) == 0) {
-      cerr << "[beliefstate] Unhandled event dropped: '" << evEvent.strEventName << "'" << endl;
+      this->warn("Unhandled event dropped: '" + evEvent.strEventName + "'");
       
       if(evEvent.cdDesignator) {
-	cerr << "[beliefstate] Content was:" << endl;
+	this->warn("Content was:");
 	evEvent.cdDesignator->printDesignator();
       }
     }
@@ -201,13 +203,13 @@ namespace beliefstate {
   
   void Beliefstate::spreadServiceEvent(ServiceEvent seServiceEvent) {
     if(m_psPlugins->spreadServiceEvent(seServiceEvent) == 0) {
-      cerr << "[beliefstate] Unhandled service event ('" << seServiceEvent.strServiceName << "') dropped." << endl;
+      this->warn("Unhandled service event ('" + seServiceEvent.strServiceName + "') dropped.");
       
       if(seServiceEvent.cdDesignator) {
-	cerr << "[beliefstate] Content was:" << endl;
+	this->warn("Content was:");
 	seServiceEvent.cdDesignator->printDesignator();
       } else {
-	cerr << "[beliefstate] No content given." << endl;
+	this->warn("No content given.");
       }
     }
   }

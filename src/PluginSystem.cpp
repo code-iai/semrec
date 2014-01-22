@@ -5,6 +5,8 @@ namespace beliefstate {
   PluginSystem::PluginSystem(int argc, char** argv) {
     m_argc = argc;
     m_argv = argv;
+    
+    this->setMessagePrefixLabel("plugins");
   }
   
   PluginSystem::~PluginSystem() {
@@ -98,7 +100,7 @@ namespace beliefstate {
     resLoad.bSuccess = false;
     
     if(this->pluginLoaded(this->pluginNameFromPath(strFilepath))) {
-      cout << "Plugin '" << this->pluginNameFromPath(strFilepath) << "' already loaded." << endl;
+      this->info("Plugin '" + this->pluginNameFromPath(strFilepath) + "' already loaded.");
       resLoad.bSuccess = true;
     } else {
       for(list<string>::iterator itSP = lstSearchPaths.begin();
@@ -114,7 +116,7 @@ namespace beliefstate {
 	  // Check if this is a development plugin and if we're supposed to load it.
 	  if((icLoad->developmentPlugin() && m_bLoadDevelopmentPlugins) || !icLoad->developmentPlugin()) {
 	    if(icLoad->developmentPlugin()) {
-	      cout << "This is a development plugin: '" << strFilepath << "'" << endl;
+	      this->info("This is a development plugin: '" + strFilepath + "'");
 	    }
 	    
 	    // Check and meet dependencies
@@ -128,7 +130,7 @@ namespace beliefstate {
 		Result resLoadDep = this->loadPluginLibrary(strPrefix + strDep + strSuffix);
 	    
 		if(resLoadDep.bSuccess == false) {
-		  cerr << "Unable to meet dependency of '" << strSearchFilepath << "': '" << strDep << "'" << endl;
+		  this->fail("Unable to meet dependency of '" + strSearchFilepath + "': '" + strDep + "'");
 	      
 		  resLoad.bSuccess = false;
 		  resLoad.riResultIdentifier = RI_PLUGIN_DEPENDENCY_NOT_MET;
@@ -139,7 +141,7 @@ namespace beliefstate {
 	      }
 	    }
 	  } else {
-	    cout << "Not loading development plugin: '" << strFilepath << "'" << endl;
+	    this->info("Not loading development plugin: '" + strFilepath + "'");
 	    
 	    resLoad.bSuccess = false;
 	    resLoad.riResultIdentifier = RI_PLUGIN_DEVELOPMENT_NOT_LOADING;
@@ -167,7 +169,7 @@ namespace beliefstate {
     }
     
     if(resLoad.bSuccess == false) {
-      cerr << "Failed to load plugin '" << strFilepath << "'" << endl;
+      this->fail("Failed to load plugin '" + strFilepath + "'");
     }
     
     return resLoad;

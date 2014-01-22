@@ -9,6 +9,8 @@ namespace beliefstate {
     m_thrdPluginCycle = NULL;
     m_bRunCycle = true;
     m_resCycleResult = defaultResult();
+    
+    this->setMessagePrefixLabel("plugin-instance");
   }
   
   PluginInstance::~PluginInstance() {
@@ -47,13 +49,13 @@ namespace beliefstate {
 	string strPrefix = "libbs_plugin_";
 	m_strName = m_strName.substr(strPrefix.size());
 	
-	cout << "Loaded plugin '" << m_strName << "'" << endl;
+	this->info("Loaded plugin '" + m_strName + "'");
 	m_piInstance->setPluginName(m_strName);
       } else {
 	resLoad.riResultIdentifier = RI_PLUGIN_LOADING_FAILED;
 	resLoad.bSuccess = false;
 	resLoad.strErrorMessage = "Failed to load library `" + strFilepath + "'.";
-	cout << "Could not open shared library: " << dlerror() << endl;
+	this->fail("Could not open shared library: " + string(dlerror()));
       }
     } else {
       resLoad.riResultIdentifier = RI_FILE_NOT_FOUND;
@@ -68,9 +70,9 @@ namespace beliefstate {
     Result resInit = m_piInstance->init(argc, argv);
     
     if(resInit.bSuccess) {
-      cout << "Initialized plugin '" << m_strName << "'" << endl;
+      this->success("Initialized plugin '" + m_strName + "'");
     } else {
-      cerr << "Failed to initialize plugin '" << m_strName << "'." << endl;
+      this->fail("Failed to initialize plugin '" + m_strName + "'.");
     }
     
     return resInit;
@@ -99,7 +101,7 @@ namespace beliefstate {
       destroyInstance(m_piInstance);
       dlclose(m_vdLibHandle);
       
-      cout << "Unloaded plugin '" << m_strName << "'" << endl;
+      this->info("Unloaded plugin '" + m_strName + "'");
     }
   }
   

@@ -12,12 +12,13 @@
 #include <ForwardDeclarations.h>
 #include <Types.h>
 #include <PluginInstance.h>
+#include <UtilityBase.h>
 
 using namespace std;
 
 
 namespace beliefstate {
-  class PluginSystem {
+  class PluginSystem : public UtilityBase {
   private:
     list<PluginInstance*> m_lstLoadedPlugins;
     list<PluginInstance*> m_lstUnloadPlugins;
