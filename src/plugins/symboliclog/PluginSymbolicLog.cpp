@@ -128,6 +128,15 @@ namespace beliefstate {
 	    
 	    while(ndParent) {
 	      if(ndParent->prematurelyEnded()) {
+		stringstream sts_id;
+		sts_id << ndParent->id();
+		this->info("Node ID " + sts_id.str() + " prematurely ended, removing from context stack.");
+		
+		// Setting the same values for success and end time as
+		// for the actually ended node.
+		ndParent->metaInformation()->setValue(string("success"), nSuccess);
+		ndParent->metaInformation()->setValue(string("time-end"), stsTimeEnd.str());
+		
 		ndParent = ndParent->parent();
 		this->setNodeAsActive(ndParent);
 	      } else {
@@ -242,34 +251,38 @@ namespace beliefstate {
 	    list<CKeyValuePair*> lstDescription = ckvpDesc->children();
 	    
 	    bool bDesigExists = (this->getDesignatorID(strMemAddr) != "");
-	    string strUniqueID = this->getUniqueDesignatorID(strMemAddr);
 	    
-	    this->activeNode()->addDesignator(strType, lstDescription, strUniqueID, strAnnotation);
+	    if(!bDesigExists) {
+	      string strUniqueID = this->getUniqueDesignatorID(strMemAddr);
 	    
-	    stringstream sts;
-	    sts << this->activeNode()->id();
-	    this->info("Added '" + strType + "' designator (addr=" + strMemAddr + ") to active context (id " + sts.str() + "): '" + strUniqueID + "'");
+	      this->activeNode()->addDesignator(strType, lstDescription, strUniqueID, strAnnotation);
 	    
-	    CDesignator* cdTemp = new CDesignator((strType == "ACTION" ? ACTION : (strType == "OBJECT" ? OBJECT : LOCATION)),
-						  lstDescription);
-	    cdTemp->setValue("_id", strUniqueID);
-
-	    if(strAnnotation != "") {
-	      cdTemp->setValue("_annotation", strAnnotation);
+	      stringstream sts;
+	      sts << this->activeNode()->id();
+	      this->info("Added '" + strType + "' designator (addr=" + strMemAddr + ") to active context (id " + sts.str() + "): '" + strUniqueID + "'");
+	    
+	      CDesignator* cdTemp = new CDesignator((strType == "ACTION" ? ACTION : (strType == "OBJECT" ? OBJECT : LOCATION)),
+						    lstDescription);
+	      cdTemp->setValue("_id", strUniqueID);
+	    
+	      if(strAnnotation != "") {
+		cdTemp->setValue("_annotation", strAnnotation);
+	      }
+	    
+	      // First, symbolically create the designator
+	      Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
+	      evLoggedDesignator.cdDesignator = cdTemp;
+	      evLoggedDesignator.strAnnotation = strAnnotation;
+	    
+	      this->deployEvent(evLoggedDesignator);
+	    
+	      // Second, symbolically add it to the current event
+	      Event evAddedDesignator = defaultEvent("symbolic-add-designator");
+	      evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
+	      evAddedDesignator.lstNodes.push_back(this->activeNode());
+	    
+	      this->deployEvent(evAddedDesignator);
 	    }
-	    
-	    // First, symbolically create the designator
-	    Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
-	    evLoggedDesignator.cdDesignator = cdTemp;
-	    evLoggedDesignator.strAnnotation = strAnnotation;
-	    
-	    this->deployEvent(evLoggedDesignator);
-	    
-	    // Second, symbolically add it to the current event
-	    Event evAddedDesignator = defaultEvent("symbolic-add-designator");
-	    evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
-	    evAddedDesignator.lstNodes.push_back(this->activeNode());
-	    this->deployEvent(evAddedDesignator);
 	  } else {
 	    this->warn("No node context available. Cannot add designator while on top-level.");
 	  }
@@ -292,6 +305,7 @@ namespace beliefstate {
 	      evEquateDesigs.cdDesignator->setValue("parent-id", strUniqueIDParent);
 	      evEquateDesigs.cdDesignator->setValue("child-id", strUniqueIDChild);
 	      evEquateDesigs.cdDesignator->setValue("equation-time", strEquationTime);
+	      
 	      this->deployEvent(evEquateDesigs);
 	    }
 	  }

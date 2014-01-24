@@ -21,7 +21,7 @@ namespace beliefstate {
     if(strFilename == "") {
       strFilename = this->configuration()->stringValue("filename");
     }
-  
+    
     if(strFilename != "") {
       ofstream fsFile;
       fsFile.open(strFilename.c_str());
