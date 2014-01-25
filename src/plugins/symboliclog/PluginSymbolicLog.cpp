@@ -254,28 +254,28 @@ namespace beliefstate {
 	    
 	    if(!bDesigExists) {
 	      string strUniqueID = this->getUniqueDesignatorID(strMemAddr);
-	    
+	      
 	      this->activeNode()->addDesignator(strType, lstDescription, strUniqueID, strAnnotation);
-	    
+	      
 	      stringstream sts;
 	      sts << this->activeNode()->id();
 	      this->info("Added '" + strType + "' designator (addr=" + strMemAddr + ") to active context (id " + sts.str() + "): '" + strUniqueID + "'");
-	    
+	      
 	      CDesignator* cdTemp = new CDesignator((strType == "ACTION" ? ACTION : (strType == "OBJECT" ? OBJECT : LOCATION)),
 						    lstDescription);
 	      cdTemp->setValue("_id", strUniqueID);
-	    
+	      
 	      if(strAnnotation != "") {
 		cdTemp->setValue("_annotation", strAnnotation);
 	      }
-	    
+	      
 	      // First, symbolically create the designator
 	      Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
 	      evLoggedDesignator.cdDesignator = cdTemp;
 	      evLoggedDesignator.strAnnotation = strAnnotation;
-	    
+	      
 	      this->deployEvent(evLoggedDesignator);
-	    
+	      
 	      // Second, symbolically add it to the current event
 	      Event evAddedDesignator = defaultEvent("symbolic-add-designator");
 	      evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
@@ -294,10 +294,63 @@ namespace beliefstate {
 	  
 	  if(strMemAddrChild != "" && strMemAddrParent != "") {
 	    if(this->activeNode()) {
-	      string strEquationTime = this->equateDesignators(strMemAddrChild, strMemAddrParent);
-	      
-	      string strUniqueIDParent = this->getUniqueDesignatorID(strMemAddrParent);
+	      // Check if child designator exists
+	      bool bChildDesigExists = (this->getDesignatorID(strMemAddrChild) != "");
 	      string strUniqueIDChild = this->getUniqueDesignatorID(strMemAddrChild);
+	      if(!bChildDesigExists) {
+		this->info("Adding non-existant child-designator during 'equate'");
+		
+		string strType = evEvent.cdDesignator->stringValue("type-child");
+		CKeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description-child");
+		list<CKeyValuePair*> lstDescription = ckvpDesc->children();
+		
+		CDesignator* cdTemp = new CDesignator((strType == "ACTION" ? ACTION : (strType == "OBJECT" ? OBJECT : LOCATION)),
+						      lstDescription);
+		cdTemp->setValue("_id", strUniqueIDChild);
+		
+		// First, symbolically create the designator
+		Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
+		evLoggedDesignator.cdDesignator = cdTemp;
+		
+		this->deployEvent(evLoggedDesignator);
+	      
+		// Second, symbolically add it to the current event
+		Event evAddedDesignator = defaultEvent("symbolic-add-designator");
+		evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
+		evAddedDesignator.lstNodes.push_back(this->activeNode());
+	    
+		this->deployEvent(evAddedDesignator);
+	      }
+	      
+	      // Check if parent designator exists
+	      bool bParentDesigExists = (this->getDesignatorID(strMemAddrParent) != "");
+	      string strUniqueIDParent = this->getUniqueDesignatorID(strMemAddrParent);
+	      if(!bParentDesigExists) {
+		this->warn("Adding non-existant parent-designator during 'equate'");
+		
+		string strType = evEvent.cdDesignator->stringValue("type-parent");
+		CKeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description-parent");
+		list<CKeyValuePair*> lstDescription = ckvpDesc->children();
+		
+		CDesignator* cdTemp = new CDesignator((strType == "ACTION" ? ACTION : (strType == "OBJECT" ? OBJECT : LOCATION)),
+						      lstDescription);
+		cdTemp->setValue("_id", strUniqueIDParent);
+		
+		// First, symbolically create the designator
+		Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
+		evLoggedDesignator.cdDesignator = cdTemp;
+		
+		this->deployEvent(evLoggedDesignator);
+		
+		// Second, symbolically add it to the current event
+		Event evAddedDesignator = defaultEvent("symbolic-add-designator");
+		evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
+		evAddedDesignator.lstNodes.push_back(this->activeNode());
+		
+		this->deployEvent(evAddedDesignator);
+	      }
+	      
+	      string strEquationTime = this->equateDesignators(strMemAddrChild, strMemAddrParent);
 	      
 	      Event evEquateDesigs = defaultEvent("symbolic-equate-designators");
 	      evEquateDesigs.cdDesignator = new CDesignator();
