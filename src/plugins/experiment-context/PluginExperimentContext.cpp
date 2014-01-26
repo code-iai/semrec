@@ -16,6 +16,7 @@ namespace beliefstate {
     Result PLUGIN_CLASS::init(int argc, char** argv) {
       this->setSubscribedToEvent("set-experiment-meta-data", true);
       this->setSubscribedToEvent("export-planlog", true);
+      this->setSubscribedToEvent("experiment-start", true);
       
       return defaultResult();
     }
@@ -48,10 +49,14 @@ namespace beliefstate {
 	
 	if(strFormat == "meta") {
 	  this->info("Experiment Context Plugin exporting meta-data");
-	
+	  
+	  stringstream sts;
+	  sts << this->getTimeStamp();
+	  m_mapValues["experiment-end-time"] = sts.str();
+	  
 	  ConfigSettings cfgsetCurrent = configSettings();
 	  string strMetaFile = cfgsetCurrent.strExperimentDirectory + "metadata.xml";
-	
+	  
 	  string strMetaXML = "";
 	  strMetaXML += "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\n";
 	  strMetaXML += "<meta-data>\n";
@@ -59,15 +64,19 @@ namespace beliefstate {
 	      itValues != m_mapValues.end();
 	      itValues++) {
 	    pair<string, string> prEntry = *itValues;
-	  
+	    
 	    strMetaXML += "  <" + prEntry.first + ">" + prEntry.second + "</" + prEntry.first + ">\n";
 	  }
 	  strMetaXML += "</meta-data>\n";
-	
+	  
 	  m_expFileExporter->writeToFile(strMetaXML, strMetaFile);
-	
+	  
 	  this->info("Successfully exported meta-data to '" + strMetaFile + "'");
 	}
+      } else if(evEvent.strEventName == "experiment-start") {
+	stringstream sts;
+	sts << this->getTimeStamp();
+	m_mapValues["experiment-start-time"] = sts.str();
       }
     }
   }
