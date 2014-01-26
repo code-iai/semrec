@@ -33,7 +33,7 @@ namespace beliefstate {
     Node(string strTitle);
     Node(list<CKeyValuePair*> lstDescription);
     ~Node();
-  
+    
     void setDescription(list<CKeyValuePair*> lstDescription);
     list<CKeyValuePair*> description();
   

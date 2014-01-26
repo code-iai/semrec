@@ -88,6 +88,7 @@ namespace beliefstate {
 	
 	Node* ndFormerParent = this->activeNode();
 	Node* ndNew = this->addNode(strName, evEvent.nContextID);
+	ndNew->setDescription(evEvent.cdDesignator->description());
 	
 	stringstream stsTimeStart;
 	stsTimeStart << this->getTimeStamp();

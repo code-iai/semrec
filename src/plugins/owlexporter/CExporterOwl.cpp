@@ -236,7 +236,7 @@ namespace beliefstate {
 	if(ndCurrent->title() == "GOAL-ACHIEVE") {
 	  list<CKeyValuePair*> lstDescription = ndCurrent->description();
 	  string strPattern = "";
-	
+	  
 	  for(list<CKeyValuePair*>::iterator itDesc = lstDescription.begin();
 	      itDesc != lstDescription.end();
 	      itDesc++) {
