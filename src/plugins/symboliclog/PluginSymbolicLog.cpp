@@ -119,7 +119,12 @@ namespace beliefstate {
 	    sts << "Received stop context designator for ID " << nID << " (success: " << (nSuccess ? "yes" : "no") << ")";
 	    this->info(sts.str());
 	    
-	    ndCurrent->metaInformation()->setValue(string("success"), nSuccess);
+	    // Set success only if no failures are present (in
+	    // which case the success is set to 'false' already)
+	    if(!ndCurrent->hasFailures()) {
+	      ndCurrent->metaInformation()->setValue(string("success"), nSuccess);
+	    }
+	    
 	    stringstream stsTimeEnd;
 	    stsTimeEnd << this->getTimeStamp();
 	    ndCurrent->metaInformation()->setValue(string("time-end"), stsTimeEnd.str());
@@ -135,8 +140,13 @@ namespace beliefstate {
 		
 		// Setting the same values for success and end time as
 		// for the actually ended node.
-		ndParent->metaInformation()->setValue(string("success"), nSuccess);
 		ndParent->metaInformation()->setValue(string("time-end"), stsTimeEnd.str());
+		
+		// Set success only if no failures are present (in
+		// which case the success is set to 'false' already)
+		if(!ndParent->hasFailures()) {
+		  ndParent->metaInformation()->setValue(string("success"), nSuccess);
+		}
 		
 		ndParent = ndParent->parent();
 		this->setNodeAsActive(ndParent);

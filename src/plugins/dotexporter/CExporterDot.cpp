@@ -106,6 +106,7 @@ namespace beliefstate {
     
 	string strFillColor;
 	string strEdgeColor;
+	
 	if(ndCurrent->metaInformation()->floatValue("success") == 1) {
 	  strFillColor = "#ddffdd";
 	  strEdgeColor = "green";
