@@ -184,11 +184,21 @@ namespace beliefstate {
 
   void Node::addFailure(string strCondition, string strTimestamp) {
     CKeyValuePair* ckvpFailure = this->addDescriptionListItem("failures", "failure");
-  
+    
     ckvpFailure->setValue(string("condition"), strCondition);
     ckvpFailure->setValue(string("time-fail"), strTimestamp);
   }
-
+  
+  bool Node::hasFailures() {
+    CKeyValuePair* ckvpList = this->metaInformation()->childForKey("failures");
+    
+    if(ckvpList) {
+      return (ckvpList->children().size() > 0);
+    }
+    
+    return false;
+  }
+  
   void Node::addDesignator(string strType, list<CKeyValuePair*> lstDescription, string strUniqueID, string strAnnotation) {
     CKeyValuePair* ckvpDesignator = this->addDescriptionListItem("designators", "designator");
     

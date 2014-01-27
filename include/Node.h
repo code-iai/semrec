@@ -65,6 +65,7 @@ namespace beliefstate {
     void addImage(string strOrigin, string strFilename);
     void addObject(list<CKeyValuePair*> lstDescription);
     void addFailure(string strCondition, string strTimestamp);
+    bool hasFailures();
     void addDesignator(string strType, list<CKeyValuePair*> lstDescription, string strUniqueID, string strAnnotation = "");
   
     void setSuccess(bool bSuccess);
