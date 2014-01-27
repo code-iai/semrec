@@ -17,6 +17,7 @@ namespace beliefstate {
       this->setSubscribedToEvent("set-experiment-meta-data", true);
       this->setSubscribedToEvent("export-planlog", true);
       this->setSubscribedToEvent("experiment-start", true);
+      this->setSubscribedToEvent("experiment-shutdown", true);
       
       return defaultResult();
     }
@@ -50,9 +51,12 @@ namespace beliefstate {
 	if(strFormat == "meta") {
 	  this->info("Experiment Context Plugin exporting meta-data");
 	  
-	  stringstream sts;
-	  sts << this->getTimeStamp();
-	  m_mapValues["experiment-end-time"] = sts.str();
+	  if(m_mapValues.find("time-end") != m_mapValues.end()) {
+	    stringstream sts;
+	    sts << this->getTimeStamp();
+	    
+	    m_mapValues["time-end"] = sts.str();
+	  }
 	  
 	  ConfigSettings cfgsetCurrent = configSettings();
 	  string strMetaFile = cfgsetCurrent.strExperimentDirectory + "metadata.xml";
@@ -76,7 +80,11 @@ namespace beliefstate {
       } else if(evEvent.strEventName == "experiment-start") {
 	stringstream sts;
 	sts << this->getTimeStamp();
-	m_mapValues["experiment-start-time"] = sts.str();
+	m_mapValues["time-start"] = sts.str();
+      } else if(evEvent.strEventName == "experiment-shutdown") {
+	stringstream sts;
+	sts << this->getTimeStamp();
+	m_mapValues["time-end"] = sts.str();
       }
     }
   }
