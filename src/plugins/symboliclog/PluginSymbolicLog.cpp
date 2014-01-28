@@ -385,6 +385,29 @@ namespace beliefstate {
 	      
 	      bool bDesigExists = (this->getDesignatorID(strMemAddr) != "");
 	      string strUniqueID = this->getUniqueDesignatorID(strMemAddr);
+	      if(!bDesigExists) { // Object does not yet exist. Add it
+				  // symbolically.
+		this->info("Adding non-existant object-designator to current context");
+		
+		CKeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description");
+		list<CKeyValuePair*> lstDescription = ckvpDesc->children();
+		
+		CDesignator* cdTemp = new CDesignator(OBJECT, lstDescription);
+		cdTemp->setValue("_id", strUniqueID);
+		
+		// First, symbolically create the designator
+		Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
+		evLoggedDesignator.cdDesignator = cdTemp;
+		
+		this->deployEvent(evLoggedDesignator);
+	      
+		// Second, symbolically add it to the current event
+		Event evAddedDesignator = defaultEvent("symbolic-add-designator");
+		evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
+		evAddedDesignator.lstNodes.push_back(this->activeNode());
+	    
+		this->deployEvent(evAddedDesignator);
+	      }
 	      
 	      ckvpDesc->setValue("__id", strUniqueID);
 	      this->activeNode()->addObject(ckvpDesc->children());
