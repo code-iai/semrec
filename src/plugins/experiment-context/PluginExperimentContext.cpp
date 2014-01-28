@@ -51,7 +51,7 @@ namespace beliefstate {
 	if(strFormat == "meta") {
 	  this->info("Experiment Context Plugin exporting meta-data");
 	  
-	  if(m_mapValues.find("time-end") != m_mapValues.end()) {
+	  if(m_mapValues.find("time-end") == m_mapValues.end()) {
 	    stringstream sts;
 	    sts << this->getTimeStamp();
 	    
