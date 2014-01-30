@@ -258,6 +258,8 @@ namespace beliefstate {
 	  }
 	}
       }
+      
+      usleep(1000);
     } else {
       bContinue = false;
     }
