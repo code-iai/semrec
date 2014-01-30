@@ -22,6 +22,14 @@ namespace beliefstate {
   InteractiveObject::~InteractiveObject() {
   }
   
+  void InteractiveObject::setSize(float fWidth, float fDepth, float fHeight) {
+    m_mkrMarker.scale.x = m_imMarker.scale * fWidth;
+    m_mkrMarker.scale.y = m_imMarker.scale * fDepth;
+    m_mkrMarker.scale.z = m_imMarker.scale * fHeight;
+    
+    this->insertIntoServer(m_imsServer);
+  }
+  
   void InteractiveObject::setPose(string strFixedFrame, geometry_msgs::Pose posPose) {
     m_imMarker.header.frame_id = strFixedFrame;
     m_imMarker.pose = posPose;
@@ -117,6 +125,17 @@ namespace beliefstate {
     imeEntry.unMenuEntryID = entEntry;
     
     m_lstMenuEntries.push_back(imeEntry);
+    
+    if(m_imsServer) {
+      this->insertIntoServer(m_imsServer);
+    }
+  }
+  
+  void InteractiveObject::clearMenuEntries() {
+    MenuHandler mhMenu;
+    
+    m_lstMenuEntries.clear();
+    m_mhMenu = mhMenu;
     
     if(m_imsServer) {
       this->insertIntoServer(m_imsServer);

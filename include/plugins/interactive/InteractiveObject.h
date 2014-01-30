@@ -49,12 +49,14 @@ namespace beliefstate {
     void clickCallback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
     
     void setMarker(visualization_msgs::Marker mkrMarker);
+    void setSize(float fWidth, float fDepth, float fHeight);
     void setPose(string strFixedFrame, geometry_msgs::Pose posPose);
     void setPose(geometry_msgs::Pose posPose);
     
     string name();
     void addMenuEntry(string strLabel, string strIdentifier, string strParameter = "");
     void removeMenuEntry(string strIdentifier, string strParameter = "");
+    void clearMenuEntries();
     
     list<InteractiveObjectCallbackResult> callbackResults();
   };

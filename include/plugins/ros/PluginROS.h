@@ -34,6 +34,7 @@ namespace beliefstate {
       ros::ServiceServer m_srvEndContext;
       ros::ServiceServer m_srvAlterContext;
       ros::Publisher m_pubLoggedDesignators;
+      ros::Publisher m_pubInteractiveCallback;
       bool m_bStartedSpinning;
       ros::AsyncSpinner* m_aspnAsyncSpinner;
       

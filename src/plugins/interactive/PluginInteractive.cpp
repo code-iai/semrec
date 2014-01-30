@@ -78,15 +78,19 @@ namespace beliefstate {
       return NULL;
     }
     
-    void PLUGIN_CLASS::removeInteractiveObject(string strName) {
+    bool PLUGIN_CLASS::removeInteractiveObject(string strName) {
       for(list<InteractiveObject*>::iterator itIO = m_lstInteractiveObjects.begin();
 	  itIO != m_lstInteractiveObjects.end();
 	  itIO++) {
 	if((*itIO)->name() == strName) {
+	  (*itIO)->removeFromServer();
 	  m_lstInteractiveObjects.erase(itIO);
-	  break;
+	  
+	  return true;
 	}
       }
+      
+      return false;
     }
     
     Result PLUGIN_CLASS::deinit() {
@@ -128,7 +132,31 @@ namespace beliefstate {
 	  string strObjectName = evEvent.cdDesignator->stringValue("name");
 	  
 	  if(strObjectName != "") {
-	    this->addInteractiveObject(strObjectName);
+	    InteractiveObject* ioNew = this->addInteractiveObject(strObjectName);
+	    ioNew->setPose(evEvent.cdDesignator->poseValue("pose"));
+	    ioNew->setSize(evEvent.cdDesignator->floatValue("width"),
+			   evEvent.cdDesignator->floatValue("depth"),
+			   evEvent.cdDesignator->floatValue("height"));
+	    
+	    ioNew->clearMenuEntries();
+	    
+	    CKeyValuePair* ckvpMenu = evEvent.cdDesignator->childForKey("menu");
+	    list<string> lstMenuKeys = ckvpMenu->keys();
+	    
+	    for(list<string>::iterator itKey = lstMenuKeys.begin();
+		itKey != lstMenuKeys.end();
+		itKey++) {
+	      string strKey = *itKey;
+	      
+	      CKeyValuePair* ckvpMenuEntry = ckvpMenu->childForKey(strKey);
+	      string strLabel = ckvpMenuEntry->stringValue("label");
+	      string strParameter = ckvpMenuEntry->stringValue("parameter");
+	      
+	      ioNew->addMenuEntry(strLabel, strKey, strParameter);
+	      this->info("Added menu entry '" + strKey + "': '" + strLabel + "'");
+	    }
+	    
+	    this->info("Registered interactive object '" + strObjectName + "'.");
 	  } else {
 	    this->warn("No name given when adding interactive object!");
 	  }
@@ -136,11 +164,59 @@ namespace beliefstate {
 	  this->warn("No designator given when adding interactive object!");
 	}
       } else if(evEvent.strEventName == "symbolic-remove-object") {
-	this->unimplemented("Removing objects via events not yet implemented.");
+	if(evEvent.cdDesignator) {
+	  string strObjectName = evEvent.cdDesignator->stringValue("name");
+	  
+	  if(strObjectName != "") {
+	    if(!this->removeInteractiveObject(strObjectName)) {
+	      this->warn("Tried to unregister non-existing interactive object '" + strObjectName + "'.");
+	    }
+	  }
+	}
       } else if(evEvent.strEventName == "symbolic-update-object-pose") {
-	this->unimplemented("Updating object poses via events not yet implemented.");
+	if(evEvent.cdDesignator) {
+	  string strObjectName = evEvent.cdDesignator->stringValue("name");
+	  
+	  if(strObjectName != "") {
+	    geometry_msgs::Pose psSet = evEvent.cdDesignator->poseValue("pose");
+	    
+	    this->updatePoseForInteractiveObject(strObjectName, psSet);
+	  }
+	}
       } else if(evEvent.strEventName == "symbolic-set-interactive-object-menu") {
-	this->unimplemented("Updating object menu via events not yet implemented.");
+	if(evEvent.cdDesignator) {
+	  string strObjectName = evEvent.cdDesignator->stringValue("name");
+	  
+	  if(strObjectName != "") {
+	    InteractiveObject* ioNew = this->interactiveObjectForName(strObjectName);
+	    
+	    if(ioNew) {
+	      ioNew->clearMenuEntries();
+	    
+	      CKeyValuePair* ckvpMenu = evEvent.cdDesignator->childForKey("menu");
+	      list<string> lstMenuKeys = ckvpMenu->keys();
+	    
+	      for(list<string>::iterator itKey = lstMenuKeys.begin();
+		  itKey != lstMenuKeys.end();
+		  itKey++) {
+		string strKey = *itKey;
+	      
+		CKeyValuePair* ckvpMenuEntry = ckvpMenu->childForKey(strKey);
+		string strLabel = ckvpMenuEntry->stringValue("label");
+		string strParameter = ckvpMenuEntry->stringValue("parameter");
+	      
+		ioNew->addMenuEntry(strLabel, strKey, strParameter);
+		this->info("Added menu entry '" + strKey + "': '" + strLabel + "'");
+	      }
+	    } else {
+	      this->warn("Interactive object '" + strObjectName + "' not known when setting menu!");
+	    }
+	  } else {
+	    this->warn("No name given when setting interactive object menu!");
+	  }
+	} else {
+	  this->warn("No designator given when setting interactive object menu!");
+	}
       }
     }
   }

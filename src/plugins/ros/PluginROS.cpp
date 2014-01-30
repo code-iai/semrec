@@ -24,6 +24,7 @@ namespace beliefstate {
       this->setSubscribedToEvent("add-image-from-file", true);
       this->setSubscribedToEvent("add-image-from-topic", true);
       this->setSubscribedToEvent("symbolic-create-designator", true);
+      this->setSubscribedToEvent("interactive-callback", true);
       
       if(!ros::ok()) {
 	string strROSNodeName = "beliefstate_ros";
@@ -37,6 +38,7 @@ namespace beliefstate {
 	  m_srvEndContext = m_nhHandle->advertiseService<PLUGIN_CLASS>("end_context", &PLUGIN_CLASS::serviceCallbackEndContext, this);
 	  m_srvAlterContext = m_nhHandle->advertiseService<PLUGIN_CLASS>("alter_context", &PLUGIN_CLASS::serviceCallbackAlterContext, this);
 	  m_pubLoggedDesignators = m_nhHandle->advertise<designator_integration_msgs::Designator>("/logged_designators", 1);
+	  m_pubInteractiveCallback = m_nhHandle->advertise<designator_integration_msgs::Designator>("/interactive_callback", 1);
 	  
 	  this->info("ROS node started. Starting to spin (4 threads).");
 	  m_aspnAsyncSpinner = new ros::AsyncSpinner(4);
@@ -119,6 +121,14 @@ namespace beliefstate {
 	evAlterContext.strEventName = "start-new-experiment";
       } else if(strCommand == "set-experiment-meta-data") {
 	evAlterContext.strEventName = "set-experiment-meta-data";
+      } else if(strCommand == "register-interactive-object") {
+	evAlterContext.strEventName = "symbolic-add-object";
+      } else if(strCommand == "unregister-interactive-object") {
+	evAlterContext.strEventName = "symbolic-remove-object";
+      } else if(strCommand == "set-interactive-object-menu") {
+	evAlterContext.strEventName = "symbolic-set-interactive-object-menu";
+      } else if(strCommand == "update-interactive-object-pose") {
+	evAlterContext.strEventName = "symbolic-update-object-pose";
       } else {
 	this->warn("Unknown command when altering context: '" + strCommand + "'");
       }
@@ -135,6 +145,10 @@ namespace beliefstate {
 	if(evEvent.strEventName == "symbolic-create-designator") {
 	  if(evEvent.cdDesignator) {
 	    m_pubLoggedDesignators.publish(evEvent.cdDesignator->serializeToMessage());
+	  }
+	} else if(evEvent.strEventName == "interactive-callback") {
+	  if(evEvent.cdDesignator) {
+	    m_pubInteractiveCallback.publish(evEvent.cdDesignator->serializeToMessage());
 	  }
 	}
       }
