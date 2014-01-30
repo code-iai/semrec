@@ -110,6 +110,8 @@ namespace beliefstate {
 	    itCBR++) {
 	  InteractiveObjectCallbackResult iocrResult = *itCBR;
 	  
+	  this->info("Interactive callback for object '" + iocrResult.strObject + "': '" + iocrResult.strCommand + "', '" + iocrResult.strParameter + "'");
+	  
 	  Event evCallback = defaultEvent("interactive-callback");
 	  evCallback.cdDesignator = new CDesignator();
 	  evCallback.cdDesignator->setType(ACTION);
