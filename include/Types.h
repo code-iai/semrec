@@ -6,6 +6,7 @@
 #include <string>
 #include <list>
 #include <designators/CDesignator.h>
+#include <vector>
 
 // Private
 #include <Node.h>
@@ -87,6 +88,13 @@ namespace beliefstate {
     
     // Plugin loading
     bool bLoadDevelopmentPlugins;
+    
+    // Plugin output
+    vector<string> vecPluginOutputColors;
+    
+    // Miscellaneous
+    bool bDisplayUnhandledEvents;
+    bool bDisplayUnhandledServiceEvents;
   } ConfigSettings;
 }
 

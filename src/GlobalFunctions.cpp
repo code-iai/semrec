@@ -107,11 +107,11 @@ namespace beliefstate {
   }
   
   string colorSpecifierForID(int nID, bool bBold) {
-    int nLength = 7;
-    string strColorCodes[] = {"31", "32", "33", "34", "35", "36", "37"};
-    
+    ConfigSettings cfgSet = configSettings();
+    int nLength = cfgSet.vecPluginOutputColors.size();
     int nUseIndex = (nID + 3) % nLength;
-    return "\033[" + string(bBold ? "1" : "0") + ";" + strColorCodes[nUseIndex] + "m";
+    
+    return "\033[" + string(bBold ? "1" : "0") + ";" + cfgSet.vecPluginOutputColors[nUseIndex] + "m";
   }
   
   string normalColorSpecifier() {

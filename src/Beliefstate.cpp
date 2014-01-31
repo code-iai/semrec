@@ -146,6 +146,21 @@ namespace beliefstate {
 	  m_psPlugins->addPluginSearchPath(strPath);
 	}
 	
+	Setting &sPluginsColors = cfgConfig.lookup("plugins.colors");
+	vector<string> vecPluginOutputColors;
+	for(int nI = 0; nI < sPluginsColors.getLength(); nI++) {
+	  string strColor = sPluginsColors[nI];
+	  vecPluginOutputColors.push_back(strColor);
+	}
+	
+	// Section: Miscellaneous
+	bool bDisplayUnhandledEvents;
+	bool bDisplayUnhandledServiceEvents;
+	
+	Setting &sMiscellaneous = cfgConfig.lookup("miscellaneous");
+	sMiscellaneous.lookupValue("display-unhandled-events", bDisplayUnhandledEvents);
+	sMiscellaneous.lookupValue("display-unhandled-service-events", bDisplayUnhandledServiceEvents);
+	
 	// -> Set the global settings
 	ConfigSettings cfgsetCurrent = configSettings();
 	cfgsetCurrent.bLoadDevelopmentPlugins = bLoadDevelopmentPlugins;
@@ -156,6 +171,9 @@ namespace beliefstate {
 	cfgsetCurrent.strExperimentNameMask = strExperimentNameMask;
 	cfgsetCurrent.strBaseDataDirectory = strBaseDataDirectory;
 	cfgsetCurrent.strSymlinkName = strSymlinkName;
+	cfgsetCurrent.bDisplayUnhandledEvents = bDisplayUnhandledEvents;
+	cfgsetCurrent.bDisplayUnhandledServiceEvents = bDisplayUnhandledServiceEvents;
+	cfgsetCurrent.vecPluginOutputColors = vecPluginOutputColors;
 	setConfigSettings(cfgsetCurrent);
 	
 	return true;
@@ -192,24 +210,28 @@ namespace beliefstate {
   
   void Beliefstate::spreadEvent(Event evEvent) {
     if(m_psPlugins->spreadEvent(evEvent) == 0) {
-      this->warn("Unhandled event dropped: '" + evEvent.strEventName + "'");
-      
-      if(evEvent.cdDesignator) {
-	this->warn("Content was:");
-	evEvent.cdDesignator->printDesignator();
+      ConfigSettings cfgSet = configSettings();
+      if(cfgSet.bDisplayUnhandledEvents) {
+	this->warn("Unhandled event dropped: '" + evEvent.strEventName + "'");
+	
+	if(evEvent.cdDesignator) {
+	  this->warn("Content was:");
+	  evEvent.cdDesignator->printDesignator();
+	}
       }
     }
   }
   
   void Beliefstate::spreadServiceEvent(ServiceEvent seServiceEvent) {
     if(m_psPlugins->spreadServiceEvent(seServiceEvent) == 0) {
-      this->warn("Unhandled service event ('" + seServiceEvent.strServiceName + "') dropped.");
-      
-      if(seServiceEvent.cdDesignator) {
-	this->warn("Content was:");
-	seServiceEvent.cdDesignator->printDesignator();
-      } else {
-	this->warn("No content given.");
+      ConfigSettings cfgSet = configSettings();
+      if(cfgSet.bDisplayUnhandledServiceEvents) {
+	this->warn("Unhandled service event ('" + seServiceEvent.strServiceName + "') dropped.");
+	
+	if(seServiceEvent.cdDesignator) {
+	  this->warn("Content was:");
+	  seServiceEvent.cdDesignator->printDesignator();
+	}
       }
     }
   }
