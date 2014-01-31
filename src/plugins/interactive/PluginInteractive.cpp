@@ -135,27 +135,59 @@ namespace beliefstate {
 	  
 	  if(strObjectName != "") {
 	    InteractiveObject* ioNew = this->addInteractiveObject(strObjectName);
-	    ioNew->setPose(evEvent.cdDesignator->poseValue("pose"));
-	    ioNew->setSize(evEvent.cdDesignator->floatValue("width"),
-			   evEvent.cdDesignator->floatValue("depth"),
-			   evEvent.cdDesignator->floatValue("height"));
 	    
-	    ioNew->clearMenuEntries();
+	    bool bPoseGiven = false;
+	    if(evEvent.cdDesignator->childForKey("pose") != NULL) {
+	      ioNew->setPose(evEvent.cdDesignator->poseValue("pose"));
+	      bPoseGiven = true;
+	    }
 	    
-	    CKeyValuePair* ckvpMenu = evEvent.cdDesignator->childForKey("menu");
-	    list<string> lstMenuKeys = ckvpMenu->keys();
+	    if(evEvent.cdDesignator->childForKey("pose-stamped") != NULL) {
+	      geometry_msgs::PoseStamped psPose = evEvent.cdDesignator->poseStampedValue("pose-stamped");
+	      ioNew->setPose(psPose.header.frame_id, psPose.pose);
+	      bPoseGiven = true;
+	    }
 	    
-	    for(list<string>::iterator itKey = lstMenuKeys.begin();
-		itKey != lstMenuKeys.end();
-		itKey++) {
-	      string strKey = *itKey;
+	    if(!bPoseGiven) {
+	      this->info("No pose given for object '" + strObjectName + "'.");
+	    }
+	    
+	    float fWidth = 0.1;
+	    float fDepth = 0.1;
+	    float fHeight = 0.1;
+	    
+	    if(evEvent.cdDesignator->childForKey("width") != NULL &&
+	       evEvent.cdDesignator->childForKey("depth") != NULL &&
+	       evEvent.cdDesignator->childForKey("height") != NULL) {
+	      fWidth = evEvent.cdDesignator->floatValue("width");
+	      fDepth = evEvent.cdDesignator->floatValue("depth");
+	      fHeight = evEvent.cdDesignator->floatValue("height");
+	    } else {
+	      this->info("No dimension (width, depth, height) given for object '" + strObjectName + "', assuming default (0.1, 0.1, 0.1).");
+	    }
+	    
+	    ioNew->setSize(fWidth, fDepth, fHeight);
+	    
+	    if(evEvent.cdDesignator->childForKey("menu") != NULL) {
+	      ioNew->clearMenuEntries();
 	      
-	      CKeyValuePair* ckvpMenuEntry = ckvpMenu->childForKey(strKey);
-	      string strLabel = ckvpMenuEntry->stringValue("label");
-	      string strParameter = ckvpMenuEntry->stringValue("parameter");
+	      CKeyValuePair* ckvpMenu = evEvent.cdDesignator->childForKey("menu");
+	      list<string> lstMenuKeys = ckvpMenu->keys();
+	    
+	      for(list<string>::iterator itKey = lstMenuKeys.begin();
+		  itKey != lstMenuKeys.end();
+		  itKey++) {
+		string strKey = *itKey;
 	      
-	      ioNew->addMenuEntry(strLabel, strKey, strParameter);
-	      this->info("Added menu entry '" + strKey + "': '" + strLabel + "'");
+		CKeyValuePair* ckvpMenuEntry = ckvpMenu->childForKey(strKey);
+		string strLabel = ckvpMenuEntry->stringValue("label");
+		string strParameter = ckvpMenuEntry->stringValue("parameter");
+	      
+		ioNew->addMenuEntry(strLabel, strKey, strParameter);
+		this->info("Added menu entry '" + strKey + "': '" + strLabel + "'");
+	      }
+	    } else {
+	      this->info("No menu given for object '" + strObjectName + "'.");
 	    }
 	    
 	    this->info("Registered interactive object '" + strObjectName + "'.");

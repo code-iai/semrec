@@ -400,12 +400,12 @@ namespace beliefstate {
 		evLoggedDesignator.cdDesignator = cdTemp;
 		
 		this->deployEvent(evLoggedDesignator);
-	      
+		
 		// Second, symbolically add it to the current event
 		Event evAddedDesignator = defaultEvent("symbolic-add-designator");
 		evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
 		evAddedDesignator.lstNodes.push_back(this->activeNode());
-	    
+		
 		this->deployEvent(evAddedDesignator);
 	      }
 	      
@@ -418,9 +418,18 @@ namespace beliefstate {
 	      
 	      // Signal symbolic addition of object
 	      Event evSymAddObj = defaultEvent("symbolic-add-object");
-	      evSymAddObj.cdDesignator = new CDesignator();
-	      evSymAddObj.cdDesignator->setType(OBJECT);
-	      evSymAddObj.cdDesignator->setValue("name", strUniqueID);
+	      evSymAddObj.cdDesignator = new CDesignator(OBJECT, ckvpDesc);
+	      //evSymAddObj.cdDesignator->setValue("name", strUniqueID);
+	      
+	      CKeyValuePair* ckvpAt = evSymAddObj.cdDesignator->childForKey("at");
+	      
+	      if(ckvpAt->childForKey("pose") != NULL) {
+		if(ckvpAt->childForKey("pose")->type() == POSESTAMPED) {
+		  evSymAddObj.cdDesignator->setValue("pose-stamped", ckvpAt->poseStampedValue("pose"));
+		} else if(ckvpAt->childForKey("pose")->type() == POSE) {
+		  evSymAddObj.cdDesignator->setValue("pose", ckvpAt->poseStampedValue("pose"));
+		}
+	      }
 	      
 	      this->deployEvent(evSymAddObj);
 	    } else {
