@@ -223,7 +223,6 @@ namespace beliefstate {
 	    this->warn("No node context available. Cannot add image from file while on top-level.");
 	  }
 	}
-	this->warn("Adding images from file is not yet implemented!");
       } else if(evEvent.strEventName == "add-failure") {
 	if(evEvent.cdDesignator) {
 	  if(this->activeNode()) {
