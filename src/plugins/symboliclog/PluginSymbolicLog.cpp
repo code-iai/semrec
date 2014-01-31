@@ -431,6 +431,13 @@ namespace beliefstate {
 		}
 	      }
 	      
+	      string strObjName = evSymAddObj.cdDesignator->stringValue("name");
+	      
+	      CKeyValuePair* ckvpMenu = evSymAddObj.cdDesignator->addChild("menu");
+	      CKeyValuePair* ckvpMenuPickObject = ckvpMenu->addChild("PICK-OBJECT");
+	      ckvpMenuPickObject->setValue("label", "Pick up object " + strObjName);
+	      ckvpMenuPickObject->setValue("parameter", strObjName);
+	      
 	      this->deployEvent(evSymAddObj);
 	    } else {
 	      this->warn("No node context available. Cannot add object while on top-level.");
