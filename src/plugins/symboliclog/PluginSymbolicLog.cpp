@@ -419,15 +419,17 @@ namespace beliefstate {
 	      // Signal symbolic addition of object
 	      Event evSymAddObj = defaultEvent("symbolic-add-object");
 	      evSymAddObj.cdDesignator = new CDesignator(OBJECT, ckvpDesc);
-	      //evSymAddObj.cdDesignator->setValue("name", strUniqueID);
 	      
-	      CKeyValuePair* ckvpAt = evSymAddObj.cdDesignator->childForKey("at");
+	      // Okay, this is pretty hacky. Right now, the CRAM
+	      // system does not send object names. That needs to be
+	      // fixed. Until then, a dummy name is used here.
+	      evSymAddObj.cdDesignator->setValue("name", "object0");//strUniqueID);
 	      
-	      if(ckvpAt->childForKey("pose") != NULL) {
-		if(ckvpAt->childForKey("pose")->type() == POSESTAMPED) {
-		  evSymAddObj.cdDesignator->setValue("pose-stamped", ckvpAt->poseStampedValue("pose"));
-		} else if(ckvpAt->childForKey("pose")->type() == POSE) {
-		  evSymAddObj.cdDesignator->setValue("pose", ckvpAt->poseStampedValue("pose"));
+	      if(evSymAddObj.cdDesignator->childForKey("pose") != NULL) {
+		if(evSymAddObj.cdDesignator->childForKey("pose")->type() == POSESTAMPED) {
+		  evSymAddObj.cdDesignator->setValue("pose-stamped", evSymAddObj.cdDesignator->poseStampedValue("pose"));
+		} else if(evSymAddObj.cdDesignator->childForKey("pose")->type() == POSE) {
+		  evSymAddObj.cdDesignator->setValue("pose", evSymAddObj.cdDesignator->poseStampedValue("pose"));
 		}
 	      }
 	      
