@@ -9,6 +9,7 @@
 // ROS
 #include <interactive_markers/interactive_marker_server.h>
 #include <interactive_markers/menu_handler.h>
+#include <ros/ros.h>
 
 using namespace std;
 using namespace visualization_msgs;

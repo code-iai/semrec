@@ -76,23 +76,25 @@ namespace beliefstate {
   }
   
   bool InteractiveObject::insertIntoServer(InteractiveMarkerServer* imsServer) {
-    if(imsServer) {
-      m_imcControl.interaction_mode = InteractiveMarkerControl::BUTTON;
-      m_imcControl.always_visible = true;
+    if(ros::ok()) {
+      if(imsServer) {
+	m_imcControl.interaction_mode = InteractiveMarkerControl::BUTTON;
+	m_imcControl.always_visible = true;
       
-      m_imcControl.markers.clear();
-      m_imcControl.markers.push_back(m_mkrMarker);
+	m_imcControl.markers.clear();
+	m_imcControl.markers.push_back(m_mkrMarker);
       
-      m_imMarker.controls.clear();
-      m_imMarker.controls.push_back(m_imcControl);
+	m_imMarker.controls.clear();
+	m_imMarker.controls.push_back(m_imcControl);
       
-      imsServer->insert(m_imMarker);
-      m_mhMenu.apply(*imsServer, m_imMarker.name);
-      imsServer->applyChanges();
+	imsServer->insert(m_imMarker);
+	m_mhMenu.apply(*imsServer, m_imMarker.name);
+	imsServer->applyChanges();
       
-      m_imsServer = imsServer;
+	m_imsServer = imsServer;
       
-      return true;
+	return true;
+      }
     }
     
     return false;
