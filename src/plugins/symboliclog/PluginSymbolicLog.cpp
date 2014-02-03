@@ -4,6 +4,9 @@
 namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
+      // Random seed
+      srand(time(NULL));
+      
       m_ndActive = NULL;
     }
     
@@ -361,6 +364,8 @@ namespace beliefstate {
 	      }
 	      
 	      string strEquationTime = this->equateDesignators(strMemAddrChild, strMemAddrParent);
+	      
+	      this->info("Equated designators " + strUniqueIDChild + " (successor) and " + strUniqueIDParent + " (parent).");
 	      
 	      Event evEquateDesigs = defaultEvent("symbolic-equate-designators");
 	      evEquateDesigs.cdDesignator = new CDesignator();
