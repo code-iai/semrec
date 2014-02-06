@@ -22,6 +22,7 @@ namespace beliefstate {
     private:
       list<string> m_lstDependencies;
       string m_strName;
+      string m_strVersion;
       int m_nID;
       bool m_bRunCycle;
       mutex m_mtxRunCycle;
@@ -54,6 +55,8 @@ namespace beliefstate {
       
       void setDevelopmentPlugin(bool bDevelopmentPlugin);
       bool developmentPlugin();
+      void setPluginVersion(string strVersion);
+      string pluginVersion();
       
       void setSubscribedToEvent(string strEventName, bool bSubscribed);
       bool subscribedToEvent(string strEventName);

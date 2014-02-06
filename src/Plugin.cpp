@@ -7,6 +7,7 @@ namespace beliefstate {
       m_nID = createPluginID();
       m_bRunCycle = true;
       m_bDevelopmentPlugin = false;
+      m_strVersion = "";
     }
     
     Plugin::~Plugin() {
@@ -155,6 +156,14 @@ namespace beliefstate {
     
     string Plugin::pluginName() {
       return m_strName;
+    }
+    
+    void Plugin::setPluginVersion(string strVersion) {
+      m_strVersion = strVersion;
+    }
+    
+    string Plugin::pluginVersion() {
+      return m_strVersion;
     }
     
     string Plugin::pluginIdentifierString(bool bBold) {

@@ -49,7 +49,9 @@ namespace beliefstate {
 	string strPrefix = "libbs_plugin_";
 	m_strName = m_strName.substr(strPrefix.size());
 	
-	this->info("Loaded plugin '" + m_strName + "'");
+	string strVersionString = m_piInstance->pluginVersion();
+	
+	this->info("Loaded plugin '" + m_strName + "'" + (strVersionString == "" ? "" : " (version: " + strVersionString + ")"));
 	m_piInstance->setPluginName(m_strName);
       } else {
 	resLoad.riResultIdentifier = RI_PLUGIN_LOADING_FAILED;
