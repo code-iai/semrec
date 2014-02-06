@@ -141,7 +141,7 @@ namespace beliefstate {
 	      if(ndParent->prematurelyEnded()) {
 		stringstream sts_id;
 		sts_id << ndParent->id();
-		this->info("Node ID " + sts_id.str() + " prematurely ended, removing from context stack.");
+		this->info("Node ID " + sts_id.str() + " ended prematurely, removing from context stack.");
 		
 		// Setting the same values for success and end time as
 		// for the actually ended node.

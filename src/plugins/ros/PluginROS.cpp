@@ -74,7 +74,10 @@ namespace beliefstate {
       evBeginContext.nContextID = createContextID();
       evBeginContext.cdDesignator = new CDesignator(req.request.designator);
       
-      this->info("When beginning context, received " + this->getDesignatorTypeString(evBeginContext.cdDesignator) + " designator");
+      stringstream sts;
+      sts << evBeginContext.nContextID;
+      
+      this->info("When beginning context (ID = " + sts.str() + "), received " + this->getDesignatorTypeString(evBeginContext.cdDesignator) + " designator");
       this->deployEvent(evBeginContext);
       
       CDesignator *desigResponse = new CDesignator();
@@ -86,13 +89,19 @@ namespace beliefstate {
       
       return true;
     }
-
+    
     bool PLUGIN_CLASS::serviceCallbackEndContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
       Event evEndContext = defaultEvent("end-context");
       evEndContext.cdDesignator = new CDesignator(req.request.designator);
       
-      this->info("When ending context, received " + this->getDesignatorTypeString(evEndContext.cdDesignator) + " designator");
+      int nContextID = (int)evEndContext.cdDesignator->floatValue("_id");
+      stringstream sts;
+      sts << nContextID;
+      
+      this->info("When ending context (ID = " + sts.str() + "), received " + this->getDesignatorTypeString(evEndContext.cdDesignator) + " designator");
       this->deployEvent(evEndContext);
+      
+      freeContextID(nContextID);
       
       return true;
     }
