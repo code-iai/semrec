@@ -5,6 +5,7 @@ namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_bFirstExperiment = true;
+      this->setPluginVersion("0.6");
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {

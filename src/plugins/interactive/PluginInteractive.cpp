@@ -5,6 +5,7 @@ namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       this->addDependency("ros");
+      this->setPluginVersion("0.4");
       
       m_imsServer = NULL;
     }

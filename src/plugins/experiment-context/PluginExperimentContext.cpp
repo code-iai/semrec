@@ -5,6 +5,8 @@ namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_expFileExporter = new CExporterFileoutput();
+      
+      this->setPluginVersion("0.3");
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {

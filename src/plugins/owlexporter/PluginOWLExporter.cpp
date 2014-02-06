@@ -4,6 +4,7 @@
 namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
+      this->setPluginVersion("0.73b");
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {

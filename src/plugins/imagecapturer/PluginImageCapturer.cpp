@@ -6,6 +6,7 @@ namespace beliefstate {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_icapImageCapturer = NULL;
       this->addDependency("ros");
+      this->setPluginVersion("0.2");
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {

@@ -4,6 +4,8 @@
 namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
+      this->setPluginVersion("0.9");
+      
       // Random seed
       srand(time(NULL));
       

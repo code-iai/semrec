@@ -6,6 +6,8 @@ namespace beliefstate {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_nhHandle = NULL;
       m_aspnAsyncSpinner = NULL;
+      
+      this->setPluginVersion("0.9");
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {
