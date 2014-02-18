@@ -1,7 +1,6 @@
 #include <plugins/owlexporter/CExporterOwl.h>
 
 
-
 namespace beliefstate {
   CExporterOwl::CExporterOwl() {
   }
@@ -75,8 +74,8 @@ namespace beliefstate {
     list<string> lstProperties;
     lstProperties.push_back("&knowrob;startTime");
     lstProperties.push_back("&knowrob;endTime");
-    lstProperties.push_back("&knowrob;previousEvent");
-    lstProperties.push_back("&knowrob;nextEvent");
+    lstProperties.push_back("&knowrob;previousAction"); // NOTE(winkler): was 'previousEvent'
+    lstProperties.push_back("&knowrob;nextAction"); // NOTE(winkler): was 'nextEvent'
     lstProperties.push_back("&knowrob;subAction");
     lstProperties.push_back("&knowrob;detectedObject");
     lstProperties.push_back("&knowrob;objectActedOn");
@@ -87,9 +86,9 @@ namespace beliefstate {
     lstProperties.push_back("&knowrob;taskContext");
     lstProperties.push_back("&knowrob;goalContext");
     lstProperties.push_back("&knowrob;capturedImage");
-    lstProperties.push_back("&knowrob;rostopic");
-    lstProperties.push_back("&knowrob;filename");
-  
+    lstProperties.push_back("&knowrob;rosTopic");
+    lstProperties.push_back("&knowrob;linkToImageFile");
+    
     for(list<string>::iterator itProperty = lstProperties.begin();
 	itProperty != lstProperties.end();
 	itProperty++) {
@@ -258,21 +257,21 @@ namespace beliefstate {
 	    itSubnode != lstSubnodes.end();
 	    itSubnode++) {
 	  Node *ndSubnode = *itSubnode;
-	
+	  
 	  if(this->nodeDisplayable(ndSubnode)) {
 	    strDot += "        <knowrob:subAction rdf:resource=\"&" + strNamespace + ";" + ndSubnode->uniqueID() + "\"/>\n";
 	  }
 	}
-    
+	
 	if(ndLastDisplayed) {
-	  strDot += "        <knowrob:previousEvent rdf:resource=\"&" + strNamespace + ";" + ndLastDisplayed->uniqueID() + "\"/>\n";
+	  strDot += "        <knowrob:previousAction rdf:resource=\"&" + strNamespace + ";" + ndLastDisplayed->uniqueID() + "\"/>\n";
 	}
-      
+	
 	list<Node*>::iterator itPostEvent = itNode;
 	itPostEvent++;
 	while(itPostEvent != lstNodes.end()) {
 	  if(this->nodeDisplayable(*itPostEvent)) {
-	    strDot += "        <knowrob:nextEvent rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
+	    strDot += "        <knowrob:nextAction rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
 	    break;
 	  }
 	
@@ -368,7 +367,7 @@ namespace beliefstate {
 	    } else {
 	      strDesigPurpose = "designator";
 	    }
-	  
+	    
 	    strDot += "        <knowrob:" + strDesigPurpose + " rdf:resource=\"&" + strNamespace + ";" + strDesigID + "\"/>\n";
 	  }
 	}
@@ -393,7 +392,7 @@ namespace beliefstate {
   }
   
   string CExporterOwl::failureClassForCondition(string strCondition) {
-    string strFailureClass = "genericPlanFailure";
+    string strFailureClass = "CRAMFailure";
     list< pair<string, string> > lstFailureMapping;
     
     // NOTE(winkler): Define all known failure class mappings here.
@@ -561,8 +560,8 @@ namespace beliefstate {
 	  string strTopic = ckvpImage->stringValue("origin");
 	  
 	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
-	  strDot += "        <knowrob:filename rdf:datatype=\"&xsd;string\">" + strFilename + "</knowrob:filename>\n";
-	  strDot += "        <knowrob:rostopic rdf:datatype=\"&xsd;string\">" + strTopic + "</knowrob:rostopic>\n";
+	  strDot += "        <knowrob:linkToImageFile rdf:datatype=\"&xsd;string\">" + strFilename + "</knowrob:linkToImageFile>\n";
+	  strDot += "        <knowrob:rosTopic rdf:datatype=\"&xsd;string\">" + strTopic + "</knowrob:rosTopic>\n";
 	  strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
 	  strDot += "    </owl:namedIndividual>\n\n";
 	}
@@ -694,9 +693,9 @@ namespace beliefstate {
     } else if(strName.substr(0, 21) == "REPLACEABLE-FUNCTION-") {
       // This is an internal function name
       string strFunction = strName.substr(21);
-    
+      
       if(strFunction == "NAVIGATE") {
-	strClass = "Navigate";
+	strClass = "BaseMovement"; // NOTE(winkler): was 'Navigate'
       }
     } else if(strName.substr(0, 8) == "PERFORM-") {
       // This is the performance of probably a designator
@@ -706,11 +705,13 @@ namespace beliefstate {
 	strClass = "PerformActionDesignator"; // Added
       }
     } else if(strName == "UIMA-PERCEIVE") {
-      strClass = "VisualPerception";
+      strClass = "UIMAPerception"; // NOTE(winkler): was 'VisualPerception'
     } else if(strName == "AT-LOCATION") {
       strClass = "AtLocation";
-    } else if(strName == "VOLUNTARY-BODY-MOVEMENT") {
-      strClass = "VoluntaryBodyMovement";
+    } else if(strName == "VOLUNTARY-BODY-MOVEMENT-ARMS") {
+      strClass = "ArmMovement";
+    } else if(strName == "VOLUNTARY-BODY-MOVEMENT-HEAD") {
+      strClass = "HeadMovement";
     }
     
     return (bClassOnly ? "" : strPrefix) + (bPrologSyntax ? "'" + strClass + "'" : strClass);
