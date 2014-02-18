@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
     cerr << "\033[1;31m[ core ] Initialization of the beliefstate system failed. Being a quitter." << "\033[0m" << endl;
   }
   
-  cout << "[ core ] Exiting gracefully." << endl;
+  cout << "\r[ core ] Exiting gracefully." << endl;
   
   bsBeliefstate->deinit();
   delete bsBeliefstate;
