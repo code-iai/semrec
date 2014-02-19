@@ -41,9 +41,13 @@ namespace beliefstate {
 	
 	if(this->loadConfigFile(strPath + "/config.cfg")) {
 	  bConfigLoaded = true;
+	  this->info("Loaded config file '" + strPath + "/config.cfg'.");
+	  
 	  break;
 	}
       }
+    } else {
+      this->info("Loaded config file '" + strConfigFile + "'.");
     }
     
     if(bConfigLoaded) {
@@ -84,82 +88,173 @@ namespace beliefstate {
 	cfgConfig.readFile(strConfigFile.c_str());
 	
 	// Section: Persistent data storage
-	string strBaseDataDirectory;
-	Setting &sPersistentDataStorage = cfgConfig.lookup("persistent-data-storage");
-	sPersistentDataStorage.lookupValue("base-data-directory", strBaseDataDirectory);
-	strBaseDataDirectory = this->resolveDirectoryTokens(strBaseDataDirectory);
+	string strBaseDataDirectory = "";
+	bool bUseMongoDB = false;
+	string strMongoDBHost = "";
+	int nMongoDBPort = 27017;
+	string strMongoDBDatabase = "";
 	
-	bool bUseMongoDB;
-	string strMongoDBHost;
-	int nMongoDBPort;
-	string strMongoDBDatabase;
-	sPersistentDataStorage.lookupValue("use-mongodb", bUseMongoDB);
-	
-	if(bUseMongoDB) {
-	  Setting &sMongoDB = cfgConfig.lookup("persistent-data-storage.mongodb");
-	  sMongoDB.lookupValue("host", strMongoDBHost);
-	  sMongoDB.lookupValue("port", nMongoDBPort);
-	  sMongoDB.lookupValue("database", strMongoDBDatabase);
+	if(cfgConfig.exists("persistent-data-storage")) {
+	  Setting &sPersistentDataStorage = cfgConfig.lookup("persistent-data-storage");
+	  sPersistentDataStorage.lookupValue("base-data-directory", strBaseDataDirectory);
+	  strBaseDataDirectory = this->resolveDirectoryTokens(strBaseDataDirectory);
+	  
+	  sPersistentDataStorage.lookupValue("use-mongodb", bUseMongoDB);
+	  
+	  if(bUseMongoDB) {
+	    if(cfgConfig.exists("persistent-data-storage.mongodb")) {
+	      Setting &sMongoDB = cfgConfig.lookup("persistent-data-storage.mongodb");
+	      sMongoDB.lookupValue("host", strMongoDBHost);
+	      sMongoDB.lookupValue("port", nMongoDBPort);
+	      sMongoDB.lookupValue("database", strMongoDBDatabase);
+	    }
+	  }
 	}
 	
 	// Section: Experiment data
-	string strExperimentNameMask;
-	string strSymlinkName;
-	Setting &sExperimentData = cfgConfig.lookup("experiment-data");
-	sExperimentData.lookupValue("experiment-name-mask", strExperimentNameMask);
-	sExperimentData.lookupValue("symlink-name", strSymlinkName);
+	string strExperimentNameMask = "";
+	string strSymlinkName = "";
+	
+	if(cfgConfig.exists("experiment-data")) {
+	  Setting &sExperimentData = cfgConfig.lookup("experiment-data");
+	  sExperimentData.lookupValue("experiment-name-mask", strExperimentNameMask);
+	  sExperimentData.lookupValue("symlink-name", strSymlinkName);
+	}
 	
 	// Check to see if the data given so far is valid. If it is
 	// not, abort loading and notify the user.
-	if((bUseMongoDB == true && (strMongoDBHost == "" || strMongoDBDatabase == "")) ||
-	   (strSymlinkName == "" || strExperimentNameMask == "" || strExperimentNameMask.find("%d") == string::npos) ||
-	   strBaseDataDirectory == "") {
-	  // Something is wrong -- notify the user and abort loading.
-	  this->fail("Error while loading the config file. The value fields are not filled correctly. Check the following settings:");
-	  this->fail(" - If using a MongoDB database, fill host name, and database name");
-	  this->fail(" - The symlink name may not be empty");
-	  this->fail(" - The experiment name mask may not be empty, and *must* include the \%d escape sequence for numbering");
+	bool bSettingsOK = true;
+	
+	if((bUseMongoDB == true && (strMongoDBHost == "" ||
+				    strMongoDBDatabase == "" ||
+				    nMongoDBPort == 0))) {
+	  this->fail("Error while loading MongoDB settings:");
+	  if(strMongoDBHost == "") {
+	    this->fail(" - MongoDB Host is empty");
+	  }
 	  
+	  if(strMongoDBHost == "") {
+	    this->fail(" - MongoDB Database is empty");
+	  }
+	  
+	  if(nMongoDBPort == 0) {
+	    this->fail(" - MongoDB Port is not set or '0' (which is invalid)");
+	  }
+	  
+	  bSettingsOK = false;
+	}
+	
+	if(bSettingsOK == false) {
 	  return false;
 	}
-
+	
+	if(strSymlinkName == "" || strExperimentNameMask == "" || strExperimentNameMask.find("%d") == string::npos || strBaseDataDirectory == "") {
+	  if(strBaseDataDirectory == "") {
+	    this->warn("The base data directory path is empty.");
+	    strBaseDataDirectory = this->resolveDirectoryTokens("${HOME}/bs_experimental_data");
+	    this->warn("Defaulting to: '" + strBaseDataDirectory + "'");
+	  }
+	  
+	  if(strSymlinkName == "") {
+	    this->warn("The symlink name for experiments is empty.");
+	    strSymlinkName = "current-experiment";
+	    this->warn("Defaulting to: '" + strSymlinkName + "'");
+	  }
+	  
+	  if(strExperimentNameMask == "") {
+	    this->warn("The experiment name mask is empty.");
+	    strExperimentNameMask = "exp-%d";
+	    this->warn("Defaulting to: '" + strExperimentNameMask + "'");
+	  } else if(strExperimentNameMask.find("%d") == string::npos) {
+	    this->warn("The experiment name mask does not include the '\%d' escape sequence.");
+	    this->warn("It is currently: '" + strExperimentNameMask + "'");
+	    this->warn("This will cause your experiments to be overwritten. Be careful.");
+	  }
+	}
+	
 	// Section: Plugins
-	bool bLoadDevelopmentPlugins;
-	
-	Setting &sPlugins = cfgConfig.lookup("plugins");
-	sPlugins.lookupValue("load-development-plugins", bLoadDevelopmentPlugins);
-	
-	Setting &sPluginsLoad = cfgConfig.lookup("plugins.load");
-	m_lstPluginsToLoad.clear();
-	for(int nI = 0; nI < sPluginsLoad.getLength(); nI++) {
-	  string strLoad = sPluginsLoad[nI];
-	  
-	  m_lstPluginsToLoad.remove(strLoad);
-	  m_lstPluginsToLoad.push_back(strLoad);
-	}
-	
-	Setting &sPluginsPaths = cfgConfig.lookup("plugins.search-paths");
-	for(int nI = 0; nI < sPluginsPaths.getLength(); nI++) {
-	  string strPath = sPluginsPaths[nI];
-	  
-	  strPath = this->resolveDirectoryTokens(strPath);
-	  m_psPlugins->addPluginSearchPath(strPath);
-	}
-	
-	Setting &sPluginsColors = cfgConfig.lookup("plugins.colors");
+	bool bLoadDevelopmentPlugins = false;
 	vector<string> vecPluginOutputColors;
-	for(int nI = 0; nI < sPluginsColors.getLength(); nI++) {
-	  string strColor = sPluginsColors[nI];
-	  vecPluginOutputColors.push_back(strColor);
+	bool bSearchPathsSet = false;
+	
+	if(cfgConfig.exists("plugins")) {
+	  Setting &sPlugins = cfgConfig.lookup("plugins");
+	  sPlugins.lookupValue("load-development-plugins", bLoadDevelopmentPlugins);
+	  
+	  if(cfgConfig.exists("plugins.load")) {
+	    Setting &sPluginsLoad = cfgConfig.lookup("plugins.load");
+	    m_lstPluginsToLoad.clear();
+	    for(int nI = 0; nI < sPluginsLoad.getLength(); nI++) {
+	      string strLoad = sPluginsLoad[nI];
+	      
+	      m_lstPluginsToLoad.remove(strLoad);
+	      m_lstPluginsToLoad.push_back(strLoad);
+	    }
+	  }
+	  
+	  if(cfgConfig.exists("plugins.search-paths")) {
+	    Setting &sPluginsPaths = cfgConfig.lookup("plugins.search-paths");
+	    for(int nI = 0; nI < sPluginsPaths.getLength(); nI++) {
+	      string strPath = sPluginsPaths[nI];
+	      
+	      strPath = this->resolveDirectoryTokens(strPath);
+	      m_psPlugins->addPluginSearchPath(strPath);
+	      
+	      bSearchPathsSet = true;
+	    }
+	  }
+	  
+	  if(cfgConfig.exists("plugins.colors")) {
+	    Setting &sPluginsColors = cfgConfig.lookup("plugins.colors");
+	    for(int nI = 0; nI < sPluginsColors.getLength(); nI++) {
+	      string strColor = sPluginsColors[nI];
+	      vecPluginOutputColors.push_back(strColor);
+	    }
+	  }
+	}
+	
+	// Check if any search paths were set
+	if(bSearchPathsSet == false) {
+	  this->warn("You didn't specify any search paths. This will prevent the system");
+	  this->warn("from finding any plugins. A default will be assumed.");
+	  string strSP = this->resolveDirectoryTokens("$WORKSPACE/lib/");
+	  this->warn("Defaulting to: '" + strSP + "'");
+	  
+	  m_psPlugins->addPluginSearchPath(strSP);
+	}
+	
+	if(vecPluginOutputColors.size() == 0) {
+	  this->warn("The plugin output colors are empty. This might cause display issues.");
+	  
+	  vecPluginOutputColors.push_back("31");
+	  vecPluginOutputColors.push_back("32");
+	  vecPluginOutputColors.push_back("33");
+	  vecPluginOutputColors.push_back("34");
+	  vecPluginOutputColors.push_back("35");
+	  vecPluginOutputColors.push_back("36");
+	  vecPluginOutputColors.push_back("37");
+	  
+	  string strColors = "";
+	  for(vector<string>::iterator itC = vecPluginOutputColors.begin();
+	      itC != vecPluginOutputColors.end();
+	      itC++) {
+	    string strC = *itC;
+	    
+	    strColors += (strColors != "" ? ", " : "") + string("\033[0;") + strC + "m" + strC + "\033[0m";
+	  }
+	  
+	  this->warn("Defaulting to: " + strColors);
 	}
 	
 	// Section: Miscellaneous
-	bool bDisplayUnhandledEvents;
-	bool bDisplayUnhandledServiceEvents;
+	bool bDisplayUnhandledEvents = true;
+	bool bDisplayUnhandledServiceEvents = true;
 	
-	Setting &sMiscellaneous = cfgConfig.lookup("miscellaneous");
-	sMiscellaneous.lookupValue("display-unhandled-events", bDisplayUnhandledEvents);
-	sMiscellaneous.lookupValue("display-unhandled-service-events", bDisplayUnhandledServiceEvents);
+	if(cfgConfig.exists("miscellaneous")) {
+	  Setting &sMiscellaneous = cfgConfig.lookup("miscellaneous");
+	  sMiscellaneous.lookupValue("display-unhandled-events", bDisplayUnhandledEvents);
+	  sMiscellaneous.lookupValue("display-unhandled-service-events", bDisplayUnhandledServiceEvents);
+	}
 	
 	// -> Set the global settings
 	ConfigSettings cfgsetCurrent = configSettings();
