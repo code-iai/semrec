@@ -251,7 +251,7 @@ namespace beliefstate {
 	    strDot += "        <knowrob:goalContext rdf:datatype=\"&xsd;string\">" + strPattern + "</knowrob:goalContext>\n";
 	  }
 	}
-      
+	
 	list<Node*> lstSubnodes = ndCurrent->subnodes();
 	for(list<Node*>::iterator itSubnode = lstSubnodes.begin();
 	    itSubnode != lstSubnodes.end();
@@ -364,6 +364,10 @@ namespace beliefstate {
 	      strDesigPurpose = "putdownLocation";
 	    } else if(strAnnotation == "voluntary-movement-details") {
 	      strDesigPurpose = "voluntaryMovementDetails";
+	    } else if(strAnnotation == "goal-location") {
+	      strDesigPurpose = "goalLocation";
+	    } else if(strAnnotation == "goal-pose") {
+	      strDesigPurpose = "goalPose";
 	    } else {
 	      strDesigPurpose = "designator";
 	    }
