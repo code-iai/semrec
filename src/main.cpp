@@ -34,9 +34,8 @@ void catchSIGTERMandSIGINT(int nSignum) {
 }
 
 int main(int argc, char** argv) {
-  cout << "[ core ] Starting beliefstate system." << endl;
-  
   bsBeliefstate = new Beliefstate(argc, argv);
+  bsBeliefstate->info("Starting beliefstate system.");
   
   // Read command line parameters
   int nC, option_index = 0;
@@ -80,10 +79,10 @@ int main(int argc, char** argv) {
 	// Idle here at will.
       }
     } else {
-      cerr << "\033[1;31m[ core ] Initialization of the beliefstate system failed. Being a quitter." << "\033[0m" << endl;
+      bsBeliefstate->fail("Initialization of the beliefstate system failed. Being a quitter.");
     }
   
-    cout << "\r[ core ] Exiting gracefully." << endl;
+    bsBeliefstate->info("Exiting gracefully.");
   
     bsBeliefstate->deinit();
   }
