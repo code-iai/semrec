@@ -14,12 +14,6 @@ namespace beliefstate {
       if(m_imsServer) {
 	delete m_imsServer;
       }
-      
-      for(list<InteractiveObject*>::iterator itIO = m_lstInteractiveObjects.begin();
-	  itIO != m_lstInteractiveObjects.end();
-	  itIO++) {
-	delete *itIO;
-      }
     }
     
     Result PLUGIN_CLASS::init(int argc, char** argv) {
@@ -94,7 +88,15 @@ namespace beliefstate {
     }
     
     Result PLUGIN_CLASS::deinit() {
-      return defaultResult();
+      Result resReturn = defaultResult();
+      
+      for(list<InteractiveObject*>::iterator itIO = m_lstInteractiveObjects.begin();
+	  itIO != m_lstInteractiveObjects.end();
+	  itIO++) {
+	delete *itIO;
+      }
+      
+      return resReturn;
     }
     
     Result PLUGIN_CLASS::cycle() {
