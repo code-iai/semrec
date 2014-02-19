@@ -266,16 +266,17 @@ namespace beliefstate {
 	    list<CKeyValuePair*> lstDescription = ckvpDesc->children();
 	    
 	    bool bDesigExists = (this->getDesignatorID(strMemAddr) != "");
+	    string strUniqueID = this->getUniqueDesignatorID(strMemAddr);
+	    this->activeNode()->addDesignator(strType, lstDescription, strUniqueID, strAnnotation);
+	    
+	    // The designator does not yet exist here in case
+	    // bDesigExists is false. It is created right after, but
+	    // is associated with the current node before already.
+	    stringstream sts;
+	    sts << this->activeNode()->id();
+	    this->info("Added '" + strType + "' designator (addr=" + strMemAddr + ") to active context (id " + sts.str() + "): '" + strUniqueID + "', annotation: '" + strAnnotation + "'");
 	    
 	    if(!bDesigExists) {
-	      string strUniqueID = this->getUniqueDesignatorID(strMemAddr);
-	      
-	      this->activeNode()->addDesignator(strType, lstDescription, strUniqueID, strAnnotation);
-	      
-	      stringstream sts;
-	      sts << this->activeNode()->id();
-	      this->info("Added '" + strType + "' designator (addr=" + strMemAddr + ") to active context (id " + sts.str() + "): '" + strUniqueID + "'");
-	      
 	      CDesignator* cdTemp = new CDesignator((strType == "ACTION" ? ACTION : (strType == "OBJECT" ? OBJECT : LOCATION)),
 						    lstDescription);
 	      cdTemp->setValue("_id", strUniqueID);
