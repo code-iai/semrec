@@ -166,6 +166,7 @@ target_link_libraries(bs_plugin_experiment_knowledge
 
 target_link_libraries(bs_plugin_experiment_context
   ${catkin_LIBRARIES}
+  DesignatorIntegration
 )
 
 target_link_libraries(bs_plugin_interactive
