@@ -12,6 +12,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+// ROS
+#include <ros/ros.h>
+
 // Private
 #include <Types.h>
 #include <ForwardDeclarations.h>
@@ -28,6 +31,7 @@ namespace beliefstate {
     private:
       map<string, string> m_mapValues;
       CExporterFileoutput* m_expFileExporter;
+      ros::Publisher m_pubMetadata;
       
     public:
       PLUGIN_CLASS();

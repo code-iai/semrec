@@ -7,6 +7,7 @@ namespace beliefstate {
       m_expFileExporter = new CExporterFileoutput();
       
       this->setPluginVersion("0.3");
+      this->addDependency("ros");
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {
@@ -20,6 +21,9 @@ namespace beliefstate {
       this->setSubscribedToEvent("export-planlog", true);
       this->setSubscribedToEvent("experiment-start", true);
       this->setSubscribedToEvent("experiment-shutdown", true);
+      
+      ros::NodeHandle nh;
+      m_pubMetadata = nh.advertise<designator_integration_msgs::Designator>("/logged_metadata", 1);
       
       return defaultResult();
     }
@@ -51,6 +55,9 @@ namespace beliefstate {
 	transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
 	
 	if(strFormat == "meta") {
+	  CDesignator* cdMeta = new CDesignator();
+	  cdMeta->setType(ACTION);
+	  
 	  this->info("Experiment Context Plugin exporting meta-data");
 	  
 	  if(m_mapValues.find("time-end") == m_mapValues.end()) {
@@ -72,8 +79,13 @@ namespace beliefstate {
 	    pair<string, string> prEntry = *itValues;
 	    
 	    strMetaXML += "  <" + prEntry.first + ">" + prEntry.second + "</" + prEntry.first + ">\n";
+	    cdMeta->setValue(prEntry.first, prEntry.second);
 	  }
 	  strMetaXML += "</meta-data>\n";
+	  
+	  this->info("Published metadata");
+	  m_pubMetadata.publish(cdMeta->serializeToMessage());
+	  delete cdMeta;
 	  
 	  m_expFileExporter->writeToFile(strMetaXML, strMetaFile);
 	  
