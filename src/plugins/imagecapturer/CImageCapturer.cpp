@@ -101,7 +101,7 @@ namespace beliefstate {
   void CImageCapturer::publishImages(string strImagesTopic) {
     m_strImagesTopic = strImagesTopic;
     ros::NodeHandle nh;
-  
+    
     m_pubImages = nh.advertise<sensor_msgs::Image>(strImagesTopic, 1);
   }
 }
