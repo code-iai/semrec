@@ -34,9 +34,6 @@ void catchSIGTERMandSIGINT(int nSignum) {
 }
 
 int main(int argc, char** argv) {
-  bsBeliefstate = new Beliefstate(argc, argv);
-  bsBeliefstate->info("Starting beliefstate system.");
-  
   // Read command line parameters
   int nC, option_index = 0;
   static struct option long_options[] = {{"config",           required_argument, 0, 'c'},
@@ -63,6 +60,9 @@ int main(int argc, char** argv) {
   }
   
   if(bQuit == false) {
+    bsBeliefstate = new Beliefstate(argc, argv);
+    bsBeliefstate->info("Starting beliefstate system.");
+    
     Result resInit = bsBeliefstate->init(strConfigFile);
   
     if(resInit.bSuccess) {
@@ -85,9 +85,9 @@ int main(int argc, char** argv) {
     bsBeliefstate->info("Exiting gracefully.");
   
     bsBeliefstate->deinit();
+    
+    delete bsBeliefstate;
   }
-  
-  delete bsBeliefstate;
   
   return EXIT_SUCCESS;
 }
