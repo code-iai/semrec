@@ -1,0 +1,299 @@
+<html>
+    <head>
+        <title>Designator Interface for Beliefstate Control</title>
+        <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    </head>
+    
+    <body>
+        <section class="desig_interface_section">
+            <h3 class="int_title">Begin Context</h3>
+            <div class="int_block">
+                <span class="int_desc">Start a new context with a given symbolic string identifier.</span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/begin_context</span></span>
+                <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
+                <table class="comm_fields">
+                    <tr>
+                        <th class="field">Field</th>
+                        <th class="value">Value</th>
+                    </tr>
+                    <tr>
+                        <td class="field">_name</td>
+                        <td class="value wildcard_placeholder">Symbolic name of the context to begin</td>
+                    </tr>
+                </table>
+                <span class="int_lbl_output">Output: <span class="int_text_highlight_block">Single Designator</span></span>
+                <table class="comm_fields">
+                    <tr>
+                        <th class="field">Field</th>
+                        <th class="value">Value</th>
+                    </tr>
+                    <tr>
+                        <td class="field">_id</td>
+                        <td class="value wildcard_placeholder">The assigned integer identifier for the new context</td>
+                    </tr>
+                </table>
+            </div>
+            <h3 class="int_title">End Context</h3>
+            <div class="int_block">
+                <span class="int_desc">End a formerly started context given its integer identifier. This ends all other still open child contexts of this context and marks them as prematurely ended and associates their end time with this context's end time.</span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/end_context</span></span>
+                <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
+                <table class="comm_fields">
+                    <tr>
+                        <th class="field">Field</th>
+                        <th class="value">Value</th>
+                    </tr>
+                    <tr>
+                        <td class="field">_id</td>
+                        <td class="value wildcard_placeholder">The integer identifier of the context to end</td>
+                    </tr>
+                </table>
+                <span class="int_lbl_output">Output: <span class="int_text_highlight_block">No Return Value</span></span>
+            </div>
+            <h3 class="int_title">Export Files</h3>
+            <div class="int_block">
+                <span class="int_desc">Export logged data. The type of data to store strongly depends on the plugins loaded. By default, the formats OWL, DOT, and META are accepted.</span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
+                <table class="comm_fields">
+                    <tr>
+                        <th class="field">Field</th>
+                        <th class="value">Value</th>
+                    </tr>
+                    <tr>
+                        <td class="field">command</td>
+                        <td class="value">export-planlog</td>
+                    </tr>
+                    <tr>
+                        <td class="field">format</td>
+                        <td class="value">owl, dot, or meta</td>
+                    </tr>
+                    <tr>
+                        <td class="field">filename</td>
+                        <td class="value wildcard_placeholder">Filename to use when exporting data to named files. Only valid for OWL, and DOT.</td>
+                    </tr>
+                    <tr>
+                        <td class="field">show-successes</td>
+                        <td class="value wildcard_placeholder">0, or 1. Show successful contexts. DOT format only. Default is 1.</td>
+                    </tr>
+                    <tr>
+                        <td class="field">show-fails</td>
+                        <td class="value wildcard_placeholder">0, or 1. Show failed contexts. DOT format only. Default is 1.</td>
+                    </tr>
+                    <tr>
+                        <td class="field">max-detail-level</td>
+                        <td class="value wildcard_placeholder">Integer. Only show contexts that have at maximum the given detail level attribute. Default is 99.</td>
+                    </tr>
+                </table>
+                <span class="int_lbl_output">Output: <span class="int_text_highlight_block">No Return Value</span></span>
+            </div>
+            <h3 class="int_title">Start New Experiment</h3>
+            <div class="int_block">
+                <span class="int_desc">Start a new experiment and reinitialize loaded plugins for the new experiment.</span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
+                <table class="comm_fields">
+                    <tr>
+                        <th class="field">Field</th>
+                        <th class="value">Value</th>
+                    </tr>
+                    <tr>
+                        <td class="field">command</td>
+                        <td class="value">start-new-experiment</td>
+                    </tr>
+                </table>
+                <span class="int_lbl_output">Output: <span class="int_text_highlight_block">No Return Value</span></span>
+            </div>
+            <h3 class="int_title">Add Object to Active Context</h3>
+            <div class="int_block">
+                <span class="int_desc">Associate a given object designator to the currently active context.</span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
+                <table class="comm_fields">
+                    <tr>
+                        <th class="field">Field</th>
+                        <th class="value">Value</th>
+                    </tr>
+                    <tr>
+                        <td class="field">command</td>
+                        <td class="value">add-object</td>
+                    </tr>
+                    <tr>
+                        <td class="field">type</td>
+                        <td class="value">"OBJECT"</td>
+                    </tr>
+                    <tr>
+                        <td class="field">memory-address</td>
+                        <td class="value wildcard_placeholder">Memory address of the designator to add</td>
+                    </tr>
+                    <tr>
+                        <td class="field">description</td>
+                        <td class="value wildcard_placeholder">Designator description of the object to add</td>
+                    </tr>
+                </table>
+                <span class="int_lbl_output">Output: <span class="int_text_highlight_block">Single Designator</span></span>
+                <table class="comm_fields">
+                    <tr>
+                        <th class="field">Field</th>
+                        <th class="value">Value</th>
+                    </tr>
+                    <tr>
+                        <td class="field">id</td>
+                        <td class="value wildcard_placeholder">Beliefstate-identifier (string) of the added object designator.</td>
+                    </tr>
+                </table>
+            </div>
+            <h3 class="int_title">Set Experiment Metadata</h3>
+            <div class="int_block">
+                <span class="int_desc">Set a metadata attribute for the active experiment, consisting of a field name and an associated value.</span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
+                <table class="comm_fields">
+                    <tr>
+                        <th class="field">Field</th>
+                        <th class="value">Value</th>
+                    </tr>
+                    <tr>
+                        <td class="field">command</td>
+                        <td class="value">set-experiment-meta-data</td>
+                    </tr>
+                    <tr>
+                        <td class="field">field</td>
+                        <td class="value wildcard_placeholder">String identifier of the field to set</td>
+                    </tr>
+                    <tr>
+                        <td class="field">value</td>
+                        <td class="value wildcard_placeholder">Value for the field to set</td>
+                    </tr>
+                </table>
+                <span class="int_lbl_output">Output: <span class="int_text_highlight_block">No Return Value</span></span>
+            </div>
+            <h3 class="int_title">Add Topic Image to Active Context</h3>
+            <div class="int_block">
+                <span class="int_desc">Trigger capturing of an image from a ROS topic and associate it to the currently active context.</span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
+                <table class="comm_fields">
+                    <tr>
+                        <th class="field">Field</th>
+                        <th class="value">Value</th>
+                    </tr>
+                    <tr>
+                        <td class="field">command</td>
+                        <td class="value">add-image</td>
+                    </tr>
+                    <tr>
+                        <td class="field">origin</td>
+                        <td class="value wildcard_placeholder">ROS topic name to capture the image from</td>
+                    </tr>
+                </table>
+                <span class="int_lbl_output">Output: <span class="int_text_highlight_block">No Return Value</span></span>
+            </div>
+            <h3 class="int_title">Add Failure to Active Context</h3>
+            <div class="int_block">
+                <span class="int_desc">Associate a symbolic failure to the active context. The context will automatically be marked as failed.</span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
+                <table class="comm_fields">
+                    <tr>
+                        <th class="field">Field</th>
+                        <th class="value">Value</th>
+                    </tr>
+                    <tr>
+                        <td class="field">command</td>
+                        <td class="value">add-failure</td>
+                    </tr>
+                    <tr>
+                        <td class="field">condition</td>
+                        <td class="value wildcard_placeholder">String identifier of the failure to add</td>
+                    </tr>
+                </table>
+                <span class="int_lbl_output">Output: <span class="int_text_highlight_block">No Return Value</span></span>
+            </div>
+            <h3 class="int_title">Add Designator to Active Context</h3>
+            <div class="int_block">
+                <span class="int_desc">Associate a designator to the active context.</span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
+                <table class="comm_fields">
+                    <tr>
+                        <th class="field">Field</th>
+                        <th class="value">Value</th>
+                    </tr>
+                    <tr>
+                        <td class="field">command</td>
+                        <td class="value">add-designator</td>
+                    </tr>
+                    <tr>
+                        <td class="field">type</td>
+                        <td class="value wildcard_placeholder">The type of designator to add. Allowed values are ACTION, OBJECT, and LOCATION.</td>
+                    </tr>
+                    <tr>
+                        <td class="field">annotation</td>
+                        <td class="value wildcard_placeholder">Meta annotation of the designator to add used by postprocessing plugins.</td>
+                    </tr>
+                    <tr>
+                        <td class="field">memory-address</td>
+                        <td class="value wildcard_placeholder">Memory address of the designator to add</td>
+                    </tr>
+                    <tr>
+                        <td class="field">description</td>
+                        <td class="value wildcard_placeholder">Designator description of the designator to add</td>
+                    </tr>
+                </table>
+                <span class="int_lbl_output">Output: <span class="int_text_highlight_block">Single Designator</span></span>
+                <table class="comm_fields">
+                    <tr>
+                        <th class="field">Field</th>
+                        <th class="value">Value</th>
+                    </tr>
+                    <tr>
+                        <td class="field">id</td>
+                        <td class="value wildcard_placeholder">Beliefstate-identifier (string) of the added object designator.</td>
+                    </tr>
+                </table>
+            </div>
+            <h3 class="int_title">Equate two Designator</h3>
+            <div class="int_block">
+                <span class="int_desc">Equate two designators with each other, effectively chaining them for symbolic reasoning.</span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
+                <table class="comm_fields">
+                    <tr>
+                        <th class="field">Field</th>
+                        <th class="value">Value</th>
+                    </tr>
+                    <tr>
+                        <td class="field">command</td>
+                        <td class="value">equate-designators</td>
+                    </tr>
+                    <tr>
+                        <td class="field">memory-address-child</td>
+                        <td class="value wildcard_placeholder">Memory address of the child designator.</td>
+                    </tr>
+                    <tr>
+                        <td class="field">type-child</td>
+                        <td class="value wildcard_placeholder">Type of the child designator.</td>
+                    </tr>
+                    <tr>
+                        <td class="field">description-child</td>
+                        <td class="value wildcard_placeholder">Designator description of the child designator.</td>
+                    </tr>
+                    <tr>
+                        <td class="field">memory-address-parent</td>
+                        <td class="value wildcard_placeholder">Memory address of the parent designator.</td>
+                    </tr>
+                    <tr>
+                        <td class="field">type-parent</td>
+                        <td class="value wildcard_placeholder">Type of the parent designator.</td>
+                    </tr>
+                    <tr>
+                        <td class="field">description-parent</td>
+                        <td class="value wildcard_placeholder">Designator description of the parent designator.</td>
+                    </tr>
+                </table>
+                <span class="int_lbl_output">Output: <span class="int_text_highlight_block">No Return Value</span></span>
+            </div>
+        </section>
+    </body>
+</html>

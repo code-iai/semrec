@@ -1,0 +1,98 @@
+body {
+    margin: 0px;
+    background-color: white;
+}
+
+body, a, td, th, div, span, li, thead, p, br {
+    font-family: sans-serif;
+    font-size: 8pt;
+    color: black;
+}
+
+div.int_column {
+    float: left;
+}
+
+section.desig_interface_section {
+    width: 400px;
+}
+
+div.int_block {
+    padding: 4px;
+    background-color: #cccccc;
+    display: table;
+    width: 100%;
+    margin: 8px;
+    margin-top: 0px;
+}
+
+h3.int_title {
+    width: 100%;
+    font-weight: 500;
+    font-size: 14pt;
+    display: block;
+    padding: 2pt;
+    margin: 8px;
+    margin-bottom: 0px;
+    padding-left: 2px;
+    border: 1px solid grey;
+}
+
+th {
+    text-align: left;
+}
+
+span.int_text_highlight_service {
+    background-color: white;
+    border: 1px solid #567dff;
+    font-style: italic;
+    padding: 2px;
+    cursor: default;
+}
+
+span.int_text_highlight_block {
+    background-color: white;
+    border: 1px solid #ffb856;
+    font-style: normal;
+    padding: 2px;
+    cursor: default;
+}
+
+span.int_desc {
+    display: block;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+span.int_lbl_service, span.int_lbl_output, span.int_lbl_input {
+    padding-top: 8px;
+    padding-bottom: 4px;
+    display: block;
+    font-style: italic;
+}
+
+th.field {
+    width: 150px;
+}
+
+td.field {
+    font-family: monospace;
+}
+
+th.value {
+    
+}
+
+td.value {
+}
+
+td.wildcard_placeholder {
+    font-style: italic;
+    color: #777777;
+}
+
+table.comm_fields {
+    width: 100%;
+    background-color: white;
+    border: 1px solid #ffb856;
+}
