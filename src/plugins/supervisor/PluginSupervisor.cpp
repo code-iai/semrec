@@ -50,27 +50,39 @@ namespace beliefstate {
 	// Create base data directory
 	mkdir(cfgsetCurrent.strBaseDataDirectory.c_str(), 0777);
 	
-	int nIndex = 0;
-	bool bExists;
+	// This is a hardcoded length. If the length of the
+	// numeric/date identifier in the string actually exceeds
+	// this, this will probably result in a segfault. This should
+	// very rarely be the case, though. We're assuming no problem
+	// here.
+	char cName[cfgsetCurrent.strExperimentNameMask.size() + 80];
+	
 	string strNewName;
 	string strNewExp;
 	
-	do {
-	  // This is a hardcoded length. If the length of the numeric
-	  // identifier in the string actually exceeds this, this will
-	  // probably result in a segfault. This should very rarely be
-	  // the case, though. We're assuming no problem here.
-	  char cName[cfgsetCurrent.strExperimentNameMask.size() + 10];
-	  sprintf(cName, (const char*)(cfgsetCurrent.strExperimentNameMask.c_str()), nIndex);
-	  strNewName = cfgsetCurrent.strBaseDataDirectory + "/" + cName + "/";
-	  strNewExp = cName;
-	  nIndex++;
-	  
-	  struct stat sb;
-	  int nReturnStat = stat(strNewName.c_str(), &sb);
-	  bExists = (nReturnStat == 0);
-	} while(bExists);
+	if(cfgsetCurrent.strExperimentNameMask.find("%d") != string::npos) {
+	  int nIndex = 0;
+	  bool bExists;
 	
+	  do {
+	    sprintf(cName, (const char*)(cfgsetCurrent.strExperimentNameMask.c_str()), nIndex);
+	    strNewExp = cName;
+	    nIndex++;
+	    
+	    struct stat sb;
+	    int nReturnStat = stat(strNewName.c_str(), &sb);
+	    bExists = (nReturnStat == 0);
+	  } while(bExists);
+	} else if(cfgsetCurrent.strExperimentNameMask.find("%s") != string::npos) {
+	  std::locale::global(std::locale("en_US.utf8"));
+	  std::time_t t = std::time(NULL);
+	  char cName2[cfgsetCurrent.strExperimentNameMask.size() + 80];
+	  strftime(cName2, cfgsetCurrent.strExperimentNameMask.size() + 80, "%Y-%m-%d_%H-%M-%S", std::localtime(&t));
+	  sprintf(cName, (const char*)(cfgsetCurrent.strExperimentNameMask.c_str()), cName2);
+	  strNewExp = cName;
+	}
+	
+	strNewName = cfgsetCurrent.strBaseDataDirectory + "/" + strNewExp + "/";
 	mkdir(strNewName.c_str(), 0777);
 	cfgsetCurrent.strExperimentDirectory = strNewName;
 	this->info("Created new experiment space: '" + strNewExp + "'.");

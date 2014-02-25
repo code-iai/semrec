@@ -148,7 +148,7 @@ namespace beliefstate {
 	  return false;
 	}
 	
-	if(strSymlinkName == "" || strExperimentNameMask == "" || strExperimentNameMask.find("%d") == string::npos || strBaseDataDirectory == "") {
+	if(strSymlinkName == "" || strExperimentNameMask == "" || (strExperimentNameMask.find("%d") == string::npos && strExperimentNameMask.find("%s") == string::npos) || strBaseDataDirectory == "") {
 	  if(strBaseDataDirectory == "") {
 	    this->warn("The base data directory path is empty.");
 	    strBaseDataDirectory = this->resolveDirectoryTokens("${HOME}/bs_experimental_data");
@@ -165,8 +165,8 @@ namespace beliefstate {
 	    this->warn("The experiment name mask is empty.");
 	    strExperimentNameMask = "exp-%d";
 	    this->warn("Defaulting to: '" + strExperimentNameMask + "'");
-	  } else if(strExperimentNameMask.find("%d") == string::npos) {
-	    this->warn("The experiment name mask does not include the '\%d' escape sequence.");
+	  } else if(strExperimentNameMask.find("%d") == string::npos && strExperimentNameMask.find("%s") == string::npos) {
+	    this->warn("The experiment name mask does not include the '\%d' or '\%s' escape sequence.");
 	    this->warn("It is currently: '" + strExperimentNameMask + "'");
 	    this->warn("This will cause your experiments to be overwritten. Be careful.");
 	  }
