@@ -95,11 +95,10 @@ namespace beliefstate {
 	Node* ndNew = this->addNode(strName, evEvent.nContextID);
 	ndNew->setDescription(evEvent.cdDesignator->description());
 	
-	stringstream stsTimeStart;
-	stsTimeStart.unsetf(ios_base::showpos);
-	stsTimeStart.unsetf(ios_base::showpoint);
-	stsTimeStart << this->getTimeStamp();
-	ndNew->metaInformation()->setValue(string("time-start"), stsTimeStart.str());
+	char cTimeStart[80];
+	sprintf(cTimeStart, "%d", this->getTimeStamp());
+	string strTimeStart = cTimeStart;
+	ndNew->metaInformation()->setValue(string("time-start"), strTimeStart);
 	
 	int nDetailLevel = (int)evEvent.cdDesignator->floatValue("_detail-level");
 	ndNew->metaInformation()->setValue(string("detail-level"), nDetailLevel);
@@ -132,11 +131,16 @@ namespace beliefstate {
 	      ndCurrent->metaInformation()->setValue(string("success"), nSuccess);
 	    }
 	    
-	    stringstream stsTimeEnd;
-	    stsTimeEnd.unsetf(ios_base::showpos);
-	    stsTimeEnd.unsetf(ios_base::showpoint);
-	    stsTimeEnd << this->getTimeStamp();
-	    ndCurrent->metaInformation()->setValue(string("time-end"), stsTimeEnd.str());
+	    char cTimeStart[80];
+	    sprintf(cTimeStart, "%d", this->getTimeStamp());
+	    string strTimeEnd = cTimeStart;
+	    ndCurrent->metaInformation()->setValue(string("time-end"), strTimeEnd);
+	    
+	    // stringstream stsTimeEnd;
+	    // stsTimeEnd.unsetf(ios_base::showpos);
+	    // stsTimeEnd.unsetf(ios_base::showpoint);
+	    // stsTimeEnd << this->getTimeStamp();
+	    // ndCurrent->metaInformation()->setValue(string("time-end"), stsTimeEnd.str());
 	    
 	    Node *ndParent = ndCurrent->parent();
 	    this->setNodeAsActive(ndParent);
@@ -149,7 +153,7 @@ namespace beliefstate {
 		
 		// Setting the same values for success and end time as
 		// for the actually ended node.
-		ndParent->metaInformation()->setValue(string("time-end"), stsTimeEnd.str());
+		ndParent->metaInformation()->setValue(string("time-end"), strTimeEnd);
 		
 		// Set success only if no failures are present (in
 		// which case the success is set to 'false' already)
@@ -237,11 +241,12 @@ namespace beliefstate {
 	  if(this->activeNode()) {
 	    // Adding a failure to a node also means to set its success state to 'false'.
 	    string strCondition = evEvent.cdDesignator->stringValue("condition");
+
+	    char cTimeFail[80];
+	    sprintf(cTimeFail, "%d", this->getTimeStamp());
+	    string strTimeFail = cTimeFail;
 	    
-	    stringstream stsTimeFail;
-	    stsTimeFail << this->getTimeStamp();
-	    
-	    this->activeNode()->addFailure(strCondition, stsTimeFail.str());
+	    this->activeNode()->addFailure(strCondition, strTimeFail);
 	    this->activeNode()->setSuccess(false);
 	    
 	    stringstream sts;
@@ -253,7 +258,7 @@ namespace beliefstate {
 	    evSymbAddFailure.cdDesignator = new CDesignator();
 	    evSymbAddFailure.cdDesignator->setType(ACTION);
 	    evSymbAddFailure.cdDesignator->setValue("condition", strCondition);
-	    evSymbAddFailure.cdDesignator->setValue("time-failure", stsTimeFail.str());
+	    evSymbAddFailure.cdDesignator->setValue("time-failure", strTimeFail);
 	    this->deployEvent(evSymbAddFailure);
 	  } else {
 	    this->warn("No node context available. Cannot add failure while on top-level.");
@@ -556,15 +561,19 @@ namespace beliefstate {
       string strIDChild = this->getUniqueDesignatorID(strMAChild);
       string strIDParent = this->getUniqueDesignatorID(strMAParent);
       
-      stringstream stsTimeEquate;
-      stsTimeEquate.unsetf(ios_base::showpos);
-      stsTimeEquate.unsetf(ios_base::showpoint);
-      stsTimeEquate << this->getTimeStamp();
+      char cTimeStart[80];
+      sprintf(cTimeStart, "%d", this->getTimeStamp());
+      string strTimeStart = cTimeStart;
+      
+      // stringstream stsTimeEquate;
+      // stsTimeEquate.unsetf(ios_base::showpos);
+      // stsTimeEquate.unsetf(ios_base::showpoint);
+      // stsTimeEquate << this->getTimeStamp();
       
       m_lstDesignatorEquations.push_back(make_pair(strIDParent, strIDChild));
-      m_lstDesignatorEquationTimes.push_back(make_pair(strIDChild, stsTimeEquate.str()));
+      m_lstDesignatorEquationTimes.push_back(make_pair(strIDChild, strTimeStart));
       
-      return stsTimeEquate.str();
+      return strTimeStart;
     }
   }
   
