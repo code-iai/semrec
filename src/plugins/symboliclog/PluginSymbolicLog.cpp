@@ -96,6 +96,8 @@ namespace beliefstate {
 	ndNew->setDescription(evEvent.cdDesignator->description());
 	
 	stringstream stsTimeStart;
+	stsTimeStart.unsetf(ios_base::showpos);
+	stsTimeStart.unsetf(ios_base::showpoint);
 	stsTimeStart << this->getTimeStamp();
 	ndNew->metaInformation()->setValue(string("time-start"), stsTimeStart.str());
 	
@@ -131,6 +133,8 @@ namespace beliefstate {
 	    }
 	    
 	    stringstream stsTimeEnd;
+	    stsTimeEnd.unsetf(ios_base::showpos);
+	    stsTimeEnd.unsetf(ios_base::showpoint);
 	    stsTimeEnd << this->getTimeStamp();
 	    ndCurrent->metaInformation()->setValue(string("time-end"), stsTimeEnd.str());
 	    
@@ -553,6 +557,8 @@ namespace beliefstate {
       string strIDParent = this->getUniqueDesignatorID(strMAParent);
       
       stringstream stsTimeEquate;
+      stsTimeEquate.unsetf(ios_base::showpos);
+      stsTimeEquate.unsetf(ios_base::showpoint);
       stsTimeEquate << this->getTimeStamp();
       
       m_lstDesignatorEquations.push_back(make_pair(strIDParent, strIDChild));
