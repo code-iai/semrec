@@ -368,6 +368,8 @@ namespace beliefstate {
 	      strDesigPurpose = "goalLocation";
 	    } else if(strAnnotation == "goal-pose") {
 	      strDesigPurpose = "goalPose";
+	    } else if(strAnnotation == "grasp-details") {
+	      strDesigPurpose = "graspDetails";
 	    } else {
 	      strDesigPurpose = "designator";
 	    }
