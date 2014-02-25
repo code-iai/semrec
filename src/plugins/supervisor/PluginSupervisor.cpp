@@ -76,6 +76,13 @@ namespace beliefstate {
 	this->info("Created new experiment space: '" + strNewExp + "'.");
 	setConfigSettings(cfgsetCurrent);
 	
+	Event evSetExpNameMeta = defaultEvent("set-experiment-meta-data");
+	evSetExpNameMeta.cdDesignator = new CDesignator();
+	evSetExpNameMeta.cdDesignator->setType(ACTION);
+	evSetExpNameMeta.cdDesignator->setValue("field", "experiment-name");
+	evSetExpNameMeta.cdDesignator->setValue("value", strNewExp);
+	this->deployEvent(evSetExpNameMeta);
+	
 	string strSymlink = cfgsetCurrent.strBaseDataDirectory + "/" + cfgsetCurrent.strSymlinkName;
 	remove(strSymlink.c_str());
 	symlink(strNewName.c_str(), strSymlink.c_str());
