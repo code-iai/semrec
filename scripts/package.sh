@@ -14,4 +14,6 @@ cp -r current-experiment/* packaging
 
 DATE_STRING=`date +"%Y-%m-%d-%H-%M-%S"`
 mkdir -p results
-tar -czf results/log-packaged-${DATE_STRING}.tar.gz packaging/*
+cd packaging
+tar -czf ../results/log-packaged-${DATE_STRING}.tar.gz *
+cd -
