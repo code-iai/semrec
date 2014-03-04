@@ -6,6 +6,7 @@ namespace beliefstate {
   static list<int> g_lstPluginIDs;
   static ConfigSettings g_cfgsetSettings;
   static mutex g_mtxGlobalSettings;
+  static map< string, map<string, string> > g_mapPluginSettings;
   
   
   int createContextID() {
@@ -130,5 +131,32 @@ namespace beliefstate {
     g_mtxGlobalSettings.lock();
     g_cfgsetSettings = cfgsetSettings;
     g_mtxGlobalSettings.unlock();
+  }
+  
+  string getPluginConfigString(string strPluginName, string strKey) {
+    map< string, map<string, string> >::iterator itPlugin = g_mapPluginSettings.find(strPluginName);
+    
+    if(itPlugin != g_mapPluginSettings.end()) {
+      map<string, string>::iterator itKey = (*itPlugin).second.find(strKey);
+      
+      if(itKey != (*itPlugin).second.end()) {
+      	return (*itKey).second;
+      }
+    }
+    
+    return "";
+  }
+  
+  void setPluginConfigValue(string strPluginName, string strKey, string strValue) {
+    map< string, map<string, string> >::iterator itPlugin = g_mapPluginSettings.find(strPluginName);
+    
+    if(itPlugin == g_mapPluginSettings.end()) {
+      map<string, string> mapNew;
+      mapNew[strKey] = strValue;
+      
+      g_mapPluginSettings[strPluginName] = mapNew;
+    } else {
+      (*itPlugin).second[strKey] = strValue;
+    }
   }
 }

@@ -211,6 +211,39 @@ namespace beliefstate {
 	      vecPluginOutputColors.push_back(strColor);
 	    }
 	  }
+	  
+	  if(cfgConfig.exists("plugins.individual-configurations")) {
+	    Setting &sPluginsIndividualConfigurations = cfgConfig.lookup("plugins.individual-configurations");
+	    
+	    for(int nI = 0; nI < sPluginsIndividualConfigurations.getLength(); nI++) {
+	      string strPluginName;
+	      
+	      if(sPluginsIndividualConfigurations[nI].lookupValue("plugin", strPluginName)) {
+		this->info("Loading per-plugin configuration for plugin '" + strPluginName + "'");
+		
+		for(int nJ = 0; nJ < sPluginsIndividualConfigurations[nI].getLength(); nJ++) {
+		  string strConfigDetailName = sPluginsIndividualConfigurations[nI][nJ].getName();
+		  
+		  if(strConfigDetailName != "plugin") { // This field is already taken.
+		    // NOTE(winkler): This should be extended to also
+		    // handle numbers, bools, and lists. Right now,
+		    // everything is treated as a string. The best
+		    // would be a recursive approach.
+		    string strContent;
+		    sPluginsIndividualConfigurations[nI].lookupValue(strConfigDetailName, strContent);
+		    
+		    strContent = this->resolveDirectoryTokens(strContent);
+		    //cout << sPluginsIndividualConfigurations[nI][nJ].getName() << " = " << strContent << endl;
+		    
+		    this->info(" - " + strConfigDetailName);
+		    setPluginConfigValue(strPluginName, strConfigDetailName, strContent);
+		  }
+		}
+	      } else {
+		this->warn("No 'plugin'-field specified for individual plugin configuration.");
+	      }
+	    }
+	  }
 	}
 	
 	// Check if any search paths were set

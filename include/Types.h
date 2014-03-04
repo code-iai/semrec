@@ -7,6 +7,7 @@
 #include <list>
 #include <designators/CDesignator.h>
 #include <vector>
+#include <map>
 
 // Private
 #include <Node.h>

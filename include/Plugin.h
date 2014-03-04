@@ -53,6 +53,8 @@ namespace beliefstate {
       virtual Result cycle();
       Result cycleResults();
       
+      string getIndividualConfigString(string strKey);
+      
       void setDevelopmentPlugin(bool bDevelopmentPlugin);
       bool developmentPlugin();
       void setPluginVersion(string strVersion);
