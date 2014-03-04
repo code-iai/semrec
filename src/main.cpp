@@ -81,9 +81,10 @@ int main(int argc, char** argv) {
     } else {
       bsBeliefstate->fail("Initialization of the beliefstate system failed. Being a quitter.");
     }
-  
+    
+    cout << "\r";
     bsBeliefstate->info("Exiting gracefully.");
-  
+    
     bsBeliefstate->deinit();
     
     delete bsBeliefstate;
