@@ -42,6 +42,9 @@ namespace beliefstate {
       this->setOffersService("symbolic-plan-tree", true);
       this->setOffersService("symbolic-plan-context", true);
       
+      CDesignator* cdConfig = this->getIndividualConfig();
+      cout << cdConfig->stringValue("semantics-descriptor-file") << endl;
+      cdConfig->printDesignator();
       return resInit;
     }
     

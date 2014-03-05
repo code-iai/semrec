@@ -23,13 +23,20 @@ namespace beliefstate {
     Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
+      CDesignator* cdConfig = this->getIndividualConfig();
+      
       this->setSubscribedToEvent("add-image-from-file", true);
       this->setSubscribedToEvent("add-image-from-topic", true);
       this->setSubscribedToEvent("symbolic-create-designator", true);
       this->setSubscribedToEvent("interactive-callback", true);
       
       if(!ros::ok()) {
-	string strROSNodeName = "beliefstate_ros";
+	string strROSNodeName = cdConfig->stringValue("node-name");
+	
+	if(strROSNodeName == "") {
+	  strROSNodeName = "beliefstate_ros";
+	}
+	
 	this->info("Starting ROS node '" + strROSNodeName + "'.");
 	
 	ros::init(argc, argv, strROSNodeName);
