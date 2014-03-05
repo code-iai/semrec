@@ -49,8 +49,16 @@ namespace beliefstate {
 	  m_pubLoggedDesignators = m_nhHandle->advertise<designator_integration_msgs::Designator>("/logged_designators", 1);
 	  m_pubInteractiveCallback = m_nhHandle->advertise<designator_integration_msgs::Designator>("/interactive_callback", 1);
 	  
-	  this->info("ROS node started. Starting to spin (4 threads).");
-	  m_aspnAsyncSpinner = new ros::AsyncSpinner(4);
+	  int nThreads = 4;
+	  if(cdConfig->childForKey("async-threads")) {
+	    nThreads = cdConfig->floatValue("async-threads");
+	  }
+	  
+	  stringstream sts;
+	  sts << nThreads;
+	  
+	  this->info("ROS node started. Starting to spin (" + sts.str() + " threads).");
+	  m_aspnAsyncSpinner = new ros::AsyncSpinner(nThreads);
 	  m_aspnAsyncSpinner->start();
 	} else {
 	  resInit.bSuccess = false;
