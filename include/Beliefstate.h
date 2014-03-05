@@ -40,6 +40,7 @@ namespace beliefstate {
     Result deinit();
     
     bool loadConfigFile(string strConfigFile);
+    bool loadIndividualPluginConfigurationBranch(Setting &sBranch, CKeyValuePair* ckvpInto, string strConfigPath = "", bool bIgnorePluginField = false);
     bool fileExists(string strFileName);
     void replaceStringInPlace(string& subject, const string& search, const string& replace);
     

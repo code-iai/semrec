@@ -36,9 +36,8 @@ namespace beliefstate {
   ConfigSettings configSettings();
   void setConfigSettings(ConfigSettings cfgsetSettings);
   
-  // Per-Plugin configuration space accessor functions
-  string getPluginConfigString(string strPluginName, string strKey);
-  void setPluginConfigValue(string strPluginName, string strKey, string strValue);
+  // Per-Plugin configuration space accessor function
+  CDesignator* getPluginConfig(string strPluginName);
 }
 
 

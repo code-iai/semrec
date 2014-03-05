@@ -220,24 +220,10 @@ namespace beliefstate {
 	      
 	      if(sPluginsIndividualConfigurations[nI].lookupValue("plugin", strPluginName)) {
 		this->info("Loading per-plugin configuration for plugin '" + strPluginName + "'");
+		CDesignator* cdConfig = getPluginConfig(strPluginName);
 		
-		for(int nJ = 0; nJ < sPluginsIndividualConfigurations[nI].getLength(); nJ++) {
-		  string strConfigDetailName = sPluginsIndividualConfigurations[nI][nJ].getName();
-		  
-		  if(strConfigDetailName != "plugin") { // This field is already taken.
-		    // NOTE(winkler): This should be extended to also
-		    // handle numbers, bools, and lists. Right now,
-		    // everything is treated as a string. The best
-		    // would be a recursive approach.
-		    string strContent;
-		    sPluginsIndividualConfigurations[nI].lookupValue(strConfigDetailName, strContent);
-		    
-		    strContent = this->resolveDirectoryTokens(strContent);
-		    //cout << sPluginsIndividualConfigurations[nI][nJ].getName() << " = " << strContent << endl;
-		    
-		    this->info(" - " + strConfigDetailName);
-		    setPluginConfigValue(strPluginName, strConfigDetailName, strContent);
-		  }
+		if(this->loadIndividualPluginConfigurationBranch(sPluginsIndividualConfigurations[nI], cdConfig, "", true) == false) {
+		  this->warn("Failed to load configuration for plugin '" + strPluginName + "'.");
 		}
 	      } else {
 		this->warn("No 'plugin'-field specified for individual plugin configuration.");
@@ -313,6 +299,55 @@ namespace beliefstate {
     }
     
     return false;
+  }
+  
+  bool Beliefstate::loadIndividualPluginConfigurationBranch(Setting &sBranch, CKeyValuePair* ckvpInto, string strConfigPath, bool bIgnorePluginField) {
+    for(int nJ = 0; nJ < sBranch.getLength(); nJ++) {
+      string strConfigDetailName = sBranch[nJ].getName();
+      
+      if(strConfigDetailName != "plugin" || !bIgnorePluginField) {
+	this->info(" - " + strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName);
+	
+	switch(sBranch[strConfigDetailName].getType()) {
+	case libconfig::Setting::TypeString: {
+	  string strContent;
+	  sBranch.lookupValue(strConfigDetailName, strContent);
+	  strContent = this->resolveDirectoryTokens(strContent);
+	  ckvpInto->setValue(strConfigDetailName, strContent);
+	} break;
+		      
+	case libconfig::Setting::TypeInt:
+	case libconfig::Setting::TypeInt64: {
+	  int nContent;
+	  sBranch.lookupValue(strConfigDetailName, nContent);
+	  ckvpInto->setValue(strConfigDetailName, nContent);
+	} break;
+		      
+	case libconfig::Setting::TypeFloat: {
+	  int fContent;
+	  sBranch.lookupValue(strConfigDetailName, fContent);
+	  ckvpInto->setValue(strConfigDetailName, fContent);
+	} break;
+		      
+	case libconfig::Setting::TypeBoolean: {
+	  bool bContent;
+	  sBranch.lookupValue(strConfigDetailName, bContent);
+	  ckvpInto->setValue(strConfigDetailName, bContent);
+	} break;
+	  
+	case libconfig::Setting::TypeGroup: {
+	  CKeyValuePair* ckvpChild = ckvpInto->addChild(strConfigDetailName);
+	  Setting& sBranchChild = sBranch[strConfigDetailName];
+	  
+	  if(this->loadIndividualPluginConfigurationBranch(sBranchChild, ckvpChild, strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName) == false) {
+	    return false;
+	  }
+	} break;
+	}
+      }
+    }
+    
+    return true;
   }
   
   bool Beliefstate::fileExists(string strFileName) {

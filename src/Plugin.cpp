@@ -14,8 +14,8 @@ namespace beliefstate {
       freePluginID(m_nID);
     }
     
-    string Plugin::getIndividualConfigString(string strKey) {
-      return getPluginConfigString(this->pluginName(), strKey);
+    CDesignator* Plugin::getIndividualConfig() {
+      return getPluginConfig(this->pluginName());
     }
     
     void Plugin::setDevelopmentPlugin(bool bDevelopmentPlugin) {
