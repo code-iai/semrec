@@ -5,11 +5,13 @@
 // System
 #include <string>
 #include <list>
+#include <libconfig.h++>
 
 // Private
 #include <CExporterFileoutput.h>
 
 using namespace std;
+using namespace libconfig;
 
 
 namespace beliefstate {

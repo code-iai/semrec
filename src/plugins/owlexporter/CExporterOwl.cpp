@@ -3,12 +3,29 @@
 
 namespace beliefstate {
   CExporterOwl::CExporterOwl() {
+    this->setMessagePrefixLabel("owl-exporter-aux");
   }
-
+  
   CExporterOwl::~CExporterOwl() {
   }
   
   bool CExporterOwl::loadSemanticsDescriptorFile(string strFilepath) {
+    if(this->fileExists(strFilepath)) {
+      Config cfgConfig;
+    
+      try {
+	cfgConfig.readFile(strFilepath.c_str());
+      
+	this->info("OK");
+	
+	return true;
+      } catch(ParseException e) {
+	this->fail("Error while parsing semantics descriptor file '" + strFilepath + "': " + e.getError());
+      } catch(...) {
+	this->fail("Undefined error while parsing semantics descriptor file '" + strFilepath + "'");
+      }
+    }
+    
     return false;
   }
   
