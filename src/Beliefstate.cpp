@@ -67,6 +67,14 @@ namespace beliefstate {
       resInit.bSuccess = false;
     }
     
+    // Additional checks to make the user aware of potential problems
+    if(this->workspaceDirectory() == "") {
+      this->warn("The ROS workspace directory could not be resolved. This might cause problems,");
+      this->warn("especially when trying to load plugins. Please ensure that your environment");
+      this->warn("is set up properly. If everything seems alright, consider to override the");
+      this->warn("workspace-dependent paths in a custom file (i.e. ~/.beliefstate/config.cfg).");
+    }
+    
     m_lstGlobalEvents.push_back(defaultEvent("startup-complete"));
     
     return resInit;
