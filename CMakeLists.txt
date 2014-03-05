@@ -175,6 +175,7 @@ target_link_libraries(bs_plugin_interactive
 
 target_link_libraries(bs_plugin_owlexporter
   ${catkin_LIBRARIES}
+  config++
 )
 
 target_link_libraries(bs_plugin_dotexporter
