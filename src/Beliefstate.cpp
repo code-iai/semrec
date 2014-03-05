@@ -38,10 +38,15 @@ namespace beliefstate {
 	  itPath != lstConfigFileLocations.end();
 	  itPath++) {
 	string strPath = *itPath;
+	if(strPath.length() > 0) {
+	  if(strPath[strPath.length() - 1] != '/') {
+	    strPath += "/";
+	  }
+	}
 	
-	if(this->loadConfigFile(strPath + "/config.cfg")) {
+	if(this->loadConfigFile(strPath + "config.cfg")) {
 	  bConfigLoaded = true;
-	  this->info("Loaded config file '" + strPath + "/config.cfg'.");
+	  this->info("Loaded config file '" + strPath + "config.cfg'.");
 	  
 	  break;
 	}
