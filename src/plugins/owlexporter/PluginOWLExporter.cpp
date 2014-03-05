@@ -58,6 +58,18 @@ namespace beliefstate {
 		this->info("OWLExporter Plugin received plan log data. Exporting symbolic log.");
 		
 		CExporterOwl *expOwl = new CExporterOwl();
+		
+		CDesignator* cdConfig = this->getIndividualConfig();
+		string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
+		
+		if(strSemanticsDescriptorFile != "") {
+		  if(expOwl->loadSemanticsDescriptorFile(strSemanticsDescriptorFile) == false) {
+		    this->warn("Failed to load semantics descriptor file '" + strSemanticsDescriptorFile + "'.");
+		  }
+		} else {
+		  this->warn("No semantics descriptor file was specified.");
+		}
+		
 		expOwl->configuration()->setValue(string("display-successes"), (int)seServiceEvent.cdDesignator->floatValue("show-successes"));
 		expOwl->configuration()->setValue(string("display-failures"), (int)seServiceEvent.cdDesignator->floatValue("show-fails"));
 		expOwl->configuration()->setValue(string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));

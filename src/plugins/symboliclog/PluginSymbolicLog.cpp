@@ -42,13 +42,6 @@ namespace beliefstate {
       this->setOffersService("symbolic-plan-tree", true);
       this->setOffersService("symbolic-plan-context", true);
       
-      CDesignator* cdConfig = this->getIndividualConfig();
-      string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
-      
-      if(strSemanticsDescriptorFile != "") {
-	// TODO(winkler): Load semantics descriptor file here.
-      }
-      
       return resInit;
     }
     

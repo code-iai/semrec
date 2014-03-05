@@ -7,7 +7,11 @@ namespace beliefstate {
 
   CExporterOwl::~CExporterOwl() {
   }
-
+  
+  bool CExporterOwl::loadSemanticsDescriptorFile(string strFilepath) {
+    return false;
+  }
+  
   void CExporterOwl::prepareEntities(string strNamespaceID, string strNamespace) {
     m_lstEntities.clear();
   

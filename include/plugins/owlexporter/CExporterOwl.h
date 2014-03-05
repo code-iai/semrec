@@ -16,15 +16,17 @@ namespace beliefstate {
   class CExporterOwl : public CExporterFileoutput {
   private:
     list< pair<string, string> > m_lstEntities;
-  
+    
     void addEntity(string strNickname, string strNamespace);
-  
+    
   public:
     CExporterOwl();
     ~CExporterOwl();
     
     list<string> gatherClassesForNodes(list<Node*> lstNodes);
     list<string> gatherTimepointsForNodes(list<Node*> lstNodes);
+    
+    bool loadSemanticsDescriptorFile(string strFilepath);
     
     void prepareEntities(string strNamespaceID, string strNamespace);
     string generateDocTypeBlock();
@@ -42,11 +44,11 @@ namespace beliefstate {
     string generateFailureIndividualsForNodes(list<Node*> lstNodes, string strNamespace);
     string generateFailureIndividuals(string strNamespace);
     string generateTimepointIndividuals(string strNamespace);
-  
+    
     string owlClassForNode(Node *ndNode, bool bClassOnly = false, bool bPrologSyntax = false);
     string owlClassForObject(CKeyValuePair *ckvpObject);  
     virtual string nodeIDPrefix(Node* ndInQuestion, string strProposition);
-  
+    
     virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);
     string owlEscapeString(string strValue);
     string generateOwlStringForNodes(list<Node*> lstNodes, string strNamespaceID, string strNamespace);
