@@ -363,18 +363,6 @@ namespace beliefstate {
     return true;
   }
   
-  bool Beliefstate::fileExists(string strFileName) {
-    ifstream ifile(strFileName.c_str());
-  
-    if(ifile) {
-      ifile.close();
-      
-      return true;
-    }
-  
-    return false;
-  }
-  
   void Beliefstate::replaceStringInPlace(string& subject, const string& search, const string& replace) {
     size_t pos = 0;
     

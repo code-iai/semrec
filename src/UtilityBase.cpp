@@ -37,4 +37,16 @@ namespace beliefstate {
   void UtilityBase::fail(string strMessage) {
     this->coloredText("[ " + m_strMessagePrefixLabel + " ] " + strMessage, "31", true);
   }
+  
+  bool UtilityBase::fileExists(string strFileName) {
+    ifstream ifile(strFileName.c_str());
+    
+    if(ifile) {
+      ifile.close();
+      
+      return true;
+    }
+    
+    return false;
+  }
 }

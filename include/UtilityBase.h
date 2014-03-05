@@ -5,6 +5,7 @@
 // System
 #include <iostream>
 #include <string>
+#include <fstream>
 
 using namespace std;
 
@@ -26,6 +27,8 @@ namespace beliefstate {
     void info(string strMessage);
     void warn(string strMessage);
     void fail(string strMessage);
+    
+    bool fileExists(string strFileName);
   };
 }
 
