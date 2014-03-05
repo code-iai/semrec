@@ -18,6 +18,7 @@ namespace beliefstate {
   class CExporterOwl : public CExporterFileoutput {
   private:
     list< pair<string, string> > m_lstEntities;
+    list< pair<string, string> > m_lstFailureMapping;
     
     void addEntity(string strNickname, string strNamespace);
     
