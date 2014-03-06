@@ -101,11 +101,13 @@ namespace beliefstate {
   }
   
   bool InteractiveObject::removeFromServer() {
-    if(m_imsServer) {
-      m_imsServer->erase(m_imMarker.name);
-      m_imsServer->applyChanges();
-      
-      return true;
+    if(ros::ok()) {
+      if(m_imsServer) {
+	m_imsServer->erase(m_imMarker.name);
+	m_imsServer->applyChanges();
+	
+	return true;
+      }
     }
     
     return false;
