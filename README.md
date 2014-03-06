@@ -17,3 +17,5 @@ The plugin based architecture allows for relatively simple extension of the syst
  * Image Capturer (save images from any given ROS topic, and store them in the experiment data space)
 
 All necessary directories, and details of what to load and where to find plugins, is stored in a convenient config file (config.cfg). Directories are created automatically by the beliefstate system as needed, and data associated with an active experiment is always stored in its respective folder.
+
+A more thorough documentation can be found here: http://cram-system.org/doc/logging/beliefstate
