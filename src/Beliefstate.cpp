@@ -479,9 +479,12 @@ namespace beliefstate {
     if(m_strWorkspaceDirectory == "") {
       const char* cROSWorkspace = getenv("ROS_WORKSPACE");
       const char* cCMAKEPrefixPath = getenv("CMAKE_PREFIX_PATH");
+      const char* cROSPackagePath = getenv("ROS_PACKAGE_PATH");
       
       string strROSWorkspace = "";
       string strCMAKEPrefixPath = "";
+      string strROSPackagePath = "";
+      
       if(cROSWorkspace) {
 	strROSWorkspace = cROSWorkspace;
       }
@@ -490,10 +493,15 @@ namespace beliefstate {
 	strCMAKEPrefixPath = cCMAKEPrefixPath;
       }
       
+      if(cROSPackagePath) {
+	strROSPackagePath = cROSPackagePath;
+      }
+      
       // ROS_WORKSPACE takes precedence over CMAKE_PREFIX_PATH
       if(strROSWorkspace != "") {
 	strWorkspaceReplacement = strROSWorkspace;
       } else {
+	// CMAKE_PREFIX_PATH takes precedence over ROS_PACKAGE_PATH
 	if(strCMAKEPrefixPath != "") {
 	  // The first entry is the one we're using. This could be
 	  // improved, but is okay for now.
@@ -503,7 +511,17 @@ namespace beliefstate {
 	    strCMAKEPrefixPath.erase(szFirstColon);
 	  }
 	  
-	  strWorkspaceReplacement = strCMAKEPrefixPath;
+	  strWorkspaceReplacement = this->stripPostfix(strCMAKEPrefixPath, "/devel");
+	} else {
+	  // The first entry is the one we're using. This could be
+	  // improved, but is okay for now.
+	  const size_t szFirstColon = strROSPackagePath.find_first_of(":");
+	  
+	  if(szFirstColon != string::npos) {
+	    strROSPackagePath.erase(szFirstColon);
+	  }
+	  
+	  strWorkspaceReplacement = this->stripPostfix(strROSPackagePath, "/src");
 	}
       }
     } else {
