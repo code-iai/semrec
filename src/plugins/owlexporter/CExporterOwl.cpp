@@ -620,43 +620,31 @@ namespace beliefstate {
       
       strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + strID + "\">\n";
       strDot += "        <rdf:type rdf:resource=\"&knowrob;CRAMDesignator\"/>\n";
-    
-      // NOTE(winkler): Don't generate properties for parent designators
-      // (single lists are enough here)
-
-      // list<string> lstParentIDs = this->parentDesignatorsForID(strID);
-      // for(list<string>::iterator itID2 = lstParentIDs.begin();
-      // 	itID2 != lstParentIDs.end();
-      // 	itID2++) {
-      //   string strID2 = *itID2;
       
-      //   strDot += "        <knowrob:parentDesignator rdf:resource=\"&" + strNamespace + ";" + strID2 + "\"/>\n";
-      // }
-    
       list<string> lstSuccessorIDs = this->successorDesignatorsForID(strID);
       for(list<string>::iterator itID2 = lstSuccessorIDs.begin();
 	  itID2 != lstSuccessorIDs.end();
 	  itID2++) {
 	string strID2 = *itID2;
-      
+	
 	strDot += "        <knowrob:successorDesignator rdf:resource=\"&" + strNamespace + ";" + strID2 + "\"/>\n";
       }
-    
+      
       string strEquationTime = this->equationTimeForSuccessorID(strID);
       if(strEquationTime != "") {
 	strDot += "        <knowrob:equationTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strEquationTime + "\"/>\n";
       }
-    
+      
       strDot += "    </owl:namedIndividual>\n\n";
     }
-  
+    
     return strDot;
   }
 
   string CExporterOwl::generateFailureIndividuals(string strNamespace) {
     string strDot = "    <!-- Failure Individuals -->\n\n";
     strDot += this->generateFailureIndividualsForNodes(this->nodes(), strNamespace);
-  
+    
     return strDot;
   }
 
