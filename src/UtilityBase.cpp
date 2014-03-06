@@ -30,7 +30,6 @@ namespace beliefstate {
   }
   
   void UtilityBase::warn(string strMessage) {
-    // TODO(winkler): Mark this as a warning
     this->coloredText("[ " + m_strMessagePrefixLabel + " ] " + strMessage, "33", true);
   }
   
@@ -48,5 +47,15 @@ namespace beliefstate {
     }
     
     return false;
+  }
+  
+  string UtilityBase::stripPostfix(string strString, string strPostfix) {
+    if(strString.length() >= strPostfix.length()) {
+      if(strString.substr(strString.length() - strPostfix.length()) == strPostfix) {
+	return strString.substr(0, strString.length() - strPostfix.length());
+      }
+    }
+    
+    return strString;
   }
 }

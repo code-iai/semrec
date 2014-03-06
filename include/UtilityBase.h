@@ -29,6 +29,8 @@ namespace beliefstate {
     void fail(string strMessage);
     
     bool fileExists(string strFileName);
+    
+    string stripPostfix(string strString, string strPostfix);
   };
 }
 
