@@ -61,19 +61,61 @@ using namespace std;
 using namespace libconfig;
 
 
+/*! \brief Main beliefstate system class
+  
+  This class manages the distribution of messages and service events,
+  triggers the loading of plugins, and loads configuration files. */
 namespace beliefstate {
   class Beliefstate : public UtilityBase {
   private:
+    /*! \brief Internal pointer to the PluginSystem class instance
+        used for loading and managing plugin instances. */
     PluginSystem* m_psPlugins;
+    /*! \brief Flag representing the current run state of the main
+        loop cycle. If true, the main loop will continue to run; if
+        false, will stop execution of the main loop and quit. */
     bool m_bRun;
+    /*! \brief Internal copy of the global argc parameter holding the
+        number of command line parameters supplied when starting the
+        system. This parameter, together with m_argv, is handed to all
+        plugins during initialization. */
     int m_argc;
+    /*! \brief Internal copy of the global argv parameter holding the
+        command line parameter values supplied when starting the
+        system. This parameter, together with m_argc, is handed to all
+        plugins during initialization. */
     char** m_argv;
+    /*! \brief List of plugins to load. This list is populated by the
+        plugins/load configuration section in the configuration
+        file. */
     list<string> m_lstPluginsToLoad;
+    /*! \brief List of currently available global events to
+        process. The entries in this list only last one cycle of the
+        main loop. They are dropped afterwards, but are handed to all
+        plugins that subscribed to the respective event type
+        beforehand. This is the main communication mechanism between
+        the belief state system and loaded plugins. */
     list<Event> m_lstGlobalEvents;
+    /*! \brief In case a static workspace directory was specified in
+        the configuration file, its value is stored here. This value,
+        if not empty, takes precedence over the dynamically resolved
+        return value of workspaceDirectory(). */
     string m_strWorkspaceDirectory;
     
   public:
+    /*! \brief Constructor of the main belief state system class.
+      
+      \param argc The main argc variable supplied to main(), holding
+      the number of available command line parameters issues when
+      running the system.
+
+      \param argv The main argv variable supplied to main(), holding
+      the actual available command line parameters issues when running
+      the system. */
     Beliefstate(int argc, char** argv);
+    /*! \brief Destructor of the main belief state system class.
+      
+      Deletes all instances of internal objects. */
     ~Beliefstate();
     
     Result init(string strConfigFile = "");
