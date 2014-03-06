@@ -31,6 +31,7 @@ namespace beliefstate {
     char** m_argv;
     list<string> m_lstPluginsToLoad;
     list<Event> m_lstGlobalEvents;
+    string m_strWorkspaceDirectory;
     
   public:
     Beliefstate(int argc, char** argv);

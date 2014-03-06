@@ -7,6 +7,7 @@ namespace beliefstate {
     m_bRun = true;
     m_argc = argc;
     m_argv = argv;
+    m_strWorkspaceDirectory = "";
     
     this->setMessagePrefixLabel("core");
   }
@@ -99,6 +100,20 @@ namespace beliefstate {
       
       try {
 	cfgConfig.readFile(strConfigFile.c_str());
+	
+	// Section: Miscellaneous -- IMPORTANT: Check first. This
+	// section sets the 'workspace-directory' variable if
+	// available. This affects all directory resolutions
+	// afterwards that might use the ${WORKSPACE} token.
+	bool bDisplayUnhandledEvents = true;
+	bool bDisplayUnhandledServiceEvents = true;
+	
+	if(cfgConfig.exists("miscellaneous")) {
+	  Setting &sMiscellaneous = cfgConfig.lookup("miscellaneous");
+	  sMiscellaneous.lookupValue("display-unhandled-events", bDisplayUnhandledEvents);
+	  sMiscellaneous.lookupValue("display-unhandled-service-events", bDisplayUnhandledServiceEvents);
+	  sMiscellaneous.lookupValue("workspace-directory", m_strWorkspaceDirectory);
+	}
 	
 	// Section: Persistent data storage
 	string strBaseDataDirectory = "";
@@ -276,16 +291,6 @@ namespace beliefstate {
 	  }
 	  
 	  this->warn("Defaulting to: " + strColors);
-	}
-	
-	// Section: Miscellaneous
-	bool bDisplayUnhandledEvents = true;
-	bool bDisplayUnhandledServiceEvents = true;
-	
-	if(cfgConfig.exists("miscellaneous")) {
-	  Setting &sMiscellaneous = cfgConfig.lookup("miscellaneous");
-	  sMiscellaneous.lookupValue("display-unhandled-events", bDisplayUnhandledEvents);
-	  sMiscellaneous.lookupValue("display-unhandled-service-events", bDisplayUnhandledServiceEvents);
 	}
 	
 	// -> Set the global settings
@@ -469,33 +474,40 @@ namespace beliefstate {
   }
   
   string Beliefstate::workspaceDirectory() {
-    const char* cROSWorkspace = getenv("ROS_WORKSPACE");
-    const char* cCMAKEPrefixPath = getenv("CMAKE_PREFIX_PATH");
-    
     string strWorkspaceReplacement = "";
-    string strROSWorkspace = "";
-    string strCMAKEPrefixPath = "";
-    if(cROSWorkspace) {
-      strROSWorkspace = cROSWorkspace;
-    }
     
-    if(cCMAKEPrefixPath) {
-      strCMAKEPrefixPath = cCMAKEPrefixPath;
-    }
-    
-    // ROS_WORKSPACE takes precedence over CMAKE_PREFIX_PATH
-    if(strROSWorkspace != "") {
-      strWorkspaceReplacement = strROSWorkspace;
-    } else {
-      if(strCMAKEPrefixPath != "") {
-	// The first entry is the one we're using. This could be
-	// improved, but is okay for now.
-	const size_t szFirstColon = strCMAKEPrefixPath.find_first_of(":");
-	if(szFirstColon != string::npos) {
-	  strCMAKEPrefixPath.erase(szFirstColon);
+    if(m_strWorkspaceDirectory == "") {
+      const char* cROSWorkspace = getenv("ROS_WORKSPACE");
+      const char* cCMAKEPrefixPath = getenv("CMAKE_PREFIX_PATH");
+      
+      string strROSWorkspace = "";
+      string strCMAKEPrefixPath = "";
+      if(cROSWorkspace) {
+	strROSWorkspace = cROSWorkspace;
+      }
+      
+      if(cCMAKEPrefixPath) {
+	strCMAKEPrefixPath = cCMAKEPrefixPath;
+      }
+      
+      // ROS_WORKSPACE takes precedence over CMAKE_PREFIX_PATH
+      if(strROSWorkspace != "") {
+	strWorkspaceReplacement = strROSWorkspace;
+      } else {
+	if(strCMAKEPrefixPath != "") {
+	  // The first entry is the one we're using. This could be
+	  // improved, but is okay for now.
+	  const size_t szFirstColon = strCMAKEPrefixPath.find_first_of(":");
+	  
+	  if(szFirstColon != string::npos) {
+	    strCMAKEPrefixPath.erase(szFirstColon);
+	  }
+	  
 	  strWorkspaceReplacement = strCMAKEPrefixPath;
 	}
       }
+    } else {
+      strWorkspaceReplacement = m_strWorkspaceDirectory;
     }
     
     return strWorkspaceReplacement;
