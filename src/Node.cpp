@@ -165,11 +165,12 @@ namespace beliefstate {
     return ckvpList->addChild(sts.str());
   }
   
-  void Node::addImage(string strOrigin, string strFilename) {
+  void Node::addImage(string strOrigin, string strFilename, string strTimestamp) {
     CKeyValuePair* ckvpImage = this->addDescriptionListItem("images", "image");
     
     ckvpImage->setValue(string("origin"), strOrigin);
     ckvpImage->setValue(string("filename"), strFilename);
+    ckvpImage->setValue(string("time-capture"), strTimestamp);
   }
   
   void Node::addObject(list<CKeyValuePair*> lstDescription) {

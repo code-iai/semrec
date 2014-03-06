@@ -181,23 +181,23 @@ namespace beliefstate {
 
   list<string> CExporterOwl::gatherTimepointsForNodes(list<Node*> lstNodes) {
     list<string> lstTimepoints;
-  
+    
     for(list<Node*>::iterator itNode = lstNodes.begin();
 	itNode != lstNodes.end();
 	itNode++) {
       Node *ndCurrent = *itNode;
-    
+      
       // Gather node timepoints
       list<string> lstTimepointsSubnodes = this->gatherTimepointsForNodes(ndCurrent->subnodes());
       lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-start"));
       lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-end"));
-    
+      
       // Gather failure timepoints
       CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
-    
+      
       if(ckvpFailures) {
 	list<CKeyValuePair*> lstFailures = ckvpFailures->children();
-      
+	
 	unsigned int unIndex = 0;
 	for(list<CKeyValuePair*>::iterator itFailure = lstFailures.begin();
 	    itFailure != lstFailures.end();
@@ -206,7 +206,22 @@ namespace beliefstate {
 	  lstTimepointsSubnodes.push_back(ckvpFailure->stringValue("time-fail"));
 	}
       }
-    
+      
+      // Gather image timepoints
+      CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
+      
+      if(ckvpImages) {
+	list<CKeyValuePair*> lstImages = ckvpImages->children();
+	
+	unsigned int unIndex = 0;
+	for(list<CKeyValuePair*>::iterator itImage = lstImages.begin();
+	    itImage != lstImages.end();
+	    itImage++, unIndex++) {
+	  CKeyValuePair *ckvpImage = *itImage;
+	  lstTimepointsSubnodes.push_back(ckvpImage->stringValue("time-capture"));
+	}
+      }
+      
       // Gather designator equation timepoints
       for(list< pair<string, string> >::iterator itPair = m_lstDesignatorEquationTimes.begin();
 	  itPair != m_lstDesignatorEquationTimes.end();
@@ -569,10 +584,12 @@ namespace beliefstate {
 	  string strOwlClass = "&knowrob;CameraImage";
 	  string strFilename = ckvpImage->stringValue("filename");
 	  string strTopic = ckvpImage->stringValue("origin");
+	  string strCaptureTime = ckvpImage->stringValue("time-capture");
 	  
 	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
 	  strDot += "        <knowrob:linkToImageFile rdf:datatype=\"&xsd;string\">" + strFilename + "</knowrob:linkToImageFile>\n";
 	  strDot += "        <knowrob:rosTopic rdf:datatype=\"&xsd;string\">" + strTopic + "</knowrob:rosTopic>\n";
+	  strDot += "        <knowrob:captureTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strCaptureTime + "\"/>\n";
 	  strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
 	  strDot += "    </owl:namedIndividual>\n\n";
 	}

@@ -215,7 +215,11 @@ namespace beliefstate {
 	    string strTopic = evEvent.cdDesignator->stringValue("origin");
 	    
 	    if(strFilepath != "") {
-	      this->activeNode()->addImage(strTopic, strFilepath);
+	      char cTimeImage[80];
+	      sprintf(cTimeImage, "%d", this->getTimeStamp());
+	      string strTimeImage = cTimeImage;
+	      
+	      this->activeNode()->addImage(strTopic, strFilepath, strTimeImage);
 	      
 	      stringstream sts;
 	      sts << this->activeNode()->id();
@@ -227,6 +231,7 @@ namespace beliefstate {
 	      evSymbolicAddImage.cdDesignator->setType(ACTION);
 	      evSymbolicAddImage.cdDesignator->setValue("origin", strTopic);
 	      evSymbolicAddImage.cdDesignator->setValue("filename", strFilepath);
+	      evSymbolicAddImage.cdDesignator->setValue("time-capture", strTimeImage);
 	      this->deployEvent(evSymbolicAddImage);
 	    } else {
 	      this->warn("No filename given. Will not add unnamed image to active node. The designator was:");
