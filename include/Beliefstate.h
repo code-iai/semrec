@@ -137,8 +137,46 @@ namespace beliefstate {
       might occur. */
     Result deinit();
     
+    /*! \brief Loads the specified configuration file
+      
+      Loads the libconfig-styled configuration file specified in the
+      parameter. Will update all components in the main belief state
+      system instance that are affected by the configured options.
+      
+      \param strConfigFile Configuration file path to open for loading
+      configuration */
     bool loadConfigFile(string strConfigFile);
+    
+    /*! \brief Loads the plugin-specific configuration portion of the configuration file
+      
+      Every named plugin can be configured individually from the main
+      configuration file. This function (recursively) evaluates the
+      specified options to allow for arbitrary tree-like configuration
+      of every plugin.
+      
+      \param sBranch The libconfig Setting which denotes the current
+      configuration group for the current plugin.
+      
+      \param ckvpInto The CKeyValuePair instance into which the loaded
+      configuration branch should be parsed.
+      
+      \param strConfigPath The current path in the nested
+      configuration groups. This is for displaying nice output only.
+      
+      \param bIgnorePluginField Ignore the 'plugin' field in the
+      current branch. This is only used on the first level, as that
+      level holds the plugin name of the plugin to configure. */
     bool loadIndividualPluginConfigurationBranch(Setting &sBranch, CKeyValuePair* ckvpInto, string strConfigPath = "", bool bIgnorePluginField = false);
+    
+    /*! \brief Partial string replace function
+      
+      Replaces 'search' by 'replace' in string 'subject'.
+      
+      \param subject The string to search in
+      
+      \param search The string to search for
+      
+      \param replace The string to use as a replacement */
     void replaceStringInPlace(string& subject, const string& search, const string& replace);
     
     void spreadEvent(Event evEvent);
@@ -156,6 +194,28 @@ namespace beliefstate {
     string baseDataDirectory();
     string resolveDirectoryTokens(string strPath);
     
+    /*! \brief Return the current ROS workspace directory
+      
+      Searches the environmental variables ROS_WORKSPACE,
+      CMAKE_PREFIX_PATH, and ROS_PACKAGE_PATH (in that order) for the
+      current ROS workspace. The semantics are as follows:
+
+       - If ROS_WORKSPACE is not empty, use it's value.
+         Else:
+       - If CMAKE_PREFIX_PATH is not empty, use it's first token
+         separated by ':', without it's possibly trailing '/devel'
+         postfix.
+	 Else:
+       - If ROS_PACKAGE_PATH is not empty, use it's first token
+         separated by ':', without it's possibly trailing '/src'
+         postfix.
+      
+      If all of this fails, return an empty string. During
+      initialization of the belief state system, this value will be
+      checked. If it is empty at that time, a warning will be
+      printed. The configuration file allows for manual override of
+      this in case the workspace directory cannot be detected
+      properly. */
     string workspaceDirectory();
     
     /*! \brief Returns the current user's home directory
