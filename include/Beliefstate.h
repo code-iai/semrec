@@ -118,7 +118,23 @@ namespace beliefstate {
       Deletes all instances of internal objects. */
     ~Beliefstate();
     
+    /*! \brief Main initialization method for the belief state system.
+      
+      Initializes the default search paths for configuration files,
+      creates instances for the PluginSystem and triggers the loading
+      of configuration files and plugins (as configured).
+
+      \param strConfigFile Overrides the default plugin search
+      mechanism and uses the file specified in this parameter. If this
+      fails, the function falls back to the default mechanism. */
     Result init(string strConfigFile = "");
+    
+    /*! \brief Deinitialization method for the belief state system
+      
+      Dummy deinitialization method, does not deinitialize any
+      components. Implemented for the sake of completeness and to make
+      subclassing easier in which actual deinitialization mechanisms
+      might occur. */
     Result deinit();
     
     bool loadConfigFile(string strConfigFile);
@@ -129,6 +145,11 @@ namespace beliefstate {
     void spreadServiceEvent(ServiceEvent seServiceEvent);
     bool cycle();
     
+    /*! \brief Triggers the belief state system shutdown
+      
+      Sets the m_bRun class member to false, effectively letting the
+      main loop cycle() method stop execution and return from its
+      blocking call. */
     void triggerShutdown();
     
     void setBaseDataDirectory(string strBaseDataDirectory);
@@ -136,6 +157,11 @@ namespace beliefstate {
     string resolveDirectoryTokens(string strPath);
     
     string workspaceDirectory();
+    
+    /*! \brief Returns the current user's home directory
+      
+      Returns whatever is stored in the environmental variable
+      '${HOME}'. */
     string homeDirectory();
   };
 }
