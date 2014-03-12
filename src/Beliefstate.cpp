@@ -349,7 +349,10 @@ namespace beliefstate {
 	
 	return true;
       } catch(ParseException e) {
-	this->fail("Error while parsing config file '" + strConfigFile + "': " + e.getError());
+        stringstream sts;
+        sts << e.getLine();
+	
+	this->fail("Error while parsing config file '" + strConfigFile + "': " + e.getError() + ", on line " + sts.str());
       } catch(...) {
 	this->fail("Undefined error while parsing config file '" + strConfigFile + "'");
       }
