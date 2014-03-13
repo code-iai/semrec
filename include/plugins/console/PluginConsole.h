@@ -64,6 +64,9 @@ namespace beliefstate {
     class PLUGIN_CLASS : public Plugin {
     private:
       WINDOW *m_winMain;
+      WINDOW *m_winLog;
+      int m_nScreenHeight;
+      int m_nScreenWidth;
 
     public:
       PLUGIN_CLASS();
@@ -72,6 +75,9 @@ namespace beliefstate {
       virtual Result init(int argc, char** argv);
       void initCurses();
       void deinitCurses();
+      
+      bool checkScreenSize();
+      void printInterface();
       
       virtual Result deinit();
       

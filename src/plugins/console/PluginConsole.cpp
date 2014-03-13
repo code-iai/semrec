@@ -53,6 +53,7 @@ namespace beliefstate {
       Result resInit = defaultResult();
       
       this->initCurses();
+      this->printInterface();
       
       // Subscribe to events here.
       
@@ -61,6 +62,8 @@ namespace beliefstate {
     
     void PLUGIN_CLASS::initCurses() {
       m_winMain = initscr();
+      m_winLog = newwin(4, 4, 1, 1);
+      
       noecho();
       keypad(m_winMain, true);
       scrollok(m_winMain, true);
@@ -71,6 +74,32 @@ namespace beliefstate {
       endwin();
     }
     
+    void PLUGIN_CLASS::printInterface() {
+      box(m_winMain, 0, 0);
+      
+      wrefresh(m_winMain);
+      wrefresh(m_winLog);
+    }
+    
+    bool PLUGIN_CLASS::checkScreenSize() {
+      int nScreenWidth, nScreenHeight;
+      
+      getmaxyx(stdscr, nScreenHeight, nScreenWidth);
+      
+      if(nScreenWidth != m_nScreenWidth || nScreenHeight != m_nScreenHeight) {
+	// Screen size changed
+	m_nScreenWidth = nScreenWidth;
+	m_nScreenHeight = nScreenHeight;
+	
+	wresize(m_winMain, m_nScreenHeight, m_nScreenWidth);
+	wresize(m_winLog, m_nScreenHeight - 2, m_nScreenWidth - 2);
+	
+	return true;
+      }
+      
+      return false;
+    }
+    
     Result PLUGIN_CLASS::deinit() {
       deinitCurses();
       
@@ -79,6 +108,11 @@ namespace beliefstate {
     
     Result PLUGIN_CLASS::cycle() {
       Result resCycle = defaultResult();
+      
+      if(this->checkScreenSize()) {
+	this->printInterface();
+      }
+      
       this->deployCycleData(resCycle);
       
       return resCycle;
