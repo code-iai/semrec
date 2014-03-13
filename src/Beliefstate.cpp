@@ -52,9 +52,6 @@ namespace beliefstate {
   }
   
   Beliefstate::~Beliefstate() {
-    if(m_psPlugins) {
-      delete m_psPlugins;
-    }
   }
   
   Result Beliefstate::init(string strConfigFile) {
@@ -128,7 +125,9 @@ namespace beliefstate {
   Result Beliefstate::deinit() {
     Result resInit = defaultResult();
     
-    // Do the actual deinit here.
+    if(m_psPlugins) {
+      delete m_psPlugins;
+    }
     
     return resInit;
   }
@@ -423,11 +422,17 @@ namespace beliefstate {
     if(m_psPlugins->spreadEvent(evEvent) == 0) {
       ConfigSettings cfgSet = configSettings();
       if(cfgSet.bDisplayUnhandledEvents) {
-	this->warn("Unhandled event dropped: '" + evEvent.strEventName + "'");
+	//this->warn("Unhandled event dropped: '" + evEvent.strEventName + "'");
 	
 	if(evEvent.cdDesignator) {
-	  this->warn("Content was:");
-	  evEvent.cdDesignator->printDesignator();
+	  //this->warn("Content was:");
+	  //evEvent.cdDesignator->printDesignator();
+	}
+      }
+      
+      if(!this->handleUnhandledEvent(evEvent)) {
+	if(!evEvent.bPreempt) {
+	  m_lstGlobalEvents.push_back(evEvent);
 	}
       }
     }
@@ -437,11 +442,11 @@ namespace beliefstate {
     if(m_psPlugins->spreadServiceEvent(seServiceEvent) == 0) {
       ConfigSettings cfgSet = configSettings();
       if(cfgSet.bDisplayUnhandledServiceEvents) {
-	this->warn("Unhandled service event ('" + seServiceEvent.strServiceName + "') dropped.");
+	//this->warn("Unhandled service event ('" + seServiceEvent.strServiceName + "') dropped.");
 	
 	if(seServiceEvent.cdDesignator) {
-	  this->warn("Content was:");
-	  seServiceEvent.cdDesignator->printDesignator();
+	  //this->warn("Content was:");
+	  //seServiceEvent.cdDesignator->printDesignator();
 	}
       }
     }
@@ -452,6 +457,25 @@ namespace beliefstate {
     
     if(m_bRun) {
       Result resCycle = m_psPlugins->cycle();
+      
+      // Forward all status messages collected from the plugins and
+      // the core into the event system
+      list<StatusMessage> lstCoreMessages = queuedMessages();
+      for(list<StatusMessage>::iterator itSM = lstCoreMessages.begin();
+	  itSM != lstCoreMessages.end();
+	  itSM++) {
+	resCycle.lstStatusMessages.push_back(*itSM);
+      }
+	
+      for(list<StatusMessage>::iterator itSM = resCycle.lstStatusMessages.begin();
+	  itSM != resCycle.lstStatusMessages.end();
+	  itSM++) {
+	Event evEvent = defaultEvent("status-message");
+	evEvent.msgStatusMessage = *itSM;
+	evEvent.bPreempt = false;
+	
+	this->spreadEvent(evEvent);
+      }
       
       for(list<Event>::iterator itEv = m_lstGlobalEvents.begin();
 	  itEv != m_lstGlobalEvents.end();
@@ -495,6 +519,17 @@ namespace beliefstate {
       usleep(1000);
     } else {
       bContinue = false;
+      
+      // Last shot for the unhandled messages
+      list<StatusMessage> lstCoreMessages = queuedMessages();
+      for(list<StatusMessage>::iterator itSM = lstCoreMessages.begin();
+	  itSM != lstCoreMessages.end();
+	  itSM++) {
+	Event evMessage = defaultEvent("status-message");
+	evMessage.msgStatusMessage = *itSM;
+	
+	this->handleUnhandledEvent(evMessage);
+      }
     }
     
     return bContinue;
@@ -655,5 +690,18 @@ namespace beliefstate {
     }
     
     return strSubject;
+  }
+  
+  bool Beliefstate::handleUnhandledEvent(Event evEvent) {
+    if(evEvent.strEventName == "status-message") {
+      StatusMessage msgStatus = evEvent.msgStatusMessage;
+      
+      cout << "\033[" << (msgStatus.bBold ? "1" : "0") << ";" << msgStatus.strColorCode << "m"
+	   << "[ " << msgStatus.strPrefix << " ] " << msgStatus.strMessage << "\033[0m" << endl;
+      
+      return true;
+    }
+    
+    return false;
   }
 }

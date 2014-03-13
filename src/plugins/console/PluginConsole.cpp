@@ -55,7 +55,7 @@ namespace beliefstate {
       this->initCurses();
       this->printInterface();
       
-      // Subscribe to events here.
+      this->setSubscribedToEvent("status-message", true);
       
       return resInit;
     }

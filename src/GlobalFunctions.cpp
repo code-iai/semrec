@@ -46,6 +46,8 @@ namespace beliefstate {
   static ConfigSettings g_cfgsetSettings;
   static mutex g_mtxGlobalSettings;
   static map<string, CDesignator*> g_mapPluginSettings;
+  static mutex g_mtxStatusMessages;
+  static list<StatusMessage> g_lstStatusMessages;
   
   
   int createContextID() {
@@ -130,6 +132,7 @@ namespace beliefstate {
     evDefault.nOriginID = -1;
     evDefault.nOpenRequestID = -1;
     evDefault.bRequest = true;
+    evDefault.bPreempt = true;
     
     return evDefault;
   }
@@ -184,5 +187,30 @@ namespace beliefstate {
     }
     
     return cdReturn;
+  }
+  
+  void queueMessage(StatusMessage msgQueue) {
+    g_mtxStatusMessages.lock();
+    g_lstStatusMessages.push_back(msgQueue);
+    g_mtxStatusMessages.unlock();
+  }
+  
+  void queueMessage(string strColorCode, bool bBold, string strPrefix, string strMessage) {
+    StatusMessage msgQueue;
+    msgQueue.strColorCode = strColorCode;
+    msgQueue.bBold = bBold;
+    msgQueue.strPrefix = strPrefix;
+    msgQueue.strMessage = strMessage;
+    
+    queueMessage(msgQueue);
+  }
+  
+  list<StatusMessage> queuedMessages() {
+    g_mtxStatusMessages.lock();
+    list<StatusMessage> lstMessages = g_lstStatusMessages;
+    g_lstStatusMessages.clear();
+    g_mtxStatusMessages.unlock();
+    
+    return lstMessages;
   }
 }

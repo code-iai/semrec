@@ -175,6 +175,13 @@ namespace beliefstate {
 	  itEvt++) {
 	m_resCycleResult.lstServiceEvents.push_back(*itEvt);
       }
+      
+      for(list<StatusMessage>::iterator itSM = resCycle.lstStatusMessages.begin();
+	  itSM != resCycle.lstStatusMessages.end();
+	  itSM++) {
+	m_resCycleResult.lstStatusMessages.push_back(*itSM);
+      }
+      
       resCycle.lstServiceEvents.clear();
       m_mtxCycleResults.unlock();
     }

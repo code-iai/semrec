@@ -282,6 +282,12 @@ namespace beliefstate {
       PluginInstance* icCurrent = *itPlugin;
       Result resCurrent = icCurrent->cycle();
       
+      for(list<StatusMessage>::iterator itSM = resCurrent.lstStatusMessages.begin();
+	  itSM != resCurrent.lstStatusMessages.end();
+	  itSM++) {
+	resCycle.lstStatusMessages.push_back(*itSM);
+      }
+      
       if(resCurrent.bSuccess == false) {
 	// NOTE(winkler): This might also be a good place to implement
 	// a recovery mechanism in case a plugin actually fails during

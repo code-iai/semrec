@@ -43,7 +43,7 @@
 namespace beliefstate {
   namespace plugins {
     Plugin::Plugin() {
-      m_nID = createPluginID();
+      this->setPluginID(createPluginID());
       m_bRunCycle = true;
       m_bDevelopmentPlugin = false;
       m_strVersion = "";
@@ -67,6 +67,13 @@ namespace beliefstate {
     
     void Plugin::setPluginID(int nID) {
       m_nID = nID;
+      
+      stringstream sts;
+      sts << this->pluginName();
+      sts << "/";
+      sts << this->pluginID();
+      
+      this->setMessagePrefixLabel(sts.str());
     }
     
     int Plugin::pluginID() {
@@ -170,6 +177,8 @@ namespace beliefstate {
       m_lstServiceEvents.clear();
       m_mtxServiceEventsStore.unlock();
       
+      //resDeployTo.lstStatusMessages = this->queuedMessages();
+      
       usleep(1000);
     }
     
@@ -195,6 +204,8 @@ namespace beliefstate {
     
     void Plugin::setPluginName(string strName) {
       m_strName = strName;
+      
+      this->setPluginID(m_nID);
     }
     
     string Plugin::pluginName() {
@@ -219,13 +230,13 @@ namespace beliefstate {
       return sts.str();
     }
     
-    void Plugin::warn(string strMessage) {
-      cerr << this->pluginIdentifierString(true) << " " << strMessage << normalColorSpecifier() << endl;
-    }
+    // void Plugin::warn(string strMessage) {
+    //   cerr << this->pluginIdentifierString(true) << " " << strMessage << normalColorSpecifier() << endl;
+    // }
     
-    void Plugin::info(string strMessage) {
-      cout << this->pluginIdentifierString(false) << " " << strMessage << normalColorSpecifier() << endl;
-    }
+    // void Plugin::info(string strMessage) {
+    //   cout << this->pluginIdentifierString(false) << " " << strMessage << normalColorSpecifier() << endl;
+    // }
     
     void Plugin::unimplemented(string strMessage) {
       cout << this->pluginIdentifierString(false) << " NOT IMPLEMENTED: " << strMessage << normalColorSpecifier() << endl;

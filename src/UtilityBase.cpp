@@ -56,24 +56,24 @@ namespace beliefstate {
     return m_strMessagePrefixLabel;
   }
   
-  void UtilityBase::info(string strMessage) {
-    cout << "[ " << m_strMessagePrefixLabel << " ] " << strMessage << endl;
+  void UtilityBase::coloredText(string strText, string strColorValue, bool bBold) {
+    queueMessage(strColorValue, bBold, this->messagePrefixLabel(), strText);
   }
   
-  void UtilityBase::coloredText(string strText, string strColorValue, bool bBold) {
-    cout << "\033[" << (bBold ? "1" : "0") << ";" << strColorValue << "m" << strText << "\033[0m" << endl;
+  void UtilityBase::info(string strMessage) {
+    this->coloredText(strMessage, "37");
   }
   
   void UtilityBase::success(string strMessage) {
-    this->coloredText("[ " + m_strMessagePrefixLabel + " ] " + strMessage, "32");
+    this->coloredText(strMessage, "32");
   }
   
   void UtilityBase::warn(string strMessage) {
-    this->coloredText("[ " + m_strMessagePrefixLabel + " ] " + strMessage, "33", true);
+    this->coloredText(strMessage, "33", true);
   }
   
   void UtilityBase::fail(string strMessage) {
-    this->coloredText("[ " + m_strMessagePrefixLabel + " ] " + strMessage, "31", true);
+    this->coloredText(strMessage, "31", true);
   }
   
   bool UtilityBase::fileExists(string strFileName) {

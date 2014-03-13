@@ -46,6 +46,10 @@
 #include <string>
 #include <fstream>
 
+// Private
+#include <Types.h>
+#include <ForwardDeclarations.h>
+
 using namespace std;
 
 

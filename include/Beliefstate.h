@@ -223,6 +223,8 @@ namespace beliefstate {
       Returns whatever is stored in the environmental variable
       '${HOME}'. */
     string homeDirectory();
+    
+    bool handleUnhandledEvent(Event evEvent);
   };
 }
 

@@ -123,8 +123,10 @@ int main(int argc, char** argv) {
     
     cout << "\r";
     bsBeliefstate->info("Exiting gracefully.");
+    bsBeliefstate->cycle();
     
     bsBeliefstate->deinit();
+    bsBeliefstate->cycle();
     
     delete bsBeliefstate;
   }

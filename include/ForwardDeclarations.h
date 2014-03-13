@@ -77,6 +77,10 @@ namespace beliefstate {
   
   // Per-Plugin configuration space accessor function
   CDesignator* getPluginConfig(string strPluginName);
+  
+  void queueMessage(StatusMessage msgQueue);
+  void queueMessage(string strColorCode, bool bBold, string strPrefix, string strMessage);
+  list<StatusMessage> queuedMessages();
 }
 
 

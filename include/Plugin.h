@@ -51,13 +51,14 @@
 // Private
 #include <Types.h>
 #include <ForwardDeclarations.h>
+#include <UtilityBase.h>
 
 using namespace std;
 
 
 namespace beliefstate {
   namespace plugins {
-    class Plugin {
+    class Plugin : public UtilityBase {
     private:
       list<string> m_lstDependencies;
       string m_strName;
@@ -117,8 +118,8 @@ namespace beliefstate {
       void deployServiceEvent(ServiceEvent seDeploy);
       
       string pluginIdentifierString(bool bBold);
-      void warn(string strMessage);
-      void info(string strMessage);
+      /* void warn(string strMessage); */
+      /* void info(string strMessage); */
       void unimplemented(string strMessage);
       
       int getTimeStamp();

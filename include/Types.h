@@ -76,6 +76,13 @@ namespace beliefstate {
   } ResultIdentifier;
   
   typedef struct {
+    string strColorCode;
+    bool bBold;
+    string strPrefix;
+    string strMessage;
+  } StatusMessage;
+  
+  typedef struct {
     string strEventName;
     int nContextID;
     CDesignator* cdDesignator;
@@ -84,6 +91,8 @@ namespace beliefstate {
     int nOriginID;
     int nOpenRequestID;
     bool bRequest;
+    bool bPreempt;
+    StatusMessage msgStatusMessage;
     list<Node*> lstNodes;
     list< pair<string, string> > lstDesignatorIDs;
     list< pair<string, string> > lstEquations;
@@ -109,6 +118,9 @@ namespace beliefstate {
     
     // In case of failure
     string strErrorMessage;
+    
+    // Status message that were collected
+    list<StatusMessage> lstStatusMessages;
   } Result;
   
   typedef struct {
