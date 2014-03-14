@@ -47,6 +47,7 @@
 #include <list>
 #include <string>
 #include <libconfig.h++>
+#include <mutex>
 
 // ROS
 #include <ros/package.h>
@@ -101,6 +102,8 @@ namespace beliefstate {
         if not empty, takes precedence over the dynamically resolved
         return value of workspaceDirectory(). */
     string m_strWorkspaceDirectory;
+    mutex m_mtxTerminalResize;
+    bool m_bTerminalWindowResize;
     
   public:
     /*! \brief Constructor of the main belief state system class.
@@ -189,6 +192,7 @@ namespace beliefstate {
       main loop cycle() method stop execution and return from its
       blocking call. */
     void triggerShutdown();
+    void triggerTerminalResize();
     
     void setBaseDataDirectory(string strBaseDataDirectory);
     string baseDataDirectory();

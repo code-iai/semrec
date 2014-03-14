@@ -47,6 +47,7 @@ namespace beliefstate {
     m_argc = argc;
     m_argv = argv;
     m_strWorkspaceDirectory = "";
+    m_bTerminalWindowResize = false;
     
     this->setMessagePrefixLabel("core");
   }
@@ -514,6 +515,17 @@ namespace beliefstate {
 	    delete seServiceEvent.cdDesignator;
 	  }
 	}
+	
+	// Special events
+	m_mtxTerminalResize.lock();
+	bool bTerminalWindowResize = m_bTerminalWindowResize;
+	m_bTerminalWindowResize = false;
+	m_mtxTerminalResize.unlock();
+	
+	if(bTerminalWindowResize) {
+	  Event evResize = defaultEvent("resize-terminal-window");
+	  this->spreadEvent(evResize);
+	}
       }
       
       usleep(1000);
@@ -537,6 +549,12 @@ namespace beliefstate {
   
   void Beliefstate::triggerShutdown() {
     m_bRun = false;
+  }
+  
+  void Beliefstate::triggerTerminalResize() {
+    m_mtxTerminalResize.lock();
+    m_bTerminalWindowResize = true;
+    m_mtxTerminalResize.unlock();
   }
   
   void Beliefstate::setBaseDataDirectory(string strBaseDataDirectory) {

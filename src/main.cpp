@@ -53,6 +53,11 @@ using namespace std;
 using namespace beliefstate;
 
 
+// Storage of former signal handlers
+typedef void (*Handler)(int signum);
+Handler hdlrOldSIGWINCH = SIG_IGN;
+
+
 // Global variable for shutdown triggering
 Beliefstate* bsBeliefstate;
 
@@ -68,16 +73,29 @@ void printHelp(string strExecutableName) {
   cout << "Should any questions arise, feel free to send an email to winkler@cs.uni-bremen.de" << endl;
 }
 
-void catchSIGTERMandSIGINT(int nSignum) {
-  bsBeliefstate->triggerShutdown();
+void catchHandler(int nSignum) {
+  switch(nSignum) {
+  case SIGTERM:
+  case SIGINT: {
+    bsBeliefstate->triggerShutdown();
+  }
+    
+  case SIGWINCH: {
+    if(hdlrOldSIGWINCH != SIG_IGN && hdlrOldSIGWINCH != SIG_DFL) {
+      (*hdlrOldSIGWINCH)(SIGWINCH);
+    }
+    
+    bsBeliefstate->triggerTerminalResize();
+  }
+  }
 }
 
 int main(int argc, char** argv) {
   // Read command line parameters
   int nC, option_index = 0;
-  static struct option long_options[] = {{"config",           required_argument, 0, 'c'},
-					 {"help",             no_argument,       0, 'h'},
-					 {0,                  0,                 0, 0}};
+  static struct option long_options[] = {{"config", required_argument, 0, 'c'},
+					 {"help",   no_argument,       0, 'h'},
+					 {0,        0,                 0, 0}};
   
   string strConfigFile = "";
   bool bQuit = false;
@@ -110,10 +128,13 @@ int main(int argc, char** argv) {
       // in the Beliefstate instance.
       struct sigaction action;
       memset(&action, 0, sizeof(struct sigaction));
-      action.sa_handler = catchSIGTERMandSIGINT;
+      action.sa_handler = catchHandler;
       sigaction(SIGTERM, &action, NULL);
       sigaction(SIGINT, &action, NULL);
-    
+      
+      hdlrOldSIGWINCH = signal(SIGWINCH, SIG_IGN);
+      sigaction(SIGWINCH, &action, NULL);
+      
       while(bsBeliefstate->cycle()) {
 	// Idle here at will.
       }
