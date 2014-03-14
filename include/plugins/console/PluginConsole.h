@@ -50,6 +50,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <ncurses.h>
+#include <mutex>
 
 // Private
 #include <Types.h>
@@ -63,10 +64,15 @@ namespace beliefstate {
   namespace plugins {
     class PLUGIN_CLASS : public Plugin {
     private:
-      WINDOW *m_winMain;
-      WINDOW *m_winLog;
       int m_nScreenHeight;
       int m_nScreenWidth;
+      map<string, short> m_mapColors;
+      bool m_bNeedsRedisplay;
+      mutex m_mtxRedisplay;
+      int m_nTime;
+      list<StatusMessage> m_lstStatusMessages;
+      WINDOW* m_winMain;
+      WINDOW* m_winLog;
 
     public:
       PLUGIN_CLASS();
@@ -84,6 +90,12 @@ namespace beliefstate {
       virtual Result cycle();
       
       virtual void consumeEvent(Event evEvent);
+      
+      void registerColor(string strColorCode, short sColor);
+      short colorNumber(string strColorCode);
+      
+      void setNeedsRedisplay();
+      bool needsRedisplay();
     };
   }
   

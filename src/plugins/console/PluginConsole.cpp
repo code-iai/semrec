@@ -44,6 +44,11 @@ namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       this->setPluginVersion("0.1");
+      
+      m_nScreenWidth = 1;
+      m_nScreenHeight = 1;
+      
+      m_bNeedsRedisplay = false;
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {
@@ -53,21 +58,34 @@ namespace beliefstate {
       Result resInit = defaultResult();
       
       this->initCurses();
-      this->printInterface();
       
       this->setSubscribedToEvent("status-message", true);
+      this->setNeedsRedisplay();
       
       return resInit;
     }
     
     void PLUGIN_CLASS::initCurses() {
+      setlocale(LC_ALL, "");
+      
       m_winMain = initscr();
-      m_winLog = newwin(4, 4, 1, 1);
+      start_color();
       
       noecho();
       keypad(m_winMain, true);
-      scrollok(m_winMain, true);
+      scrollok(m_winMain, false);
       timeout(0.01);
+      
+      m_winLog = newwin(1, 1, 1, 1);
+      
+      this->registerColor("30", COLOR_BLACK);
+      this->registerColor("31", COLOR_RED);
+      this->registerColor("32", COLOR_GREEN);
+      this->registerColor("33", COLOR_YELLOW);
+      this->registerColor("34", COLOR_BLUE);
+      this->registerColor("35", COLOR_MAGENTA);
+      this->registerColor("36", COLOR_CYAN);
+      this->registerColor("37", COLOR_WHITE);
     }
     
     void PLUGIN_CLASS::deinitCurses() {
@@ -77,22 +95,41 @@ namespace beliefstate {
     void PLUGIN_CLASS::printInterface() {
       box(m_winMain, 0, 0);
       
+      int nLine = 0;
+      for(list<StatusMessage>::iterator itSM = m_lstStatusMessages.begin();
+      	  itSM != m_lstStatusMessages.end();
+      	  ++itSM, nLine++) {
+      	StatusMessage msgStatus = *itSM;
+      	short sColor = this->colorNumber(msgStatus.strColorCode);
+	
+      	if(sColor != -1) {
+      	  wattron(m_winLog, COLOR_PAIR(sColor));
+      	}
+	
+	string strPrint = "[ " + msgStatus.strPrefix + " ] " + msgStatus.strMessage;
+	mvwaddstr(m_winLog, nLine, 0, strPrint.c_str());
+	
+      	if(sColor != -1) {
+      	  wattroff(m_winLog, COLOR_PAIR(sColor));
+      	}
+      }
+      
       wrefresh(m_winMain);
       wrefresh(m_winLog);
     }
     
     bool PLUGIN_CLASS::checkScreenSize() {
-      int nScreenWidth, nScreenHeight;
+      int nScreenWidth = 0, nScreenHeight = 0;
       
-      getmaxyx(stdscr, nScreenHeight, nScreenWidth);
+      getmaxyx(m_winMain, nScreenHeight, nScreenWidth);
       
       if(nScreenWidth != m_nScreenWidth || nScreenHeight != m_nScreenHeight) {
 	// Screen size changed
 	m_nScreenWidth = nScreenWidth;
 	m_nScreenHeight = nScreenHeight;
 	
-	wresize(m_winMain, m_nScreenHeight, m_nScreenWidth);
 	wresize(m_winLog, m_nScreenHeight - 2, m_nScreenWidth - 2);
+	wresize(m_winMain, m_nScreenHeight, m_nScreenWidth);
 	
 	return true;
       }
@@ -110,6 +147,10 @@ namespace beliefstate {
       Result resCycle = defaultResult();
       
       if(this->checkScreenSize()) {
+	this->setNeedsRedisplay();
+      }
+      
+      if(this->needsRedisplay()) {
 	this->printInterface();
       }
       
@@ -119,7 +160,41 @@ namespace beliefstate {
     }
     
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
-      // Handle events here.
+      if(evEvent.strEventName == "status-message") {
+	m_lstStatusMessages.push_back(evEvent.msgStatusMessage);
+	this->setNeedsRedisplay();
+      }
+    }
+    
+    void PLUGIN_CLASS::registerColor(string strColorCode, short sColor) {
+      short sPair = m_mapColors.size() + 1;
+      init_pair(sPair, sColor, COLOR_BLACK);
+      m_mapColors[strColorCode] = sPair;
+    }
+    
+    short PLUGIN_CLASS::colorNumber(string strColorCode) {
+      map<string, short>::iterator itEntry = m_mapColors.find(strColorCode);
+      
+      if(itEntry != m_mapColors.end()) {
+	return (*itEntry).second;
+      }
+      
+      return -1;
+    }
+    
+    void PLUGIN_CLASS::setNeedsRedisplay() {
+      m_mtxRedisplay.lock();
+      m_bNeedsRedisplay = true;
+      m_mtxRedisplay.unlock();
+    }
+    
+    bool PLUGIN_CLASS::needsRedisplay() {
+      m_mtxRedisplay.lock();
+      bool bRedisplay = m_bNeedsRedisplay;
+      m_bNeedsRedisplay = false;
+      m_mtxRedisplay.unlock();
+      
+      return bRedisplay;
     }
   }
   

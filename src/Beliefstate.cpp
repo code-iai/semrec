@@ -432,7 +432,7 @@ namespace beliefstate {
       
       if(!this->handleUnhandledEvent(evEvent)) {
 	if(!evEvent.bPreempt) {
-	  m_lstGlobalEvents.push_back(evEvent);
+	  //m_lstGlobalEvents.push_back(evEvent);
 	}
       }
     }
