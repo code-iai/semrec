@@ -96,6 +96,9 @@ namespace beliefstate {
     }
     
     void PLUGIN_CLASS::printInterface() {
+      wclrtobot(m_winMain);
+      wclrtobot(m_winLog);
+      
       box(m_winMain, 0, 0);
       
       int nLine = 0;
