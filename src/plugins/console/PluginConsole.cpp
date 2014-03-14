@@ -60,6 +60,9 @@ namespace beliefstate {
       this->initCurses();
       
       this->setSubscribedToEvent("status-message", true);
+      this->setSubscribedToEvent("resize-terminal-window", true);
+      
+      this->checkScreenSize();
       this->setNeedsRedisplay();
       
       return resInit;
@@ -121,7 +124,8 @@ namespace beliefstate {
     bool PLUGIN_CLASS::checkScreenSize() {
       int nScreenWidth = 0, nScreenHeight = 0;
       
-      getmaxyx(m_winMain, nScreenHeight, nScreenWidth);
+      wrefresh(stdscr);
+      getmaxyx(stdscr, nScreenHeight, nScreenWidth);
       
       if(nScreenWidth != m_nScreenWidth || nScreenHeight != m_nScreenHeight) {
 	// Screen size changed
@@ -146,10 +150,6 @@ namespace beliefstate {
     Result PLUGIN_CLASS::cycle() {
       Result resCycle = defaultResult();
       
-      if(this->checkScreenSize()) {
-	this->setNeedsRedisplay();
-      }
-      
       if(this->needsRedisplay()) {
 	this->printInterface();
       }
@@ -163,6 +163,10 @@ namespace beliefstate {
       if(evEvent.strEventName == "status-message") {
 	m_lstStatusMessages.push_back(evEvent.msgStatusMessage);
 	this->setNeedsRedisplay();
+      } else if(evEvent.strEventName == "resize-terminal-window") {
+	if(this->checkScreenSize()) {
+	  this->setNeedsRedisplay();
+	}
       }
     }
     
