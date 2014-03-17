@@ -182,7 +182,7 @@ namespace beliefstate {
       \param replace The string to use as a replacement */
     void replaceStringInPlace(string& subject, const string& search, const string& replace);
     
-    void spreadEvent(Event evEvent);
+    bool spreadEvent(Event evEvent);
     void spreadServiceEvent(ServiceEvent seServiceEvent);
     bool cycle();
     

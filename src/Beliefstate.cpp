@@ -424,7 +424,7 @@ namespace beliefstate {
     }
   }
   
-  void Beliefstate::spreadEvent(Event evEvent) {
+  bool Beliefstate::spreadEvent(Event evEvent) {
     if(m_psPlugins->spreadEvent(evEvent) == 0) {
       ConfigSettings cfgSet = configSettings();
       if(cfgSet.bDisplayUnhandledEvents) {
@@ -441,7 +441,11 @@ namespace beliefstate {
 	  //m_lstGlobalEvents.push_back(evEvent);
 	}
       }
+      
+      return false; // Event was not received
     }
+    
+    return true; // Event was received by some entity (e.g. plugin)
   }
   
   void Beliefstate::spreadServiceEvent(ServiceEvent seServiceEvent) {
@@ -480,7 +484,9 @@ namespace beliefstate {
 	evEvent.msgStatusMessage = *itSM;
 	evEvent.bPreempt = false;
 	
-	this->spreadEvent(evEvent);
+	if(this->spreadEvent(evEvent)) {
+	  this->setRedirectOutput(true);
+	}
       }
       
       for(list<Event>::iterator itEv = m_lstGlobalEvents.begin();
