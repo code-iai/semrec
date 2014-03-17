@@ -56,6 +56,7 @@ using namespace std;
 namespace beliefstate {
   class UtilityBase {
   private:
+    static bool m_bRedirectOutput;
     string m_strMessagePrefixLabel;
     
   public:
@@ -74,6 +75,9 @@ namespace beliefstate {
     bool fileExists(string strFileName);
     
     string stripPostfix(string strString, string strPostfix);
+    
+    void outputColoredStatusMessage(StatusMessage msgStatus);
+    void setRedirectOutput(bool bRedirect);
   };
 }
 

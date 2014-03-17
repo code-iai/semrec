@@ -79,7 +79,7 @@ namespace beliefstate {
   CDesignator* getPluginConfig(string strPluginName);
   
   void queueMessage(StatusMessage msgQueue);
-  void queueMessage(string strColorCode, bool bBold, string strPrefix, string strMessage);
+  StatusMessage queueMessage(string strColorCode, bool bBold, string strPrefix, string strMessage);
   list<StatusMessage> queuedMessages();
 }
 

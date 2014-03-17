@@ -48,6 +48,7 @@ namespace beliefstate {
     m_argv = argv;
     m_strWorkspaceDirectory = "";
     m_bTerminalWindowResize = false;
+    this->setRedirectOutput(false);
     
     this->setMessagePrefixLabel("core");
   }
@@ -94,6 +95,10 @@ namespace beliefstate {
     }
     
     if(bConfigLoaded) {
+      // Messages are distributed through the event system from now
+      // on.
+      this->setRedirectOutput(true);
+      
       // Set the global PluginSystem settings.
       ConfigSettings cfgsetCurrent = configSettings();
       m_psPlugins->setLoadDevelopmentPlugins(cfgsetCurrent.bLoadDevelopmentPlugins);
@@ -713,9 +718,7 @@ namespace beliefstate {
   bool Beliefstate::handleUnhandledEvent(Event evEvent) {
     if(evEvent.strEventName == "status-message") {
       StatusMessage msgStatus = evEvent.msgStatusMessage;
-      
-      cout << "\033[" << (msgStatus.bBold ? "1" : "0") << ";" << msgStatus.strColorCode << "m"
-	   << "[ " << msgStatus.strPrefix << " ] " << msgStatus.strMessage << "\033[0m" << endl;
+      this->setRedirectOutput(false);
       
       return true;
     }

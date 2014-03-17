@@ -41,8 +41,12 @@
 
 
 namespace beliefstate {
+  bool UtilityBase::m_bRedirectOutput;
+  
+  
   UtilityBase::UtilityBase() {
     m_strMessagePrefixLabel = "";
+    m_bRedirectOutput = false;
   }
   
   UtilityBase::~UtilityBase() {
@@ -57,7 +61,11 @@ namespace beliefstate {
   }
   
   void UtilityBase::coloredText(string strText, string strColorValue, bool bBold) {
-    queueMessage(strColorValue, bBold, this->messagePrefixLabel(), strText);
+    StatusMessage msgStatus = queueMessage(strColorValue, bBold, this->messagePrefixLabel(), strText);
+    
+    if(!m_bRedirectOutput) {
+      this->outputColoredStatusMessage(msgStatus);
+    }
   }
   
   void UtilityBase::info(string strMessage) {
@@ -96,5 +104,14 @@ namespace beliefstate {
     }
     
     return strString;
+  }
+  
+  void UtilityBase::outputColoredStatusMessage(StatusMessage msgStatus) {
+    cout << "\033[" << (msgStatus.bBold ? "1" : "0") << ";" << msgStatus.strColorCode << "m"
+	 << "[ " << msgStatus.strPrefix << " ] " << msgStatus.strMessage << "\033[0m" << endl;
+  }
+  
+  void UtilityBase::setRedirectOutput(bool bRedirect) {
+    m_bRedirectOutput = bRedirect;
   }
 }

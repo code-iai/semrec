@@ -195,7 +195,7 @@ namespace beliefstate {
     g_mtxStatusMessages.unlock();
   }
   
-  void queueMessage(string strColorCode, bool bBold, string strPrefix, string strMessage) {
+  StatusMessage queueMessage(string strColorCode, bool bBold, string strPrefix, string strMessage) {
     StatusMessage msgQueue;
     msgQueue.strColorCode = strColorCode;
     msgQueue.bBold = bBold;
@@ -203,6 +203,8 @@ namespace beliefstate {
     msgQueue.strMessage = strMessage;
     
     queueMessage(msgQueue);
+    
+    return msgQueue;
   }
   
   list<StatusMessage> queuedMessages() {
