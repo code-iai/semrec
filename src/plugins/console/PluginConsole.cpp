@@ -112,9 +112,10 @@ namespace beliefstate {
       
       int nLine = 0;
       list<StatusMessage>::iterator itSM = m_lstStatusMessages.begin();
+      int nDiff = m_lstStatusMessages.size() - (m_nScreenHeight - 2);
       
-      if(m_lstStatusMessages.size() - (m_nScreenHeight - 2) > 0) {
-	advance(itSM, m_lstStatusMessages.size() - (m_nScreenHeight - 2));
+      if(nDiff > 0) {
+	advance(itSM, nDiff);
       }
       
       for(; itSM != m_lstStatusMessages.end();
@@ -127,6 +128,8 @@ namespace beliefstate {
       	}
 	
 	string strPrint = "[ " + msgStatus.strPrefix + " ] " + msgStatus.strMessage;
+	move(nLine, 0);
+	wclrtoeol(m_winLog);
 	mvwaddstr(m_winLog, nLine, 0, strPrint.c_str());
 	
       	if(sColor != -1) {
