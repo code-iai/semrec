@@ -81,6 +81,7 @@ namespace beliefstate {
       keypad(m_winMain, true);
       scrollok(m_winMain, false);
       timeout(0.01);
+      curs_set(0);
       
       m_winLog = newwin(1, 1, 1, 1);
       
