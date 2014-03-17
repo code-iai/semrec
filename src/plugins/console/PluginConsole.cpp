@@ -48,7 +48,10 @@ namespace beliefstate {
       m_nScreenWidth = 1;
       m_nScreenHeight = 1;
       
+      m_bFirstDisplay = true;
       m_bNeedsRedisplay = false;
+      
+      m_nBufferLineSize = 500;
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {
@@ -96,14 +99,25 @@ namespace beliefstate {
     }
     
     void PLUGIN_CLASS::printInterface() {
+      if(m_bFirstDisplay) {
+	clear();
+	m_bFirstDisplay = false;
+      }
+      
+      wclrtobot(stdscr);
       wclrtobot(m_winMain);
       wclrtobot(m_winLog);
       
       box(m_winMain, 0, 0);
       
       int nLine = 0;
-      for(list<StatusMessage>::iterator itSM = m_lstStatusMessages.begin();
-      	  itSM != m_lstStatusMessages.end();
+      list<StatusMessage>::iterator itSM = m_lstStatusMessages.begin();
+      
+      if(m_lstStatusMessages.size() - (m_nScreenHeight - 2) > 0) {
+	advance(itSM, m_lstStatusMessages.size() - (m_nScreenHeight - 2));
+      }
+      
+      for(; itSM != m_lstStatusMessages.end();
       	  ++itSM, nLine++) {
       	StatusMessage msgStatus = *itSM;
       	short sColor = this->colorNumber(msgStatus.strColorCode);
@@ -165,6 +179,11 @@ namespace beliefstate {
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "status-message") {
 	m_lstStatusMessages.push_back(evEvent.msgStatusMessage);
+	
+	while(m_lstStatusMessages.size() > m_nBufferLineSize) {
+	  m_lstStatusMessages.pop_front();
+	}
+	
 	this->setNeedsRedisplay();
       } else if(evEvent.strEventName == "resize-terminal-window") {
 	if(this->checkScreenSize()) {

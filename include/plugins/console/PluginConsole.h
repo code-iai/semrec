@@ -51,6 +51,7 @@
 #include <sys/types.h>
 #include <ncurses.h>
 #include <mutex>
+#include <algorithm>
 
 // Private
 #include <Types.h>
@@ -69,10 +70,11 @@ namespace beliefstate {
       map<string, short> m_mapColors;
       bool m_bNeedsRedisplay;
       mutex m_mtxRedisplay;
-      int m_nTime;
+      bool m_bFirstDisplay;
       list<StatusMessage> m_lstStatusMessages;
       WINDOW* m_winMain;
       WINDOW* m_winLog;
+      int m_nBufferLineSize;
 
     public:
       PLUGIN_CLASS();
