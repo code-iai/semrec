@@ -474,6 +474,10 @@ namespace beliefstate {
 	      strDesigPurpose = "goalPose";
 	    } else if(strAnnotation == "grasp-details") {
 	      strDesigPurpose = "graspDetails";
+	    } else if(strAnnotation == "with-failure-handling-clauses") {
+	      strDesigPurpose = "failureHandlingClauses";
+	    } else if(strAnnotation == "with-policy-details") {
+	      strDesigPurpose = "policyDetails";
 	    } else {
 	      strDesigPurpose = "designator";
 	    }
@@ -770,6 +774,10 @@ namespace beliefstate {
       strClass = "ArmMovement";
     } else if(strName == "VOLUNTARY-BODY-MOVEMENT-HEAD") {
       strClass = "HeadMovement";
+    } else if(strName == "WITH-FAILURE-HANDLING") {
+      strClass = "WithFailureHandling";
+    } else if(strName == "WITH-POLICY") {
+      strClass = "WithPolicy";
     }
     
     return (bClassOnly ? "" : strPrefix) + (bPrologSyntax ? "'" + strClass + "'" : strClass);
