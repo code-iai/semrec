@@ -118,8 +118,6 @@ namespace beliefstate {
       void deployServiceEvent(ServiceEvent seDeploy);
       
       string pluginIdentifierString(bool bBold);
-      /* void warn(string strMessage); */
-      /* void info(string strMessage); */
       void unimplemented(string strMessage);
       
       int getTimeStamp();
@@ -133,6 +131,11 @@ namespace beliefstate {
       bool running();
       
       void waitForEvent(Event evWait);
+      
+      void success(string strMessage);
+      void info(string strMessage);
+      void warn(string strMessage);
+      void fail(string strMessage);
     };
   }
 }

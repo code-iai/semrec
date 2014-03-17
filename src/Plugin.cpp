@@ -299,5 +299,21 @@ namespace beliefstate {
 	}
       }
     }
+    
+    void Plugin::success(string strMessage) {
+      this->coloredText(strMessage, colorSpecifierForID(this->pluginID()));
+    }
+    
+    void Plugin::info(string strMessage) {
+      this->coloredText(strMessage, colorSpecifierForID(this->pluginID()));
+    }
+    
+    void Plugin::warn(string strMessage) {
+      this->coloredText(strMessage, colorSpecifierForID(this->pluginID()), true);
+    }
+    
+    void Plugin::fail(string strMessage) {
+      this->coloredText(strMessage, colorSpecifierForID(this->pluginID()), true);
+    }
   }
 }

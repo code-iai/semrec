@@ -68,7 +68,7 @@ namespace beliefstate {
   void freePluginID(int nID);
   
   // Output specific functions
-  string colorSpecifierForID(int nID, bool bBold);
+  string colorSpecifierForID(int nID, bool bBold = false);
   string normalColorSpecifier();
   
   // Global config settings specific functions

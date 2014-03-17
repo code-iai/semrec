@@ -67,10 +67,10 @@ namespace beliefstate {
     string messagePrefixLabel();
     
     void coloredText(string strText, string strColorValue, bool bBold = false);
-    void success(string strMessage);
-    void info(string strMessage);
-    void warn(string strMessage);
-    void fail(string strMessage);
+    virtual void success(string strMessage);
+    virtual void info(string strMessage);
+    virtual void warn(string strMessage);
+    virtual void fail(string strMessage);
     
     bool fileExists(string strFileName);
     

@@ -154,7 +154,7 @@ namespace beliefstate {
     int nLength = cfgSet.vecPluginOutputColors.size();
     int nUseIndex = (nID + 3) % nLength;
     
-    return "\033[" + string(bBold ? "1" : "0") + ";" + cfgSet.vecPluginOutputColors[nUseIndex] + "m";
+    return cfgSet.vecPluginOutputColors[nUseIndex];
   }
   
   string normalColorSpecifier() {
