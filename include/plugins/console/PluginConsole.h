@@ -72,6 +72,7 @@ namespace beliefstate {
       mutex m_mtxRedisplay;
       bool m_bFirstDisplay;
       list<StatusMessage> m_lstStatusMessages;
+      mutex m_mtxStatusMessages;
       WINDOW* m_winMain;
       WINDOW* m_winLog;
       int m_nBufferLineSize;

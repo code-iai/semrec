@@ -111,6 +111,8 @@ namespace beliefstate {
       
       box(m_winMain, 0, 0);
       
+      m_mtxStatusMessages.lock();
+      
       int nLine = 0;
       list<StatusMessage>::iterator itSM = m_lstStatusMessages.begin();
       int nDiff = m_lstStatusMessages.size() - (m_nScreenHeight - 2);
@@ -137,6 +139,8 @@ namespace beliefstate {
       	  wattroff(m_winLog, COLOR_PAIR(sColor));
       	}
       }
+      
+      m_mtxStatusMessages.unlock();
       
       wrefresh(m_winMain);
       wrefresh(m_winLog);
@@ -182,11 +186,14 @@ namespace beliefstate {
     
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "status-message") {
+	m_mtxStatusMessages.lock();
 	m_lstStatusMessages.push_back(evEvent.msgStatusMessage);
 	
 	while(m_lstStatusMessages.size() > m_nBufferLineSize) {
 	  m_lstStatusMessages.pop_front();
 	}
+	
+	m_mtxStatusMessages.unlock();
 	
 	this->setNeedsRedisplay();
       } else if(evEvent.strEventName == "resize-terminal-window") {
