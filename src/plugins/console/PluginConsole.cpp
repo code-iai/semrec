@@ -100,6 +100,8 @@ namespace beliefstate {
     }
     
     void PLUGIN_CLASS::printInterface() {
+      m_mtxStatusMessages.lock();
+      
       if(m_bFirstDisplay) {
 	clear();
 	m_bFirstDisplay = false;
@@ -111,18 +113,42 @@ namespace beliefstate {
       
       box(m_winMain, 0, 0);
       
-      m_mtxStatusMessages.lock();
+      int nLogWidth = max(4, m_nScreenWidth - 2);
+      int nLogHeight = max(1, m_nScreenHeight - 2);
+      
+      int nLinesUsed = 0;
+      int nReverseIndex = 0;
+      for(list<StatusMessage>::reverse_iterator itSMr = m_lstStatusMessages.rbegin();
+	  itSMr != m_lstStatusMessages.rend(); itSMr++) {
+	StatusMessage msgStatus = *itSMr;
+	string strStatus = "[ " + msgStatus.strPrefix + " ] " + msgStatus.strMessage;
+	int nLinesPerLine = 1;
+	
+	while(strStatus.length() > nLogWidth) {
+	  strStatus = strStatus.substr(nLogWidth);
+	  strStatus += "   ";
+	  
+	  nLinesPerLine++;
+	}
+	
+	if(nLinesUsed + nLinesPerLine > nLogHeight) {
+	  break;
+	}
+	
+	nLinesUsed += nLinesPerLine;
+	nReverseIndex++;
+      }
       
       int nLine = 0;
       list<StatusMessage>::iterator itSM = m_lstStatusMessages.begin();
-      int nDiff = m_lstStatusMessages.size() - (m_nScreenHeight - 2);
+      int nDiff = m_lstStatusMessages.size() - nReverseIndex;
       
       if(nDiff > 0) {
 	advance(itSM, nDiff);
       }
       
       for(; itSM != m_lstStatusMessages.end();
-      	  ++itSM, nLine++) {
+      	  ++itSM) {
       	StatusMessage msgStatus = *itSM;
       	short sColor = this->colorNumber(msgStatus.strColorCode);
 	
@@ -131,24 +157,38 @@ namespace beliefstate {
       	}
 	
 	string strPrint = "[ " + msgStatus.strPrefix + " ] " + msgStatus.strMessage;
-	move(nLine, 0);
-	wclrtoeol(m_winLog);
-	mvwaddstr(m_winLog, nLine, 0, strPrint.c_str());
+	
+	while(strPrint.length() > 0) {
+	  move(nLine, 0);
+	  wclrtoeol(m_winLog);
+	  
+	  int nLen = (strPrint.length() > nLogWidth ? nLogWidth : strPrint.length());
+	  mvwaddstr(m_winLog, nLine, 0, strPrint.substr(0, nLen).c_str());
+	  wclrtoeol(m_winLog);
+	  strPrint = "   " + strPrint.substr(nLen);
+	  
+	  if(strPrint == "   ") {
+	    strPrint = "";
+	  }
+	  
+	  nLine++;
+	}
 	
       	if(sColor != -1) {
       	  wattroff(m_winLog, COLOR_PAIR(sColor));
       	}
       }
       
-      m_mtxStatusMessages.unlock();
-      
       wrefresh(m_winMain);
       wrefresh(m_winLog);
+      
+      m_mtxStatusMessages.unlock();
     }
     
     bool PLUGIN_CLASS::checkScreenSize() {
       int nScreenWidth = 0, nScreenHeight = 0;
       
+      m_mtxStatusMessages.lock();
       wrefresh(stdscr);
       getmaxyx(stdscr, nScreenHeight, nScreenWidth);
       
@@ -160,9 +200,12 @@ namespace beliefstate {
 	wresize(m_winLog, m_nScreenHeight - 2, m_nScreenWidth - 2);
 	wresize(m_winMain, m_nScreenHeight, m_nScreenWidth);
 	
+	
+	m_mtxStatusMessages.unlock();
 	return true;
       }
       
+      m_mtxStatusMessages.unlock();
       return false;
     }
     
