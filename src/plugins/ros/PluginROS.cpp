@@ -45,6 +45,7 @@ namespace beliefstate {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_nhHandle = NULL;
       m_aspnAsyncSpinner = NULL;
+      m_bRoslogMessages = false;
       
       this->setPluginVersion("0.9");
     }
@@ -68,6 +69,7 @@ namespace beliefstate {
       this->setSubscribedToEvent("add-image-from-topic", true);
       this->setSubscribedToEvent("symbolic-create-designator", true);
       this->setSubscribedToEvent("interactive-callback", true);
+      this->setSubscribedToEvent("status-message", true);
       
       if(!ros::ok()) {
 	string strROSNodeName = cdConfig->stringValue("node-name");
@@ -87,6 +89,17 @@ namespace beliefstate {
 	  m_srvAlterContext = m_nhHandle->advertiseService<PLUGIN_CLASS>("alter_context", &PLUGIN_CLASS::serviceCallbackAlterContext, this);
 	  m_pubLoggedDesignators = m_nhHandle->advertise<designator_integration_msgs::Designator>("/logged_designators", 1);
 	  m_pubInteractiveCallback = m_nhHandle->advertise<designator_integration_msgs::Designator>("/interactive_callback", 1);
+	  
+	  if(cdConfig->floatValue("roslog-messages") != 0) {
+	    string strTopic = cdConfig->stringValue("roslog-topic");
+	    
+	    if(strTopic != "") {
+	      m_pubStatusMessages = m_nhHandle->advertise<rosgraph_msgs::Log>(strTopic, 1);
+	      m_bRoslogMessages = true;
+	    } else {
+	      this->warn("You requested the status messages to be roslog'ged, but didn't specify a roslog topic. Ignoring the whole thing.");
+	    }
+	  }
 	  
 	  int nThreads = 4;
 	  if(cdConfig->childForKey("async-threads")) {
@@ -214,6 +227,22 @@ namespace beliefstate {
 	} else if(evEvent.strEventName == "interactive-callback") {
 	  if(evEvent.cdDesignator) {
 	    m_pubInteractiveCallback.publish(evEvent.cdDesignator->serializeToMessage());
+	  }
+	} else if(evEvent.strEventName == "status-message") {
+	  if(m_bRoslogMessages) {
+	    StatusMessage msgStatus = evEvent.msgStatusMessage;
+	    rosgraph_msgs::Log rgmLogMessage;
+	    
+	    if(msgStatus.bBold == true) {
+	      rgmLogMessage.level = rosgraph_msgs::Log::WARN;
+	    } else {
+	      rgmLogMessage.level = rosgraph_msgs::Log::INFO;
+	    }
+	    
+	    rgmLogMessage.name = msgStatus.strPrefix;
+	    rgmLogMessage.msg = msgStatus.strMessage;
+	    
+	    m_pubStatusMessages.publish(rgmLogMessage);
 	  }
 	}
       }

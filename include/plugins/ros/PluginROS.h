@@ -51,6 +51,7 @@
 
 // ROS
 #include <ros/ros.h>
+#include <rosgraph_msgs/Log.h>
 
 // Designators
 #include <designators/CDesignator.h>
@@ -74,8 +75,10 @@ namespace beliefstate {
       ros::ServiceServer m_srvAlterContext;
       ros::Publisher m_pubLoggedDesignators;
       ros::Publisher m_pubInteractiveCallback;
+      ros::Publisher m_pubStatusMessages;
       bool m_bStartedSpinning;
       ros::AsyncSpinner* m_aspnAsyncSpinner;
+      bool m_bRoslogMessages;
       
     public:
       PLUGIN_CLASS();
