@@ -42,6 +42,9 @@
 
 namespace beliefstate {
   CExporterOwl::CExporterOwl() {
+    m_strPropertyNamespace = "";
+    m_strDefaultAnnotation = "";
+    
     this->setMessagePrefixLabel("owl-exporter-aux");
   }
   
@@ -76,6 +79,60 @@ namespace beliefstate {
 		}
 	      } else {
 		this->warn("Condition mapping without 'to' field. Ignoring.");
+	      }
+	    }
+	  }
+	}
+	
+	m_lstDefinedProperties.clear();
+	m_lstAnnotationPurposeMapping.clear();
+	
+	if(cfgConfig.exists("structure")) {
+	  Setting &sStructure = cfgConfig.lookup("structure");
+	  
+	  m_strPropertyNamespace = "";
+	  if(sStructure.exists("property-namespace")) {
+	    sStructure.lookupValue("property-namespace", m_strPropertyNamespace);
+	  }
+	  
+	  if(m_strPropertyNamespace == "") {
+	    this->warn("You didn't specify the 'structure/property-namespace' parameter on the semantics descriptor file. Your OWL classes will have no namespace prepended. Is this intended?");
+	  }
+	  
+	  if(sStructure.exists("defined-properties")) {
+	    Setting &sDefinedProperties = sStructure["defined-properties"];
+	    
+	    for(int nI = 0; nI < sDefinedProperties.getLength(); nI++) {
+	      string strProperty = sDefinedProperties[nI];
+	      m_lstDefinedProperties.push_back(m_strPropertyNamespace + strProperty);
+	    }
+	  }
+	  
+	  m_strDefaultAnnotation = "";
+	  if(sStructure.exists("default-annotation-purpose")) {
+	    sStructure.lookupValue("default-annotation-purpose", m_strDefaultAnnotation);
+	  }
+	  
+	  if(m_strDefaultAnnotation == "") {
+	    this->warn("You didn't specify the 'structure/default-annotation-purpose' parameter on the semantics descriptor file. Your designator attachments without a defined annotation will be empty and produce a faulty OWL file. Is this intended?");
+	  }
+	  
+	  if(sStructure.exists("annotation-purposes")) {
+	    Setting &sPurposes = sStructure["annotation-purposes"];
+	    
+	    for(int nI = 0; nI < sPurposes.getLength(); nI++) {
+	      Setting &sPurpose = sPurposes[nI];
+	      
+	      string strFrom;
+	      string strTo;
+	      
+	      sPurpose.lookupValue("from", strFrom);
+	      sPurpose.lookupValue("to", strTo);
+	      
+	      if(strFrom != "" && strTo != "") {
+		m_lstAnnotationPurposeMapping.push_back(make_pair(strFrom, strTo));
+	      } else {
+		this->warn("Invalid annotation purpose mapping: '" + strFrom + "' -> '" + strTo + "'. Discarding.");
 	      }
 	    }
 	  }
@@ -159,27 +216,9 @@ namespace beliefstate {
 
   string CExporterOwl::generatePropertyDefinitions() {
     string strDot = "    <!-- Property Definitions -->\n\n";
-  
-    list<string> lstProperties;
-    lstProperties.push_back("&knowrob;startTime");
-    lstProperties.push_back("&knowrob;endTime");
-    lstProperties.push_back("&knowrob;previousAction"); // NOTE(winkler): was 'previousEvent'
-    lstProperties.push_back("&knowrob;nextAction"); // NOTE(winkler): was 'nextEvent'
-    lstProperties.push_back("&knowrob;subAction");
-    lstProperties.push_back("&knowrob;detectedObject");
-    lstProperties.push_back("&knowrob;objectActedOn");
-    lstProperties.push_back("&knowrob;eventFailure");
-    lstProperties.push_back("&knowrob;designator");
-    lstProperties.push_back("&knowrob;equationTime");
-    lstProperties.push_back("&knowrob;successorDesignator");
-    lstProperties.push_back("&knowrob;taskContext");
-    lstProperties.push_back("&knowrob;goalContext");
-    lstProperties.push_back("&knowrob;capturedImage");
-    lstProperties.push_back("&knowrob;rosTopic");
-    lstProperties.push_back("&knowrob;linkToImageFile");
     
-    for(list<string>::iterator itProperty = lstProperties.begin();
-	itProperty != lstProperties.end();
+    for(list<string>::iterator itProperty = m_lstDefinedProperties.begin();
+	itProperty != m_lstDefinedProperties.end();
 	itProperty++) {
       strDot += "    <owl:ObjectProperty rdf:about=\"" + *itProperty + "\"/>\n\n";
     }
@@ -474,28 +513,19 @@ namespace beliefstate {
   string CExporterOwl::resolveDesignatorAnnotationTagName(string strAnnotation) {
     string strDesigPurpose = "";
     
-    if(strAnnotation == "perception-request") {
-      strDesigPurpose = "perceptionRequest";
-    } else if(strAnnotation == "perception-result") {
-      strDesigPurpose = "perceptionResult";
-    } else if(strAnnotation == "object-acted-on") {
-      strDesigPurpose = "objectActedOn";
-    } else if(strAnnotation == "putdown-location") {
-      strDesigPurpose = "putdownLocation";
-    } else if(strAnnotation == "voluntary-movement-details") {
-      strDesigPurpose = "voluntaryMovementDetails";
-    } else if(strAnnotation == "goal-location") {
-      strDesigPurpose = "goalLocation";
-    } else if(strAnnotation == "goal-pose") {
-      strDesigPurpose = "goalPose";
-    } else if(strAnnotation == "grasp-details") {
-      strDesigPurpose = "graspDetails";
-    } else if(strAnnotation == "with-failure-handling-clauses") {
-      strDesigPurpose = "failureHandlingClauses";
-    } else if(strAnnotation == "with-policy-details") {
-      strDesigPurpose = "policyDetails";
-    } else {
-      strDesigPurpose = "designator";
+    for(list< pair<string, string> >::iterator itP = m_lstAnnotationPurposeMapping.begin();
+	itP != m_lstAnnotationPurposeMapping.end();
+	itP++) {
+      pair<string, string> prMapping = *itP;
+      
+      if(prMapping.first == strAnnotation) {
+	strDesigPurpose = prMapping.second;
+	break;
+      }
+    }
+    
+    if(strDesigPurpose == "") {
+      strDesigPurpose = m_strDefaultAnnotation;
     }
     
     return strDesigPurpose;

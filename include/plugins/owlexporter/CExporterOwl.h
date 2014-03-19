@@ -58,6 +58,10 @@ namespace beliefstate {
   private:
     list< pair<string, string> > m_lstEntities;
     list< pair<string, string> > m_lstFailureMapping;
+    list<string> m_lstDefinedProperties;
+    list< pair<string, string> > m_lstAnnotationPurposeMapping;
+    string m_strPropertyNamespace;
+    string m_strDefaultAnnotation;
     
     void addEntity(string strNickname, string strNamespace);
     
