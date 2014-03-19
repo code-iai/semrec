@@ -96,6 +96,7 @@ namespace beliefstate {
     string generateOwlStringForNodes(list<Node*> lstNodes, string strNamespaceID, string strNamespace);
     
     string failureClassForCondition(string strCondition);
+    string resolveDesignatorAnnotationTagName(string strAnnotation);
   };
 }
 

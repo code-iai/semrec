@@ -454,33 +454,10 @@ namespace beliefstate {
 	      itDesignator++, unIndex++) {
 	    CKeyValuePair *ckvpDesignator = *itDesignator;
 	    
-	    string strDesigPurpose;
 	    string strAnnotation = ckvpDesignator->stringValue("annotation");
 	    string strDesigID = ckvpDesignator->stringValue("id");
 	    
-	    if(strAnnotation == "perception-request") {
-	      strDesigPurpose = "perceptionRequest";
-	    } else if(strAnnotation == "perception-result") {
-	      strDesigPurpose = "perceptionResult";
-	    } else if(strAnnotation == "object-acted-on") {
-	      strDesigPurpose = "objectActedOn";
-	    } else if(strAnnotation == "putdown-location") {
-	      strDesigPurpose = "putdownLocation";
-	    } else if(strAnnotation == "voluntary-movement-details") {
-	      strDesigPurpose = "voluntaryMovementDetails";
-	    } else if(strAnnotation == "goal-location") {
-	      strDesigPurpose = "goalLocation";
-	    } else if(strAnnotation == "goal-pose") {
-	      strDesigPurpose = "goalPose";
-	    } else if(strAnnotation == "grasp-details") {
-	      strDesigPurpose = "graspDetails";
-	    } else if(strAnnotation == "with-failure-handling-clauses") {
-	      strDesigPurpose = "failureHandlingClauses";
-	    } else if(strAnnotation == "with-policy-details") {
-	      strDesigPurpose = "policyDetails";
-	    } else {
-	      strDesigPurpose = "designator";
-	    }
+	    string strDesigPurpose = this->resolveDesignatorAnnotationTagName(strAnnotation);
 	    
 	    strDot += "        <knowrob:" + strDesigPurpose + " rdf:resource=\"&" + strNamespace + ";" + strDesigID + "\"/>\n";
 	  }
@@ -493,7 +470,37 @@ namespace beliefstate {
     
     return strDot;
   }
-
+  
+  string CExporterOwl::resolveDesignatorAnnotationTagName(string strAnnotation) {
+    string strDesigPurpose = "";
+    
+    if(strAnnotation == "perception-request") {
+      strDesigPurpose = "perceptionRequest";
+    } else if(strAnnotation == "perception-result") {
+      strDesigPurpose = "perceptionResult";
+    } else if(strAnnotation == "object-acted-on") {
+      strDesigPurpose = "objectActedOn";
+    } else if(strAnnotation == "putdown-location") {
+      strDesigPurpose = "putdownLocation";
+    } else if(strAnnotation == "voluntary-movement-details") {
+      strDesigPurpose = "voluntaryMovementDetails";
+    } else if(strAnnotation == "goal-location") {
+      strDesigPurpose = "goalLocation";
+    } else if(strAnnotation == "goal-pose") {
+      strDesigPurpose = "goalPose";
+    } else if(strAnnotation == "grasp-details") {
+      strDesigPurpose = "graspDetails";
+    } else if(strAnnotation == "with-failure-handling-clauses") {
+      strDesigPurpose = "failureHandlingClauses";
+    } else if(strAnnotation == "with-policy-details") {
+      strDesigPurpose = "policyDetails";
+    } else {
+      strDesigPurpose = "designator";
+    }
+    
+    return strDesigPurpose;
+  }
+  
   string CExporterOwl::generateEventIndividuals(string strNamespace) {
     string strDot = "    <!-- Event Individuals -->\n\n";
     strDot += this->generateEventIndividualsForNodes(this->nodes(), strNamespace);
