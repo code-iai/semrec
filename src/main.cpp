@@ -47,7 +47,7 @@
 #include <getopt.h>
 
 // Private
-#include <Beliefstate.h>
+#include <BeliefstateROS.h>
 
 using namespace std;
 using namespace beliefstate;
@@ -59,7 +59,7 @@ Handler hdlrOldSIGWINCH = SIG_IGN;
 
 
 // Global variable for shutdown triggering
-Beliefstate* bsBeliefstate;
+BeliefstateROS* bsBeliefstate;
 
 
 void printHelp(string strExecutableName) {
@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
   }
   
   if(bQuit == false) {
-    bsBeliefstate = new Beliefstate(argc, argv);
+    bsBeliefstate = new BeliefstateROS(argc, argv);
     bsBeliefstate->info("Starting beliefstate system.");
     
     Result resInit = bsBeliefstate->init(strConfigFile);

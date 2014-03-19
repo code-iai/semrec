@@ -51,6 +51,9 @@ namespace beliefstate {
     this->setRedirectOutput(false);
     
     this->setMessagePrefixLabel("core");
+    
+    m_lstConfigFileLocations.push_back("./");
+    m_lstConfigFileLocations.push_back("~/.beliefstate/");
   }
   
   Beliefstate::~Beliefstate() {
@@ -58,11 +61,6 @@ namespace beliefstate {
   
   Result Beliefstate::init(string strConfigFile) {
     Result resInit = defaultResult();
-    
-    list<string> lstConfigFileLocations;
-    lstConfigFileLocations.push_back("./");
-    lstConfigFileLocations.push_back("~/.beliefstate/");
-    lstConfigFileLocations.push_back(ros::package::getPath("beliefstate"));
     
     // Do the actual init here.
     m_psPlugins = new PluginSystem(m_argc, m_argv);
@@ -73,8 +71,8 @@ namespace beliefstate {
     }
     
     if(!bConfigLoaded) {
-      for(list<string>::iterator itPath = lstConfigFileLocations.begin();
-	  itPath != lstConfigFileLocations.end();
+      for(list<string>::iterator itPath = m_lstConfigFileLocations.begin();
+	  itPath != m_lstConfigFileLocations.end();
 	  itPath++) {
 	string strPath = *itPath;
 	if(strPath.length() > 0) {
@@ -580,61 +578,7 @@ namespace beliefstate {
   }
   
   string Beliefstate::workspaceDirectory() {
-    string strWorkspaceReplacement = "";
-    
-    if(m_strWorkspaceDirectory == "") {
-      const char* cROSWorkspace = getenv("ROS_WORKSPACE");
-      const char* cCMAKEPrefixPath = getenv("CMAKE_PREFIX_PATH");
-      const char* cROSPackagePath = getenv("ROS_PACKAGE_PATH");
-      
-      string strROSWorkspace = "";
-      string strCMAKEPrefixPath = "";
-      string strROSPackagePath = "";
-      
-      if(cROSWorkspace) {
-	strROSWorkspace = cROSWorkspace;
-      }
-      
-      if(cCMAKEPrefixPath) {
-	strCMAKEPrefixPath = cCMAKEPrefixPath;
-      }
-      
-      if(cROSPackagePath) {
-	strROSPackagePath = cROSPackagePath;
-      }
-      
-      // ROS_WORKSPACE takes precedence over CMAKE_PREFIX_PATH
-      if(strROSWorkspace != "") {
-	strWorkspaceReplacement = strROSWorkspace;
-      } else {
-	// CMAKE_PREFIX_PATH takes precedence over ROS_PACKAGE_PATH
-	if(strCMAKEPrefixPath != "") {
-	  // The first entry is the one we're using. This could be
-	  // improved, but is okay for now.
-	  const size_t szFirstColon = strCMAKEPrefixPath.find_first_of(":");
-	  
-	  if(szFirstColon != string::npos) {
-	    strCMAKEPrefixPath.erase(szFirstColon);
-	  }
-	  
-	  strWorkspaceReplacement = this->stripPostfix(strCMAKEPrefixPath, "/devel");
-	} else {
-	  // The first entry is the one we're using. This could be
-	  // improved, but is okay for now.
-	  const size_t szFirstColon = strROSPackagePath.find_first_of(":");
-	  
-	  if(szFirstColon != string::npos) {
-	    strROSPackagePath.erase(szFirstColon);
-	  }
-	  
-	  strWorkspaceReplacement = this->stripPostfix(strROSPackagePath, "/src");
-	}
-      }
-    } else {
-      strWorkspaceReplacement = m_strWorkspaceDirectory;
-    }
-    
-    return strWorkspaceReplacement;
+    return m_strWorkspaceDirectory;
   }
   
   string Beliefstate::homeDirectory() {
@@ -701,24 +645,26 @@ namespace beliefstate {
       string strToken = prToken.first;
       bool bInBrackets = prToken.second;
       string strToReplace = (bInBrackets ? "${" + strToken + "}" : "$" + strToken);
-      string strReplacement = "";
+      string strReplacement = this->findTokenReplacement(strToken);
       
-      if(strToken.size() > 8) {
-	if(strToken.substr(0, 8) == "PACKAGE ") {
-	  string strPackage = strToken.substr(8);
-	  
-	  strReplacement = ros::package::getPath(strPackage);
-	} else if(strToken == "WORKSPACE") {
-	  strReplacement = this->workspaceDirectory();
-	}
-      } else if(strToken == "HOME") {
-	strReplacement = this->homeDirectory();
+      if(strReplacement == "") {
+	this->warn("Failed to resolve directory token '" + strToken + "', asserting value \"\".");
       }
       
       replaceStringInPlace(strSubject, strToReplace, strReplacement);
     }
     
     return strSubject;
+  }
+  
+  string Beliefstate::findTokenReplacement(string strToken) {
+    string strReplacement = "";
+    
+    if(strToken == "HOME") {
+      strReplacement = this->homeDirectory();
+    }
+    
+    return strReplacement;
   }
   
   bool Beliefstate::handleUnhandledEvent(Event evEvent) {

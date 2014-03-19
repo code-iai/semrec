@@ -49,9 +49,6 @@
 #include <libconfig.h++>
 #include <mutex>
 
-// ROS
-#include <ros/package.h>
-
 // Private
 #include <ForwardDeclarations.h>
 #include <Types.h>
@@ -104,6 +101,9 @@ namespace beliefstate {
     string m_strWorkspaceDirectory;
     mutex m_mtxTerminalResize;
     bool m_bTerminalWindowResize;
+    
+  protected:
+    list<string> m_lstConfigFileLocations;
     
   public:
     /*! \brief Constructor of the main belief state system class.
@@ -198,29 +198,14 @@ namespace beliefstate {
     string baseDataDirectory();
     string resolveDirectoryTokens(string strPath);
     
-    /*! \brief Return the current ROS workspace directory
+    /*! \brief Returns the current set workspace directory
       
-      Searches the environmental variables ROS_WORKSPACE,
-      CMAKE_PREFIX_PATH, and ROS_PACKAGE_PATH (in that order) for the
-      current ROS workspace. The semantics are as follows:
-
-       - If ROS_WORKSPACE is not empty, use it's value.
-         Else:
-       - If CMAKE_PREFIX_PATH is not empty, use it's first token
-         separated by ':', without it's possibly trailing '/devel'
-         postfix.
-	 Else:
-       - If ROS_PACKAGE_PATH is not empty, use it's first token
-         separated by ':', without it's possibly trailing '/src'
-         postfix.
-      
-      If all of this fails, return an empty string. During
-      initialization of the belief state system, this value will be
-      checked. If it is empty at that time, a warning will be
-      printed. The configuration file allows for manual override of
-      this in case the workspace directory cannot be detected
-      properly. */
-    string workspaceDirectory();
+      The workspace directory is a globally set path that can be used
+      as a reference point for directory tokens. It is referenced as
+      $WORKSPACE. In this function, the directory manually set in the
+      config.cfg file is returned, or an empty string if it is not set
+      there. */
+    virtual string workspaceDirectory();
     
     /*! \brief Returns the current user's home directory
       
@@ -228,6 +213,7 @@ namespace beliefstate {
       '${HOME}'. */
     string homeDirectory();
     
+    virtual string findTokenReplacement(string strToken);
     bool handleUnhandledEvent(Event evEvent);
   };
 }

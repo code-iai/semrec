@@ -141,7 +141,8 @@ add_executable(beliefstate
   src/PluginInstance.cpp
   src/Plugin.cpp
   src/Node.cpp
-  src/Beliefstate.cpp)
+  src/Beliefstate.cpp
+  src/BeliefstateROS.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
