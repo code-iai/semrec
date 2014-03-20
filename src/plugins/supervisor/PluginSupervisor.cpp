@@ -72,18 +72,23 @@ namespace beliefstate {
     
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "start-new-experiment") {
+	bool bWait = true;
+	
 	// Signal global experiment shut down.
 	if(m_bFirstExperiment) {
 	  // Only signal an experiment shutdown if this is not the
 	  // first experiment.
 	  m_bFirstExperiment = false;
+	  bWait = false;
 	} else {
 	  this->deployEvent(defaultEvent("experiment-shutdown"));
 	}
 	
-	// Wait 1 sec for all plugins to realize what to do when
-	// shutting down an experiment.
-	sleep(1);
+	if(bWait) {
+	  // Wait 1 sec for all plugins to realize what to do when
+	  // shutting down an experiment.
+	  sleep(1);
+	}
 	
 	ConfigSettings cfgsetCurrent = configSettings();
 	// Create base data directory
