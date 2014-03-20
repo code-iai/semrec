@@ -176,10 +176,6 @@ namespace beliefstate {
       resDeployTo.lstServiceEvents = m_lstServiceEvents;
       m_lstServiceEvents.clear();
       m_mtxServiceEventsStore.unlock();
-      
-      //resDeployTo.lstStatusMessages = this->queuedMessages();
-      
-      usleep(1000);
     }
     
     void Plugin::deployEvent(Event evDeploy, bool bWaitForEvent) {

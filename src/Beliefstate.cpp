@@ -115,10 +115,7 @@ namespace beliefstate {
     
     // Additional checks to make the user aware of potential problems
     if(this->workspaceDirectory() == "") {
-      this->warn("The ROS workspace directory could not be resolved. This might cause problems,");
-      this->warn("especially when trying to load plugins. Please ensure that your environment");
-      this->warn("is set up properly. If everything seems alright, consider to override the");
-      this->warn("workspace-dependent paths in a custom file (i.e. ~/.beliefstate/config.cfg).");
+      this->warn("The workspace directory could not be resolved. This might cause problems, especially when trying to load plugins. Please ensure that your environment is set up properly. If everything seems alright, consider to override the workspace-dependent paths in a custom file (i.e. ~/.beliefstate/config.cfg).");
     }
     
     m_lstGlobalEvents.push_back(defaultEvent("startup-complete"));
@@ -426,7 +423,7 @@ namespace beliefstate {
     if(m_psPlugins->spreadEvent(evEvent) == 0) {
       ConfigSettings cfgSet = configSettings();
       if(cfgSet.bDisplayUnhandledEvents) {
-	//this->warn("Unhandled event dropped: '" + evEvent.strEventName + "'");
+	this->warn("Unhandled event dropped: '" + evEvent.strEventName + "'");
 	
 	if(evEvent.cdDesignator) {
 	  //this->warn("Content was:");
@@ -450,7 +447,7 @@ namespace beliefstate {
     if(m_psPlugins->spreadServiceEvent(seServiceEvent) == 0) {
       ConfigSettings cfgSet = configSettings();
       if(cfgSet.bDisplayUnhandledServiceEvents) {
-	//this->warn("Unhandled service event ('" + seServiceEvent.strServiceName + "') dropped.");
+	this->warn("Unhandled service event ('" + seServiceEvent.strServiceName + "') dropped.");
 	
 	if(seServiceEvent.cdDesignator) {
 	  //this->warn("Content was:");
@@ -536,8 +533,6 @@ namespace beliefstate {
 	  this->spreadEvent(evResize);
 	}
       }
-      
-      usleep(1000);
     } else {
       bContinue = false;
       
