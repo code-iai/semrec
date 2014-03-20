@@ -69,7 +69,10 @@ namespace beliefstate {
       this->setSubscribedToEvent("add-image-from-topic", true);
       this->setSubscribedToEvent("symbolic-create-designator", true);
       this->setSubscribedToEvent("interactive-callback", true);
-      this->setSubscribedToEvent("status-message", true);
+      
+      if(cdConfig->floatValue("roslog-messages") != 0) {
+	this->setSubscribedToEvent("status-message", false);
+      }
       
       if(!ros::ok()) {
 	string strROSNodeName = cdConfig->stringValue("node-name");
