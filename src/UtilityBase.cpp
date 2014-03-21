@@ -114,4 +114,13 @@ namespace beliefstate {
   void UtilityBase::setRedirectOutput(bool bRedirect) {
     m_bRedirectOutput = bRedirect;
   }
+  
+  void UtilityBase::replaceStringInPlace(string& subject, const string& search, const string& replace) {
+    size_t pos = 0;
+    
+    while((pos = subject.find(search, pos)) != string::npos) {
+      subject.replace(pos, search.length(), replace);
+      pos += replace.length();
+    }
+  }
 }

@@ -410,15 +410,6 @@ namespace beliefstate {
     return true;
   }
   
-  void Beliefstate::replaceStringInPlace(string& subject, const string& search, const string& replace) {
-    size_t pos = 0;
-    
-    while((pos = subject.find(search, pos)) != string::npos) {
-      subject.replace(pos, search.length(), replace);
-      pos += replace.length();
-    }
-  }
-  
   bool Beliefstate::spreadEvent(Event evEvent) {
     if(m_psPlugins->spreadEvent(evEvent) == 0) {
       ConfigSettings cfgSet = configSettings();
@@ -646,7 +637,7 @@ namespace beliefstate {
 	this->warn("Failed to resolve directory token '" + strToken + "', asserting value \"\".");
       }
       
-      replaceStringInPlace(strSubject, strToReplace, strReplacement);
+      this->replaceStringInPlace(strSubject, strToReplace, strReplacement);
     }
     
     return strSubject;

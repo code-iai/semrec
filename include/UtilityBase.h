@@ -78,6 +78,17 @@ namespace beliefstate {
     
     void outputColoredStatusMessage(StatusMessage msgStatus);
     void setRedirectOutput(bool bRedirect);
+    
+    /*! \brief Partial string replace function
+      
+      Replaces 'search' by 'replace' in string 'subject'.
+      
+      \param subject The string to search in
+      
+      \param search The string to search for
+      
+      \param replace The string to use as a replacement */
+    void replaceStringInPlace(string& subject, const string& search, const string& replace);
   };
 }
 
