@@ -481,6 +481,25 @@ namespace beliefstate {
 	  }
 	}
 	
+	// Caught failure here.
+	CKeyValuePair *ckvpCaughtFailures = ndCurrent->metaInformation()->childForKey("caught_failures");
+	
+	if(ckvpCaughtFailures) {
+	  list<CKeyValuePair*> lstCaughtFailures = ckvpCaughtFailures->children();
+	  
+	  unsigned int unIndex = 0;
+	  for(list<CKeyValuePair*>::iterator itCaughtFailure = lstCaughtFailures.begin();
+	      itCaughtFailure != lstCaughtFailures.end();
+	      itCaughtFailure++, unIndex++) {
+	    CKeyValuePair *ckvpCaughtFailure = *itCaughtFailure;
+	    
+	    Node* ndFailureEmitter = ndCurrent->emitterForCaughtFailure(ckvpCaughtFailure->stringValue("failure-id"), ckvpCaughtFailure->stringValue("time-catch"), unIndex);
+	    string strCaughtFailure = ndFailureEmitter->uniqueID() + "_" + ckvpCaughtFailure->stringValue("failure-id");
+	    
+	    strDot += "        <knowrob:caughtFailure rdf:resource=\"&" + strNamespace + ";" + strCaughtFailure + "\"/>\n";
+	  }
+	}
+	
 	// Designator references here.
 	CKeyValuePair *ckvpDesignators = ndCurrent->metaInformation()->childForKey("designators");
 	

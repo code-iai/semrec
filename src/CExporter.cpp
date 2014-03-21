@@ -87,7 +87,7 @@ namespace beliefstate {
   
     return strProposition;
   }
-
+  
   void CExporter::renewUniqueIDsForNode(Node *ndRenew) {
     string strNodeIDPrefix = this->nodeIDPrefix(ndRenew, "node_");
     ndRenew->setUniqueID(this->generateUniqueID(strNodeIDPrefix, 8));

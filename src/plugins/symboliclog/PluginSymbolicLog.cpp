@@ -45,6 +45,8 @@ namespace beliefstate {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       this->setPluginVersion("0.9");
       
+      m_prLastFailure = make_pair("", (Node*)NULL);
+      
       // Random seed
       srand(time(NULL));
       
@@ -74,6 +76,7 @@ namespace beliefstate {
       this->setSubscribedToEvent("add-designator", true);
       this->setSubscribedToEvent("add-object", true);
       this->setSubscribedToEvent("add-failure", true);
+      this->setSubscribedToEvent("catch-failure", true);
       this->setSubscribedToEvent("add-image-from-file", true);
       this->setSubscribedToEvent("equate-designators", true);
       
@@ -290,12 +293,15 @@ namespace beliefstate {
 	    sprintf(cTimeFail, "%d", this->getTimeStamp());
 	    string strTimeFail = cTimeFail;
 	    
-	    this->activeNode()->addFailure(strCondition, strTimeFail);
+	    string strFailureID = this->activeNode()->addFailure(strCondition, strTimeFail);
+	    this->replaceStringInPlace(strFailureID, "-", "_");
+	    
+	    m_prLastFailure = make_pair(strFailureID, this->activeNode());
 	    this->activeNode()->setSuccess(false);
 	    
 	    stringstream sts;
 	    sts << this->activeNode()->id();
-	    this->info("Added failure to active node (id " + sts.str() + "): '" + strCondition.c_str() + "'");
+	    this->info("Added failure '" + m_prLastFailure.first + "' to active node (id " + sts.str() + "): '" + strCondition.c_str() + "'");
 	    
 	    Event evSymbAddFailure = defaultEvent("symbolic-add-failure");
 	    evSymbAddFailure.lstNodes.push_back(this->activeNode());
@@ -306,6 +312,39 @@ namespace beliefstate {
 	    this->deployEvent(evSymbAddFailure);
 	  } else {
 	    this->warn("No node context available. Cannot add failure while on top-level.");
+	  }
+	}
+      } else if(evEvent.strEventName == "catch-failure") {
+	if(evEvent.cdDesignator) {
+	  if(this->activeNode()) {
+	    if(m_prLastFailure.first != "") {
+	      string strID = evEvent.cdDesignator->stringValue("context-id");
+	      
+	      if(strID != "") {
+		int nID;
+		sscanf(strID.c_str(), "%d", &nID);
+		
+		Node* ndRelative = this->activeNode()->relativeWithID(nID);
+		if(ndRelative) {
+		  char cTimeFail[80];
+		  sprintf(cTimeFail, "%d", this->getTimeStamp());
+		  string strTimeFail = cTimeFail;
+		  
+		  ndRelative->catchFailure(m_prLastFailure, strTimeFail);
+		  
+		  this->info("Context (ID = " + strID + ") caught failure '" + m_prLastFailure.first + "'");
+		  m_prLastFailure = make_pair("", (Node*)NULL);
+		} else {
+		  this->warn("Relative with ID " + strID + " not found up the chain while catching failure.");
+		}
+	      } else {
+		this->warn("Invalid context ID when catching failure: '" + strID + "'.");
+	      }
+	    } else {
+	      this->warn("Tried to catch failure without one being present.");
+	    }
+	  } else {
+	    this->fail("Cannot catch failures outside of context.");
 	  }
 	}
       } else if(evEvent.strEventName == "add-designator") {
@@ -539,11 +578,18 @@ namespace beliefstate {
     
     void PLUGIN_CLASS::setNodeAsActive(Node* ndActive) {
       m_ndActive = ndActive;
+      bool bSame = false;
+      
+      if(m_ndActive && ndActive) {
+	bSame = (m_ndActive->id() == ndActive->id());
+      }
       
       if(m_ndActive) {
-	stringstream sts;
-	sts << m_ndActive->id();
-	this->info("Setting context ID " + sts.str() + " as active context");
+	if(!bSame) {
+	  stringstream sts;
+	  sts << m_ndActive->id();
+	  this->info("Setting context ID " + sts.str() + " as active context");
+	}
       } else {
 	this->info("Removed active context, returning to top-level");
       }

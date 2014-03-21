@@ -61,12 +61,14 @@ namespace beliefstate {
     list<CKeyValuePair*> m_lstDescription;
     list<Node*> m_lstSubnodes;
     CKeyValuePair *m_ckvpMetaInformation;
-  
+    
+    list< pair<string, Node*> > m_lstCaughtFailures;
+    
     void init();
-  
+    
     void clearDescription();
     void clearSubnodes();
-
+    
   public:
     Node();
     Node(string strTitle);
@@ -81,6 +83,7 @@ namespace beliefstate {
   
     void setParent(Node* ndParent);
     Node* parent();
+    Node* relativeWithID(int nID);
   
     void addSubnode(Node* ndAdd);
     list<Node*> subnodes();
@@ -101,12 +104,14 @@ namespace beliefstate {
     bool prematurelyEnded();
     
     CKeyValuePair* addDescriptionListItem(string strDomain, string strPrefix);
-    void addImage(string strOrigin, string strFilename, string strTimestamp);
-    void addObject(list<CKeyValuePair*> lstDescription);
-    void addFailure(string strCondition, string strTimestamp);
+    string addImage(string strOrigin, string strFilename, string strTimestamp);
+    string addObject(list<CKeyValuePair*> lstDescription);
+    string addFailure(string strCondition, string strTimestamp);
+    string catchFailure(pair<string, Node*> prCaughtFailure, string strTimestamp);
+    Node* emitterForCaughtFailure(string strFailureID, string strTimestamp, int nOffset = 0);
     bool hasFailures();
     void addDesignator(string strType, list<CKeyValuePair*> lstDescription, string strUniqueID, string strAnnotation = "");
-  
+    
     void setSuccess(bool bSuccess);
     bool success();
     

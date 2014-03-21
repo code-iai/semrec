@@ -79,6 +79,7 @@ namespace beliefstate {
       bool m_bStartedSpinning;
       ros::AsyncSpinner* m_aspnAsyncSpinner;
       bool m_bRoslogMessages;
+      mutex m_mtxGlobalInputLock;
       
     public:
       PLUGIN_CLASS();

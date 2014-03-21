@@ -140,6 +140,8 @@ namespace beliefstate {
     }
     
     bool PLUGIN_CLASS::serviceCallbackBeginContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
+      m_mtxGlobalInputLock.lock();
+      
       Event evBeginContext = defaultEvent("begin-context");
       evBeginContext.nContextID = createContextID();
       evBeginContext.cdDesignator = new CDesignator(req.request.designator);
@@ -147,7 +149,7 @@ namespace beliefstate {
       stringstream sts;
       sts << evBeginContext.nContextID;
       
-      this->info("When beginning context (ID = " + sts.str() + "), received " + this->getDesignatorTypeString(evBeginContext.cdDesignator) + " designator");
+      this->info("Beginning context (ID = " + sts.str() + "): '" + evBeginContext.cdDesignator->stringValue("_name") + "'");
       this->deployEvent(evBeginContext);
       
       CDesignator *desigResponse = new CDesignator();
@@ -157,10 +159,14 @@ namespace beliefstate {
       res.response.designators.push_back(desigResponse->serializeToMessage());
       delete desigResponse;
       
+      m_mtxGlobalInputLock.unlock();
+      
       return true;
     }
     
     bool PLUGIN_CLASS::serviceCallbackEndContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
+      m_mtxGlobalInputLock.lock();
+      
       Event evEndContext = defaultEvent("end-context");
       evEndContext.cdDesignator = new CDesignator(req.request.designator);
       
@@ -173,10 +179,14 @@ namespace beliefstate {
       
       freeContextID(nContextID);
       
+      m_mtxGlobalInputLock.unlock();
+      
       return true;
     }
 
     bool PLUGIN_CLASS::serviceCallbackAlterContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
+      m_mtxGlobalInputLock.lock();
+      
       Event evAlterContext = defaultEvent();
       evAlterContext.cdDesignator = new CDesignator(req.request.designator);
       
@@ -210,11 +220,15 @@ namespace beliefstate {
 	evAlterContext.strEventName = "symbolic-set-interactive-object-menu";
       } else if(strCommand == "update-interactive-object-pose") {
 	evAlterContext.strEventName = "symbolic-update-object-pose";
+      } else if(strCommand == "catch-failure") {
+	evAlterContext.strEventName = "catch-failure";
       } else {
 	this->warn("Unknown command when altering context: '" + strCommand + "'");
       }
       
       this->deployEvent(evAlterContext, true);
+      
+      m_mtxGlobalInputLock.unlock();
       
       return true;
     }

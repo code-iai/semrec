@@ -186,6 +186,18 @@ namespace beliefstate {
     return m_ndParent;
   }
 
+  Node* Node::relativeWithID(int nID) {
+    if(this->parent() == NULL) {
+      return NULL;
+    } else {
+      if(this->id() == nID) {
+	return this;
+      } else {
+	return this->parent()->relativeWithID(nID);
+      }
+    }
+  }
+  
   void Node::setPrematurelyEnded(bool bPrematurelyEnded) {
     this->metaInformation()->setValue(string("prematurely-ended"), (bPrematurelyEnded ? 1 : 0));
   }
@@ -204,15 +216,17 @@ namespace beliefstate {
     return ckvpList->addChild(sts.str());
   }
   
-  void Node::addImage(string strOrigin, string strFilename, string strTimestamp) {
+  string Node::addImage(string strOrigin, string strFilename, string strTimestamp) {
     CKeyValuePair* ckvpImage = this->addDescriptionListItem("images", "image");
     
     ckvpImage->setValue(string("origin"), strOrigin);
     ckvpImage->setValue(string("filename"), strFilename);
     ckvpImage->setValue(string("time-capture"), strTimestamp);
+    
+    return ckvpImage->key();
   }
   
-  void Node::addObject(list<CKeyValuePair*> lstDescription) {
+  string Node::addObject(list<CKeyValuePair*> lstDescription) {
     CKeyValuePair* ckvpObject = this->addDescriptionListItem("objects", "object");
     
     for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
@@ -220,13 +234,46 @@ namespace beliefstate {
 	itPair++) {
       ckvpObject->addChild((*itPair)->copy());
     }
+    
+    return ckvpObject->key();
   }
 
-  void Node::addFailure(string strCondition, string strTimestamp) {
+  string Node::addFailure(string strCondition, string strTimestamp) {
     CKeyValuePair* ckvpFailure = this->addDescriptionListItem("failures", "failure");
     
     ckvpFailure->setValue(string("condition"), strCondition);
     ckvpFailure->setValue(string("time-fail"), strTimestamp);
+    
+    return ckvpFailure->key();
+  }
+  
+  string Node::catchFailure(pair<string, Node*> prCaughtFailure, string strTimestamp) {
+    CKeyValuePair* ckvpFailure = this->addDescriptionListItem("caught_failures", "caught_failure");
+    
+    ckvpFailure->setValue(string("failure-id"), prCaughtFailure.first);
+    ckvpFailure->setValue(string("time-catch"), strTimestamp);
+    
+    m_lstCaughtFailures.push_back(prCaughtFailure);
+    
+    return ckvpFailure->key();
+  }
+  
+  Node* Node::emitterForCaughtFailure(string strFailureID, string strTimestamp, int nOffset) {
+    for(list< pair<string, Node*> >::iterator itPr = m_lstCaughtFailures.begin();
+	itPr != m_lstCaughtFailures.end();
+	itPr++) {
+      pair<string, Node*> prCurrent = *itPr;
+      
+      if(prCurrent.first == strFailureID) {
+	if(nOffset > 0) {
+	  nOffset--;
+	} else {
+	  return prCurrent.second;
+	}
+      }
+    }
+    
+    return NULL;
   }
   
   bool Node::hasFailures() {
