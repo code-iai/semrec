@@ -53,6 +53,7 @@ namespace beliefstate {
       Result resInit = defaultResult();
       
       this->setSubscribedToEvent("export-planlog", true);
+      this->setSubscribedToEvent("experiment-start", true);
       
       return resInit;
     }
@@ -69,15 +70,26 @@ namespace beliefstate {
     }
     
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
-      if(evEvent.cdDesignator) {
-	string strFormat = evEvent.cdDesignator->stringValue("format");
-	transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
+      if(evEvent.strEventName == "export-planlog") {
+	if(evEvent.cdDesignator) {
+	  string strFormat = evEvent.cdDesignator->stringValue("format");
+	  transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
 	
-	if(strFormat == "owl") {
-	  ServiceEvent seGetPlanTree = defaultServiceEvent("symbolic-plan-tree");
-	  seGetPlanTree.cdDesignator = new CDesignator(evEvent.cdDesignator);
-	  this->deployServiceEvent(seGetPlanTree);
+	  if(strFormat == "owl") {
+	    ServiceEvent seGetPlanTree = defaultServiceEvent("symbolic-plan-tree");
+	    seGetPlanTree.cdDesignator = new CDesignator(evEvent.cdDesignator);
+	    this->deployServiceEvent(seGetPlanTree);
+	  }
 	}
+      } else if(evEvent.strEventName == "experiment-start") {
+	Event evSendOwlExporterVersion = defaultEvent("set-experiment-meta-data");
+	evSendOwlExporterVersion.cdDesignator = new CDesignator();
+	evSendOwlExporterVersion.cdDesignator->setType(ACTION);
+	
+	evSendOwlExporterVersion.cdDesignator->setValue("field", "owl-exporter-version");
+	evSendOwlExporterVersion.cdDesignator->setValue("value", this->pluginVersion());
+	
+	this->deployEvent(evSendOwlExporterVersion);
       }
     }
     
