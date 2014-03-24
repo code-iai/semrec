@@ -123,4 +123,39 @@ namespace beliefstate {
       pos += replace.length();
     }
   }
+  
+  int UtilityBase::getTimeStamp() {
+    return std::time(0);
+  }
+  
+  string UtilityBase::getTimeStampStr() {
+    return this->str(this->getTimeStamp());
+  }
+  
+  string UtilityBase::str(float fValue) {
+    stringstream sts;
+    sts.imbue(std::locale(sts.getloc(), new std::numpunct<char>()));
+    
+    sts << fValue;
+    
+    return sts.str();
+  }
+  
+  string UtilityBase::str(double dValue) {
+    stringstream sts;
+    sts.imbue(std::locale(sts.getloc(), new std::numpunct<char>()));
+    
+    sts << dValue;
+    
+    return sts.str();
+  }
+  
+  string UtilityBase::str(int nValue) {
+    stringstream sts;
+    sts.imbue(std::locale(sts.getloc(), new std::numpunct<char>()));
+    
+    sts << nValue;
+    
+    return sts.str();
+  }
 }

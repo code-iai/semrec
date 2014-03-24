@@ -83,9 +83,7 @@ namespace beliefstate {
 	if(ckvpCurrent->type() == STRING) {
 	  strValue = ckvpCurrent->stringValue();
 	} else if(ckvpCurrent->type() == FLOAT) {
-	  stringstream sts;
-	  sts << ckvpCurrent->floatValue();
-	  strValue = sts.str();
+	  strValue = this->str(ckvpCurrent->floatValue());
 	} else if(ckvpCurrent->type() == POSE) {
 	  bEscape = false;
 	  geometry_msgs::Pose psPose = ckvpCurrent->poseValue();
@@ -116,9 +114,14 @@ namespace beliefstate {
 	
 	  strValue = stsPS.str();
 	} else {
-	  stringstream sts;
+	  // NOTE(winkler): This actually IS a valid warning. The only
+	  // issue is that we don't have a proper failure handling
+	  // mechanism here, yet. Also, it doesn't hurt the current
+	  // logs.
+	  
+	  /*stringstream sts;
 	  sts << (int)ckvpCurrent->type();
-	  this->warn("Careful: unknown type code for field (" + sts.str() + ")");
+	  this->warn("Careful: unknown type code for field (" + sts.str() + ")");*/
 	}
 	
 	if(bEscape) {

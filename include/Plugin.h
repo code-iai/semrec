@@ -120,8 +120,6 @@ namespace beliefstate {
       string pluginIdentifierString(bool bBold);
       void unimplemented(string strMessage);
       
-      int getTimeStamp();
-      
       int openNewRequestID();
       bool isRequestIDOpen(int nID);
       void closeRequestID(int nID);

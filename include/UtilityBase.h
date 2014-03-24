@@ -89,6 +89,13 @@ namespace beliefstate {
       
       \param replace The string to use as a replacement */
     void replaceStringInPlace(string& subject, const string& search, const string& replace);
+    
+    int getTimeStamp();
+    string getTimeStampStr();
+    
+    string str(float fValue);
+    string str(double dValue);
+    string str(int nValue);
   };
 }
 

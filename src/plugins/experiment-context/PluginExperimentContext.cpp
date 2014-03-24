@@ -100,10 +100,7 @@ namespace beliefstate {
 	  this->info("Experiment Context Plugin exporting meta-data");
 	  
 	  if(m_mapValues.find("time-end") == m_mapValues.end()) {
-	    stringstream sts;
-	    sts << this->getTimeStamp();
-	    
-	    m_mapValues["time-end"] = sts.str();
+	    m_mapValues["time-end"] = this->getTimeStampStr();
 	  }
 	  
 	  ConfigSettings cfgsetCurrent = configSettings();
@@ -131,13 +128,9 @@ namespace beliefstate {
 	  this->info("Successfully exported meta-data to '" + strMetaFile + "'");
 	}
       } else if(evEvent.strEventName == "experiment-start") {
-	stringstream sts;
-	sts << this->getTimeStamp();
-	m_mapValues["time-start"] = sts.str();
+	m_mapValues["time-start"] = this->getTimeStampStr();
       } else if(evEvent.strEventName == "experiment-shutdown") {
-	stringstream sts;
-	sts << this->getTimeStamp();
-	m_mapValues["time-end"] = sts.str();
+	m_mapValues["time-end"] = this->getTimeStampStr();
       }
     }
   }

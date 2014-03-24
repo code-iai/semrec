@@ -137,10 +137,7 @@ namespace beliefstate {
 	Node* ndNew = this->addNode(strName, evEvent.nContextID);
 	ndNew->setDescription(evEvent.cdDesignator->description());
 	
-	char cTimeStart[80];
-	sprintf(cTimeStart, "%d", this->getTimeStamp());
-	string strTimeStart = cTimeStart;
-	ndNew->metaInformation()->setValue(string("time-start"), strTimeStart);
+	ndNew->metaInformation()->setValue(string("time-start"), this->getTimeStampStr());
 	
 	int nDetailLevel = (int)evEvent.cdDesignator->floatValue("_detail-level");
 	ndNew->metaInformation()->setValue(string("detail-level"), nDetailLevel);
@@ -173,16 +170,8 @@ namespace beliefstate {
 	      ndCurrent->metaInformation()->setValue(string("success"), nSuccess);
 	    }
 	    
-	    char cTimeStart[80];
-	    sprintf(cTimeStart, "%d", this->getTimeStamp());
-	    string strTimeEnd = cTimeStart;
+	    string strTimeEnd = this->getTimeStampStr();
 	    ndCurrent->metaInformation()->setValue(string("time-end"), strTimeEnd);
-	    
-	    // stringstream stsTimeEnd;
-	    // stsTimeEnd.unsetf(ios_base::showpos);
-	    // stsTimeEnd.unsetf(ios_base::showpoint);
-	    // stsTimeEnd << this->getTimeStamp();
-	    // ndCurrent->metaInformation()->setValue(string("time-end"), stsTimeEnd.str());
 	    
 	    Node *ndParent = ndCurrent->parent();
 	    this->setNodeAsActive(ndParent);
@@ -257,10 +246,7 @@ namespace beliefstate {
 	    string strTopic = evEvent.cdDesignator->stringValue("origin");
 	    
 	    if(strFilepath != "") {
-	      char cTimeImage[80];
-	      sprintf(cTimeImage, "%d", this->getTimeStamp());
-	      string strTimeImage = cTimeImage;
-	      
+	      string strTimeImage = this->getTimeStampStr();
 	      this->activeNode()->addImage(strTopic, strFilepath, strTimeImage);
 	      
 	      stringstream sts;
@@ -288,10 +274,7 @@ namespace beliefstate {
 	  if(this->activeNode()) {
 	    // Adding a failure to a node also means to set its success state to 'false'.
 	    string strCondition = evEvent.cdDesignator->stringValue("condition");
-
-	    char cTimeFail[80];
-	    sprintf(cTimeFail, "%d", this->getTimeStamp());
-	    string strTimeFail = cTimeFail;
+	    string strTimeFail = this->getTimeStampStr();
 	    
 	    string strFailureID = this->activeNode()->addFailure(strCondition, strTimeFail);
 	    this->replaceStringInPlace(strFailureID, "-", "_");
@@ -326,11 +309,7 @@ namespace beliefstate {
 		
 		Node* ndRelative = this->activeNode()->relativeWithID(nID);
 		if(ndRelative) {
-		  char cTimeFail[80];
-		  sprintf(cTimeFail, "%d", this->getTimeStamp());
-		  string strTimeFail = cTimeFail;
-		  
-		  ndRelative->catchFailure(m_prLastFailure, strTimeFail);
+		  ndRelative->catchFailure(m_prLastFailure, this->getTimeStampStr());
 		  
 		  this->info("Context (ID = " + strID + ") caught failure '" + m_prLastFailure.first + "'");
 		  m_prLastFailure = make_pair("", (Node*)NULL);
@@ -651,14 +630,7 @@ namespace beliefstate {
       string strIDChild = this->getUniqueDesignatorID(strMAChild);
       string strIDParent = this->getUniqueDesignatorID(strMAParent);
       
-      char cTimeStart[80];
-      sprintf(cTimeStart, "%d", this->getTimeStamp());
-      string strTimeStart = cTimeStart;
-      
-      // stringstream stsTimeEquate;
-      // stsTimeEquate.unsetf(ios_base::showpos);
-      // stsTimeEquate.unsetf(ios_base::showpoint);
-      // stsTimeEquate << this->getTimeStamp();
+      string strTimeStart = this->getTimeStampStr();
       
       m_lstDesignatorEquations.push_back(make_pair(strIDParent, strIDChild));
       m_lstDesignatorEquationTimes.push_back(make_pair(strIDChild, strTimeStart));

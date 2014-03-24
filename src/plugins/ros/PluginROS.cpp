@@ -109,10 +109,7 @@ namespace beliefstate {
 	    nThreads = cdConfig->floatValue("async-threads");
 	  }
 	  
-	  stringstream sts;
-	  sts << nThreads;
-	  
-	  this->info("ROS node started. Starting to spin (" + sts.str() + " threads).");
+	  this->info("ROS node started. Starting to spin (" + this->str(nThreads) + " threads).");
 	  m_aspnAsyncSpinner = new ros::AsyncSpinner(nThreads);
 	  m_aspnAsyncSpinner->start();
 	} else {
