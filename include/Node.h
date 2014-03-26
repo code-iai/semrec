@@ -116,6 +116,8 @@ namespace beliefstate {
     bool success();
     
     Node* previousNode();
+    
+    void ensureProperty(string strKey, string strDefaultValue);
   };
 }
 

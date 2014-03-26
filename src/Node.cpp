@@ -326,4 +326,18 @@ namespace beliefstate {
     
     return ndPrevious;
   }
+  
+  void Node::ensureProperty(string strKey, string strDefaultValue) {
+    if(this->metaInformation()->childForKey(strKey) == NULL) {
+      this->metaInformation()->setValue(strKey, strDefaultValue);
+    }
+    
+    for(list<Node*>::iterator itChild = m_lstSubnodes.begin();
+	itChild != m_lstSubnodes.end();
+	itChild++) {
+      Node* ndChild = *itChild;
+      
+      ndChild->ensureProperty(strKey, strDefaultValue);
+    }
+  }
 }

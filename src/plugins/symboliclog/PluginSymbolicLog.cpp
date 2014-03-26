@@ -167,6 +167,9 @@ namespace beliefstate {
 	    // Set success only if no failures are present (in
 	    // which case the success is set to 'false' already)
 	    if(!ndCurrent->hasFailures()) {
+	      // NOTE(winkler): This would be the right spot to
+	      // forward the 'failed' condition towards all underlying
+	      // node structures (to signal that this branch failed).
 	      ndCurrent->metaInformation()->setValue(string("success"), nSuccess);
 	    }
 	    
@@ -174,9 +177,12 @@ namespace beliefstate {
 	    ndCurrent->metaInformation()->setValue(string("time-end"), strTimeEnd);
 	    
 	    Node *ndParent = ndCurrent->parent();
+	    Node *ndParentLastValid = NULL;
 	    this->setNodeAsActive(ndParent);
 	    
 	    while(ndParent) {
+	      ndParentLastValid = ndParent;
+	      
 	      if(ndParent->prematurelyEnded()) {
 		stringstream sts_id;
 		sts_id << ndParent->id();
@@ -200,6 +206,10 @@ namespace beliefstate {
 	      }
 	    }
 	    
+	    if(ndParentLastValid) {
+	      ndParentLastValid->ensureProperty("time-end", strTimeEnd);
+	    }
+	    
 	    Event evSymbolicEndCtx = defaultEvent("symbolic-end-context");
 	    evSymbolicEndCtx.lstNodes.push_back(ndCurrent);
 	    this->deployEvent(evSymbolicEndCtx);
@@ -210,6 +220,11 @@ namespace beliefstate {
 	    
 	    Node *ndEndedPrematurely = NULL;
 	    Node *ndSearchTemp = ndCurrent->parent();
+	    
+	    if(ndSearchTemp) {
+	      string strTimeEnd = this->getTimeStampStr();
+	      ndSearchTemp->ensureProperty("time-end", strTimeEnd);
+	    }
 	    
 	    while(ndSearchTemp) {
 	      if(ndSearchTemp->id() == nID) {
