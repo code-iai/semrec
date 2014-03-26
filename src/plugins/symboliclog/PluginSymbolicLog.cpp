@@ -312,7 +312,7 @@ namespace beliefstate {
 		  ndRelative->catchFailure(m_prLastFailure, this->getTimeStampStr());
 		  
 		  this->info("Context (ID = " + strID + ") caught failure '" + m_prLastFailure.first + "'");
-		  m_prLastFailure = make_pair("", (Node*)NULL);
+		  //m_prLastFailure = make_pair("", (Node*)NULL);
 		} else {
 		  this->warn("Relative with ID " + strID + " not found up the chain while catching failure.");
 		}
@@ -366,6 +366,7 @@ namespace beliefstate {
 	      // Second, symbolically add it to the current event
 	      Event evAddedDesignator = defaultEvent("symbolic-add-designator");
 	      evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
+	      evAddedDesignator.strAnnotation = strAnnotation;
 	      evAddedDesignator.lstNodes.push_back(this->activeNode());
 	    
 	      this->deployEvent(evAddedDesignator);
@@ -483,6 +484,7 @@ namespace beliefstate {
 		Event evAddedDesignator = defaultEvent("symbolic-add-designator");
 		evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
 		evAddedDesignator.lstNodes.push_back(this->activeNode());
+		evAddedDesignator.strAnnotation = evEvent.cdDesignator->stringValue("annotation");
 		
 		this->deployEvent(evAddedDesignator);
 	      }

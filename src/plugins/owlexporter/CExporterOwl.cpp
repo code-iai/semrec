@@ -420,10 +420,10 @@ namespace beliefstate {
 	
 	  itPostEvent++;
 	}
-      
+	
 	// Object references here.
 	CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
-      
+	
 	if(ckvpObjects) {
 	  list<CKeyValuePair*> lstObjects = ckvpObjects->children();
     
