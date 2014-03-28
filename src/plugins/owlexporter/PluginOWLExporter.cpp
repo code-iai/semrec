@@ -114,6 +114,8 @@ namespace beliefstate {
 		string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
 		
 		if(strSemanticsDescriptorFile != "") {
+		  this->info("Loading semantics descriptor file '" + strSemanticsDescriptorFile + "'");
+		  
 		  if(expOwl->loadSemanticsDescriptorFile(strSemanticsDescriptorFile) == false) {
 		    this->warn("Failed to load semantics descriptor file '" + strSemanticsDescriptorFile + "'.");
 		  }
@@ -125,22 +127,36 @@ namespace beliefstate {
 		expOwl->configuration()->setValue(string("display-failures"), (int)seServiceEvent.cdDesignator->floatValue("show-fails"));
 		expOwl->configuration()->setValue(string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));
 		
+		bool bFailed = false;
 		for(list<Node*>::iterator itN = evCar.lstNodes.begin();
 		    itN != evCar.lstNodes.end();
 		    itN++) {
 		  Node* ndNode = *itN;
-		  expOwl->addNode(ndNode);
+		  
+		  if(ndNode) {
+		    expOwl->addNode(ndNode);
+		  } else {
+		    this->fail("One of the nodes received in the plan log data contains invalid data. Cancelling export. Try again at will.");
+		    bFailed = true;
+		    break;
+		  }
 		}
 		
-		expOwl->setDesignatorIDs(evCar.lstDesignatorIDs);
-		expOwl->setDesignatorEquations(evCar.lstEquations);
-		expOwl->setDesignatorEquationTimes(evCar.lstEquationTimes);
-		
-		ConfigSettings cfgsetCurrent = configSettings();
-		expOwl->setOutputFilename(cfgsetCurrent.strExperimentDirectory + seServiceEvent.cdDesignator->stringValue("filename"));
-		
-		if(expOwl->runExporter(NULL)) {
-		  this->info("Successfully exported OWL file '" + expOwl->outputFilename() + "'");
+		if(!bFailed) {
+		  this->info("Parameterizing exporter");
+		  expOwl->setDesignatorIDs(evCar.lstDesignatorIDs);
+		  expOwl->setDesignatorEquations(evCar.lstEquations);
+		  expOwl->setDesignatorEquationTimes(evCar.lstEquationTimes);
+		  
+		  ConfigSettings cfgsetCurrent = configSettings();
+		  expOwl->setOutputFilename(cfgsetCurrent.strExperimentDirectory + seServiceEvent.cdDesignator->stringValue("filename"));
+		  
+		  this->info("Exporting OWL file to '" + expOwl->outputFilename() + "'");
+		  if(expOwl->runExporter(NULL)) {
+		    this->info("Successfully exported OWL file '" + expOwl->outputFilename() + "'");
+		  } else {
+		    this->warn("Failed to export to OWL file '" + expOwl->outputFilename() + "'");
+		  }
 		} else {
 		  this->warn("Failed to export to OWL file '" + expOwl->outputFilename() + "'");
 		}
