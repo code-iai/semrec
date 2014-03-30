@@ -61,6 +61,7 @@ namespace beliefstate {
   private:
     list<PluginInstance*> m_lstLoadedPlugins;
     list<PluginInstance*> m_lstUnloadPlugins;
+    list<string> m_lstLoadFailedPlugins;
     list<string> m_lstPluginSearchPaths;
     int m_argc;
     char** m_argv;
@@ -85,6 +86,7 @@ namespace beliefstate {
     void addPluginSearchPath(string strPath);
     
     PluginInstance* pluginInstanceByID(int nID);
+    bool pluginFailedToLoadBefore(string strName);
   };
 }
 

@@ -123,6 +123,18 @@ namespace beliefstate {
     return m_bLoadDevelopmentPlugins;
   }
   
+  bool PluginSystem::pluginFailedToLoadBefore(string strName) {
+    for(list<string>::iterator itP = m_lstLoadFailedPlugins.begin();
+	itP != m_lstLoadFailedPlugins.end();
+	itP++) {
+      if(*itP == strName) {
+	return true;
+      }
+    }
+    
+    return false;
+  }
+  
   Result PluginSystem::loadPluginLibrary(string strFilepath, bool bIsNameOnly) {
     PluginInstance* icLoad = NULL;
     string strPrefix = "libbs_plugin_";
@@ -142,68 +154,80 @@ namespace beliefstate {
       this->info("Plugin '" + this->pluginNameFromPath(strFilepath) + "' already loaded.");
       resLoad.bSuccess = true;
     } else {
-      for(list<string>::iterator itSP = lstSearchPaths.begin();
-	  itSP != lstSearchPaths.end();
-	  itSP++) {
-	string strSP = *itSP;
-	string strSearchFilepath = strSP + (strSP[strSP.size() - 1] != '/' && strFilepath[0] != '/' && strSP.size() > 0 ? "/" : "") + strFilepath;
-      
-	icLoad = new PluginInstance();
-	resLoad = icLoad->loadPluginLibrary(strSearchFilepath);
-      
-	if(resLoad.bSuccess) {
-	  // Check if this is a development plugin and if we're supposed to load it.
-	  if((icLoad->developmentPlugin() && m_bLoadDevelopmentPlugins) || !icLoad->developmentPlugin()) {
-	    if(icLoad->developmentPlugin()) {
-	      this->info("This is a development plugin: '" + strFilepath + "'");
-	    }
+      if(!this->pluginFailedToLoadBefore(strFilepath)) {
+	for(list<string>::iterator itSP = lstSearchPaths.begin();
+	    itSP != lstSearchPaths.end();
+	    itSP++) {
+	  string strSP = *itSP;
+	  string strSearchFilepath = strSP + (strSP[strSP.size() - 1] != '/' && strFilepath[0] != '/' && strSP.size() > 0 ? "/" : "") + strFilepath;
+	
+	  icLoad = new PluginInstance();
+	  resLoad = icLoad->loadPluginLibrary(strSearchFilepath);
+	
+	  if(resLoad.bSuccess) {
+	    // Check if this is a development plugin and if we're supposed to load it.
+	    if((icLoad->developmentPlugin() && m_bLoadDevelopmentPlugins) || !icLoad->developmentPlugin()) {
+	      if(icLoad->developmentPlugin()) {
+		this->info("This is a development plugin: '" + strFilepath + "'");
+	      }
 	    
-	    // Check and meet dependencies
-	    list<string> lstDeps = icLoad->dependencies();
-	    for(list<string>::iterator itDep = lstDeps.begin();
-		itDep != lstDeps.end();
-		itDep++) {
-	      string strDep = *itDep;
+	      // Check and meet dependencies
+	      list<string> lstDeps = icLoad->dependencies();
+	      for(list<string>::iterator itDep = lstDeps.begin();
+		  itDep != lstDeps.end();
+		  itDep++) {
+		string strDep = *itDep;
 	      
-	      if(this->pluginLoaded(strDep) == false) {
-		Result resLoadDep = this->loadPluginLibrary(strPrefix + strDep + strSuffix);
+		if(this->pluginLoaded(strDep) == false) {
+		  Result resLoadDep = this->loadPluginLibrary(strPrefix + strDep + strSuffix);
 	    
-		if(resLoadDep.bSuccess == false) {
-		  this->fail("Unable to meet dependency of '" + strSearchFilepath + "': '" + strDep + "'");
+		  if(resLoadDep.bSuccess == false) {
+		    this->fail("Unable to meet dependency of '" + strSearchFilepath + "': '" + strDep + "'");
 	      
-		  resLoad.bSuccess = false;
-		  resLoad.riResultIdentifier = RI_PLUGIN_DEPENDENCY_NOT_MET;
-		  resLoad.strErrorMessage = strDep;
+		    resLoad.bSuccess = false;
+		    resLoad.riResultIdentifier = RI_PLUGIN_DEPENDENCY_NOT_MET;
+		    resLoad.strErrorMessage = strDep;
 	      
-		  break;
+		    break;
+		  }
 		}
 	      }
+	    } else {
+	      this->info("Not loading development plugin: '" + strFilepath + "'");
+	    
+	      resLoad.bSuccess = false;
+	      resLoad.riResultIdentifier = RI_PLUGIN_DEVELOPMENT_NOT_LOADING;
+	    }
+	  
+	    if(resLoad.bSuccess) {
+	      // Initialize the plugin
+	      Result rsResult = icLoad->init(m_argc, m_argv);
+	      
+	      if(rsResult.bSuccess) {
+		m_lstLoadedPlugins.push_back(icLoad);
+	      } else {
+		resLoad.bSuccess = false;
+		resLoad.riResultIdentifier = RI_PLUGIN_LOADING_FAILED;
+	      }
+	      
+	      break;
 	    }
 	  } else {
-	    this->info("Not loading development plugin: '" + strFilepath + "'");
-	    
 	    resLoad.bSuccess = false;
-	    resLoad.riResultIdentifier = RI_PLUGIN_DEVELOPMENT_NOT_LOADING;
+	    resLoad.riResultIdentifier = RI_PLUGIN_LOADING_FAILED;
 	  }
+      
+	  if(resLoad.bSuccess == false) {
+	    icLoad->unload();
+	    m_lstLoadFailedPlugins.push_back(strFilepath);
 	  
-	  if(resLoad.bSuccess) {
-	    // Initialize the plugin
-	    icLoad->init(m_argc, m_argv);
-	    m_lstLoadedPlugins.push_back(icLoad);
-	    
+	    delete icLoad;
+	  } else {
 	    break;
 	  }
-	} else {
-	  resLoad.bSuccess = false;
-	  resLoad.riResultIdentifier = RI_PLUGIN_LOADING_FAILED;
 	}
-      
-	if(resLoad.bSuccess == false) {
-	  icLoad->unload();
-	  delete icLoad;
-	} else {
-	  break;
-	}
+      } else {
+	this->warn("This plugin failed to load before. Skipping it.");
       }
     }
     
