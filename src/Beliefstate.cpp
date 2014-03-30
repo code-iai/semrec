@@ -48,6 +48,8 @@ namespace beliefstate {
     m_argv = argv;
     m_strWorkspaceDirectory = "";
     m_bTerminalWindowResize = false;
+    m_bCommandLineOutput = true;
+    
     this->setRedirectOutput(false);
     
     this->setMessagePrefixLabel("core");
@@ -152,6 +154,11 @@ namespace beliefstate {
 	  sMiscellaneous.lookupValue("display-unhandled-events", bDisplayUnhandledEvents);
 	  sMiscellaneous.lookupValue("display-unhandled-service-events", bDisplayUnhandledServiceEvents);
 	  sMiscellaneous.lookupValue("workspace-directory", m_strWorkspaceDirectory);
+	  sMiscellaneous.lookupValue("command-line-output", m_bCommandLineOutput);
+	  
+	  if(!m_bCommandLineOutput) {
+	    this->setRedirectOutput(true);
+	  }
 	}
 	
 	// Section: Persistent data storage
@@ -656,7 +663,12 @@ namespace beliefstate {
   bool Beliefstate::handleUnhandledEvent(Event evEvent) {
     if(evEvent.strEventName == "status-message") {
       StatusMessage msgStatus = evEvent.msgStatusMessage;
-      this->setRedirectOutput(false);
+      
+      if(m_bCommandLineOutput) {
+	this->setRedirectOutput(false);
+      } else {
+	this->setRedirectOutput(true);
+      }
       
       return true;
     }

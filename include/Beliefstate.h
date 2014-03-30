@@ -101,6 +101,7 @@ namespace beliefstate {
     string m_strWorkspaceDirectory;
     mutex m_mtxTerminalResize;
     bool m_bTerminalWindowResize;
+    bool m_bCommandLineOutput;
     
   protected:
     list<string> m_lstConfigFileLocations;
