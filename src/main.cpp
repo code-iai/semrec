@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
   }
   
   if(bQuit == false) {
-    g_bsBeliefstate->info("Starting beliefstate system (version " + g_bsBeliefstate->version() + ".");
+    g_bsBeliefstate->info("Starting beliefstate system (version " + g_bsBeliefstate->version() + ").");
     
     Result resInit = g_bsBeliefstate->init(strConfigFile);
   
