@@ -59,10 +59,12 @@ Handler hdlrOldSIGWINCH = SIG_IGN;
 
 
 // Global variable for shutdown triggering
-BeliefstateROS* bsBeliefstate;
+BeliefstateROS* g_bsBeliefstate;
 
 
 void printHelp(string strExecutableName) {
+  cout << "Beliefstate System (version " + g_bsBeliefstate->version() + ") by Jan Winkler <winkler@cs.uni-bremen.de>" << endl;
+  cout << "Licensed under BSD. https://www.github.com/fairlight1337/beliefstate" << endl << endl;
   cout << "Usage: " << strExecutableName << " [options]" << endl << endl;
   
   cout << "Available options are:" << endl;
@@ -77,7 +79,7 @@ void catchHandler(int nSignum) {
   switch(nSignum) {
   case SIGTERM:
   case SIGINT: {
-    bsBeliefstate->triggerShutdown();
+    g_bsBeliefstate->triggerShutdown();
   }
     
   case SIGWINCH: {
@@ -85,12 +87,14 @@ void catchHandler(int nSignum) {
       (*hdlrOldSIGWINCH)(SIGWINCH);
     }
     
-    bsBeliefstate->triggerTerminalResize();
+    g_bsBeliefstate->triggerTerminalResize();
   }
   }
 }
 
 int main(int argc, char** argv) {
+  g_bsBeliefstate = new BeliefstateROS(argc, argv);
+  
   // Read command line parameters
   int nC, option_index = 0;
   static struct option long_options[] = {{"config", required_argument, 0, 'c'},
@@ -117,10 +121,9 @@ int main(int argc, char** argv) {
   }
   
   if(bQuit == false) {
-    bsBeliefstate = new BeliefstateROS(argc, argv);
-    bsBeliefstate->info("Starting beliefstate system.");
+    g_bsBeliefstate->info("Starting beliefstate system (version " + g_bsBeliefstate->version() + ".");
     
-    Result resInit = bsBeliefstate->init(strConfigFile);
+    Result resInit = g_bsBeliefstate->init(strConfigFile);
   
     if(resInit.bSuccess) {
       // Catch SIGTERM and SIGINT and bind them to the callback function
@@ -135,21 +138,21 @@ int main(int argc, char** argv) {
       hdlrOldSIGWINCH = signal(SIGWINCH, SIG_IGN);
       sigaction(SIGWINCH, &action, NULL);
       
-      while(bsBeliefstate->cycle()) {
+      while(g_bsBeliefstate->cycle()) {
 	// Idle here at will.
       }
     } else {
-      bsBeliefstate->fail("Initialization of the beliefstate system failed. Being a quitter.");
+      g_bsBeliefstate->fail("Initialization of the beliefstate system failed. Being a quitter.");
     }
     
     cout << "\r";
-    bsBeliefstate->info("Exiting gracefully.");
-    bsBeliefstate->cycle();
+    g_bsBeliefstate->info("Exiting gracefully.");
+    g_bsBeliefstate->cycle();
     
-    bsBeliefstate->deinit();
-    bsBeliefstate->cycle();
+    g_bsBeliefstate->deinit();
+    g_bsBeliefstate->cycle();
     
-    delete bsBeliefstate;
+    delete g_bsBeliefstate;
   }
   
   return EXIT_SUCCESS;

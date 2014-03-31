@@ -49,6 +49,7 @@ namespace beliefstate {
     m_strWorkspaceDirectory = "";
     m_bTerminalWindowResize = false;
     m_bCommandLineOutput = true;
+    m_strVersion = "0.6 rh";
     
     this->setRedirectOutput(false);
     
@@ -59,6 +60,10 @@ namespace beliefstate {
   }
   
   Beliefstate::~Beliefstate() {
+  }
+  
+  string Beliefstate::version() {
+    return m_strVersion;
   }
   
   Result Beliefstate::init(string strConfigFile) {

@@ -102,6 +102,7 @@ namespace beliefstate {
     mutex m_mtxTerminalResize;
     bool m_bTerminalWindowResize;
     bool m_bCommandLineOutput;
+    string m_strVersion;
     
   protected:
     list<string> m_lstConfigFileLocations;
@@ -121,6 +122,8 @@ namespace beliefstate {
       
       Deletes all instances of internal objects. */
     ~Beliefstate();
+    
+    string version();
     
     /*! \brief Main initialization method for the belief state system.
       
