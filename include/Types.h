@@ -140,6 +140,7 @@ namespace beliefstate {
     
     // Plugin loading
     bool bLoadDevelopmentPlugins;
+    bool bFailedPluginsInvalidateStartup;
     
     // Plugin output
     vector<string> vecPluginOutputColors;

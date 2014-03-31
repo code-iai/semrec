@@ -113,7 +113,15 @@ namespace beliefstate {
       for(list<string>::iterator itPluginName = m_lstPluginsToLoad.begin();
 	  itPluginName != m_lstPluginsToLoad.end();
 	  itPluginName++) {
-	m_psPlugins->loadPluginLibrary(*itPluginName, true);
+	Result rsResult = m_psPlugins->loadPluginLibrary(*itPluginName, true);
+	
+	if(!rsResult.bSuccess) {
+	  if(cfgsetCurrent.bFailedPluginsInvalidateStartup) {
+	    this->fail("Failed plugin load invalidates startup. Cancelling.");
+	    resInit.bSuccess = false;
+	    break;
+	  }
+	}
       }
     } else {
       this->fail("Failed to load a valid config file.");
@@ -125,7 +133,9 @@ namespace beliefstate {
       this->warn("The workspace directory could not be resolved. This might cause problems, especially when trying to load plugins. Please ensure that your environment is set up properly. If everything seems alright, consider to override the workspace-dependent paths in a custom file (i.e. ~/.beliefstate/config.cfg).");
     }
     
-    m_lstGlobalEvents.push_back(defaultEvent("startup-complete"));
+    if(resInit.bSuccess) {
+      m_lstGlobalEvents.push_back(defaultEvent("startup-complete"));
+    }
     
     return resInit;
   }
@@ -253,12 +263,14 @@ namespace beliefstate {
 	
 	// Section: Plugins
 	bool bLoadDevelopmentPlugins = false;
+	bool bFailedPluginsInvalidateStartup = true;
 	vector<string> vecPluginOutputColors;
 	bool bSearchPathsSet = false;
 	
 	if(cfgConfig.exists("plugins")) {
 	  Setting &sPlugins = cfgConfig.lookup("plugins");
 	  sPlugins.lookupValue("load-development-plugins", bLoadDevelopmentPlugins);
+	  sPlugins.lookupValue("failed-plugins-invalidate-startup", bFailedPluginsInvalidateStartup);
 	  
 	  if(cfgConfig.exists("plugins.load")) {
 	    Setting &sPluginsLoad = cfgConfig.lookup("plugins.load");
@@ -347,6 +359,7 @@ namespace beliefstate {
 	// -> Set the global settings
 	ConfigSettings cfgsetCurrent = configSettings();
 	cfgsetCurrent.bLoadDevelopmentPlugins = bLoadDevelopmentPlugins;
+	cfgsetCurrent.bFailedPluginsInvalidateStartup = bFailedPluginsInvalidateStartup;
 	cfgsetCurrent.bUseMongoDB = bUseMongoDB;
 	cfgsetCurrent.strMongoDBHost = strMongoDBHost;
 	cfgsetCurrent.nMongoDBPort = nMongoDBPort;
