@@ -76,6 +76,8 @@ namespace beliefstate {
       icCurrent->unload();
       delete icCurrent;
     }
+    
+    m_lstLoadedPlugins.clear();
   }
   
   string PluginSystem::pluginNameFromPath(string strPath) {
