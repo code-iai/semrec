@@ -83,26 +83,33 @@ namespace beliefstate {
     bool bReturnvalue = false;
     bool bGoon = true;
     m_bReceived = false;
-  
+    
     ros::NodeHandle nh;
     m_subImage = nh.subscribe(strTopicName, 1, &CImageCapturer::imageCallback, this);
-  
+    
     while(bGoon) {
       nTimeout--;
-    
-      ros::Duration(0.01).sleep();
+      
+      ros::Duration(0.1).sleep();
+      
+      // NOTE(winkler): Is spinning actually necessary here? There is
+      // another thread maintained by the ''ros'' plugin that does
+      // continuous spinning. Check if this mechanism works without an
+      // epxlicit ''spinOnce'' here. This could be a reason for images
+      // not appearing on the publishing topic.
+      
       ros::spinOnce();
-    
+      
       if(nTimeout <= 0 || m_bReceived) {
 	bGoon = false;
       }
     }
-  
+    
     m_subImage.shutdown();
-  
+    
     if(m_bReceived) {
       cv_bridge::CvImagePtr cv_ptr;
-    
+      
       try {
 	cv_ptr = cv_bridge::toCvCopy(m_imgReceived, sensor_msgs::image_encodings::BGR8);
       
@@ -123,10 +130,10 @@ namespace beliefstate {
 	}
 	
 	bReturnvalue = true;
-      } catch (cv_bridge::Exception& e) {
+      } catch(cv_bridge::Exception& e) {
       }
     }
-  
+    
     return bReturnvalue;
   }
 

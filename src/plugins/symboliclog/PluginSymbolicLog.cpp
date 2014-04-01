@@ -199,11 +199,11 @@ namespace beliefstate {
 		}
 		
 		ndParent = ndParent->parent();
-		this->setNodeAsActive(ndParent);
 	      } else {
-		this->setNodeAsActive(ndParent);
 		break;
 	      }
+	      
+	      this->setNodeAsActive(ndParent);
 	    }
 	    
 	    if(ndParentLastValid) {

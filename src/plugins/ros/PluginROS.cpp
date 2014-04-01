@@ -137,7 +137,7 @@ namespace beliefstate {
     }
     
     bool PLUGIN_CLASS::serviceCallbackBeginContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      m_mtxGlobalInputLock.lock();
+      //m_mtxGlobalInputLock.lock();
       
       Event evBeginContext = defaultEvent("begin-context");
       evBeginContext.nContextID = createContextID();
@@ -156,13 +156,13 @@ namespace beliefstate {
       res.response.designators.push_back(desigResponse->serializeToMessage());
       delete desigResponse;
       
-      m_mtxGlobalInputLock.unlock();
+      //m_mtxGlobalInputLock.unlock();
       
       return true;
     }
     
     bool PLUGIN_CLASS::serviceCallbackEndContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      m_mtxGlobalInputLock.lock();
+      //m_mtxGlobalInputLock.lock();
       
       Event evEndContext = defaultEvent("end-context");
       evEndContext.cdDesignator = new CDesignator(req.request.designator);
@@ -176,13 +176,13 @@ namespace beliefstate {
       
       freeContextID(nContextID);
       
-      m_mtxGlobalInputLock.unlock();
+      //m_mtxGlobalInputLock.unlock();
       
       return true;
     }
 
     bool PLUGIN_CLASS::serviceCallbackAlterContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      m_mtxGlobalInputLock.lock();
+      //m_mtxGlobalInputLock.lock();
       
       Event evAlterContext = defaultEvent();
       evAlterContext.cdDesignator = new CDesignator(req.request.designator);
@@ -225,7 +225,7 @@ namespace beliefstate {
       
       this->deployEvent(evAlterContext, true);
       
-      m_mtxGlobalInputLock.unlock();
+      //m_mtxGlobalInputLock.unlock();
       
       return true;
     }
