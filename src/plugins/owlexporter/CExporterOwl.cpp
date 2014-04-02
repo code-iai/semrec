@@ -842,8 +842,10 @@ namespace beliefstate {
   }
   
   bool CExporterOwl::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
+    this->info("Renewing unique IDs");
     this->renewUniqueIDs();
     
+    this->info("Generating XML");
     if(this->outputFilename() != "") {
       string strOwl = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\n";
       // NOTE(winkler): This used to be `random'. Changed this due to
@@ -853,13 +855,18 @@ namespace beliefstate {
       string strNamespace = "http://ias.cs.tum.edu/kb/cram_log.owl";// + strNamespaceID;
       
       // Prepare content
+      this->info(" - Preparing content");
       this->prepareEntities(strNamespaceID, strNamespace);
       
       // Generate source
+      this->info(" - Generating source");
       strOwl += this->generateOwlStringForNodes(this->nodes(), strNamespaceID, strNamespace);
       
       // Write the .owl file
+      this->info(" - Writing file");
       return this->writeToFile(strOwl);
+    } else {
+      this->fail("No output filename was given. Cancelling.");
     }
     
     return false;
