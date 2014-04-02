@@ -206,11 +206,13 @@ namespace beliefstate {
 
   string CExporterOwl::generateOwlImports(string strNamespace) {
     string strDot = "";
-  
+    
+    string strImportNamespace = "knowrob.owl"; //"http://ias.cs.tum.edu/kb/knowrob.owl";
+    
     strDot += "    <owl:Ontology rdf:about=\"" + strNamespace + "\">\n";
-    strDot += "        <owl:imports rdf:resource=\"http://ias.cs.tum.edu/kb/knowrob.owl\"/>\n";
+    strDot += "        <owl:imports rdf:resource=\"" + strImportNamespace + "\"/>\n";
     strDot += "    </owl:Ontology>\n\n";
-  
+    
     return strDot;
   }
 

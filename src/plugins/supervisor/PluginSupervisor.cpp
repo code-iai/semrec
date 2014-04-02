@@ -144,6 +144,14 @@ namespace beliefstate {
 	symlink(strNewName.c_str(), strSymlink.c_str());
 	this->info("Symlink set accordingly.");
 	
+	CDesignator* cdConfig = this->getIndividualConfig();
+	string strKnowRobOwl = cdConfig->stringValue("knowrob-symlink-path");
+	
+	if(strKnowRobOwl != "") {
+	  symlink(strKnowRobOwl.c_str(), string(strNewName + "knowrob.owl").c_str());
+	  this->info("Created KnowRob OWL symlink to: '" + strKnowRobOwl + "'");
+	}
+	
 	// Signal global experiment start.
 	this->deployEvent(defaultEvent("experiment-start"));
       } else if(evEvent.strEventName == "startup-complete") {
