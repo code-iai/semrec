@@ -379,13 +379,13 @@ namespace beliefstate {
 	if(this->nodeDisplayable(ndCurrent)) {
 	  string strOwlClass = this->owlClassForNode(ndCurrent);
 	  strDot += this->generateEventIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
-	
+	  
 	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
 	  strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
 	  strDot += "        <knowrob:taskContext rdf:datatype=\"&xsd;string\">" + ndCurrent->title() + "</knowrob:taskContext>\n";
 	  strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-start") + "\"/>\n";
 	  strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-end") + "\"/>\n";
-	
+	  
 	  if(ndCurrent->title() == "GOAL-ACHIEVE") {
 	    list<CKeyValuePair*> lstDescription = ndCurrent->description();
 	    string strPattern = "";
@@ -400,12 +400,12 @@ namespace beliefstate {
 		break;
 	      }
 	    }
-	
+	    
 	    if(strPattern != "") {
 	      strDot += "        <knowrob:goalContext rdf:datatype=\"&xsd;string\">" + strPattern + "</knowrob:goalContext>\n";
 	    }
 	  }
-	
+	  
 	  list<Node*> lstSubnodes = ndCurrent->subnodes();
 	  for(list<Node*>::iterator itSubnode = lstSubnodes.begin();
 	      itSubnode != lstSubnodes.end();
@@ -428,22 +428,22 @@ namespace beliefstate {
 	      strDot += "        <knowrob:nextAction rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
 	      break;
 	    }
-	
+	    
 	    itPostEvent++;
 	  }
-	
+	  
 	  // Object references here.
 	  CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
-	
+	  
 	  if(ckvpObjects) {
 	    list<CKeyValuePair*> lstObjects = ckvpObjects->children();
-    
+	    
 	    unsigned int unIndex = 0;
 	    for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
 		itObject != lstObjects.end();
 		itObject++, unIndex++) {
 	      CKeyValuePair *ckvpObject = *itObject;
-      
+	      
 	      stringstream sts;
 	      sts << ndCurrent->uniqueID() << "_object_" << unIndex;
 	  
@@ -476,10 +476,10 @@ namespace beliefstate {
 	
 	  // Failure references here.
 	  CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
-      
+	  
 	  if(ckvpFailures) {
 	    list<CKeyValuePair*> lstFailures = ckvpFailures->children();
-	
+	    
 	    unsigned int unIndex = 0;
 	    for(list<CKeyValuePair*>::iterator itFailure = lstFailures.begin();
 		itFailure != lstFailures.end();
@@ -494,7 +494,7 @@ namespace beliefstate {
 	
 	  // Caught failure here.
 	  CKeyValuePair *ckvpCaughtFailures = ndCurrent->metaInformation()->childForKey("caught_failures");
-	
+	  
 	  if(ckvpCaughtFailures) {
 	    list<CKeyValuePair*> lstCaughtFailures = ckvpCaughtFailures->children();
 	  
@@ -503,17 +503,19 @@ namespace beliefstate {
 		itCaughtFailure != lstCaughtFailures.end();
 		itCaughtFailure++, unIndex++) {
 	      CKeyValuePair *ckvpCaughtFailure = *itCaughtFailure;
-	    
+	      
 	      Node* ndFailureEmitter = ndCurrent->emitterForCaughtFailure(ckvpCaughtFailure->stringValue("failure-id"), ckvpCaughtFailure->stringValue("time-catch"), unIndex);
-	      string strCaughtFailure = ndFailureEmitter->uniqueID() + "_" + ckvpCaughtFailure->stringValue("failure-id");
-	    
-	      strDot += "        <knowrob:caughtFailure rdf:resource=\"&" + strNamespace + ";" + strCaughtFailure + "\"/>\n";
+	      
+	      if(ndFailureEmitter) {
+		string strCaughtFailure = ndFailureEmitter->uniqueID() + "_" + ckvpCaughtFailure->stringValue("failure-id");
+		strDot += "        <knowrob:caughtFailure rdf:resource=\"&" + strNamespace + ";" + strCaughtFailure + "\"/>\n";
+	      }
 	    }
 	  }
-	
+	  
 	  // Designator references here.
 	  CKeyValuePair *ckvpDesignators = ndCurrent->metaInformation()->childForKey("designators");
-	
+	  
 	  if(ckvpDesignators) {
 	    list<CKeyValuePair*> lstDesignators = ckvpDesignators->children();
 	
@@ -522,16 +524,16 @@ namespace beliefstate {
 		itDesignator != lstDesignators.end();
 		itDesignator++, unIndex++) {
 	      CKeyValuePair *ckvpDesignator = *itDesignator;
-	    
+	      
 	      string strAnnotation = ckvpDesignator->stringValue("annotation");
 	      string strDesigID = ckvpDesignator->stringValue("id");
-	    
+	      
 	      string strDesigPurpose = this->resolveDesignatorAnnotationTagName(strAnnotation);
-	    
+	      
 	      strDot += "        <knowrob:" + strDesigPurpose + " rdf:resource=\"&" + strNamespace + ";" + strDesigID + "\"/>\n";
 	    }
 	  }
-	
+	  
 	  strDot += "    </owl:namedIndividual>\n\n";
 	  ndLastDisplayed = ndCurrent;
 	}
