@@ -235,27 +235,31 @@ namespace beliefstate {
 	itNode != lstNodes.end();
 	itNode++) {
       Node *ndCurrent = *itNode;
-    
-      list<string> lstClassesSubnodes = this->gatherClassesForNodes(ndCurrent->subnodes());
-      lstClassesSubnodes.push_back(this->owlClassForNode(ndCurrent));
-    
-      for(list<string>::iterator itClassSubnode = lstClassesSubnodes.begin();
-	  itClassSubnode != lstClassesSubnodes.end();
-	  itClassSubnode++) {
-	bool bExists = false;
       
-	for(list<string>::iterator itClassNode = lstClasses.begin();
-	    itClassNode != lstClasses.end();
-	    itClassNode++) {
-	  if(*itClassSubnode == *itClassNode) {
-	    bExists = true;
-	    break;
+      if(ndCurrent) {
+	list<string> lstClassesSubnodes = this->gatherClassesForNodes(ndCurrent->subnodes());
+	lstClassesSubnodes.push_back(this->owlClassForNode(ndCurrent));
+    
+	for(list<string>::iterator itClassSubnode = lstClassesSubnodes.begin();
+	    itClassSubnode != lstClassesSubnodes.end();
+	    itClassSubnode++) {
+	  bool bExists = false;
+      
+	  for(list<string>::iterator itClassNode = lstClasses.begin();
+	      itClassNode != lstClasses.end();
+	      itClassNode++) {
+	    if(*itClassSubnode == *itClassNode) {
+	      bExists = true;
+	      break;
+	    }
+	  }
+      
+	  if(!bExists) {
+	    lstClasses.push_back(*itClassSubnode);
 	  }
 	}
-      
-	if(!bExists) {
-	  lstClasses.push_back(*itClassSubnode);
-	}
+      } else {
+	this->fail("Class for invalid node requested!");
       }
     }
   
@@ -270,66 +274,70 @@ namespace beliefstate {
 	itNode++) {
       Node *ndCurrent = *itNode;
       
-      // Gather node timepoints
-      list<string> lstTimepointsSubnodes = this->gatherTimepointsForNodes(ndCurrent->subnodes());
-      lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-start"));
-      lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-end"));
+      if(ndCurrent) {
+	// Gather node timepoints
+	list<string> lstTimepointsSubnodes = this->gatherTimepointsForNodes(ndCurrent->subnodes());
+	lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-start"));
+	lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-end"));
       
-      // Gather failure timepoints
-      CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
+	// Gather failure timepoints
+	CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
       
-      if(ckvpFailures) {
-	list<CKeyValuePair*> lstFailures = ckvpFailures->children();
+	if(ckvpFailures) {
+	  list<CKeyValuePair*> lstFailures = ckvpFailures->children();
 	
-	unsigned int unIndex = 0;
-	for(list<CKeyValuePair*>::iterator itFailure = lstFailures.begin();
-	    itFailure != lstFailures.end();
-	    itFailure++, unIndex++) {
-	  CKeyValuePair *ckvpFailure = *itFailure;
-	  lstTimepointsSubnodes.push_back(ckvpFailure->stringValue("time-fail"));
-	}
-      }
-      
-      // Gather image timepoints
-      CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
-      
-      if(ckvpImages) {
-	list<CKeyValuePair*> lstImages = ckvpImages->children();
-	
-	unsigned int unIndex = 0;
-	for(list<CKeyValuePair*>::iterator itImage = lstImages.begin();
-	    itImage != lstImages.end();
-	    itImage++, unIndex++) {
-	  CKeyValuePair *ckvpImage = *itImage;
-	  lstTimepointsSubnodes.push_back(ckvpImage->stringValue("time-capture"));
-	}
-      }
-      
-      // Gather designator equation timepoints
-      for(list< pair<string, string> >::iterator itPair = m_lstDesignatorEquationTimes.begin();
-	  itPair != m_lstDesignatorEquationTimes.end();
-	  itPair++) {
-	lstTimepointsSubnodes.push_back((*itPair).second);
-      }
-    
-      // Unify all timepoints
-      for(list<string>::iterator itTimepointSubnode = lstTimepointsSubnodes.begin();
-	  itTimepointSubnode != lstTimepointsSubnodes.end();
-	  itTimepointSubnode++) {
-	bool bExists = false;
-      
-	for(list<string>::iterator itTimepointNode = lstTimepoints.begin();
-	    itTimepointNode != lstTimepoints.end();
-	    itTimepointNode++) {
-	  if(*itTimepointSubnode == *itTimepointNode) {
-	    bExists = true;
-	    break;
+	  unsigned int unIndex = 0;
+	  for(list<CKeyValuePair*>::iterator itFailure = lstFailures.begin();
+	      itFailure != lstFailures.end();
+	      itFailure++, unIndex++) {
+	    CKeyValuePair *ckvpFailure = *itFailure;
+	    lstTimepointsSubnodes.push_back(ckvpFailure->stringValue("time-fail"));
 	  }
 	}
       
-	if(!bExists) {
-	  lstTimepoints.push_back(*itTimepointSubnode);
+	// Gather image timepoints
+	CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
+      
+	if(ckvpImages) {
+	  list<CKeyValuePair*> lstImages = ckvpImages->children();
+	
+	  unsigned int unIndex = 0;
+	  for(list<CKeyValuePair*>::iterator itImage = lstImages.begin();
+	      itImage != lstImages.end();
+	      itImage++, unIndex++) {
+	    CKeyValuePair *ckvpImage = *itImage;
+	    lstTimepointsSubnodes.push_back(ckvpImage->stringValue("time-capture"));
+	  }
 	}
+      
+	// Gather designator equation timepoints
+	for(list< pair<string, string> >::iterator itPair = m_lstDesignatorEquationTimes.begin();
+	    itPair != m_lstDesignatorEquationTimes.end();
+	    itPair++) {
+	  lstTimepointsSubnodes.push_back((*itPair).second);
+	}
+    
+	// Unify all timepoints
+	for(list<string>::iterator itTimepointSubnode = lstTimepointsSubnodes.begin();
+	    itTimepointSubnode != lstTimepointsSubnodes.end();
+	    itTimepointSubnode++) {
+	  bool bExists = false;
+      
+	  for(list<string>::iterator itTimepointNode = lstTimepoints.begin();
+	      itTimepointNode != lstTimepoints.end();
+	      itTimepointNode++) {
+	    if(*itTimepointSubnode == *itTimepointNode) {
+	      bExists = true;
+	      break;
+	    }
+	  }
+      
+	  if(!bExists) {
+	    lstTimepoints.push_back(*itTimepointSubnode);
+	  }
+	}
+      } else {
+	this->fail("Timepoints for invalid node requested!");
       }
     }
   
@@ -367,164 +375,168 @@ namespace beliefstate {
 	itNode++) {
       Node *ndCurrent = *itNode;
       
-      if(this->nodeDisplayable(ndCurrent)) {
-	string strOwlClass = this->owlClassForNode(ndCurrent);
-	strDot += this->generateEventIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
+      if(ndCurrent) {
+	if(this->nodeDisplayable(ndCurrent)) {
+	  string strOwlClass = this->owlClassForNode(ndCurrent);
+	  strDot += this->generateEventIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
 	
-	strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
-	strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
-	strDot += "        <knowrob:taskContext rdf:datatype=\"&xsd;string\">" + ndCurrent->title() + "</knowrob:taskContext>\n";
-	strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-start") + "\"/>\n";
-	strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-end") + "\"/>\n";
+	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
+	  strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
+	  strDot += "        <knowrob:taskContext rdf:datatype=\"&xsd;string\">" + ndCurrent->title() + "</knowrob:taskContext>\n";
+	  strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-start") + "\"/>\n";
+	  strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-end") + "\"/>\n";
 	
-	if(ndCurrent->title() == "GOAL-ACHIEVE") {
-	  list<CKeyValuePair*> lstDescription = ndCurrent->description();
-	  string strPattern = "";
+	  if(ndCurrent->title() == "GOAL-ACHIEVE") {
+	    list<CKeyValuePair*> lstDescription = ndCurrent->description();
+	    string strPattern = "";
 	  
-	  for(list<CKeyValuePair*>::iterator itDesc = lstDescription.begin();
-	      itDesc != lstDescription.end();
-	      itDesc++) {
-	    CKeyValuePair *prNow = *itDesc;
+	    for(list<CKeyValuePair*>::iterator itDesc = lstDescription.begin();
+		itDesc != lstDescription.end();
+		itDesc++) {
+	      CKeyValuePair *prNow = *itDesc;
 	  
-	    if(prNow->key() == "PATTERN") {
-	      strPattern = prNow->stringValue();
+	      if(prNow->key() == "PATTERN") {
+		strPattern = prNow->stringValue();
+		break;
+	      }
+	    }
+	
+	    if(strPattern != "") {
+	      strDot += "        <knowrob:goalContext rdf:datatype=\"&xsd;string\">" + strPattern + "</knowrob:goalContext>\n";
+	    }
+	  }
+	
+	  list<Node*> lstSubnodes = ndCurrent->subnodes();
+	  for(list<Node*>::iterator itSubnode = lstSubnodes.begin();
+	      itSubnode != lstSubnodes.end();
+	      itSubnode++) {
+	    Node *ndSubnode = *itSubnode;
+	  
+	    if(this->nodeDisplayable(ndSubnode)) {
+	      strDot += "        <knowrob:subAction rdf:resource=\"&" + strNamespace + ";" + ndSubnode->uniqueID() + "\"/>\n";
+	    }
+	  }
+	
+	  if(ndLastDisplayed) {
+	    strDot += "        <knowrob:previousAction rdf:resource=\"&" + strNamespace + ";" + ndLastDisplayed->uniqueID() + "\"/>\n";
+	  }
+	
+	  list<Node*>::iterator itPostEvent = itNode;
+	  itPostEvent++;
+	  while(itPostEvent != lstNodes.end()) {
+	    if(this->nodeDisplayable(*itPostEvent)) {
+	      strDot += "        <knowrob:nextAction rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
 	      break;
 	    }
+	
+	    itPostEvent++;
 	  }
 	
-	  if(strPattern != "") {
-	    strDot += "        <knowrob:goalContext rdf:datatype=\"&xsd;string\">" + strPattern + "</knowrob:goalContext>\n";
-	  }
-	}
+	  // Object references here.
+	  CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
 	
-	list<Node*> lstSubnodes = ndCurrent->subnodes();
-	for(list<Node*>::iterator itSubnode = lstSubnodes.begin();
-	    itSubnode != lstSubnodes.end();
-	    itSubnode++) {
-	  Node *ndSubnode = *itSubnode;
-	  
-	  if(this->nodeDisplayable(ndSubnode)) {
-	    strDot += "        <knowrob:subAction rdf:resource=\"&" + strNamespace + ";" + ndSubnode->uniqueID() + "\"/>\n";
-	  }
-	}
-	
-	if(ndLastDisplayed) {
-	  strDot += "        <knowrob:previousAction rdf:resource=\"&" + strNamespace + ";" + ndLastDisplayed->uniqueID() + "\"/>\n";
-	}
-	
-	list<Node*>::iterator itPostEvent = itNode;
-	itPostEvent++;
-	while(itPostEvent != lstNodes.end()) {
-	  if(this->nodeDisplayable(*itPostEvent)) {
-	    strDot += "        <knowrob:nextAction rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
-	    break;
-	  }
-	
-	  itPostEvent++;
-	}
-	
-	// Object references here.
-	CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
-	
-	if(ckvpObjects) {
-	  list<CKeyValuePair*> lstObjects = ckvpObjects->children();
+	  if(ckvpObjects) {
+	    list<CKeyValuePair*> lstObjects = ckvpObjects->children();
     
-	  unsigned int unIndex = 0;
-	  for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
-	      itObject != lstObjects.end();
-	      itObject++, unIndex++) {
-	    CKeyValuePair *ckvpObject = *itObject;
+	    unsigned int unIndex = 0;
+	    for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
+		itObject != lstObjects.end();
+		itObject++, unIndex++) {
+	      CKeyValuePair *ckvpObject = *itObject;
       
-	    stringstream sts;
-	    sts << ndCurrent->uniqueID() << "_object_" << unIndex;
+	      stringstream sts;
+	      sts << ndCurrent->uniqueID() << "_object_" << unIndex;
 	  
-	    if(strOwlClass == "&knowrob;VisualPerception") {
-	      strDot += "        <knowrob:detectedObject rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
-	    } else {
-	      strDot += "        <knowrob:objectActedOn rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+	      if(strOwlClass == "&knowrob;VisualPerception") {
+		strDot += "        <knowrob:detectedObject rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+	      } else {
+		strDot += "        <knowrob:objectActedOn rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+	      }
 	    }
 	  }
-	}
 	
-	// Image references here.
-	CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
+	  // Image references here.
+	  CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
 	
-	if(ckvpImages) {
-	  list<CKeyValuePair*> lstImages = ckvpImages->children();
+	  if(ckvpImages) {
+	    list<CKeyValuePair*> lstImages = ckvpImages->children();
 	  
-	  unsigned int unIndex = 0;
-	  for(list<CKeyValuePair*>::iterator itImage = lstImages.begin();
-	      itImage != lstImages.end();
-	      itImage++, unIndex++) {
-	    CKeyValuePair *ckvpImage = *itImage;
+	    unsigned int unIndex = 0;
+	    for(list<CKeyValuePair*>::iterator itImage = lstImages.begin();
+		itImage != lstImages.end();
+		itImage++, unIndex++) {
+	      CKeyValuePair *ckvpImage = *itImage;
 	    
-	    stringstream sts;
-	    sts << ndCurrent->uniqueID() << "_image_" << unIndex;
+	      stringstream sts;
+	      sts << ndCurrent->uniqueID() << "_image_" << unIndex;
 	    
-	    strDot += "        <knowrob:capturedImage rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+	      strDot += "        <knowrob:capturedImage rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+	    }
 	  }
-	}
 	
-	// Failure references here.
-	CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
+	  // Failure references here.
+	  CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
       
-	if(ckvpFailures) {
-	  list<CKeyValuePair*> lstFailures = ckvpFailures->children();
+	  if(ckvpFailures) {
+	    list<CKeyValuePair*> lstFailures = ckvpFailures->children();
 	
-	  unsigned int unIndex = 0;
-	  for(list<CKeyValuePair*>::iterator itFailure = lstFailures.begin();
-	      itFailure != lstFailures.end();
-	      itFailure++, unIndex++) {
-	    CKeyValuePair *ckvpFailure = *itFailure;
+	    unsigned int unIndex = 0;
+	    for(list<CKeyValuePair*>::iterator itFailure = lstFailures.begin();
+		itFailure != lstFailures.end();
+		itFailure++, unIndex++) {
+	      CKeyValuePair *ckvpFailure = *itFailure;
 	  
-	    stringstream sts;
-	    sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
-	    strDot += "        <knowrob:eventFailure rdf:resource=\"&" + strNamespace + ";" + sts.str() + "\"/>\n";
+	      stringstream sts;
+	      sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
+	      strDot += "        <knowrob:eventFailure rdf:resource=\"&" + strNamespace + ";" + sts.str() + "\"/>\n";
+	    }
 	  }
-	}
 	
-	// Caught failure here.
-	CKeyValuePair *ckvpCaughtFailures = ndCurrent->metaInformation()->childForKey("caught_failures");
+	  // Caught failure here.
+	  CKeyValuePair *ckvpCaughtFailures = ndCurrent->metaInformation()->childForKey("caught_failures");
 	
-	if(ckvpCaughtFailures) {
-	  list<CKeyValuePair*> lstCaughtFailures = ckvpCaughtFailures->children();
+	  if(ckvpCaughtFailures) {
+	    list<CKeyValuePair*> lstCaughtFailures = ckvpCaughtFailures->children();
 	  
-	  unsigned int unIndex = 0;
-	  for(list<CKeyValuePair*>::iterator itCaughtFailure = lstCaughtFailures.begin();
-	      itCaughtFailure != lstCaughtFailures.end();
-	      itCaughtFailure++, unIndex++) {
-	    CKeyValuePair *ckvpCaughtFailure = *itCaughtFailure;
+	    unsigned int unIndex = 0;
+	    for(list<CKeyValuePair*>::iterator itCaughtFailure = lstCaughtFailures.begin();
+		itCaughtFailure != lstCaughtFailures.end();
+		itCaughtFailure++, unIndex++) {
+	      CKeyValuePair *ckvpCaughtFailure = *itCaughtFailure;
 	    
-	    Node* ndFailureEmitter = ndCurrent->emitterForCaughtFailure(ckvpCaughtFailure->stringValue("failure-id"), ckvpCaughtFailure->stringValue("time-catch"), unIndex);
-	    string strCaughtFailure = ndFailureEmitter->uniqueID() + "_" + ckvpCaughtFailure->stringValue("failure-id");
+	      Node* ndFailureEmitter = ndCurrent->emitterForCaughtFailure(ckvpCaughtFailure->stringValue("failure-id"), ckvpCaughtFailure->stringValue("time-catch"), unIndex);
+	      string strCaughtFailure = ndFailureEmitter->uniqueID() + "_" + ckvpCaughtFailure->stringValue("failure-id");
 	    
-	    strDot += "        <knowrob:caughtFailure rdf:resource=\"&" + strNamespace + ";" + strCaughtFailure + "\"/>\n";
+	      strDot += "        <knowrob:caughtFailure rdf:resource=\"&" + strNamespace + ";" + strCaughtFailure + "\"/>\n";
+	    }
 	  }
-	}
 	
-	// Designator references here.
-	CKeyValuePair *ckvpDesignators = ndCurrent->metaInformation()->childForKey("designators");
+	  // Designator references here.
+	  CKeyValuePair *ckvpDesignators = ndCurrent->metaInformation()->childForKey("designators");
 	
-	if(ckvpDesignators) {
-	  list<CKeyValuePair*> lstDesignators = ckvpDesignators->children();
+	  if(ckvpDesignators) {
+	    list<CKeyValuePair*> lstDesignators = ckvpDesignators->children();
 	
-	  unsigned int unIndex = 0;
-	  for(list<CKeyValuePair*>::iterator itDesignator = lstDesignators.begin();
-	      itDesignator != lstDesignators.end();
-	      itDesignator++, unIndex++) {
-	    CKeyValuePair *ckvpDesignator = *itDesignator;
+	    unsigned int unIndex = 0;
+	    for(list<CKeyValuePair*>::iterator itDesignator = lstDesignators.begin();
+		itDesignator != lstDesignators.end();
+		itDesignator++, unIndex++) {
+	      CKeyValuePair *ckvpDesignator = *itDesignator;
 	    
-	    string strAnnotation = ckvpDesignator->stringValue("annotation");
-	    string strDesigID = ckvpDesignator->stringValue("id");
+	      string strAnnotation = ckvpDesignator->stringValue("annotation");
+	      string strDesigID = ckvpDesignator->stringValue("id");
 	    
-	    string strDesigPurpose = this->resolveDesignatorAnnotationTagName(strAnnotation);
+	      string strDesigPurpose = this->resolveDesignatorAnnotationTagName(strAnnotation);
 	    
-	    strDot += "        <knowrob:" + strDesigPurpose + " rdf:resource=\"&" + strNamespace + ";" + strDesigID + "\"/>\n";
+	      strDot += "        <knowrob:" + strDesigPurpose + " rdf:resource=\"&" + strNamespace + ";" + strDesigID + "\"/>\n";
+	    }
 	  }
-	}
 	
-	strDot += "    </owl:namedIndividual>\n\n";
-	ndLastDisplayed = ndCurrent;
+	  strDot += "    </owl:namedIndividual>\n\n";
+	  ndLastDisplayed = ndCurrent;
+	}
+      } else {
+	this->fail("Generation of event individual for node with invalid content requested!");
       }
     }
     
@@ -588,34 +600,38 @@ namespace beliefstate {
 	itNode++) {
       Node *ndCurrent = *itNode;
       
-      CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
+      if(ndCurrent) {
+	CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
       
-      if(ckvpFailures) {
-	list<CKeyValuePair*> lstFailures = ckvpFailures->children();
+	if(ckvpFailures) {
+	  list<CKeyValuePair*> lstFailures = ckvpFailures->children();
       
-	unsigned int unIndex = 0;
-	for(list<CKeyValuePair*>::iterator itFailure = lstFailures.begin();
-	    itFailure != lstFailures.end();
-	    itFailure++, unIndex++) {
-	  CKeyValuePair *ckvpFailure = *itFailure;
+	  unsigned int unIndex = 0;
+	  for(list<CKeyValuePair*>::iterator itFailure = lstFailures.begin();
+	      itFailure != lstFailures.end();
+	      itFailure++, unIndex++) {
+	    CKeyValuePair *ckvpFailure = *itFailure;
 	
-	  stringstream sts;
-	  sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
+	    stringstream sts;
+	    sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
 	
-	  string strCondition = ckvpFailure->stringValue("condition");
-	  string strTimestamp = ckvpFailure->stringValue("time-fail");
+	    string strCondition = ckvpFailure->stringValue("condition");
+	    string strTimestamp = ckvpFailure->stringValue("time-fail");
 	  
-	  string strFailureClass = this->failureClassForCondition(strCondition);
+	    string strFailureClass = this->failureClassForCondition(strCondition);
 	  
-	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
-	  strDot += "        <rdf:type rdf:resource=\"&knowrob;" + strFailureClass + "\"/>\n";
-	  strDot += "        <rdfs:label rdf:datatype=\"&xsd;string\">" + this->owlEscapeString(strCondition) + "</rdfs:label>\n";
-	  strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strTimestamp + "\"/>\n";
-	  strDot += "    </owl:namedIndividual>\n\n";
+	    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
+	    strDot += "        <rdf:type rdf:resource=\"&knowrob;" + strFailureClass + "\"/>\n";
+	    strDot += "        <rdfs:label rdf:datatype=\"&xsd;string\">" + this->owlEscapeString(strCondition) + "</rdfs:label>\n";
+	    strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strTimestamp + "\"/>\n";
+	    strDot += "    </owl:namedIndividual>\n\n";
+	  }
 	}
+	
+	strDot += this->generateFailureIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
+      } else {
+	this->fail("Failure node with invalid content!");
       }
-    
-      strDot += this->generateFailureIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
     }
   
     return strDot;
@@ -628,30 +644,35 @@ namespace beliefstate {
 	itNode != lstNodes.end();
 	itNode++) {
       Node *ndCurrent = *itNode;
-      CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
-    
-      if(ckvpObjects) {
-	list<CKeyValuePair*> lstObjects = ckvpObjects->children();
       
-	unsigned int unIndex = 0;
-	for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
-	    itObject != lstObjects.end();
-	    itObject++, unIndex++) {
-	  CKeyValuePair *ckvpObject = *itObject;
-	
-	  stringstream sts;
-	  sts << ndCurrent->uniqueID() << "_object_" << unIndex;
-	
-	  string strDesignatorID = ckvpObject->stringValue("__id");
-	  string strOwlClass = this->owlClassForObject(ckvpObject);
-	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
-	  strDot += "        <knowrob:designator rdf:resource=\"&" + strNamespace + ";" + strDesignatorID + "\"/>\n";
-	  strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
-	  strDot += "    </owl:namedIndividual>\n\n";
-	}
-      }
+      if(ndCurrent) {
+	CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
     
-      strDot += this->generateObjectIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
+	if(ckvpObjects) {
+	  list<CKeyValuePair*> lstObjects = ckvpObjects->children();
+      
+	  unsigned int unIndex = 0;
+	  for(list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
+	      itObject != lstObjects.end();
+	      itObject++, unIndex++) {
+	    CKeyValuePair *ckvpObject = *itObject;
+	
+	    stringstream sts;
+	    sts << ndCurrent->uniqueID() << "_object_" << unIndex;
+	
+	    string strDesignatorID = ckvpObject->stringValue("__id");
+	    string strOwlClass = this->owlClassForObject(ckvpObject);
+	    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
+	    strDot += "        <knowrob:designator rdf:resource=\"&" + strNamespace + ";" + strDesignatorID + "\"/>\n";
+	    strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
+	    strDot += "    </owl:namedIndividual>\n\n";
+	  }
+	}
+    
+	strDot += this->generateObjectIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
+      } else {
+	this->fail("Generation of object individual for node with invalid content requested!");
+      }
     }
   
     return strDot;
@@ -671,35 +692,40 @@ namespace beliefstate {
 	itNode != lstNodes.end();
 	itNode++) {
       Node *ndCurrent = *itNode;
-      CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
       
-      if(ckvpImages) {
-	list<CKeyValuePair*> lstImages = ckvpImages->children();
+      if(ndCurrent) {
+	CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
+      
+	if(ckvpImages) {
+	  list<CKeyValuePair*> lstImages = ckvpImages->children();
 	
-	unsigned int unIndex = 0;
-	for(list<CKeyValuePair*>::iterator itImage = lstImages.begin();
-	    itImage != lstImages.end();
-	    itImage++, unIndex++) {
-	  CKeyValuePair *ckvpImage = *itImage;
+	  unsigned int unIndex = 0;
+	  for(list<CKeyValuePair*>::iterator itImage = lstImages.begin();
+	      itImage != lstImages.end();
+	      itImage++, unIndex++) {
+	    CKeyValuePair *ckvpImage = *itImage;
 	  
-	  stringstream sts;
-	  sts << ndCurrent->uniqueID() << "_image_" << unIndex;
+	    stringstream sts;
+	    sts << ndCurrent->uniqueID() << "_image_" << unIndex;
 	  
-	  string strOwlClass = "&knowrob;CameraImage";
-	  string strFilename = ckvpImage->stringValue("filename");
-	  string strTopic = ckvpImage->stringValue("origin");
-	  string strCaptureTime = ckvpImage->stringValue("time-capture");
+	    string strOwlClass = "&knowrob;CameraImage";
+	    string strFilename = ckvpImage->stringValue("filename");
+	    string strTopic = ckvpImage->stringValue("origin");
+	    string strCaptureTime = ckvpImage->stringValue("time-capture");
 	  
-	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
-	  strDot += "        <knowrob:linkToImageFile rdf:datatype=\"&xsd;string\">" + strFilename + "</knowrob:linkToImageFile>\n";
-	  strDot += "        <knowrob:rosTopic rdf:datatype=\"&xsd;string\">" + strTopic + "</knowrob:rosTopic>\n";
-	  strDot += "        <knowrob:captureTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strCaptureTime + "\"/>\n";
-	  strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
-	  strDot += "    </owl:namedIndividual>\n\n";
+	    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
+	    strDot += "        <knowrob:linkToImageFile rdf:datatype=\"&xsd;string\">" + strFilename + "</knowrob:linkToImageFile>\n";
+	    strDot += "        <knowrob:rosTopic rdf:datatype=\"&xsd;string\">" + strTopic + "</knowrob:rosTopic>\n";
+	    strDot += "        <knowrob:captureTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strCaptureTime + "\"/>\n";
+	    strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
+	    strDot += "    </owl:namedIndividual>\n\n";
+	  }
 	}
+	
+	strDot += this->generateImageIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
+      } else {
+	this->fail("Image node with invalid content!");
       }
-      
-      strDot += this->generateImageIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
     }
   
     return strDot;
@@ -768,7 +794,11 @@ namespace beliefstate {
   }
 
   string CExporterOwl::owlClassForNode(Node *ndNode, bool bClassOnly, bool bPrologSyntax) {
-    string strName = ndNode->title();
+    string strName = "";
+    
+    if(ndNode) {
+      strName = ndNode->title();
+    }
     
     string strPlainPrefix = "knowrob";
     string strPrefix = (bPrologSyntax ? strPlainPrefix + ":" : "&" + strPlainPrefix + ";");
@@ -880,19 +910,30 @@ namespace beliefstate {
     string strOwl = "";
     
     // Assemble OWL source
+    this->info(" - Block: DocType");
     strOwl += this->generateDocTypeBlock();
+    this->info(" - Block: XMLNS");
     strOwl += this->generateXMLNSBlock(strNamespace);
+    this->info(" - Block: Imports");
     strOwl += this->generateOwlImports(strNamespace);
+    this->info(" - Block: PropDefs");
     strOwl += this->generatePropertyDefinitions();
+    this->info(" - Block: ClassDefs");
     strOwl += this->generateClassDefinitions();
+    this->info(" - Block: EvtIndivs");
     strOwl += this->generateEventIndividuals(strNamespaceID);
+    this->info(" - Block: ObjIndivs");
     strOwl += this->generateObjectIndividuals(strNamespaceID);
+    this->info(" - Block: ImgIndivs");
     strOwl += this->generateImageIndividuals(strNamespaceID);
+    this->info(" - Block: DesigIndivs");
     strOwl += this->generateDesignatorIndividuals(strNamespaceID);
+    this->info(" - Block: FailIndivs");
     strOwl += this->generateFailureIndividuals(strNamespaceID);
+    this->info(" - Block: TPIndivs");
     strOwl += this->generateTimepointIndividuals(strNamespaceID);
     strOwl += "</rdf:RDF>\n";
-  
+    
     return strOwl;
   }
 }
