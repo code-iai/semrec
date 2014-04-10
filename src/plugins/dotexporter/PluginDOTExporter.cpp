@@ -101,6 +101,8 @@ namespace beliefstate {
 		expDot->configuration()->setValue(string("display-failures"), (int)seServiceEvent.cdDesignator->floatValue("show-fails"));
 		expDot->configuration()->setValue(string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));
 		
+		this->info("Using max detail level of " + this->str((int)expDot->configuration()->floatValue("max-detail-level")) + ".");
+		
 		for(list<Node*>::iterator itN = evCar.lstNodes.begin();
 		    itN != evCar.lstNodes.end();
 		    itN++) {

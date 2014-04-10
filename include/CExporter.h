@@ -92,6 +92,7 @@ namespace beliefstate {
     virtual string nodeIDPrefix(Node* ndInQuestion, string strProposition);
   
     string replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy);
+    virtual bool nodeHasValidDetailLevel(Node* ndDisplay);
     virtual bool nodeDisplayable(Node* ndDisplay);
   
     void setDesignatorIDs(list< pair<string, string> > lstDesignatorIDs);

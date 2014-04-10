@@ -169,15 +169,20 @@ namespace beliefstate {
   
     return strOriginal;
   }
-
-  bool CExporter::nodeDisplayable(Node* ndDisplay) {
+  
+  bool CExporter::nodeHasValidDetailLevel(Node* ndDisplay) {
     int nConfigMaxDetailLevel = this->configuration()->floatValue("max-detail-level");
     int nNodeDetailLevel = ndDisplay->metaInformation()->floatValue("detail-level");
+    
+    return (nNodeDetailLevel <= nConfigMaxDetailLevel);
+  }
+  
+  bool CExporter::nodeDisplayable(Node* ndDisplay) {
     bool bDisplaySuccesses = (this->configuration()->floatValue("display-successes") == 1);
     bool bDisplayFailures = (this->configuration()->floatValue("display-failures") == 1);
     bool bNodeSuccess = (ndDisplay->metaInformation()->floatValue("success") == 1);
-  
-    if(nNodeDetailLevel <= nConfigMaxDetailLevel) {
+    
+    if(this->nodeHasValidDetailLevel(ndDisplay)) {
       if((bNodeSuccess && bDisplaySuccesses) || (!bNodeSuccess && bDisplayFailures)) {
 	return true;
       }

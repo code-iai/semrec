@@ -49,6 +49,7 @@ namespace beliefstate {
 
   bool CExporterDot::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
     this->renewUniqueIDs();
+    int nMaxDetailLevel = this->configuration()->floatValue("max-detail-level");
     
     if(this->outputFilename() != "") {
       string strGraphID = this->generateRandomIdentifier("plangraph_", 8);
@@ -70,16 +71,16 @@ namespace beliefstate {
   
   string CExporterDot::generateDotStringForDescription(list<CKeyValuePair*> lstDescription) {
     string strDot = "";
-  
+    
     for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
 	itPair != lstDescription.end();
 	itPair++) {
       CKeyValuePair *ckvpCurrent = *itPair;
-    
+      
       if(ckvpCurrent->key().at(0) != '_') {
 	string strValue = "?";
 	bool bEscape = true;
-      
+	
 	if(ckvpCurrent->type() == STRING) {
 	  strValue = ckvpCurrent->stringValue();
 	} else if(ckvpCurrent->type() == FLOAT) {
@@ -88,7 +89,7 @@ namespace beliefstate {
 	  bEscape = false;
 	  geometry_msgs::Pose psPose = ckvpCurrent->poseValue();
 	  stringstream stsPS;
-	
+	  
 	  stsPS << "|{position |{{x | " << psPose.position.x << "} "
 		<< "|{y | " << psPose.position.y << "} "
 		<< "|{z | " << psPose.position.z << "}}} "
@@ -102,7 +103,7 @@ namespace beliefstate {
 	  bEscape = false;
 	  geometry_msgs::PoseStamped psPoseStamped = ckvpCurrent->poseStampedValue();
 	  stringstream stsPS;
-	
+	  
 	  stsPS << "{{frame-id | \\\"" << psPoseStamped.header.frame_id << "\\\"} "
 		<< "|{position |{{x | " << psPoseStamped.pose.position.x << "} "
 		<< "|{y | " << psPoseStamped.pose.position.y << "} "
@@ -111,7 +112,7 @@ namespace beliefstate {
 		<< "|{y | " <<psPoseStamped.pose.orientation.y << "} "
 		<< "|{z | " << psPoseStamped.pose.orientation.z << "} "
 		<< "|{w | " << psPoseStamped.pose.orientation.w << "}}}}";
-	
+	  
 	  strValue = stsPS.str();
 	} else {
 	  // NOTE(winkler): This actually IS a valid warning. The only
@@ -142,7 +143,7 @@ namespace beliefstate {
 	itNode != lstNodes.end();
 	itNode++) {
       Node *ndCurrent = *itNode;
-    
+      
       if(this->nodeDisplayable(ndCurrent)) {
 	string strNodeID = ndCurrent->uniqueID();
     
@@ -156,28 +157,36 @@ namespace beliefstate {
 	  strFillColor = "#ffdddd";
 	  strEdgeColor = "red";
 	}
-    
+	
 	string strParameters = this->generateDotStringForDescription(ndCurrent->description());
 	string strLabel = "{" + this->dotEscapeString(ndCurrent->title()) + strParameters + "}";
-    
+	
 	strDot += "\n  " + strNodeID + " [shape=Mrecord, style=filled, fillcolor=\"" + strFillColor + "\", label=\"" + strLabel + "\"];\n";
 	strDot += "  edge [color=\"" + strEdgeColor + "\", label=\"\"];\n";
 	strDot += "  " + strParentID + " -> " + strNodeID + ";\n";
-      
+	
 	// Images
 	strDot += this->generateDotImagesStringForNode(ndCurrent);
-      
+	
 	// Objects
 	strDot += this->generateDotObjectsStringForNode(ndCurrent);
-      
+	
 	// Subnodes
 	strDot += this->generateDotStringForNodes(ndCurrent->subnodes(), strNodeID);
+      } else if(this->nodeHasValidDetailLevel(ndCurrent)) {
+	// Node has valid detail level. So the failed displayability
+	// was due to this and not due to a failed success/failure
+	// check. Display its children and use this node's parent id
+	// for their parent id.
+	
+	// Subnodes
+	strDot += this->generateDotStringForNodes(ndCurrent->subnodes(), strParentID);
       }
     }
-  
+    
     return strDot;
   }
-
+  
   string CExporterDot::generateDotImagesStringForNode(Node *ndImages) {
     string strDot = "";
   
