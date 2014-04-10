@@ -50,6 +50,18 @@ namespace beliefstate {
   static list<StatusMessage> g_lstStatusMessages;
   
   
+  int rmfile(const char *path, const struct stat *sb, int flag, struct FTW *ftwbuf) {
+    return ::remove(path);
+  }
+  
+  void deleteDirectory(string strPath, bool bEvenIfNonEmpty) {
+    if(bEvenIfNonEmpty) {
+      ::nftw(strPath.c_str(), rmfile, 64, FTW_DEPTH | FTW_PHYS);
+    } else {
+      ::rmdir(strPath.c_str());
+    }
+  }
+  
   int createContextID() {
     int nID = 0;
     

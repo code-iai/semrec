@@ -49,6 +49,7 @@
 #include <iostream>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <dirent.h>
 
 // Private
 #include <Types.h>
@@ -73,6 +74,7 @@ namespace beliefstate {
       
       virtual Result cycle();
       
+      bool extensionPresent(string strPath, string strExtension);
       virtual void consumeEvent(Event evEvent);
     };
   }

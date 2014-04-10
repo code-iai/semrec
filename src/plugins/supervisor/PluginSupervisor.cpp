@@ -55,11 +55,32 @@ namespace beliefstate {
       
       this->setSubscribedToEvent("startup-complete", true);
       this->setSubscribedToEvent("start-new-experiment", true);
+      this->setSubscribedToEvent("shutdown", true);
       
       return resInit;
     }
     
     Result PLUGIN_CLASS::deinit() {
+      // When shutting down, check for .owl files in the experiment
+      // directory. If there are none, delete the entire experiment
+      // directory. NOTE(winkler): This might get extended in order
+      // to support file types in the configuration file. In the
+      // current state, situations that would only generate .dot
+      // files (even if this is the desired output) would result in
+      // a deleted directory. Shouldn't come up at the moment,
+      // though.
+      ConfigSettings cfgsetCurrent = configSettings();
+      
+      if(!this->extensionPresent(cfgsetCurrent.strExperimentDirectory, "owl")) {
+	// No .owl files found in experiment directory.
+	this->info("Cleaning up directory, as no valid experiment data was found.");
+	
+	deleteDirectory(cfgsetCurrent.strExperimentDirectory);
+	
+	string strSymlinkName = cfgsetCurrent.strBaseDataDirectory + "/" + cfgsetCurrent.strSymlinkName;
+	::remove(strSymlinkName.c_str());
+      }
+      
       return defaultResult();
     }
     
@@ -68,6 +89,36 @@ namespace beliefstate {
       this->deployCycleData(resCycle);
       
       return resCycle;
+    }
+    
+    bool PLUGIN_CLASS::extensionPresent(string strPath, string strExtension) {
+      bool bFound = false;
+      DIR* dirFile = opendir(strPath.c_str());
+      string strPointExt = "." + strExtension;
+      
+      if(dirFile) {
+	struct dirent* hFile;
+	errno = 0;
+	while((hFile = readdir(dirFile)) != NULL) {
+	  if(!strcmp(hFile->d_name, ".")) continue;
+	  if(!strcmp(hFile->d_name, "..")) continue;
+	  
+	  if(strstr(hFile->d_name, strPointExt.c_str())) {
+	    struct stat sb;
+	    string strFilepath = strPath + "/" + hFile->d_name;
+	    lstat(strFilepath.c_str(), &sb);
+	    
+	    if((sb.st_mode & S_IFMT) != S_IFLNK) { // Symlinks don't count.
+	      bFound = true;
+	      break;
+	    }
+	  }
+	}
+	
+	closedir(dirFile);
+      }
+      
+      return bFound;
     }
     
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
@@ -156,6 +207,8 @@ namespace beliefstate {
 	this->deployEvent(defaultEvent("experiment-start"));
       } else if(evEvent.strEventName == "startup-complete") {
 	this->deployEvent(defaultEvent("start-new-experiment"));
+      } else if(evEvent.strEventName == "shutdown") {
+	this->deployEvent(defaultEvent("experiment-shutdown"));
       }
     }
   }

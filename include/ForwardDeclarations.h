@@ -41,12 +41,18 @@
 #define __FORWARD_DECLARATIONS_H__
 
 
+// System
+#include <ftw.h>
+
 // Private
 #include <Types.h>
 #include <mutex>
 
 
 namespace beliefstate {
+  // File system specific functions
+  void deleteDirectory(string strPath, bool bEvenIfNonEmpty = true);
+  
   // Context specific functions
   int createContextID();
   bool contextIDTaken(int nID);

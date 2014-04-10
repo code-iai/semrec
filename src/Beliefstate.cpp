@@ -562,6 +562,9 @@ namespace beliefstate {
 	
 	this->handleUnhandledEvent(evMessage);
       }
+      
+      // Send the shutdown message
+      m_lstGlobalEvents.push_back(defaultEvent("shutdown"));
     }
     
     return bContinue;
