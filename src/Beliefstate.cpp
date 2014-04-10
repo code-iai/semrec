@@ -388,46 +388,89 @@ namespace beliefstate {
   
   bool Beliefstate::loadIndividualPluginConfigurationBranch(Setting &sBranch, CKeyValuePair* ckvpInto, string strConfigPath, bool bIgnorePluginField) {
     for(int nJ = 0; nJ < sBranch.getLength(); nJ++) {
-      string strConfigDetailName = sBranch[nJ].getName();
-      
-      if(strConfigDetailName != "plugin" || !bIgnorePluginField) {
-	this->info(" - " + strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName);
-	
-	switch(sBranch[strConfigDetailName].getType()) {
-	case libconfig::Setting::TypeString: {
-	  string strContent;
-	  sBranch.lookupValue(strConfigDetailName, strContent);
-	  strContent = this->resolveDirectoryTokens(strContent);
-	  ckvpInto->setValue(strConfigDetailName, strContent);
-	} break;
-		      
-	case libconfig::Setting::TypeInt:
-	case libconfig::Setting::TypeInt64: {
-	  int nContent;
-	  sBranch.lookupValue(strConfigDetailName, nContent);
-	  ckvpInto->setValue(strConfigDetailName, nContent);
-	} break;
-		      
-	case libconfig::Setting::TypeFloat: {
-	  int fContent;
-	  sBranch.lookupValue(strConfigDetailName, fContent);
-	  ckvpInto->setValue(strConfigDetailName, fContent);
-	} break;
-		      
-	case libconfig::Setting::TypeBoolean: {
-	  bool bContent;
-	  sBranch.lookupValue(strConfigDetailName, bContent);
-	  ckvpInto->setValue(strConfigDetailName, bContent);
-	} break;
+      if(sBranch.getType() != libconfig::Setting::TypeGroup) {
+	for(int nI = 0; nI < sBranch.getLength(); nI++) {
+	  stringstream sts;
+	  sts << nI;
 	  
-	case libconfig::Setting::TypeGroup: {
-	  CKeyValuePair* ckvpChild = ckvpInto->addChild(strConfigDetailName);
-	  Setting& sBranchChild = sBranch[strConfigDetailName];
+	  this->info(" - " + strConfigPath + (strConfigPath == "" ? "" : "/") + sts.str());
+	  CKeyValuePair* ckvpChild = ckvpInto->addChild(sts.str());
 	  
-	  if(this->loadIndividualPluginConfigurationBranch(sBranchChild, ckvpChild, strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName) == false) {
-	    return false;
+	  switch(sBranch[nI].getType()) {
+	  case libconfig::Setting::TypeString: {
+	    string strContent = sBranch[nI];
+	    strContent = this->resolveDirectoryTokens(strContent);
+	    ckvpInto->setValue(sts.str(), strContent);
+	  } break;
+	    
+	  case libconfig::Setting::TypeInt:
+	  case libconfig::Setting::TypeInt64: {
+	    int nContent = sBranch[nI];
+	    ckvpInto->setValue(sts.str(), nContent);
+	  } break;
+	    
+	  case libconfig::Setting::TypeFloat: {
+	    int fContent = sBranch[nI];
+	    ckvpInto->setValue(sts.str(), fContent);
+	  } break;
+	    
+	  case libconfig::Setting::TypeBoolean: {
+	    bool bContent = sBranch[nI];
+	    ckvpInto->setValue(sts.str(), bContent);
+	  } break;
 	  }
-	} break;
+	}
+      } else {
+	string strConfigDetailName = sBranch[nJ].getName();
+      
+	if(strConfigDetailName != "plugin" || !bIgnorePluginField) {
+	  this->info(" - " + strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName);
+	
+	  switch(sBranch[strConfigDetailName].getType()) {
+	  case libconfig::Setting::TypeString: {
+	    string strContent;
+	    sBranch.lookupValue(strConfigDetailName, strContent);
+	    strContent = this->resolveDirectoryTokens(strContent);
+	    ckvpInto->setValue(strConfigDetailName, strContent);
+	  } break;
+		      
+	  case libconfig::Setting::TypeInt:
+	  case libconfig::Setting::TypeInt64: {
+	    int nContent;
+	    sBranch.lookupValue(strConfigDetailName, nContent);
+	    ckvpInto->setValue(strConfigDetailName, nContent);
+	  } break;
+		      
+	  case libconfig::Setting::TypeFloat: {
+	    int fContent;
+	    sBranch.lookupValue(strConfigDetailName, fContent);
+	    ckvpInto->setValue(strConfigDetailName, fContent);
+	  } break;
+		      
+	  case libconfig::Setting::TypeBoolean: {
+	    bool bContent;
+	    sBranch.lookupValue(strConfigDetailName, bContent);
+	    ckvpInto->setValue(strConfigDetailName, bContent);
+	  } break;
+	  
+	  case libconfig::Setting::TypeGroup: {
+	    CKeyValuePair* ckvpChild = ckvpInto->addChild(strConfigDetailName);
+	    Setting& sBranchChild = sBranch[strConfigDetailName];
+	  
+	    if(this->loadIndividualPluginConfigurationBranch(sBranchChild, ckvpChild, strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName) == false) {
+	      return false;
+	    }
+	  } break;
+	  
+	  case libconfig::Setting::TypeArray: {
+	    CKeyValuePair* ckvpChild = ckvpInto->addChild(strConfigDetailName);
+	    Setting& sBranchChild = sBranch[strConfigDetailName];
+	    
+	    if(this->loadIndividualPluginConfigurationBranch(sBranchChild, ckvpChild, strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName) == false) {
+	      return false;
+	    }
+	  } break;
+	  }
 	}
       }
     }

@@ -69,11 +69,35 @@ namespace beliefstate {
       // files (even if this is the desired output) would result in
       // a deleted directory. Shouldn't come up at the moment,
       // though.
+      CDesignator* cdIndivConfig = this->getIndividualConfig();
       ConfigSettings cfgsetCurrent = configSettings();
       
-      if(!this->extensionPresent(cfgsetCurrent.strExperimentDirectory, "owl")) {
-	// No .owl files found in experiment directory.
-	this->info("Cleaning up directory, as no valid experiment data was found.");
+      CKeyValuePair* ckvpExtensions = cdIndivConfig->childForKey("experiment-validation-extensions");
+      
+      list<CKeyValuePair*> lstChildren = ckvpExtensions->children();
+      list<string> lstExtensions;
+      
+      for(list<CKeyValuePair*>::iterator itPair = lstChildren.begin();
+	  itPair != lstChildren.end();
+	  itPair++) {
+	CKeyValuePair* ckvpChild = *itPair;
+	
+	lstExtensions.push_back(ckvpChild->stringValue());
+      }
+      
+      bool bAnyPresent = false;
+      for(list<string>::iterator itExt = lstExtensions.begin();
+	  itExt != lstExtensions.end();
+	  itExt++) {
+	if(this->extensionPresent(cfgsetCurrent.strExperimentDirectory, *itExt)) {
+	  bAnyPresent = true;
+	  break;
+	}
+      }
+      
+      if(!bAnyPresent) {
+	// No validation extensions found in experiment directory.
+	this->info("Cleaning up directory, as no valid experiment data was found. If this is not what you expected, change your 'experiment-validation-extensions' parameter in the 'supervisor' plugin configuration.");
 	
 	deleteDirectory(cfgsetCurrent.strExperimentDirectory);
 	
