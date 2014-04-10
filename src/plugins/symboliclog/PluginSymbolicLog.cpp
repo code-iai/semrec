@@ -218,15 +218,13 @@ namespace beliefstate {
 	    sts << "Received stop node designator for ID " << nID << " while ID " << ndCurrent->id() << " is active.";
 	    this->info(sts.str());
 	    
+	    string strTimeEnd = this->getTimeStampStr();
 	    Node *ndEndedPrematurely = NULL;
-	    Node *ndSearchTemp = ndCurrent->parent();
-	    
-	    if(ndSearchTemp) {
-	      string strTimeEnd = this->getTimeStampStr();
-	      ndSearchTemp->ensureProperty("time-end", strTimeEnd);
-	    }
+	    Node *ndSearchTemp = ndCurrent;
 	    
 	    while(ndSearchTemp) {
+	      ndSearchTemp->ensureProperty("time-end", strTimeEnd);
+	      
 	      if(ndSearchTemp->id() == nID) {
 		ndEndedPrematurely = ndSearchTemp;
 		ndSearchTemp = NULL;
