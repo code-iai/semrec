@@ -347,43 +347,9 @@ namespace beliefstate {
 	    string strMemAddr = evEvent.cdDesignator->stringValue("memory-address");
 	    
 	    CKeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description");
+	    
 	    list<CKeyValuePair*> lstDescription = ckvpDesc->children();
-	    
-	    bool bDesigExists = (this->getDesignatorID(strMemAddr) != "");
-	    string strUniqueID = this->getUniqueDesignatorID(strMemAddr);
-	    this->activeNode()->addDesignator(strType, lstDescription, strUniqueID, strAnnotation);
-	    
-	    // The designator does not yet exist here in case
-	    // bDesigExists is false. It is created right after, but
-	    // is associated with the current node before already.
-	    stringstream sts;
-	    sts << this->activeNode()->id();
-	    this->info("Added '" + strType + "' designator (addr=" + strMemAddr + ") to active context (id " + sts.str() + "): '" + strUniqueID + "', annotation: '" + strAnnotation + "'");
-	    
-	    if(!bDesigExists) {
-	      CDesignator* cdTemp = new CDesignator((strType == "ACTION" ? ACTION : (strType == "OBJECT" ? OBJECT : LOCATION)),
-						    lstDescription);
-	      cdTemp->setValue("_id", strUniqueID);
-	      
-	      if(strAnnotation != "") {
-		cdTemp->setValue("_annotation", strAnnotation);
-	      }
-	      
-	      // First, symbolically create the designator
-	      Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
-	      evLoggedDesignator.cdDesignator = cdTemp;
-	      evLoggedDesignator.strAnnotation = strAnnotation;
-	      
-	      this->deployEvent(evLoggedDesignator);
-	      
-	      // Second, symbolically add it to the current event
-	      Event evAddedDesignator = defaultEvent("symbolic-add-designator");
-	      evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
-	      evAddedDesignator.strAnnotation = strAnnotation;
-	      evAddedDesignator.lstNodes.push_back(this->activeNode());
-	    
-	      this->deployEvent(evAddedDesignator);
-	    }
+	    this->ensureDesignatorPublished(lstDescription, strMemAddr, strType, strAnnotation, true);
 	  } else {
 	    this->warn("No node context available. Cannot add designator while on top-level.");
 	  }
@@ -651,6 +617,47 @@ namespace beliefstate {
       m_lstDesignatorEquationTimes.push_back(make_pair(strIDChild, strTimeStart));
       
       return strTimeStart;
+    }
+    
+    bool PLUGIN_CLASS::ensureDesignatorPublished(list<CKeyValuePair*> lstDescription, string strMemoryAddress, string strType, string strAnnotation, bool bAdd) {
+      bool bDesigExists = (this->getDesignatorID(strMemoryAddress) != "");
+      string strUniqueID = this->getUniqueDesignatorID(strMemoryAddress);
+      
+      if(bAdd) {
+	this->activeNode()->addDesignator(strType, lstDescription, strUniqueID, strAnnotation);
+	
+	stringstream sts;
+	sts << this->activeNode()->id();
+	this->info("Added '" + strType + "' designator (addr=" + strMemoryAddress + ") to active context (id " + sts.str() + "): '" + strUniqueID + "', annotation: '" + strAnnotation + "'");
+      }
+      
+      if(!bDesigExists) {
+	CDesignator* cdTemp = new CDesignator((strType == "ACTION" ? ACTION : (strType == "OBJECT" ? OBJECT : LOCATION)), lstDescription);
+	cdTemp->setValue("_id", strUniqueID);
+	      
+	if(strAnnotation != "") {
+	  cdTemp->setValue("_annotation", strAnnotation);
+	}
+	      
+	// First, symbolically create the designator
+	Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
+	evLoggedDesignator.cdDesignator = cdTemp;
+	evLoggedDesignator.strAnnotation = strAnnotation;
+	      
+	this->deployEvent(evLoggedDesignator);
+	      
+	// Second, symbolically add it to the current event
+	Event evAddedDesignator = defaultEvent("symbolic-add-designator");
+	evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
+	evAddedDesignator.strAnnotation = strAnnotation;
+	evAddedDesignator.lstNodes.push_back(this->activeNode());
+	
+	this->deployEvent(evAddedDesignator);
+	
+	return true;
+      }
+      
+      return false;
     }
   }
   

@@ -95,6 +95,8 @@ namespace beliefstate {
       string getUniqueDesignatorID(string strMemoryAddress);
       string generateRandomIdentifier(string strPrefix, unsigned int unLength);
       string equateDesignators(string strMAChild, string strMAParent);
+      
+      bool ensureDesignatorPublished(list<CKeyValuePair*> lstDescription, string strMemoryAddress, string strType, string strAnnotation = "", bool bAdd = false);
     };
   }
   
