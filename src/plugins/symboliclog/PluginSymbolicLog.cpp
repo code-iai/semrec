@@ -362,62 +362,21 @@ namespace beliefstate {
 	  if(strMemAddrChild != "" && strMemAddrParent != "") {
 	    if(this->activeNode()) {
 	      // Check if child designator exists
-	      bool bChildDesigExists = (this->getDesignatorID(strMemAddrChild) != "");
-	      string strUniqueIDChild = this->getUniqueDesignatorID(strMemAddrChild);
-	      if(!bChildDesigExists) {
-		this->info("Adding non-existant child-designator during 'equate'");
-		
-		string strType = evEvent.cdDesignator->stringValue("type-child");
-		CKeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description-child");
-		list<CKeyValuePair*> lstDescription = ckvpDesc->children();
-		
-		CDesignator* cdTemp = new CDesignator((strType == "ACTION" ? ACTION : (strType == "OBJECT" ? OBJECT : LOCATION)),
-						      lstDescription);
-		cdTemp->setValue("_id", strUniqueIDChild);
-		
-		// First, symbolically create the designator
-		Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
-		evLoggedDesignator.cdDesignator = cdTemp;
-		
-		this->deployEvent(evLoggedDesignator);
-	      
-		// Second, symbolically add it to the current event
-		Event evAddedDesignator = defaultEvent("symbolic-add-designator");
-		evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
-		evAddedDesignator.lstNodes.push_back(this->activeNode());
-	    
-		this->deployEvent(evAddedDesignator);
+	      CKeyValuePair *ckvpDescChild = evEvent.cdDesignator->childForKey("description-child");
+	      if(this->ensureDesignatorPublished(ckvpDescChild->children(), strMemAddrParent, evEvent.cdDesignator->stringValue("type-child"))) {
+		this->info("Added non-existant child-designator during 'equate'");
 	      }
 	      
 	      // Check if parent designator exists
-	      bool bParentDesigExists = (this->getDesignatorID(strMemAddrParent) != "");
-	      string strUniqueIDParent = this->getUniqueDesignatorID(strMemAddrParent);
-	      if(!bParentDesigExists) {
-		this->warn("Adding non-existant parent-designator during 'equate'");
-		
-		string strType = evEvent.cdDesignator->stringValue("type-parent");
-		CKeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description-parent");
-		list<CKeyValuePair*> lstDescription = ckvpDesc->children();
-		
-		CDesignator* cdTemp = new CDesignator((strType == "ACTION" ? ACTION : (strType == "OBJECT" ? OBJECT : LOCATION)),
-						      lstDescription);
-		cdTemp->setValue("_id", strUniqueIDParent);
-		
-		// First, symbolically create the designator
-		Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
-		evLoggedDesignator.cdDesignator = cdTemp;
-		
-		this->deployEvent(evLoggedDesignator);
-		
-		// Second, symbolically add it to the current event
-		Event evAddedDesignator = defaultEvent("symbolic-add-designator");
-		evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
-		evAddedDesignator.lstNodes.push_back(this->activeNode());
-		
-		this->deployEvent(evAddedDesignator);
+	      CKeyValuePair *ckvpDescParent = evEvent.cdDesignator->childForKey("description-parent");
+	      if(this->ensureDesignatorPublished(ckvpDescParent->children(), strMemAddrParent, evEvent.cdDesignator->stringValue("type-parent"))) {
+		this->warn("Added non-existant parent-designator during 'equate'");
 	      }
 	      
 	      string strEquationTime = this->equateDesignators(strMemAddrChild, strMemAddrParent);
+	      
+	      string strUniqueIDParent = this->getDesignatorID(strMemAddrParent);
+	      string strUniqueIDChild = this->getDesignatorID(strMemAddrChild);
 	      
 	      this->info("Equated designators " + strUniqueIDChild + " (successor) and " + strUniqueIDParent + " (parent).");
 	      
