@@ -98,29 +98,40 @@ namespace beliefstate {
       } else {
 	// CMAKE_PREFIX_PATH takes precedence over ROS_PACKAGE_PATH
 	if(strCMAKEPrefixPath != "") {
-	  // The first entry is the one we're using. This could be
-	  // improved, but is okay for now.
-	  const size_t szFirstColon = strCMAKEPrefixPath.find_first_of(":");
-	  
-	  if(szFirstColon != string::npos) {
-	    strCMAKEPrefixPath.erase(szFirstColon);
-	  }
-	  
-	  strWorkspaceReplacement = this->stripPostfix(strCMAKEPrefixPath, "/devel");
+	  strWorkspaceReplacement = this->findPrefixPath(strCMAKEPrefixPath, "/devel");
 	} else {
-	  // The first entry is the one we're using. This could be
-	  // improved, but is okay for now.
-	  const size_t szFirstColon = strROSPackagePath.find_first_of(":");
-	  
-	  if(szFirstColon != string::npos) {
-	    strROSPackagePath.erase(szFirstColon);
-	  }
-	  
-	  strWorkspaceReplacement = this->stripPostfix(strROSPackagePath, "/src");
+	  strWorkspaceReplacement = this->findPrefixPath(strROSPackagePath, "/src");
 	}
       }
     }
     
     return strWorkspaceReplacement;
+  }
+  
+  string BeliefstateROS::findPrefixPath(string strPathList, string strMatchingSuffix, string strDelimiter) {
+    string strPathReturn = "";
+    size_t szLastPos = 0;
+    size_t szCurrentPos = 0;
+    
+    if(strPathList != "") {
+      while(szLastPos != string::npos) {
+	szCurrentPos = strPathList.find(strDelimiter, szLastPos + strDelimiter.length());
+	
+	if(szCurrentPos != string::npos) {
+	  string strPath = strPathList.substr(szLastPos + (szLastPos != 0 ? strDelimiter.length() : 0), szCurrentPos - (szLastPos + (szLastPos == 0 ? 0 : strDelimiter.length())));
+	  
+	  if(strPath.length() >= strMatchingSuffix.length()) {
+	    if(strPath.substr(strPath.length() - strMatchingSuffix.length()) == strMatchingSuffix) {
+	      strPathReturn = this->stripPostfix(strPath, strMatchingSuffix);
+	      break;
+	    }
+	  }
+	}
+	
+	szLastPos = szCurrentPos;
+      }
+    }
+    
+    return strPathReturn;
   }
 }
