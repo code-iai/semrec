@@ -97,6 +97,7 @@ namespace beliefstate {
       string equateDesignators(string strMAChild, string strMAParent);
       
       bool ensureDesignatorPublished(list<CKeyValuePair*> lstDescription, string strMemoryAddress, string strType, string strAnnotation = "", bool bAdd = false);
+      void setNestedDesignatorUniqueIDs(CKeyValuePair* ckvpParent);
     };
   }
   

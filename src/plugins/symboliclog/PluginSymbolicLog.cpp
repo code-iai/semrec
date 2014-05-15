@@ -613,10 +613,42 @@ namespace beliefstate {
 	
 	this->deployEvent(evAddedDesignator);
 	
+	// Thirdly, recurse through possibly nested designators,
+	// looking for a ''_designator_memory_address'' field being
+	// set.
+	this->setNestedDesignatorUniqueIDs(cdTemp);
+	
 	return true;
       }
       
       return false;
+    }
+    
+    void PLUGIN_CLASS::setNestedDesignatorUniqueIDs(CKeyValuePair* ckvpParent) {
+      bool bIsDesignator = false;
+      string strMemAddr = "";
+      
+      if(ckvpParent->childForKey("_designator_memory_address")) {
+	strMemAddr = ckvpParent->childForKey("_designator_memory_address")->stringValue();
+	string strID = this->getUniqueDesignatorID(strMemAddr);
+	ckvpParent->setValue("_id", strID);	
+	bIsDesignator = true;
+      }
+      
+      list<CKeyValuePair*> lstChildren = ckvpParent->children();
+      
+      for(list<CKeyValuePair*>::iterator itChild = lstChildren.begin();
+	  itChild != lstChildren.end();
+	  itChild++) {
+	this->setNestedDesignatorUniqueIDs(*itChild);
+      }
+      
+      if(bIsDesignator) {
+	string strTypePre = ckvpParent->stringValue("_designator_type");
+	string strType = (strTypePre == "" ? "OBJECT" : strTypePre);
+	
+	this->ensureDesignatorPublished(ckvpParent->children(), strMemAddr, strType);
+      }
     }
   }
   
