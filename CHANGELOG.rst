@@ -2,8 +2,8 @@
 Changelog for package beliefstate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.1 (2014-05-16)
+------------------
 * Annotate nested designators with their respective IDs, and publish them
 * Removed obsolete code and replaced it with new function calls
 * Improved workspace directory identification

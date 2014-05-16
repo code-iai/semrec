@@ -3,7 +3,7 @@
 <package>
   
   <name>beliefstate</name>
-  <version>0.6.0</version>
+  <version>0.6.1</version>
   <description>Beliefstate System mainly for CRAM controlled Cognitive Agents</description>
   
   <maintainer email="winkler@cs.uni-bremen.de">Jan Winkler</maintainer>
