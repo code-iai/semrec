@@ -208,6 +208,8 @@ namespace beliefstate {
     
     virtual string findTokenReplacement(string strToken);
     bool handleUnhandledEvent(Event evEvent);
+    
+    string findPrefixPath(string strPathList, string strMatchingSuffix, string strDelimiter = ":");
   };
 }
 

@@ -107,31 +107,4 @@ namespace beliefstate {
     
     return strWorkspaceReplacement;
   }
-  
-  string BeliefstateROS::findPrefixPath(string strPathList, string strMatchingSuffix, string strDelimiter) {
-    string strPathReturn = "";
-    size_t szLastPos = 0;
-    size_t szCurrentPos = 0;
-    
-    if(strPathList != "") {
-      while(szLastPos != string::npos) {
-	szCurrentPos = strPathList.find(strDelimiter, szLastPos + strDelimiter.length());
-	
-	if(szCurrentPos != string::npos) {
-	  string strPath = strPathList.substr(szLastPos + (szLastPos != 0 ? strDelimiter.length() : 0), szCurrentPos - (szLastPos + (szLastPos == 0 ? 0 : strDelimiter.length())));
-	  
-	  if(strPath.length() >= strMatchingSuffix.length()) {
-	    if(strPath.substr(strPath.length() - strMatchingSuffix.length()) == strMatchingSuffix) {
-	      strPathReturn = this->stripPostfix(strPath, strMatchingSuffix);
-	      break;
-	    }
-	  }
-	}
-	
-	szLastPos = szCurrentPos;
-      }
-    }
-    
-    return strPathReturn;
-  }
 }

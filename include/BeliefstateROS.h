@@ -83,8 +83,6 @@ namespace beliefstate {
       this in case the workspace directory cannot be detected
       properly. */
     virtual string workspaceDirectory();
-    
-    string findPrefixPath(string strPathList, string strMatchingSuffix, string strDelimiter = ":");
   };
 }
 
