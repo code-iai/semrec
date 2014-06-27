@@ -100,13 +100,11 @@ add_dependencies(beliefstate designator_integration_generate_messages_cpp)
 target_link_libraries(beliefstate
   ${catkin_LIBRARIES}
   dl
-  DesignatorIntegration
   config++
 )
 
 target_link_libraries(bs_plugin_ros
   ${catkin_LIBRARIES}
-  DesignatorIntegration
 )
 
 target_link_libraries(bs_plugin_gazebo
@@ -124,7 +122,6 @@ target_link_libraries(bs_plugin_experiment_knowledge
 
 target_link_libraries(bs_plugin_experiment_context
   ${catkin_LIBRARIES}
-  DesignatorIntegration
 )
 
 target_link_libraries(bs_plugin_interactive
