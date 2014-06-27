@@ -61,6 +61,7 @@ namespace beliefstate {
       m_nhHandle = new ros::NodeHandle("~");
 
       m_srvPredict = m_nhHandle->advertiseService<PLUGIN_CLASS>("predict", &PLUGIN_CLASS::serviceCallbackPredict, this);
+      m_srvLoad = m_nhHandle->advertiseService<PLUGIN_CLASS>("load", &PLUGIN_CLASS::serviceCallbackLoad, this);
 
       return resInit;
     }

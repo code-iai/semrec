@@ -66,6 +66,7 @@ namespace beliefstate {
     private:
       ros::NodeHandle* m_nhHandle;
       ros::ServiceServer m_srvPredict;
+      ros::ServiceServer m_srvLoad;
 
     public:
       PLUGIN_CLASS();
