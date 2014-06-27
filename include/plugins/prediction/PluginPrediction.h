@@ -78,7 +78,11 @@ namespace beliefstate {
 
       virtual void consumeEvent(Event evEvent);
 
+      bool serviceCallbackLoad(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
       bool serviceCallbackPredict(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
+
+      bool load(string strFile);
+      bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
     };
   }
 

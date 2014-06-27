@@ -79,9 +79,61 @@ namespace beliefstate {
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
     }
 
+    bool PLUGIN_CLASS::serviceCallbackLoad(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
+      bool bSuccess = false;
+
+      CDesignator* desigRequest = new CDesignator(req.request.designator);
+      CDesignator *desigResponse = new CDesignator();
+      desigResponse->setType(ACTION);
+
+      if(desigRequest->stringValue("load") == "model") {
+        this->info("Received Model Load Request.");
+
+        string strFile = desigRequest->stringValue("file");
+        if(strFile != "") {
+          this->info(" - Load model: '" + strFile + "'");
+
+          bSuccess = this->load(strFile);
+        } else {
+          this->fail(" - No model file specified!");
+        }
+      }
+
+      res.response.designators.push_back(desigResponse->serializeToMessage());
+
+      delete desigRequest;
+      delete desigResponse;
+
+      return bSuccess;
+    }
+
     bool PLUGIN_CLASS::serviceCallbackPredict(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
+      CDesignator* desigRequest = new CDesignator(req.request.designator);
+      CDesignator *desigResponse = new CDesignator();
+      desigResponse->setType(ACTION);
 
+      this->info("Received Prediction Request.");
 
+      bool bSuccess = false;
+      if(this->predict(desigRequest, desigResponse)) {
+        res.response.designators.push_back(desigResponse->serializeToMessage());
+
+        bSuccess = true;
+      } else {
+        this->fail("Failed to predict!");
+      }
+
+      delete desigRequest;
+      delete desigResponse;
+
+      return bSuccess;
+    }
+
+    bool PLUGIN_CLASS::load(string strFile) {
+      return true;
+    }
+
+    bool PLUGIN_CLASS::predict(CDesignator* desigRequest, CDesignator* desigResponse) {
       return true;
     }
   }
