@@ -20,6 +20,11 @@ add_library(bs_plugin_ros SHARED
   src/Plugin.cpp
   src/plugins/ros/PluginROS.cpp)
 
+add_library(bs_plugin_prediction SHARED
+  src/GlobalFunctions.cpp
+  src/Plugin.cpp
+  src/plugins/prediction/PluginPrediction.cpp)
+
 add_library(bs_plugin_gazebo SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
@@ -104,6 +109,10 @@ target_link_libraries(beliefstate
 )
 
 target_link_libraries(bs_plugin_ros
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(bs_plugin_prediction
   ${catkin_LIBRARIES}
 )
 
