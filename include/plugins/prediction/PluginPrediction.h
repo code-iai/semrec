@@ -48,6 +48,10 @@
 #include <cstdlib>
 #include <iostream>
 
+// Designators
+#include <designators/CDesignator.h>
+#include <designator_integration_msgs/DesignatorCommunication.h>
+
 // Private
 #include <Types.h>
 #include <ForwardDeclarations.h>
@@ -60,6 +64,9 @@ namespace beliefstate {
   namespace plugins {
     class PLUGIN_CLASS : public Plugin {
     private:
+      ros::NodeHandle* m_nhHandle;
+      ros::ServiceServer m_srvPredict;
+
     public:
       PLUGIN_CLASS();
       ~PLUGIN_CLASS();
@@ -70,6 +77,8 @@ namespace beliefstate {
       virtual Result cycle();
 
       virtual void consumeEvent(Event evEvent);
+
+      bool serviceCallbackPredict(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
     };
   }
 

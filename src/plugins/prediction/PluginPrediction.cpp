@@ -43,14 +43,24 @@
 namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
+      m_nhHandle = NULL;
+
+      this->addDependency("ros");
       this->setPluginVersion("0.1");
     }
 
     PLUGIN_CLASS::~PLUGIN_CLASS() {
+      if(m_nhHandle) {
+	delete m_nhHandle;
+      }
     }
 
     Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
+
+      m_nhHandle = new ros::NodeHandle("~");
+
+      m_srvPredict = m_nhHandle->advertiseService<PLUGIN_CLASS>("predict", &PLUGIN_CLASS::serviceCallbackPredict, this);
 
       return resInit;
     }
@@ -67,6 +77,12 @@ namespace beliefstate {
     }
 
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
+    }
+
+    bool PLUGIN_CLASS::serviceCallbackPredict(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
+
+
+      return true;
     }
   }
 
