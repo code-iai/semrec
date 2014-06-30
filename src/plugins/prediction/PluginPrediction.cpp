@@ -58,13 +58,21 @@ namespace beliefstate {
       if(m_jsnModel) {
 	delete m_jsnModel;
       }
+      
+      m_lstPredictionStack.clear();
     }
 
     Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
+      // Plan node control events
+      this->setSubscribedToEvent("symbolic-begin-context", true);
+      this->setSubscribedToEvent("symbolic-end-context", true);
+      
+      // Prepare the JSON prediction model parser
       m_jsnModel = new JSON();
       
+      // ROS-related initialization
       m_nhHandle = new ros::NodeHandle("~");
 
       m_srvPredict = m_nhHandle->advertiseService<PLUGIN_CLASS>("predict", &PLUGIN_CLASS::serviceCallbackPredict, this);
@@ -85,6 +93,24 @@ namespace beliefstate {
     }
 
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
+      if(evEvent.strEventName == "symbolic-begin-context") {
+	if(evEvent.lstNodes.size() > 0) {
+	  string strTitle = evEvent.lstNodes.front()->title();
+	  
+	  //m_lstPredictionStack
+	  this->info("Prediction refined: Begin context '" + strTitle + "'");
+	} else {
+	  this->warn("Consuming 'symbolic-begin-context' event without nodes!");
+	}
+      } else if(evEvent.strEventName == "symbolic-end-context") {
+	if(evEvent.lstNodes.size() > 0) {
+	  string strTitle = evEvent.lstNodes.front()->title();
+	  
+	  this->info("Prediction refined: End context '" + strTitle + "'"); 
+	} else {
+	  this->warn("Consuming 'symbolic-end-context' event without nodes!");
+	}
+      }
     }
 
     bool PLUGIN_CLASS::serviceCallbackLoad(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
@@ -150,7 +176,10 @@ namespace beliefstate {
 	  this->info("Successfully loaded and parsed model '" + strFile + "'.");
 	  bReturn = true;
 	  
-	  m_jsnModel->rootProperty()->print();
+	  //m_jsnModel->rootProperty()->print();
+	  
+	  this->info("Okay, descending to toplevel.");
+	  this->descend(m_jsnModel->rootProperty()->namedSubProperty("tree")->subProperties().front());
 	} else {
 	  this->fail("Failed to load model '" + strFile + "', unable to parse.");
 	}
@@ -158,12 +187,40 @@ namespace beliefstate {
 	this->fail("Failed to load model '" + strFile + "', file does not exist.");
 	bReturn = false;
       }
-
+      
       ifFile.close();
       
       return bReturn;
     }
-
+    
+    bool PLUGIN_CLASS::descend(Property* prDescend) {
+      // Go down one level in the property stack (this does away from
+      // TopLevel, so DEEPER INTO THE STACK).
+      bool bReturn = false;
+      
+      if(prDescend) {
+	cout << "Descend to: " << endl;
+	prDescend->print();
+      }
+      
+      return bReturn;
+    }
+    
+    bool PLUGIN_CLASS::ascend(Property* prAscend) {
+      // Go up one level in the property stack (this goes in the
+      // direction of TopLevel, so OUT OF THE STACK).
+      bool bReturn = false;
+      
+      if(prAscend) {
+	if(m_lstPredictionStack.size() > 0) {
+	  cout << "Ascend from: " << endl;
+	  prAscend->print();
+	}
+      }
+      
+      return bReturn;
+    }
+    
     bool PLUGIN_CLASS::predict(CDesignator* desigRequest, CDesignator* desigResponse) {
       return true;
     }

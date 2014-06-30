@@ -71,6 +71,7 @@ namespace beliefstate {
       ros::ServiceServer m_srvPredict;
       ros::ServiceServer m_srvLoad;
       JSON* m_jsnModel;
+      list<Property*> m_lstPredictionStack;
 
     public:
       PLUGIN_CLASS();
@@ -87,6 +88,10 @@ namespace beliefstate {
       bool serviceCallbackPredict(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
 
       bool load(string strFile);
+      
+      bool descend(Property* prDescend);
+      bool ascend(Property* prAscend);
+      
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
     };
   }

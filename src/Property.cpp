@@ -81,7 +81,7 @@ namespace beliefstate {
     for(int nI = 0; nI < nIndentationLevel; nI++) {
       strIndent += " ";
     }
-
+    
     cout << strIndent;
     if(bPrintKey) {
       cout << this->key() << ": ";
@@ -108,7 +108,7 @@ namespace beliefstate {
       cout << endl;
       
       for(Property* prCurrent : m_lstSubProperties) {
-        prCurrent->print(nIndentationLevel + 1, false);
+        prCurrent->print(nIndentationLevel + 1);//, false);
       }
       break;
 
