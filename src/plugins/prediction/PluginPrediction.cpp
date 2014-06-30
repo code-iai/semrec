@@ -44,6 +44,7 @@ namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_nhHandle = NULL;
+      m_jsnModel = NULL;
 
       this->addDependency("ros");
       this->setPluginVersion("0.1");
@@ -53,11 +54,17 @@ namespace beliefstate {
       if(m_nhHandle) {
 	delete m_nhHandle;
       }
+      
+      if(m_jsnModel) {
+	delete m_jsnModel;
+      }
     }
 
     Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
-
+      
+      m_jsnModel = new JSON();
+      
       m_nhHandle = new ros::NodeHandle("~");
 
       m_srvPredict = m_nhHandle->advertiseService<PLUGIN_CLASS>("predict", &PLUGIN_CLASS::serviceCallbackPredict, this);
@@ -131,7 +138,30 @@ namespace beliefstate {
     }
 
     bool PLUGIN_CLASS::load(string strFile) {
-      return true;
+      bool bReturn = false;
+      
+      ifstream ifFile(strFile.c_str());
+      if(ifFile.good()) {
+	string strJSON((istreambuf_iterator<char>(ifFile)), (istreambuf_iterator<char>()));
+	
+	m_jsnModel->parse(strJSON);
+	
+	if(m_jsnModel->rootProperty()) {
+	  this->info("Successfully loaded and parsed model '" + strFile + "'.");
+	  bReturn = true;
+	  
+	  m_jsnModel->rootProperty()->print();
+	} else {
+	  this->fail("Failed to load model '" + strFile + "', unable to parse.");
+	}
+      } else {
+	this->fail("Failed to load model '" + strFile + "', file does not exist.");
+	bReturn = false;
+      }
+
+      ifFile.close();
+      
+      return bReturn;
     }
 
     bool PLUGIN_CLASS::predict(CDesignator* desigRequest, CDesignator* desigResponse) {

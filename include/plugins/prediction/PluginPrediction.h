@@ -47,6 +47,7 @@
 // System
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 
 // Designators
 #include <designators/CDesignator.h>
@@ -56,6 +57,8 @@
 #include <Types.h>
 #include <ForwardDeclarations.h>
 #include <Plugin.h>
+#include <Property.h>
+#include <JSON.h>
 
 using namespace std;
 
@@ -67,6 +70,7 @@ namespace beliefstate {
       ros::NodeHandle* m_nhHandle;
       ros::ServiceServer m_srvPredict;
       ros::ServiceServer m_srvLoad;
+      JSON* m_jsnModel;
 
     public:
       PLUGIN_CLASS();

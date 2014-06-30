@@ -23,7 +23,9 @@ add_library(bs_plugin_ros SHARED
 add_library(bs_plugin_prediction SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
-  src/plugins/prediction/PluginPrediction.cpp)
+  src/plugins/prediction/PluginPrediction.cpp
+  src/JSON.cpp
+  src/Property.cpp)
 
 add_library(bs_plugin_gazebo SHARED
   src/GlobalFunctions.cpp
@@ -114,6 +116,7 @@ target_link_libraries(bs_plugin_ros
 
 target_link_libraries(bs_plugin_prediction
   ${catkin_LIBRARIES}
+  json
 )
 
 target_link_libraries(bs_plugin_gazebo
