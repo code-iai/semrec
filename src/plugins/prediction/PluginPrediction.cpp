@@ -217,8 +217,9 @@ namespace beliefstate {
 	}
       }
       
+      list<string> lstSubClasses;
+      
       if(prSubs) {
-	//prSubs->print();
 	for(Property* prSub : prSubs->subProperties()) {
 	  Property* prClasses = prSub->namedSubProperty("class");
 	  
@@ -231,7 +232,10 @@ namespace beliefstate {
 	      
 	      if(strSubClass == "*") {
 		bWildcardPresent = true;
+		this->info("Found a wildcard, using it.");
 	      }
+	      
+	      lstSubClasses.push_back(strSubClass);
 	    }
 	    
 	    for(Property* prClass : prClasses->subProperties()) {
@@ -261,6 +265,12 @@ namespace beliefstate {
 	this->info("Descending by class: '" + strClass + "'");
       } else {
 	this->warn("Couldn't descend by class: '" + strClass + "'");
+	
+	string strClasses = "";
+	for(string strClass : lstSubClasses) {
+	  strClasses += " " + strClass;
+	}
+	this->warn("Available classes:" + strClasses);
 	
 	if(m_bInsidePredictionModel) {
 	  this->warn("Leaving prediction model, entering unknown sub-tree.");
@@ -328,7 +338,20 @@ namespace beliefstate {
     }
     
     bool PLUGIN_CLASS::predict(CDesignator* desigRequest, CDesignator* desigResponse) {
-      return true;
+      bool bResult = false;
+      
+      Property* prRoot = m_jsnModel->rootProperty();
+      if(prRoot) {
+	Property* prFailures = prRoot->namedSubProperty("failures");
+	
+	if(prFailures) {
+	  prFailures->print();
+	  
+	  bResult = true;
+	}
+      }
+      
+      return bResult;
     }
   }
 
