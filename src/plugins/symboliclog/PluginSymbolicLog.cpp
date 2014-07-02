@@ -198,6 +198,10 @@ namespace beliefstate {
 		  ndParent->metaInformation()->setValue(string("success"), nSuccess);
 		}
 		
+		Event evSymbolicEndCtx = defaultEvent("symbolic-end-context");
+		evSymbolicEndCtx.lstNodes.push_back(ndParent);
+		this->deployEvent(evSymbolicEndCtx);
+		
 		ndParent = ndParent->parent();
 	      } else {
 		break;
