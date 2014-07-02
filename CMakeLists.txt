@@ -24,6 +24,10 @@ add_library(bs_plugin_prediction SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
   src/plugins/prediction/PluginPrediction.cpp
+  src/plugins/owlexporter/CExporterOwl.cpp
+  src/CExporter.cpp
+  src/CExporterFileoutput.cpp
+  src/Node.cpp
   src/JSON.cpp
   src/Property.cpp)
 

@@ -53,6 +53,9 @@
 #include <designators/CDesignator.h>
 #include <designator_integration_msgs/DesignatorCommunication.h>
 
+// OWL Exporter for ontology
+#include <plugins/owlexporter/CExporterOwl.h>
+
 // Private
 #include <Types.h>
 #include <ForwardDeclarations.h>
@@ -67,35 +70,42 @@ namespace beliefstate {
   namespace plugins {
     class PLUGIN_CLASS : public Plugin {
     private:
+      typedef struct {
+	Property* prLevel;
+	string strClass;
+      } PredictionTrack;
+      
       ros::NodeHandle* m_nhHandle;
       ros::ServiceServer m_srvPredict;
       ros::ServiceServer m_srvLoad;
       JSON* m_jsnModel;
-      list<Property*> m_lstPredictionStack;
+      list<PredictionTrack> m_lstPredictionStack;
+      CExporterOwl* m_expOwl;
+      bool m_bInsidePredictionModel;
 
     public:
       PLUGIN_CLASS();
       ~PLUGIN_CLASS();
-
+      
       virtual Result init(int argc, char** argv);
       virtual Result deinit();
-
+      
       virtual Result cycle();
-
+      
       virtual void consumeEvent(Event evEvent);
-
+      
       bool serviceCallbackLoad(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
       bool serviceCallbackPredict(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
-
+      
       bool load(string strFile);
       
-      bool descend(Property* prDescend);
-      bool ascend(Property* prAscend);
+      bool descend(string strClass);
+      bool ascend(string strClass);
       
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
     };
   }
-
+  
   extern "C" plugins::PLUGIN_CLASS* createInstance();
   extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy);
 }

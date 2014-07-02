@@ -45,7 +45,9 @@ namespace beliefstate {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_nhHandle = NULL;
       m_jsnModel = NULL;
-
+      m_expOwl = NULL;
+      m_bInsidePredictionModel = false;
+      
       this->addDependency("ros");
       this->setPluginVersion("0.1");
     }
@@ -57,6 +59,10 @@ namespace beliefstate {
       
       if(m_jsnModel) {
 	delete m_jsnModel;
+      }
+      
+      if(m_expOwl) {
+	delete m_expOwl;
       }
       
       m_lstPredictionStack.clear();
@@ -71,6 +77,9 @@ namespace beliefstate {
       
       // Prepare the JSON prediction model parser
       m_jsnModel = new JSON();
+      
+      // OWL Exporter instance for class ontology
+      m_expOwl = new CExporterOwl();
       
       // ROS-related initialization
       m_nhHandle = new ros::NodeHandle("~");
@@ -95,18 +104,13 @@ namespace beliefstate {
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "symbolic-begin-context") {
 	if(evEvent.lstNodes.size() > 0) {
-	  string strTitle = evEvent.lstNodes.front()->title();
-	  
-	  //m_lstPredictionStack
-	  this->info("Prediction refined: Begin context '" + strTitle + "'");
+	  this->descend(m_expOwl->owlClassForNode(evEvent.lstNodes.front(), true));
 	} else {
 	  this->warn("Consuming 'symbolic-begin-context' event without nodes!");
 	}
       } else if(evEvent.strEventName == "symbolic-end-context") {
 	if(evEvent.lstNodes.size() > 0) {
-	  string strTitle = evEvent.lstNodes.front()->title();
-	  
-	  this->info("Prediction refined: End context '" + strTitle + "'"); 
+	  this->ascend(m_expOwl->owlClassForNode(evEvent.lstNodes.front(), true));
 	} else {
 	  this->warn("Consuming 'symbolic-end-context' event without nodes!");
 	}
@@ -143,7 +147,7 @@ namespace beliefstate {
 
     bool PLUGIN_CLASS::serviceCallbackPredict(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
       CDesignator* desigRequest = new CDesignator(req.request.designator);
-      CDesignator *desigResponse = new CDesignator();
+      CDesignator* desigResponse = new CDesignator();
       desigResponse->setType(ACTION);
 
       this->info("Received Prediction Request.");
@@ -175,11 +179,10 @@ namespace beliefstate {
 	if(m_jsnModel->rootProperty()) {
 	  this->info("Successfully loaded and parsed model '" + strFile + "'.");
 	  bReturn = true;
-	  
-	  //m_jsnModel->rootProperty()->print();
+	  m_bInsidePredictionModel = true;
 	  
 	  this->info("Okay, descending to toplevel.");
-	  this->descend(m_jsnModel->rootProperty()->namedSubProperty("tree")->subProperties().front());
+	  this->descend("Toplevel");
 	} else {
 	  this->fail("Failed to load model '" + strFile + "', unable to parse.");
 	}
@@ -193,32 +196,102 @@ namespace beliefstate {
       return bReturn;
     }
     
-    bool PLUGIN_CLASS::descend(Property* prDescend) {
-      // Go down one level in the property stack (this does away from
-      // TopLevel, so DEEPER INTO THE STACK).
-      bool bReturn = false;
+    bool PLUGIN_CLASS::descend(string strClass) {
+      bool bResult = false;
       
-      if(prDescend) {
-	cout << "Descend to: " << endl;
-	prDescend->print();
-      }
-      
-      return bReturn;
-    }
-    
-    bool PLUGIN_CLASS::ascend(Property* prAscend) {
-      // Go up one level in the property stack (this goes in the
-      // direction of TopLevel, so OUT OF THE STACK).
-      bool bReturn = false;
-      
-      if(prAscend) {
-	if(m_lstPredictionStack.size() > 0) {
-	  cout << "Ascend from: " << endl;
-	  prAscend->print();
+      Property* prTopmost = NULL;
+      Property* prSubs = NULL;
+
+      if(m_lstPredictionStack.size() > 0) {
+	prTopmost = m_lstPredictionStack.back().prLevel;
+	
+	if(prTopmost) {
+	  prSubs = prTopmost->namedSubProperty("subs");
+	}
+      } else {
+	Property* prRoot = m_jsnModel->rootProperty();
+	
+	if(prRoot) {
+	  prSubs = prRoot->namedSubProperty("tree");
 	}
       }
       
-      return bReturn;
+      if(prSubs) {
+	for(Property* prSub : prSubs->subProperties()) {
+	  Property* prClass = prSub->namedSubProperty("class");
+	  if(prClass) {
+	    string strSubClass = prClass->getString();
+	  
+	    if(strSubClass == strClass) {
+	      // This is the sub property we're looking for.
+	      PredictionTrack ptTrack;
+	      ptTrack.prLevel = prSub;
+	      ptTrack.strClass = strClass;
+	      m_lstPredictionStack.push_back(ptTrack);
+	    
+	      bResult = true;
+	      break;
+	    }
+	  }
+	}
+      }
+      
+      if(bResult) {
+	this->info("Descending by class: '" + strClass + "'");
+      } else {
+	this->warn("Couldn't descend by class: '" + strClass + "'");
+	
+	if(m_bInsidePredictionModel) {
+	  this->warn("Leaving prediction model, entering unknown sub-tree.");
+	  m_bInsidePredictionModel = false;
+	} else {
+	  this->info("Continuing descent into unknown sub-tree.");
+	}
+	
+	PredictionTrack ptTrack;
+	ptTrack.prLevel = NULL;
+	ptTrack.strClass = strClass;
+	m_lstPredictionStack.push_back(ptTrack);
+      }
+      
+      return bResult;
+    }
+    
+    bool PLUGIN_CLASS::ascend(string strClass) {
+      bool bResult = false;
+      
+      if(m_lstPredictionStack.size() > 0) {
+	PredictionTrack ptTrack = m_lstPredictionStack.back();
+	
+	if(strClass == ptTrack.strClass) {
+	  m_lstPredictionStack.pop_back();
+	  
+	  if(m_lstPredictionStack.size() > 0) {
+	    PredictionTrack ptTrackNew = m_lstPredictionStack.back();
+	    
+	    if(m_bInsidePredictionModel) {
+	      this->info("Ascending by class: '" + strClass + "'");
+	    } else {
+	      if(ptTrackNew.prLevel) {
+		this->info("Ascending back into prediction model. Predictions possible again.");
+		m_bInsidePredictionModel = true;
+	      } else {
+		this->info("Ascending out of part of the unknown sub-tree.");
+	      }
+	    }
+	  } else {
+	    this->fail("Careful: Ascending into empty prediction stack. This shouldn't happen, as at least a 'Toplevel' stack entry is expected.");
+	  }
+	  
+	  bResult = true;
+	} else {
+	  this->fail("Tried to ascend from '" + strClass + "', but we're in '" + ptTrack.strClass + "'. This breaks the prediction mechanism.");
+	}
+      } else {
+	this->warn("Ascending although we have no prediction tree loaded. Did you load a model?");
+      }
+      
+      return bResult;
     }
     
     bool PLUGIN_CLASS::predict(CDesignator* desigRequest, CDesignator* desigResponse) {
