@@ -49,6 +49,7 @@
 #include <iostream>
 #include <fstream>
 #include <mutex>
+#include <map>
 
 // Designators
 #include <designators/CDesignator.h>
@@ -104,6 +105,8 @@ namespace beliefstate {
       bool descend(string strClass);
       bool ascend(string strClass);
       
+      map<string, int> failuresForNode(string strNode);
+      pair< list< pair< string, float> >, float > predictBranch(Property* prBranch);
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
     };
   }

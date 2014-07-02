@@ -337,19 +337,85 @@ namespace beliefstate {
       return bResult;
     }
     
-    bool PLUGIN_CLASS::predict(CDesignator* desigRequest, CDesignator* desigResponse) {
-      bool bResult = false;
-      
+    map<string, int> PLUGIN_CLASS::failuresForNode(string strNode) {
+      map<string, int> mapFailures;
       Property* prRoot = m_jsnModel->rootProperty();
+      
       if(prRoot) {
 	Property* prFailures = prRoot->namedSubProperty("failures");
 	
 	if(prFailures) {
-	  prFailures->print();
-	  
-	  bResult = true;
+	  for(Property* prFailure : prFailures->subProperties()) {
+	    string strEmitter = prFailure->namedSubProperty("emitter")->getString();
+	    
+	    if(strEmitter == strNode) {
+	      string strFailure = prFailure->namedSubProperty("type")->getString();
+	      
+	      if(mapFailures[strEmitter]) {
+		mapFailures[strEmitter]++;
+	      } else {
+		mapFailures[strEmitter] = 1;
+	      }
+	    }
+	  }
 	}
       }
+      
+      return mapFailures;
+    }
+    
+    pair< list< pair< string, float> >, float > PLUGIN_CLASS::predictBranch(Property* prBranch) {
+      list< pair<string, float> > lstPossibleFailures;
+      float fSuccess = 1.0;
+      
+      // TODO(winkler): Do the actual prediction here.
+      cout << "Predicting branch" << endl;
+      
+      return make_pair(lstPossibleFailures, fSuccess);
+    }
+    
+    bool PLUGIN_CLASS::predict(CDesignator* desigRequest, CDesignator* desigResponse) {
+      bool bResult = false;
+      
+      m_mtxStackProtect.lock();
+      if(m_bInsidePredictionModel) {
+	Property* prRoot = m_jsnModel->rootProperty();
+	
+	if(prRoot) {
+	  Property* prFailures = prRoot->namedSubProperty("failures");
+	  list< pair<string, float> > lstPossibleFailures;
+	  float fSuccess = 1.0f;
+	  
+	  if(prFailures) {
+	    if(m_lstPredictionStack.size() > 0) {
+	      Property* prCurrent = m_lstPredictionStack.back().prLevel;
+	      pair< list< pair< string, float> >, float> prFailures = this->predictBranch(prCurrent);
+	      
+	      lstPossibleFailures = prFailures.first;
+	      fSuccess = prFailures.second;
+	      
+	      bResult = true;
+	    } else {
+	      this->fail("There is no prediction stack. Returning a success of 100%. Maybe you forgot to load a model?");
+	    }
+	  } else {
+	    this->warn("No failure instances present. This projects 100% success. Is this what you wanted?");
+	    
+	    bResult = true;
+	  }
+	  
+	  desigResponse->setValue("success", fSuccess);
+	  CKeyValuePair* ckvpFailures = desigResponse->addChild("failures");
+	  ckvpFailures->setType(LIST);
+	  
+	  for(pair<string, float> prFailure : lstPossibleFailures) {
+	    ckvpFailures->setValue(prFailure.first, prFailure.second);
+	  }
+	}
+      } else {
+	this->fail("Outside of the prediction model, no predictions are possible.");
+      }
+      m_mtxStackProtect.unlock();
       
       return bResult;
     }
