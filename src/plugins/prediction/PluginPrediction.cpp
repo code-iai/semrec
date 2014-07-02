@@ -351,10 +351,10 @@ namespace beliefstate {
 	    if(strEmitter == strNode) {
 	      string strFailure = prFailure->namedSubProperty("type")->getString();
 	      
-	      if(mapFailures[strEmitter]) {
-		mapFailures[strEmitter]++;
+	      if(mapFailures[strFailure]) {
+		mapFailures[strFailure]++;
 	      } else {
-		mapFailures[strEmitter] = 1;
+		mapFailures[strFailure] = 1;
 	      }
 	    }
 	  }
@@ -364,14 +364,70 @@ namespace beliefstate {
       return mapFailures;
     }
     
-    pair< list< pair< string, float> >, float > PLUGIN_CLASS::predictBranch(Property* prBranch) {
-      list< pair<string, float> > lstPossibleFailures;
+    pair<map<string, float>, float> PLUGIN_CLASS::predictBranch(Property* prBranch) {
+      map<string, float> mapResult;
       float fSuccess = 1.0;
       
       // TODO(winkler): Do the actual prediction here.
       cout << "Predicting branch" << endl;
       
-      return make_pair(lstPossibleFailures, fSuccess);
+      map<string, int> mapCombinedFailures;
+      Property* prNames = prBranch->namedSubProperty("names");
+      
+      if(prNames) {
+	for(Property* prName : prNames->subProperties()) {
+	  string strName = prName->getString();
+	  map<string, int> mapFailures = this->failuresForNode(strName);
+	  
+	  for(auto itPair = mapFailures.begin(); itPair != mapFailures.end(); itPair++) {
+	    pair<string, int> prPair = *itPair;
+	    
+	    if(mapCombinedFailures[prPair.first]) {
+	      mapCombinedFailures[prPair.first] += prPair.second;
+	    } else {
+	      mapCombinedFailures[prPair.first] = prPair.second;
+	    }
+	  }
+	}
+      }
+      
+      int nAccumFailures = 0;
+      for(auto itPair = mapCombinedFailures.begin(); itPair != mapCombinedFailures.end(); itPair++) {
+	pair<string, int> prPair = *itPair;
+	nAccumFailures += prPair.second;
+      }
+      
+      for(auto itPair = mapCombinedFailures.begin(); itPair != mapCombinedFailures.end(); itPair++) {
+	pair<string, int> prPair = *itPair;
+	mapResult[prPair.first] = (float)prPair.second / (float)(nAccumFailures + 1);
+      }
+      
+      Property* prSubs = prBranch->namedSubProperty("subs");
+      
+      if(prSubs) {
+	for(Property* prSub : prSubs->subProperties()) {
+	  pair<map<string, float>, float> prSubFailures = this->predictBranch(prSub);
+	  
+	  for(auto itPair = prSubFailures.first.begin(); itPair != prSubFailures.first.end(); itPair++) {
+	    pair<string, float> prSubFailure = *itPair;
+	    
+	    if(mapResult[prSubFailure.first]) {
+	      mapResult[prSubFailure.first] += prSubFailure.second * prSubFailures.second;
+	    } else {
+	      mapResult[prSubFailure.first] = prSubFailure.second * prSubFailures.second;
+	    }
+	  }
+	}
+      }
+      
+      fSuccess = 1.0f;
+      for(auto itPair = mapResult.begin(); itPair != mapResult.end(); itPair++) {
+	pair<string, int> prPair = *itPair;
+	cout << prPair.first << "," << prPair.second << endl;
+	fSuccess -= prPair.second;
+      }
+      
+      return make_pair(mapResult, fSuccess);
     }
     
     bool PLUGIN_CLASS::predict(CDesignator* desigRequest, CDesignator* desigResponse) {
@@ -383,15 +439,15 @@ namespace beliefstate {
 	
 	if(prRoot) {
 	  Property* prFailures = prRoot->namedSubProperty("failures");
-	  list< pair<string, float> > lstPossibleFailures;
+	  map<string, float> mapPossibleFailures;
 	  float fSuccess = 1.0f;
 	  
 	  if(prFailures) {
 	    if(m_lstPredictionStack.size() > 0) {
 	      Property* prCurrent = m_lstPredictionStack.back().prLevel;
-	      pair< list< pair< string, float> >, float> prFailures = this->predictBranch(prCurrent);
+	      pair<map<string, float>, float> prFailures = this->predictBranch(prCurrent);
 	      
-	      lstPossibleFailures = prFailures.first;
+	      mapPossibleFailures = prFailures.first;
 	      fSuccess = prFailures.second;
 	      
 	      bResult = true;
@@ -408,7 +464,8 @@ namespace beliefstate {
 	  CKeyValuePair* ckvpFailures = desigResponse->addChild("failures");
 	  ckvpFailures->setType(LIST);
 	  
-	  for(pair<string, float> prFailure : lstPossibleFailures) {
+	  for(auto itPair = mapPossibleFailures.begin(); itPair != mapPossibleFailures.end(); itPair++) {
+	    pair<string, float> prFailure = *itPair;
 	    ckvpFailures->setValue(prFailure.first, prFailure.second);
 	  }
 	}

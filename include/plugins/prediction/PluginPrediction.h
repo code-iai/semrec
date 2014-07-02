@@ -106,7 +106,7 @@ namespace beliefstate {
       bool ascend(string strClass);
       
       map<string, int> failuresForNode(string strNode);
-      pair< list< pair< string, float> >, float > predictBranch(Property* prBranch);
+      pair<map<string, float>, float> predictBranch(Property* prBranch);
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
     };
   }
