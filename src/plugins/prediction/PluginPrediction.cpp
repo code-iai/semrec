@@ -202,6 +202,7 @@ namespace beliefstate {
       Property* prTopmost = NULL;
       Property* prSubs = NULL;
 
+      m_mtxStackProtect.lock();
       if(m_lstPredictionStack.size() > 0) {
 	prTopmost = m_lstPredictionStack.back().prLevel;
 	
@@ -209,26 +210,46 @@ namespace beliefstate {
 	  prSubs = prTopmost->namedSubProperty("subs");
 	}
       } else {
-	Property* prRoot = m_jsnModel->rootProperty();
+	prTopmost = m_jsnModel->rootProperty();
 	
-	if(prRoot) {
-	  prSubs = prRoot->namedSubProperty("tree");
+	if(prTopmost) {
+	  prSubs = prTopmost->namedSubProperty("tree");
 	}
       }
       
       if(prSubs) {
+	//prSubs->print();
 	for(Property* prSub : prSubs->subProperties()) {
-	  Property* prClass = prSub->namedSubProperty("class");
-	  if(prClass) {
-	    string strSubClass = prClass->getString();
+	  Property* prClasses = prSub->namedSubProperty("class");
 	  
-	    if(strSubClass == strClass) {
-	      // This is the sub property we're looking for.
-	      PredictionTrack ptTrack;
-	      ptTrack.prLevel = prSub;
-	      ptTrack.strClass = strClass;
-	      m_lstPredictionStack.push_back(ptTrack);
+	  if(prClasses) {
+	    bool bFound = false;
+	    bool bWildcardPresent = false;
 	    
+	    for(Property* prClass : prClasses->subProperties()) {
+	      string strSubClass = prClass->getString();
+	      
+	      if(strSubClass == "*") {
+		bWildcardPresent = true;
+	      }
+	    }
+	    
+	    for(Property* prClass : prClasses->subProperties()) {
+	      string strSubClass = prClass->getString();
+	      
+	      if(strSubClass == strClass || strSubClass == "*") {
+		// This is the sub property we're looking for.
+		PredictionTrack ptTrack;
+		ptTrack.prLevel = prSub;
+		ptTrack.strClass = (bWildcardPresent ? "*" : strSubClass);
+		m_lstPredictionStack.push_back(ptTrack);
+		
+		bFound = true;
+		break;
+	      }
+	    }
+	    
+	    if(bFound) {
 	      bResult = true;
 	      break;
 	    }
@@ -254,42 +275,54 @@ namespace beliefstate {
 	m_lstPredictionStack.push_back(ptTrack);
       }
       
+      m_mtxStackProtect.unlock();
+      
       return bResult;
     }
     
     bool PLUGIN_CLASS::ascend(string strClass) {
       bool bResult = false;
       
+      m_mtxStackProtect.lock();
       if(m_lstPredictionStack.size() > 0) {
-	PredictionTrack ptTrack = m_lstPredictionStack.back();
+	bool bGoon = true;
 	
-	if(strClass == ptTrack.strClass) {
+	while(bGoon) {
+	  PredictionTrack ptTrack = m_lstPredictionStack.back();
 	  m_lstPredictionStack.pop_back();
 	  
-	  if(m_lstPredictionStack.size() > 0) {
-	    PredictionTrack ptTrackNew = m_lstPredictionStack.back();
+	  if(strClass == ptTrack.strClass || ptTrack.strClass == "*") {
+	    if(m_lstPredictionStack.size() > 0) {
+	      PredictionTrack ptTrackNew = m_lstPredictionStack.back();
 	    
-	    if(m_bInsidePredictionModel) {
-	      this->info("Ascending by class: '" + strClass + "'");
-	    } else {
-	      if(ptTrackNew.prLevel) {
-		this->info("Ascending back into prediction model. Predictions possible again.");
-		m_bInsidePredictionModel = true;
+	      if(m_bInsidePredictionModel) {
+		this->info("Ascending by class: '" + strClass + "'");
 	      } else {
-		this->info("Ascending out of part of the unknown sub-tree.");
+		if(ptTrackNew.prLevel) {
+		  this->info("Ascending back into prediction model. Predictions possible again.");
+		  m_bInsidePredictionModel = true;
+		} else {
+		  this->info("Ascending out of part of the unknown sub-tree.");
+		}
 	      }
+	    } else {
+	      this->fail("Careful: Ascending into empty prediction stack. This shouldn't happen, as at least a 'Toplevel' stack entry is expected.");
 	    }
+	    
+	    bResult = true;
 	  } else {
-	    this->fail("Careful: Ascending into empty prediction stack. This shouldn't happen, as at least a 'Toplevel' stack entry is expected.");
+	    this->fail("Tried to ascend from '" + strClass + "', but we're in '" + ptTrack.strClass + "'. Moving up the chain.");
 	  }
 	  
-	  bResult = true;
-	} else {
-	  this->fail("Tried to ascend from '" + strClass + "', but we're in '" + ptTrack.strClass + "'. This breaks the prediction mechanism.");
+	  if(m_lstPredictionStack.size() == 0 || bResult) {
+	    bGoon = false;
+	  }
 	}
       } else {
 	this->warn("Ascending although we have no prediction tree loaded. Did you load a model?");
       }
+      
+      m_mtxStackProtect.unlock();
       
       return bResult;
     }

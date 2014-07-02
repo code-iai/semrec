@@ -48,6 +48,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <mutex>
 
 // Designators
 #include <designators/CDesignator.h>
@@ -82,6 +83,7 @@ namespace beliefstate {
       list<PredictionTrack> m_lstPredictionStack;
       CExporterOwl* m_expOwl;
       bool m_bInsidePredictionModel;
+      mutex m_mtxStackProtect;
 
     public:
       PLUGIN_CLASS();
