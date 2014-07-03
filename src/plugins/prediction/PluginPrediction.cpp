@@ -368,9 +368,6 @@ namespace beliefstate {
       map<string, float> mapResult;
       float fSuccess = 1.0;
       
-      // TODO(winkler): Do the actual prediction here.
-      cout << "Predicting branch" << endl;
-      
       map<string, int> mapCombinedFailures;
       Property* prNames = prBranch->namedSubProperty("names");
       
@@ -396,6 +393,7 @@ namespace beliefstate {
 	pair<string, int> prPair = *itPair;
 	nAccumFailures += prPair.second;
       }
+      float fSuccessSingle = 1.0f / (float)(nAccumFailures + 1);
       
       for(auto itPair = mapCombinedFailures.begin(); itPair != mapCombinedFailures.end(); itPair++) {
 	pair<string, int> prPair = *itPair;
@@ -412,9 +410,9 @@ namespace beliefstate {
 	    pair<string, float> prSubFailure = *itPair;
 	    
 	    if(mapResult[prSubFailure.first]) {
-	      mapResult[prSubFailure.first] += prSubFailure.second * prSubFailures.second;
+	      mapResult[prSubFailure.first] += prSubFailure.second * fSuccessSingle;
 	    } else {
-	      mapResult[prSubFailure.first] = prSubFailure.second * prSubFailures.second;
+	      mapResult[prSubFailure.first] = prSubFailure.second * fSuccessSingle;
 	    }
 	  }
 	}
@@ -422,8 +420,7 @@ namespace beliefstate {
       
       fSuccess = 1.0f;
       for(auto itPair = mapResult.begin(); itPair != mapResult.end(); itPair++) {
-	pair<string, int> prPair = *itPair;
-	cout << prPair.first << "," << prPair.second << endl;
+	pair<string, float> prPair = *itPair;
 	fSuccess -= prPair.second;
       }
       
