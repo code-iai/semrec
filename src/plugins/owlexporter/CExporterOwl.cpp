@@ -528,8 +528,39 @@ namespace beliefstate {
 	      string strAnnotation = ckvpDesignator->stringValue("annotation");
 	      string strDesigID = ckvpDesignator->stringValue("id");
 	      
-	      string strDesigPurpose = this->resolveDesignatorAnnotationTagName(strAnnotation);
+	      if(strAnnotation == "parameter-annotation") { // Special treatment for parameter annotations
+		CKeyValuePair* ckvpChildren = ckvpDesignator->childForKey("description");
+		
+		if(ckvpChildren) {
+		  for(CKeyValuePair* ckvpChild : ckvpChildren->children()) {
+		    string strKey = ckvpChild->key();
+		    string strType = "";
+		    stringstream sts;
+		    
+		    switch(ckvpChild->type()) {
+		    case FLOAT:
+		      strType = "xsd:decimal";
+		      sts << ckvpChild->floatValue();
+		      break;
+		      
+		    case STRING:
+		      strType = "xsd:string";
+		      sts << ckvpChild->stringValue();
+		      break;
+		      
+		    default:
+		      this->warn("Unsupported parameter annotation type for key '" + strKey + "'.");
+		      break;
+		    }
+		    
+		    if(strType != "") {
+		      strDot += "        <knowrob:" + strKey + " " + strType + "=\"" + sts.str() + "\"/>\n";
+		    }
+		  }
+		}
+	      }
 	      
+	      string strDesigPurpose = this->resolveDesignatorAnnotationTagName(strAnnotation);
 	      strDot += "        <knowrob:" + strDesigPurpose + " rdf:resource=\"&" + strNamespace + ";" + strDesigID + "\"/>\n";
 	    }
 	  }

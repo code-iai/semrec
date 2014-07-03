@@ -290,9 +290,13 @@ namespace beliefstate {
     CKeyValuePair* ckvpDesignator = this->addDescriptionListItem("designators", "designator");
     
     ckvpDesignator->setValue(string("type"), strType);
-    // TODO(winkler): Add description here!
     ckvpDesignator->setValue(string("id"), strUniqueID);
     ckvpDesignator->setValue(string("annotation"), strAnnotation);
+    
+    CKeyValuePair* ckvpDescription = ckvpDesignator->addChild("description");
+    for(CKeyValuePair* ckvpChild : lstDescription) {
+      ckvpDescription->addChild(ckvpChild);
+    }
   }
 
   void Node::setSuccess(bool bSuccess) {
