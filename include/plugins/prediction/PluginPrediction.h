@@ -77,6 +77,16 @@ namespace beliefstate {
 	string strClass;
       } PredictionTrack;
       
+      typedef struct {
+	string strClass;
+	double dProbability;
+      } Failure;
+      
+      typedef struct {
+	list<Failure> lstFailureProbabilities;
+	double dSuccessRate;
+      } PredictionResult;
+      
       ros::NodeHandle* m_nhHandle;
       ros::ServiceServer m_srvPredict;
       ros::ServiceServer m_srvLoad;
@@ -105,9 +115,23 @@ namespace beliefstate {
       bool descend(string strClass);
       bool ascend(string strClass);
       
-      map<string, int> failuresForNode(string strNode);
-      pair<map<string, float>, float> predictBranch(Property* prBranch);
+      /* map<string, int> failuresForNode(string strNode, Property* prFailures); */
+      /* pair<map<string, float>, float> predictBranch(Property* prBranch, Property* prFailures); */
+      
+      /* static bool sorterFailures(pair<Property*, float> prOne, pair<Property*, float> prTwo); */
+      /* float distance(CDesignator* desigRequest, Property* prFailures); */
+      /* Property* selectClosestFailures(CDesignator* desigRequest, Property* prFailuresCollection); */
+      
+      Property* failureSetForName(string strName);
+      list<Property*> failureSetsForNames(list<string> lstNames);
+      
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
+      Property* mostProbableFailureSet(Property* prBranch, list<Property*> lstParameters);
+      PredictionResult predictBranch(Property* prBranch, list<Property*> lstParameters);
+      list<Property*> linearizeTree(Property* prTop);
+      PredictionResult probability(list<Property*> lstSequence, int nTracks, list<Property*> lstParameters);
+      map<string, double> relativeFailureOccurrences(list<Property*> lstFailures, int nTracks);
+      list<Property*> failuresForTreeNode(Property* prNode);
     };
   }
   

@@ -144,7 +144,7 @@ namespace beliefstate {
 
       return bSuccess;
     }
-
+    
     bool PLUGIN_CLASS::serviceCallbackPredict(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
       CDesignator* desigRequest = new CDesignator(req.request.designator);
       CDesignator* desigResponse = new CDesignator();
@@ -337,148 +337,327 @@ namespace beliefstate {
       return bResult;
     }
     
-    map<string, int> PLUGIN_CLASS::failuresForNode(string strNode) {
-      map<string, int> mapFailures;
-      Property* prRoot = m_jsnModel->rootProperty();
-      
-      if(prRoot) {
-	Property* prFailures = prRoot->namedSubProperty("failures");
-	
-	if(prFailures) {
-	  for(Property* prFailure : prFailures->subProperties()) {
-	    string strEmitter = prFailure->namedSubProperty("emitter")->getString();
-	    
-	    if(strEmitter == strNode) {
-	      string strFailure = prFailure->namedSubProperty("type")->getString();
-	      
-	      if(mapFailures[strFailure]) {
-		mapFailures[strFailure]++;
-	      } else {
-		mapFailures[strFailure] = 1;
-	      }
-	    }
-	  }
-	}
-      }
-      
-      return mapFailures;
-    }
-    
-    pair<map<string, float>, float> PLUGIN_CLASS::predictBranch(Property* prBranch) {
-      map<string, float> mapResult;
-      float fSuccess = 1.0;
-      
-      map<string, int> mapCombinedFailures;
-      Property* prNames = prBranch->namedSubProperty("names");
-      
-      if(prNames) {
-	for(Property* prName : prNames->subProperties()) {
-	  string strName = prName->getString();
-	  map<string, int> mapFailures = this->failuresForNode(strName);
-	  
-	  for(auto itPair = mapFailures.begin(); itPair != mapFailures.end(); itPair++) {
-	    pair<string, int> prPair = *itPair;
-	    
-	    if(mapCombinedFailures[prPair.first]) {
-	      mapCombinedFailures[prPair.first] += prPair.second;
-	    } else {
-	      mapCombinedFailures[prPair.first] = prPair.second;
-	    }
-	  }
-	}
-      }
-      
-      int nAccumFailures = 0;
-      for(auto itPair = mapCombinedFailures.begin(); itPair != mapCombinedFailures.end(); itPair++) {
-	pair<string, int> prPair = *itPair;
-	nAccumFailures += prPair.second;
-      }
-      float fSuccessSingle = 1.0f / (float)(nAccumFailures + 1);
-      
-      for(auto itPair = mapCombinedFailures.begin(); itPair != mapCombinedFailures.end(); itPair++) {
-	pair<string, int> prPair = *itPair;
-	mapResult[prPair.first] = (float)prPair.second / (float)(nAccumFailures + 1);
-      }
-      
-      Property* prSubs = prBranch->namedSubProperty("subs");
-      
-      if(prSubs) {
-	for(Property* prSub : prSubs->subProperties()) {
-	  pair<map<string, float>, float> prSubFailures = this->predictBranch(prSub);
-	  
-	  for(auto itPair = prSubFailures.first.begin(); itPair != prSubFailures.first.end(); itPair++) {
-	    pair<string, float> prSubFailure = *itPair;
-	    
-	    if(mapResult[prSubFailure.first]) {
-	      mapResult[prSubFailure.first] += prSubFailure.second * fSuccessSingle;
-	    } else {
-	      mapResult[prSubFailure.first] = prSubFailure.second * fSuccessSingle;
-	    }
-	  }
-	}
-      }
-      
-      fSuccess = 1.0f;
-      for(auto itPair = mapResult.begin(); itPair != mapResult.end(); itPair++) {
-	pair<string, float> prPair = *itPair;
-	fSuccess -= prPair.second;
-      }
-      
-      return make_pair(mapResult, fSuccess);
-    }
-    
     bool PLUGIN_CLASS::predict(CDesignator* desigRequest, CDesignator* desigResponse) {
       bool bResult = false;
       
       m_mtxStackProtect.lock();
+      
       if(m_bInsidePredictionModel) {
 	Property* prRoot = m_jsnModel->rootProperty();
 	
 	if(prRoot) {
-	  Property* prFailures = prRoot->namedSubProperty("failures");
-	  map<string, float> mapPossibleFailures;
-	  float fSuccess = 1.0f;
-	  
-	  if(prFailures) {
-	    if(m_lstPredictionStack.size() > 0) {
-	      Property* prCurrent = m_lstPredictionStack.back().prLevel;
-	      pair<map<string, float>, float> prFailures = this->predictBranch(prCurrent);
+	  if(m_lstPredictionStack.size() > 0) {
+	    PredictionTrack ptCurrent = m_lstPredictionStack.back();
+	    list<Property*> lstParameters;
+	    
+	    for(string strKey : desigRequest->keys()) {
+	      Property* prParameter = new Property();
 	      
-	      mapPossibleFailures = prFailures.first;
-	      fSuccess = prFailures.second;
+	      prParameter->set(Property::Double);
+	      prParameter->setKey(strKey);
+	      prParameter->set((double)desigRequest->floatValue(strKey));
 	      
-	      bResult = true;
-	    } else {
-	      this->fail("There is no prediction stack. Returning a success of 100%. Maybe you forgot to load a model?");
+	      lstParameters.push_back(prParameter);
 	    }
-	  } else {
-	    this->warn("No failure instances present. This projects 100% success. Is this what you wanted?");
+	    
+	    list<Property*> lstLinearTree = this->linearizeTree(ptCurrent.prLevel);
+	    PredictionResult presResult;
+	    int nTracks = m_jsnModel->rootProperty()->namedSubProperty("tracks")->subProperties().size();
+	    
+	    map<string, double> mapEffectiveFailureRates;
+	    
+	    while(lstLinearTree.size() > 0) {
+	      presResult = this->probability(lstLinearTree, nTracks, lstParameters);
+	      
+	      for(Failure flFailure : presResult.lstFailureProbabilities) {
+		if(mapEffectiveFailureRates[flFailure.strClass] == 0) {
+		  mapEffectiveFailureRates[flFailure.strClass] = flFailure.dProbability;
+		} else {
+		  mapEffectiveFailureRates[flFailure.strClass] += flFailure.dProbability;
+		}
+	      }
+	      
+	      lstLinearTree.pop_back();
+	    }
+	    
+	    CKeyValuePair* ckvpFailures = desigResponse->addChild("failures");
+	    presResult.dSuccessRate = 1.0f;
+	    for(auto itMap = mapEffectiveFailureRates.begin(); itMap != mapEffectiveFailureRates.end(); itMap++) {
+	      pair<string, double> prFailure = *itMap;
+	      ckvpFailures->setValue(prFailure.first, prFailure.second);
+	      
+	      presResult.dSuccessRate -= prFailure.second;
+	    }
+
+	    desigResponse->setValue("success", presResult.dSuccessRate);
+	    
+	    for(Property* prDelete : lstParameters) {
+	      delete prDelete;
+	    }
+	    
+	    lstParameters.clear();
 	    
 	    bResult = true;
+	  } else {
+	    this->fail("Nothing on the prediction stack. Toplevel not loaded. This is bad.");
 	  }
-	  
-	  desigResponse->setValue("success", fSuccess);
-	  CKeyValuePair* ckvpFailures = desigResponse->addChild("failures");
-	  ckvpFailures->setType(LIST);
-	  
-	  for(auto itPair = mapPossibleFailures.begin(); itPair != mapPossibleFailures.end(); itPair++) {
-	    pair<string, float> prFailure = *itPair;
-	    ckvpFailures->setValue(prFailure.first, prFailure.second);
-	  }
+	} else {
+	  this->fail("No root element loaded. Did you load a prediction model?");
 	}
       } else {
-	this->fail("Outside of the prediction model, no predictions are possible.");
+	this->fail("Outside of prediction model, no predictions possible.");
       }
+      
       m_mtxStackProtect.unlock();
       
       return bResult;
     }
-  }
+    
+    list<Property*> PLUGIN_CLASS::linearizeTree(Property* prTop) {
+      list<Property*> lstProps;
+      lstProps.push_back(prTop);
+      
+      Property* prSubs = prTop->namedSubProperty("subs");
+      
+      if(prSubs) {
+	for(Property* prSub : prSubs->subProperties()) {
+	  list<Property*> lstSubProps = this->linearizeTree(prSub);
+	  
+	  for(Property* prSubSub : lstSubProps) {
+	    lstProps.push_back(prSubSub);
+	  }
+	}
+      }
+      
+      return lstProps;
+    }
+    
+    map<string, double> PLUGIN_CLASS::relativeFailureOccurrences(list<Property*> lstFailures, int nTracks) {
+      map<string, int> mapFailureOcc;
+      
+      for(Property* prFailure : lstFailures) {
+	string strType = prFailure->namedSubProperty("type")->getString();
+	
+	if(mapFailureOcc[strType]) {
+	  mapFailureOcc[strType] = 1;
+	} else {
+	  mapFailureOcc[strType]++;
+	}
+      }
+      
+      map<string, double> mapFailureRelOcc;
+      for(auto itMap = mapFailureOcc.begin(); itMap != mapFailureOcc.end(); itMap++) {
+	pair<string, int> prFailOcc = *itMap;
+	
+	mapFailureRelOcc[prFailOcc.first] = (double)prFailOcc.second / (double)nTracks;
+      }
+      
+      return mapFailureRelOcc;
+    }
+    
+    list<Property*> PLUGIN_CLASS::failuresForTreeNode(Property* prNode) {
+      list<string> lstNames;
+      
+      for(Property* prName : prNode->namedSubProperty("names")->subProperties()) {
+	lstNames.push_back(prName->getString());
+      }
+      
+      list<Property*> lstFailures;
+      
+      for(Property* prFailureSet : m_jsnModel->rootProperty()->namedSubProperty("failures")->subProperties()) {
+	for(Property* prFailure : prFailureSet->namedSubProperty("failures")->subProperties()) {
+	  if(find(lstNames.begin(), lstNames.end(), prFailure->namedSubProperty("emitter")->getString()) != lstNames.end()) {
+	    // The emitter name is on our node's 'names' list
+	    lstFailures.push_back(prFailure);
+	  }
+	}
+      }
+      
+      return lstFailures;
+    }
+    
+    PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::probability(list<Property*> lstSequence, int nTracks, list<Property*> lstParameters) {
+      PredictionResult presResult;
+      
+      if(lstSequence.size() > 0) {
+	// Relative occurrences
+	int nBranches = lstSequence.back()->namedSubProperty("names")->subProperties().size();
+	
+	list<Property*> lstFailures = this->failuresForTreeNode(lstSequence.back());
+	map<string, double> mapFailureRelOcc = this->relativeFailureOccurrences(lstFailures, nBranches);
+	double dLocalSuccess = 1.0f;
+	
+	for(auto itMap = mapFailureRelOcc.begin(); itMap != mapFailureRelOcc.end(); itMap++) {
+	  pair<string, double> prPair = *itMap;
+	  
+	  dLocalSuccess -= prPair.second;
+	}
+	
+	// Prepare list for recursion
+	list<Property*> lstAllButLast = lstSequence;
+	lstAllButLast.pop_front();
+	
+	// Recurse
+	PredictionResult presSub = this->probability(lstAllButLast, nBranches, lstParameters);
+	list<Failure> lstSubFailures = presSub.lstFailureProbabilities;
+	
+	if(lstSequence.size() > 1) {
+	  presResult.dSuccessRate = dLocalSuccess * presSub.dSuccessRate;
+	  
+	  for(Failure flFailure : presSub.lstFailureProbabilities) {
+	    flFailure.dProbability *= dLocalSuccess;
+	    presResult.lstFailureProbabilities.push_back(flFailure);
+	  }
+	} else {
+	  presResult.dSuccessRate = dLocalSuccess;
+	  
+	  for(auto itMap = mapFailureRelOcc.begin(); itMap != mapFailureRelOcc.end(); itMap++) {
+	    pair<string, double> prMap = *itMap;
+	    
+	    Failure flFailure;
+	    flFailure.strClass = prMap.first;
+	    flFailure.dProbability = prMap.second;
+	    
+	    presResult.lstFailureProbabilities.push_back(flFailure);
+	  }
+	}
+      } else {
+	// This is the node we already passed. This is S0.
+	presResult.dSuccessRate = 1.0f;
+      }
 
+      return presResult;
+    }
+    
+    Property* PLUGIN_CLASS::failureSetForName(string strName) {
+      // This totally depends on the names of the nodes being
+      // parameterized in this failure set. It does *not* correspond
+      // to the failure emitters/catchers in the sets.
+      for(Property* prFailureSet : m_jsnModel->rootProperty()->namedSubProperty("failures")->subProperties()) {
+	if(prFailureSet->namedSubProperty("parameters")->namedSubProperty(strName)) {
+	  return prFailureSet;
+	}
+      }
+      
+      return NULL;
+    }
+    
+    list<Property*> PLUGIN_CLASS::failureSetsForNames(list<string> lstNames) {
+      list<Property*> lstFailureSets;
+      
+      for(string strName : lstNames) {
+	Property* prFailureSet = this->failureSetForName(strName);
+	
+	if(prFailureSet) {
+	  lstFailureSets.push_back(prFailureSet);
+	}
+      }
+      
+      return lstFailureSets;
+    }
+    
+    Property* PLUGIN_CLASS::mostProbableFailureSet(Property* prBranch, list<Property*> lstParameters) {
+      Property* prResult = NULL;
+      
+      // TODO(winkler): Here, the code for deciding on that very set
+      // is missing. This should be done live using some smart
+      // classifier mechanism (e.g., WEKA, Reinforcement Learning,
+      // some other statistical method) based on the information
+      // present in the prediction tree file.
+
+      // NOTE(winkler): For now, we just return the first one here (if
+      // any) as a placeholder measure.
+      
+      Property* prSets = m_jsnModel->rootProperty()->namedSubProperty("failures");
+      
+      if(prSets->subProperties().size() > 0) {
+	prResult = prSets->subProperties().front();
+      }
+      
+      return prResult;
+    }
+    
+    PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::predictBranch(Property* prBranch, list<Property*> lstParameters) {
+      PredictionResult presResult;
+      list<Failure> lstGlobalFailures;
+      
+      // Decide on most probable parameter/failure set
+      Property* prMostProbableSet = this->mostProbableFailureSet(prBranch, lstParameters);
+      
+      // Iterate over all failures, collect their magnitude, and
+      // calculate probabilities for each, including the overall
+      // success rate for this node.
+      int nFailures = 0;
+      map<string, int> mapFailureAmounts;
+      
+      if(prMostProbableSet) {
+	for(Property* prFailure : prMostProbableSet->namedSubProperty("failures")->subProperties()) {
+	  string strClass = prFailure->namedSubProperty("type")->getString();
+	  
+	  if(mapFailureAmounts[strClass]) {
+	    mapFailureAmounts[strClass]++;
+	  } else {
+	    mapFailureAmounts[strClass] = 1;
+	  }
+	  
+	  nFailures++;
+	}
+      }
+      
+      double dLocalSuccessRate = (double)m_jsnModel->rootProperty()->namedSubProperty("tracks")->subProperties().size() / (double)(nFailures + 1);
+      map<string, double> mapFailureProbabilities;
+      
+      for(auto itMap = mapFailureAmounts.begin(); itMap != mapFailureAmounts.end(); itMap++) {
+	pair<string, int> prFailureAmount = *itMap;
+	
+	mapFailureProbabilities[prFailureAmount.first] = dLocalSuccessRate * (double)prFailureAmount.second;
+      }
+      
+      // Iterate over all sub-nodes and assert their resulting
+      // failures into the global failure list, weighted by this
+      // node's success rate (as these failures only come up when the
+      // current node ends successfully).
+      Property* prSubs = prBranch->namedSubProperty("subs");
+      for(Property* prSub : prSubs->subProperties()) {
+	PredictionResult presSubResult = this->predictBranch(prSub, lstParameters);
+	
+	for(Failure flFailure : presSubResult.lstFailureProbabilities) {
+	  // Since these failures only come up when the current node
+	  // succeeds, weight them with the current local success
+	  // rate.
+	  double dAccountableFailureProbability = flFailure.dProbability * dLocalSuccessRate;
+	  
+	  if(mapFailureProbabilities[flFailure.strClass]) {
+	    mapFailureProbabilities[flFailure.strClass] = max(mapFailureProbabilities[flFailure.strClass],
+							      dAccountableFailureProbability);
+	  } else {
+	    mapFailureProbabilities[flFailure.strClass] = dAccountableFailureProbability;
+	  }
+	}
+      }
+      
+      presResult.dSuccessRate = 1.0f;
+      
+      for(auto itMap = mapFailureProbabilities.begin(); itMap != mapFailureProbabilities.end(); itMap++) {
+	pair<string, double> prMap = *itMap;
+	
+	Failure flFailure;
+	flFailure.strClass = prMap.first;
+	flFailure.dProbability = prMap.second;
+	
+	presResult.lstFailureProbabilities.push_back(flFailure);
+	
+	presResult.dSuccessRate -= prMap.second;
+      }
+      
+      return presResult;
+    }
+  }
+  
   extern "C" plugins::PLUGIN_CLASS* createInstance() {
     return new plugins::PLUGIN_CLASS();
   }
-
+  
   extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy) {
     delete icDestroy;
   }
