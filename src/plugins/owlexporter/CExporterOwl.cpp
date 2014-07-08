@@ -534,17 +534,14 @@ namespace beliefstate {
 		if(ckvpChildren) {
 		  for(CKeyValuePair* ckvpChild : ckvpChildren->children()) {
 		    string strKey = ckvpChild->key();
-		    string strType = "";
 		    stringstream sts;
 		    
 		    switch(ckvpChild->type()) {
 		    case FLOAT:
-		      strType = "xsd:decimal";
 		      sts << ckvpChild->floatValue();
 		      break;
 		      
 		    case STRING:
-		      strType = "xsd:string";
 		      sts << ckvpChild->stringValue();
 		      break;
 		      
@@ -553,9 +550,7 @@ namespace beliefstate {
 		      break;
 		    }
 		    
-		    if(strType != "") {
-		      strDot += "        <knowrob:" + strKey + " " + strType + "=\"" + sts.str() + "\"/>\n";
-		    }
+		    strDot += "        <knowrob:" + strKey + ">" + sts.str() + "</knowrob:" + strKey + ">\n";
 		  }
 		}
 	      }
