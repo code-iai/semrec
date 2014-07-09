@@ -115,19 +115,7 @@ namespace beliefstate {
       bool descend(string strClass);
       bool ascend(string strClass);
       
-      /* map<string, int> failuresForNode(string strNode, Property* prFailures); */
-      /* pair<map<string, float>, float> predictBranch(Property* prBranch, Property* prFailures); */
-      
-      /* static bool sorterFailures(pair<Property*, float> prOne, pair<Property*, float> prTwo); */
-      /* float distance(CDesignator* desigRequest, Property* prFailures); */
-      /* Property* selectClosestFailures(CDesignator* desigRequest, Property* prFailuresCollection); */
-      
-      Property* failureSetForName(string strName);
-      list<Property*> failureSetsForNames(list<string> lstNames);
-      
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
-      Property* mostProbableFailureSet(Property* prBranch, list<Property*> lstParameters);
-      PredictionResult predictBranch(Property* prBranch, list<Property*> lstParameters);
       list<Property*> linearizeTree(Property* prTop);
       PredictionResult probability(list<Property*> lstSequence, int nTracks, list<Property*> lstParameters);
       map<string, double> relativeFailureOccurrences(list<Property*> lstFailures, int nTracks);
