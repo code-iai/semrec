@@ -58,6 +58,10 @@
 // OWL Exporter for ontology
 #include <plugins/owlexporter/CExporterOwl.h>
 
+// C50
+#include <C50/defns.i>
+#include <C50/extern.i>
+
 // Private
 #include <Types.h>
 #include <ForwardDeclarations.h>

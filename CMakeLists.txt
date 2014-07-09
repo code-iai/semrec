@@ -6,19 +6,45 @@ find_package(catkin REQUIRED COMPONENTS roscpp roslib designator_integration des
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
 catkin_package(
-  INCLUDE_DIRS include
+  INCLUDE_DIRS include 3rdparty
   LIBRARIES bs_plugin_ros bs_plugin_gazebo bs_plugin_console bs_plugin_experiment_knowledge bs_plugin_experiment_context bs_plugin_interactive bs_plugin_symboliclog bs_plugin_supervisor bs_plugin_owlexporter bs_plugin_dotexporter
   CATKIN_DEPENDS roscpp roslib designator_integration designator_integration_msgs sensor_msgs cv_bridge interactive_markers visualization_msgs
 )
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  include)
+  include
+  3rdparty)
 
 add_library(bs_plugin_ros SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
   src/plugins/ros/PluginROS.cpp)
+
+add_library(bs_aux_c50
+  3rdparty/C50/attwinnow.c
+  3rdparty/C50/classify.c
+  3rdparty/C50/confmat.c
+  3rdparty/C50/construct.c
+  3rdparty/C50/contin.c
+  3rdparty/C50/discr.c
+  3rdparty/C50/formrules.c
+  3rdparty/C50/formtree.c
+  3rdparty/C50/getdata.c
+  3rdparty/C50/mcost.c
+  3rdparty/C50/modelfiles.c
+  3rdparty/C50/prune.c
+  3rdparty/C50/p-thresh.c
+#  3rdparty/C50/report.c
+  3rdparty/C50/rules.c
+  3rdparty/C50/ruletree.c
+  3rdparty/C50/siftrules.c
+  3rdparty/C50/sort.c
+  3rdparty/C50/subset.c
+  3rdparty/C50/trees.c
+  3rdparty/C50/update.c
+  3rdparty/C50/utility.c)
+#  3rdparty/C50/xval.c)
 
 add_library(bs_plugin_prediction SHARED
   src/GlobalFunctions.cpp
@@ -121,6 +147,7 @@ target_link_libraries(bs_plugin_ros
 target_link_libraries(bs_plugin_prediction
   ${catkin_LIBRARIES}
   json
+  bs_aux_c50
 )
 
 target_link_libraries(bs_plugin_gazebo
