@@ -74,6 +74,7 @@ namespace beliefstate {
       // Plan node control events
       this->setSubscribedToEvent("symbolic-begin-context", true);
       this->setSubscribedToEvent("symbolic-end-context", true);
+      this->setSubscribedToEvent("symbolic-node-active", true);
       
       // Prepare the JSON prediction model parser
       m_jsnModel = new JSON();
@@ -113,6 +114,14 @@ namespace beliefstate {
 	  this->ascend(m_expOwl->owlClassForNode(evEvent.lstNodes.front(), true));
 	} else {
 	  this->warn("Consuming 'symbolic-end-context' event without nodes!");
+	}
+      } else if(evEvent.strEventName == "symbolic-node-active") {
+	if(evEvent.lstNodes.size() > 0) {
+	  Node* ndNode = evEvent.lstNodes.front();
+	  
+	  this->info("Prediction context is now node '" + ndNode->title() + "'.");
+	} else {
+	  this->info("Prediction context is now top-level (so not predicting).");
 	}
       }
     }
@@ -183,6 +192,10 @@ namespace beliefstate {
 	  
 	  this->info("Okay, descending to toplevel.");
 	  this->descend("Toplevel");
+	  
+	  this->info("Optimizing: Mapping node failures");
+	  this->mapNodeFailures();
+	  this->info("Optimized");
 	} else {
 	  this->fail("Failed to load model '" + strFile + "', unable to parse.");
 	}
@@ -337,6 +350,50 @@ namespace beliefstate {
       return bResult;
     }
     
+    void PLUGIN_CLASS::mapNodeFailures() {
+      Property* prToplevel = NULL;
+      list<Property*> lstLinearModel;
+      
+      m_mapNodeFailures.clear();
+      
+      if(m_jsnModel->rootProperty()->namedSubProperty("tree")->subProperties().size() > 0) {
+	prToplevel = m_jsnModel->rootProperty()->namedSubProperty("tree")->subProperties().front();
+      }
+      
+      if(prToplevel) {
+	lstLinearModel = this->linearizeTree(prToplevel);
+      }
+      
+      int nNodes = 0;
+      int nFailures = 0;
+      
+      for(Property* prNode : lstLinearModel) {
+	nNodes++;
+	list<string> lstNames;
+	
+	for(Property* prName : prNode->namedSubProperty("names")->subProperties()) {
+	  lstNames.push_back(prName->getString());
+	}
+	
+	list<Property*> lstFailures;
+	for(Property* prFailureSet : m_jsnModel->rootProperty()->namedSubProperty("failures")->subProperties()) {
+	  for(Property* prFailure : prFailureSet->namedSubProperty("failures")->subProperties()) {
+	    if(find(lstNames.begin(), lstNames.end(), prFailure->namedSubProperty("emitter")->getString()) != lstNames.end()) {
+	      // The emitter name is on our node's 'names' list
+	      nFailures++;
+	      lstFailures.push_back(prFailure);
+	    }
+	  }
+	}
+	
+	m_mapNodeFailures[prNode] = lstFailures;
+      }
+      
+      stringstream sts;
+      sts << "Mapped " << nFailures << " failures on " << nNodes << " nodes.";
+      this->info(sts.str());
+    }
+    
     bool PLUGIN_CLASS::predict(CDesignator* desigRequest, CDesignator* desigResponse) {
       bool bResult = false;
       
@@ -457,35 +514,52 @@ namespace beliefstate {
     }
     
     list<Property*> PLUGIN_CLASS::failuresForTreeNode(Property* prNode) {
-      list<string> lstNames;
+      // list<string> lstNames;
       
-      for(Property* prName : prNode->namedSubProperty("names")->subProperties()) {
-	lstNames.push_back(prName->getString());
+      // // Decision tree
+      // //InitialiseTreeData();
+      
+      // for(Property* prName : prNode->namedSubProperty("names")->subProperties()) {
+      // 	lstNames.push_back(prName->getString());
+      // }
+      
+      // list<Property*> lstFailures;
+      // for(Property* prFailureSet : m_jsnModel->rootProperty()->namedSubProperty("failures")->subProperties()) {
+      // 	for(Property* prFailure : prFailureSet->namedSubProperty("failures")->subProperties()) {
+      // 	  if(find(lstNames.begin(), lstNames.end(), prFailure->namedSubProperty("emitter")->getString()) != lstNames.end()) {
+      // 	    // The emitter name is on our node's 'names' list
+      // 	    lstFailures.push_back(prFailure);
+      // 	  }
+      // 	}
+      // }
+      
+      // // Clean decision tree
+      // //Cleanup();
+      
+      // return lstFailures;
+      
+      if(m_mapNodeFailures.find(prNode) != m_mapNodeFailures.end()) {
+	return m_mapNodeFailures[prNode];
       }
       
-      list<Property*> lstFailures;
-      for(Property* prFailureSet : m_jsnModel->rootProperty()->namedSubProperty("failures")->subProperties()) {
-	for(Property* prFailure : prFailureSet->namedSubProperty("failures")->subProperties()) {
-	  if(find(lstNames.begin(), lstNames.end(), prFailure->namedSubProperty("emitter")->getString()) != lstNames.end()) {
-	    // The emitter name is on our node's 'names' list
-	    lstFailures.push_back(prFailure);
-	  }
-	}
-      }
-      
-      return lstFailures;
+      list<Property*> lstEmpty;
+      return lstEmpty;
     }
     
     PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::probability(list<Property*> lstSequence, int nTracks, list<Property*> lstParameters) {
       PredictionResult presResult;
+      
+      for(Property* propParam : lstParameters) {
+	propParam->print();
+      }
       
       if(lstSequence.size() > 0) {
 	// Relative occurrences
 	int nBranches = lstSequence.back()->namedSubProperty("names")->subProperties().size();
 	
 	list<Property*> lstFailures = this->failuresForTreeNode(lstSequence.back());
-	
 	map<string, double> mapFailureRelOcc = this->relativeFailureOccurrences(lstFailures, nBranches);
+	
 	double dLocalSuccess = 1.0f;
 	
 	for(auto itMap = mapFailureRelOcc.begin(); itMap != mapFailureRelOcc.end(); itMap++) {

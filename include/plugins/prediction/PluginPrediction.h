@@ -68,6 +68,7 @@
 #include <Plugin.h>
 #include <Property.h>
 #include <JSON.h>
+#include <Node.h>
 
 using namespace std;
 
@@ -99,6 +100,8 @@ namespace beliefstate {
       CExporterOwl* m_expOwl;
       bool m_bInsidePredictionModel;
       mutex m_mtxStackProtect;
+      Node* m_ndActive;
+      map< Property*, list<Property*> > m_mapNodeFailures;
 
     public:
       PLUGIN_CLASS();
@@ -119,6 +122,7 @@ namespace beliefstate {
       bool descend(string strClass);
       bool ascend(string strClass);
       
+      void mapNodeFailures();
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
       list<Property*> linearizeTree(Property* prTop);
       PredictionResult probability(list<Property*> lstSequence, int nTracks, list<Property*> lstParameters);
