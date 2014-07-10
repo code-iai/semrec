@@ -54,12 +54,8 @@ namespace beliefstate {
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {
-      for(list<Node*>::iterator itNode = m_lstNodes.begin();
-	  itNode != m_lstNodes.end();
-	  itNode++) {
-	Node* ndCurrent = *itNode;
-	
-	delete ndCurrent;
+      for(Node* ndNode : m_lstNodes) {
+	delete ndNode;
       }
       
       m_lstNodes.clear();
@@ -71,6 +67,9 @@ namespace beliefstate {
       // Plan node control events
       this->setSubscribedToEvent("begin-context", true);
       this->setSubscribedToEvent("end-context", true);
+      
+      // Supervisor
+      this->setSubscribedToEvent("start-new-experiment", true);
       
       // Extra information assertion
       this->setSubscribedToEvent("add-designator", true);
@@ -128,8 +127,6 @@ namespace beliefstate {
     }
     
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
-      //int nID = (evEvent.nContextID == -1 ? (evEvent.cdDesignator ? (int)evEvent.cdDesignator->floatValue("_id") : -1) : evEvent.nContextID);
-      
       if(evEvent.strEventName == "begin-context") {
 	string strName = evEvent.cdDesignator->stringValue("_name");
 	
@@ -468,6 +465,25 @@ namespace beliefstate {
 	    }
 	  }
 	}
+      } else if(evEvent.strEventName == "start-new-experiment") {
+	this->info("Clearing symbolic log for new experiment.");
+	
+	for(Node* ndNode : m_lstNodes) {
+	  delete ndNode;
+	}
+	
+	m_lstNodes.clear();
+	m_ndActive = NULL;
+	
+	m_lstDesignatorIDs.clear();
+	m_lstDesignatorEquations.clear();
+	m_lstDesignatorEquationTimes.clear();
+	
+	m_prLastFailure = make_pair("", (Node*)NULL);
+	
+	srand(time(NULL));
+	
+	this->info("Ready for new experiment.");
       } else {
 	this->warn("Unknown event name: '" + evEvent.strEventName + "'");
       }
@@ -525,11 +541,7 @@ namespace beliefstate {
     string PLUGIN_CLASS::getDesignatorID(string strMemoryAddress) {
       string strID = "";
       
-      for(list< pair<string, string> >::iterator itPair = m_lstDesignatorIDs.begin();
-	  itPair != m_lstDesignatorIDs.end();
-	  itPair++) {
-	pair<string, string> prPair = *itPair;
-	
+      for(pair<string, string> prPair : m_lstDesignatorIDs) {
 	if(prPair.first == strMemoryAddress) {
 	  strID = prPair.second;
 	  break;
@@ -641,10 +653,8 @@ namespace beliefstate {
       
       list<CKeyValuePair*> lstChildren = ckvpParent->children();
       
-      for(list<CKeyValuePair*>::iterator itChild = lstChildren.begin();
-	  itChild != lstChildren.end();
-	  itChild++) {
-	this->setNestedDesignatorUniqueIDs(*itChild);
+      for(CKeyValuePair* ckvpChild : lstChildren) {
+	this->setNestedDesignatorUniqueIDs(ckvpChild);
       }
       
       if(bIsDesignator) {
