@@ -125,7 +125,7 @@ namespace beliefstate {
       void mapNodeFailures();
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
       list<Property*> linearizeTree(Property* prTop);
-      PredictionResult probability(list<Property*> lstSequence, int nTracks, list<Property*> lstParameters);
+      PredictionResult probability(list<Property*> lstSequence, list<Property*> lstParameters);
       map<string, double> relativeFailureOccurrences(list<Property*> lstFailures, int nTracks);
       list<Property*> failuresForTreeNode(Property* prNode);
     };

@@ -425,7 +425,7 @@ namespace beliefstate {
 	    map<string, double> mapEffectiveFailureRates;
 	    
 	    while(lstLinearTree.size() > 0) {
-	      presResult = this->probability(lstLinearTree, nTracks, lstParameters);
+	      presResult = this->probability(lstLinearTree, lstParameters);
 	      
 	      for(Failure flFailure : presResult.lstFailureProbabilities) {
 		if(mapEffectiveFailureRates[flFailure.strClass] == 0) {
@@ -514,30 +514,6 @@ namespace beliefstate {
     }
     
     list<Property*> PLUGIN_CLASS::failuresForTreeNode(Property* prNode) {
-      // list<string> lstNames;
-      
-      // // Decision tree
-      // //InitialiseTreeData();
-      
-      // for(Property* prName : prNode->namedSubProperty("names")->subProperties()) {
-      // 	lstNames.push_back(prName->getString());
-      // }
-      
-      // list<Property*> lstFailures;
-      // for(Property* prFailureSet : m_jsnModel->rootProperty()->namedSubProperty("failures")->subProperties()) {
-      // 	for(Property* prFailure : prFailureSet->namedSubProperty("failures")->subProperties()) {
-      // 	  if(find(lstNames.begin(), lstNames.end(), prFailure->namedSubProperty("emitter")->getString()) != lstNames.end()) {
-      // 	    // The emitter name is on our node's 'names' list
-      // 	    lstFailures.push_back(prFailure);
-      // 	  }
-      // 	}
-      // }
-      
-      // // Clean decision tree
-      // //Cleanup();
-      
-      // return lstFailures;
-      
       if(m_mapNodeFailures.find(prNode) != m_mapNodeFailures.end()) {
 	return m_mapNodeFailures[prNode];
       }
@@ -546,7 +522,7 @@ namespace beliefstate {
       return lstEmpty;
     }
     
-    PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::probability(list<Property*> lstSequence, int nTracks, list<Property*> lstParameters) {
+    PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::probability(list<Property*> lstSequence, list<Property*> lstParameters) {
       PredictionResult presResult;
       
       for(Property* propParam : lstParameters) {
@@ -572,7 +548,7 @@ namespace beliefstate {
 	lstAllButLast.pop_back();
 	
 	// Recurse
-	PredictionResult presSub = this->probability(lstAllButLast, nBranches, lstParameters);
+	PredictionResult presSub = this->probability(lstAllButLast, lstParameters);
 	list<Failure> lstSubFailures = presSub.lstFailureProbabilities;
 	
 	if(lstSequence.size() > 1) {
