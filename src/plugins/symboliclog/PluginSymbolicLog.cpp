@@ -527,10 +527,19 @@ namespace beliefstate {
 	if(!bSame) {
 	  stringstream sts;
 	  sts << m_ndActive->id();
-	  this->info("Setting context ID " + sts.str() + " as active context");
+	  this->info("Setting context ID " + sts.str() + " as active context");	  
 	}
+	
+	// This activates the given node
+	Event evActiveNode = defaultEvent("symbolic-node-active");
+	evActiveNode.lstNodes.push_back(m_ndActive);
+	this->deployEvent(evActiveNode);
       } else {
 	this->info("Removed active context, returning to top-level");
+	
+	// This resets the active node (i.e. no nodes active)
+	Event evActiveNode = defaultEvent("symbolic-node-active");
+	this->deployEvent(evActiveNode);
       }
     }
     
