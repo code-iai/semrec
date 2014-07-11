@@ -80,7 +80,7 @@ void catchHandler(int nSignum) {
   case SIGTERM:
   case SIGINT: {
     g_bsBeliefstate->triggerShutdown();
-  }
+  } break;
     
   case SIGWINCH: {
     if(hdlrOldSIGWINCH != SIG_IGN && hdlrOldSIGWINCH != SIG_DFL) {
@@ -88,7 +88,10 @@ void catchHandler(int nSignum) {
     }
     
     g_bsBeliefstate->triggerTerminalResize();
-  }
+  } break;
+    
+  default:
+    break;
   }
 }
 
