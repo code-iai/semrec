@@ -70,7 +70,7 @@
 #include <assert.h>
 #define	Verbosity(d,s)		if(VERBOSITY >= d) {s;}
 #else
-#define	 assert(x)
+//#define	 assert(x)
 #define Verbosity(d,s)
 #endif
 
