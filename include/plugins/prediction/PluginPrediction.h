@@ -102,6 +102,7 @@ namespace beliefstate {
       mutex m_mtxStackProtect;
       Node* m_ndActive;
       map< Property*, list<Property*> > m_mapNodeFailures;
+      map< Property*, list<Property*> > m_mapNodeParameters;
 
     public:
       PLUGIN_CLASS();
@@ -122,12 +123,14 @@ namespace beliefstate {
       bool descend(string strClass);
       bool ascend(string strClass);
       
-      void mapNodeFailures();
+      void mapNodeFailuresParameters();
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
       list<Property*> linearizeTree(Property* prTop);
-      PredictionResult probability(list<Property*> lstSequence, list<Property*> lstParameters);
+      PredictionResult probability(list<Property*> lstSequence, Property* prParameters, list<Property*> lstParameters);
       map<string, double> relativeFailureOccurrences(list<Property*> lstFailures, int nTracks);
       list<Property*> failuresForTreeNode(Property* prNode);
+      map<string, double> relativeFailuresForNode(Property* prNode, Property* prParameters);
+      list<Property*> parametersForTreeNode(Property* prNode);
     };
   }
   

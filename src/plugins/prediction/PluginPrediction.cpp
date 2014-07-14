@@ -47,6 +47,7 @@ namespace beliefstate {
       m_jsnModel = NULL;
       m_expOwl = NULL;
       m_bInsidePredictionModel = false;
+      m_ndActive = NULL;
       
       this->addDependency("ros");
       this->setPluginVersion("0.1");
@@ -105,13 +106,15 @@ namespace beliefstate {
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "symbolic-begin-context") {
 	if(evEvent.lstNodes.size() > 0) {
-	  this->descend(m_expOwl->owlClassForNode(evEvent.lstNodes.front(), true));
+	  this->descend(evEvent.lstNodes.front()->title());
+	  //this->descend(m_expOwl->owlClassForNode(evEvent.lstNodes.front(), true));
 	} else {
 	  this->warn("Consuming 'symbolic-begin-context' event without nodes!");
 	}
       } else if(evEvent.strEventName == "symbolic-end-context") {
 	if(evEvent.lstNodes.size() > 0) {
-	  this->ascend(m_expOwl->owlClassForNode(evEvent.lstNodes.front(), true));
+	  this->ascend(evEvent.lstNodes.front()->title());
+	  //this->ascend(m_expOwl->owlClassForNode(evEvent.lstNodes.front(), true));
 	} else {
 	  this->warn("Consuming 'symbolic-end-context' event without nodes!");
 	}
@@ -120,8 +123,10 @@ namespace beliefstate {
 	  Node* ndNode = evEvent.lstNodes.front();
 	  
 	  this->info("Prediction context is now node '" + ndNode->title() + "'.");
+	  m_ndActive = ndNode;
 	} else {
 	  this->info("Prediction context is now top-level (so not predicting).");
+	  m_ndActive = NULL;
 	}
       }
     }
@@ -193,8 +198,8 @@ namespace beliefstate {
 	  this->info("Okay, descending to toplevel.");
 	  this->descend("Toplevel");
 	  
-	  this->info("Optimizing: Mapping node failures");
-	  this->mapNodeFailures();
+	  this->info("Optimizing: Mapping node failures and parameters");
+	  this->mapNodeFailuresParameters();
 	  this->info("Optimized");
 	} else {
 	  this->fail("Failed to load model '" + strFile + "', unable to parse.");
@@ -350,11 +355,12 @@ namespace beliefstate {
       return bResult;
     }
     
-    void PLUGIN_CLASS::mapNodeFailures() {
+    void PLUGIN_CLASS::mapNodeFailuresParameters() {
       Property* prToplevel = NULL;
       list<Property*> lstLinearModel;
       
       m_mapNodeFailures.clear();
+      m_mapNodeParameters.clear();
       
       if(m_jsnModel->rootProperty()->namedSubProperty("tree")->subProperties().size() > 0) {
 	prToplevel = m_jsnModel->rootProperty()->namedSubProperty("tree")->subProperties().front();
@@ -366,6 +372,7 @@ namespace beliefstate {
       
       int nNodes = 0;
       int nFailures = 0;
+      int nParameters = 0;
       
       for(Property* prNode : lstLinearModel) {
 	nNodes++;
@@ -376,6 +383,7 @@ namespace beliefstate {
 	}
 	
 	list<Property*> lstFailures;
+	list<Property*> lstParameters;
 	for(Property* prFailureSet : m_jsnModel->rootProperty()->namedSubProperty("failures")->subProperties()) {
 	  for(Property* prFailure : prFailureSet->namedSubProperty("failures")->subProperties()) {
 	    if(find(lstNames.begin(), lstNames.end(), prFailure->namedSubProperty("emitter")->getString()) != lstNames.end()) {
@@ -384,13 +392,23 @@ namespace beliefstate {
 	      lstFailures.push_back(prFailure);
 	    }
 	  }
+	  
+	  for(Property* prParameters : prFailureSet->namedSubProperty("parameters")->subProperties()) {
+	    for(string strName : lstNames) {
+	      if(prParameters->key() == strName) {
+		nParameters++;
+		lstParameters.push_back(prParameters->namedSubProperty(strName));
+	      }
+	    }
+	  }
 	}
 	
 	m_mapNodeFailures[prNode] = lstFailures;
+	m_mapNodeParameters[prNode] = lstParameters;
       }
       
       stringstream sts;
-      sts << "Mapped " << nFailures << " failures on " << nNodes << " nodes.";
+      sts << "Mapped " << nFailures << " failures and " << nParameters << " parameter sets on " << nNodes << " nodes.";
       this->info(sts.str());
     }
     
@@ -406,6 +424,10 @@ namespace beliefstate {
 	  if(m_lstPredictionStack.size() > 0) {
 	    PredictionTrack ptCurrent = m_lstPredictionStack.back();
 	    list<Property*> lstParameters;
+	    PredictionResult presResult;
+	    map<string, double> mapEffectiveFailureRates;
+	    Property* prParameters = new Property();
+	    prParameters->set(Property::Array);
 	    
 	    for(string strKey : desigRequest->keys()) {
 	      Property* prParameter = new Property();
@@ -415,27 +437,28 @@ namespace beliefstate {
 	      prParameter->set((double)desigRequest->floatValue(strKey));
 	      
 	      lstParameters.push_back(prParameter);
+	      prParameters->addSubProperty(prParameter);
 	    }
 	    
+	    // Automatic tree walking
 	    list<Property*> lstLinearTree = this->linearizeTree(ptCurrent.prLevel);
-	    lstLinearTree.reverse();
-	    PredictionResult presResult;
-	    int nTracks = m_jsnModel->rootProperty()->namedSubProperty("tracks")->subProperties().size();
+	    //lstLinearTree.reverse();
 	    
-	    map<string, double> mapEffectiveFailureRates;
+	    list<Property*> lstRunTree;
+	    double dLeftOverSuccess = 1.0f;
 	    
-	    while(lstLinearTree.size() > 0) {
-	      presResult = this->probability(lstLinearTree, lstParameters);
+	    for(Property* prCurrent : lstLinearTree) {
+	      lstRunTree.push_back(prCurrent);
 	      
+	      presResult = this->probability(lstRunTree, prParameters, lstParameters);
 	      for(Failure flFailure : presResult.lstFailureProbabilities) {
-		if(mapEffectiveFailureRates[flFailure.strClass] == 0) {
-		  mapEffectiveFailureRates[flFailure.strClass] = flFailure.dProbability;
-		} else {
-		  mapEffectiveFailureRates[flFailure.strClass] += flFailure.dProbability;
+	    	if(mapEffectiveFailureRates.find(flFailure.strClass) == mapEffectiveFailureRates.end()) {
+		  mapEffectiveFailureRates[flFailure.strClass] = 0.0f;
 		}
+		
+		mapEffectiveFailureRates[flFailure.strClass] += (flFailure.dProbability * dLeftOverSuccess);
+		dLeftOverSuccess -= (flFailure.dProbability * dLeftOverSuccess);
 	      }
-	      
-	      lstLinearTree.pop_front();
 	    }
 	    
 	    CKeyValuePair* ckvpFailures = desigResponse->addChild("failures");
@@ -449,10 +472,7 @@ namespace beliefstate {
 
 	    desigResponse->setValue("success", presResult.dSuccessRate);
 	    
-	    for(Property* prDelete : lstParameters) {
-	      delete prDelete;
-	    }
-	    
+	    delete prParameters;
 	    lstParameters.clear();
 	    
 	    bResult = true;
@@ -522,60 +542,160 @@ namespace beliefstate {
       return lstEmpty;
     }
     
-    PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::probability(list<Property*> lstSequence, list<Property*> lstParameters) {
-      PredictionResult presResult;
-      
-      for(Property* propParam : lstParameters) {
-	propParam->print();
+    list<Property*> PLUGIN_CLASS::parametersForTreeNode(Property* prNode) {
+      if(m_mapNodeParameters.find(prNode) != m_mapNodeParameters.end()) {
+	return m_mapNodeParameters[prNode];
       }
       
-      if(lstSequence.size() > 0) {
-	// Relative occurrences
-	int nBranches = lstSequence.back()->namedSubProperty("names")->subProperties().size();
+      list<Property*> lstEmpty;
+      return lstEmpty;
+    }
+    
+    map<string, double> PLUGIN_CLASS::relativeFailuresForNode(Property* prNode, Property* prParameters) {
+      map<string, double> mapRelFail;
+      
+      int nBranches = prNode->namedSubProperty("names")->subProperties().size();
+      
+      list<Property*> lstFailures = this->failuresForTreeNode(prNode);
+      map<string, double> mapFailureRelOcc = this->relativeFailureOccurrences(lstFailures, nBranches);
+      
+      if(prNode) {
+	Property* prClass = prNode->namedSubProperty("class");
+	string strTaskContext = "";
 	
-	list<Property*> lstFailures = this->failuresForTreeNode(lstSequence.back());
-	map<string, double> mapFailureRelOcc = this->relativeFailureOccurrences(lstFailures, nBranches);
+	if(prClass) {
+	  if(prClass->subProperties().size() > 0) {
+	    strTaskContext = prClass->subProperties().front()->getString();
+	  }
+	}
+	
+	if(strTaskContext == "") {
+	  this->fail("No task context found for node. Prediction is likely going to fail badly. Expect wrong behaviour.");
+	}
+	
+      	bool bNavX = prParameters->namedSubProperty("NAVIGATE-TO-X");
+      	bool bNavY = prParameters->namedSubProperty("NAVIGATE-TO-Y");
+      	bool bObjDist = prParameters->namedSubProperty("OBJ-DIST");
+	
+      	double dNavX = (bNavX ? prParameters->namedSubProperty("NAVIGATE-TO-X")->getDouble() : 0);
+      	double dNavY = (bNavY ? prParameters->namedSubProperty("NAVIGATE-TO-Y")->getDouble() : 0);
+      	double dObjDist = (bObjDist ? prParameters->namedSubProperty("OBJ-DIST")->getDouble() : 0);
+	
+      	if(bNavY && dNavY <= 5) { // nav y <= 5
+	  if(strTaskContext == "MODEL-PLAN") {
+	    // Success
+	  } else if(strTaskContext == "WITH-FAILURE-HANDLING") {
+	    if(bNavX && dNavX > 7) { // nav x > 7
+	      mapRelFail["LOCATION-NOT-REACHED-FAILURE"] = 1.0f;
+	    }
+	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-MODEL-PLAN") {
+	    // Success
+	  } else if(strTaskContext == "WITH-DESIGNATORS") {
+	    // Success
+	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-PERFORM-PLAN-TASKS") {
+	    // Success
+	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-GO-TO") {
+	    // Success
+	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-GRASP") {
+	    if(bObjDist && dObjDist <= 3) {
+	      // Success
+	    } else {
+	      mapRelFail["MANIPULATION-FAILURE"] = 1.0f;
+	    }
+	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-FIND-OBJ") {
+	    if(bObjDist && dObjDist <= 4.47214) {
+	      // Success
+	    } else {
+	      mapRelFail["OBJECT-NOT-FOUND"] = 1.0f;
+	    }
+	  }
+	} else { // nav y > 5
+	  if(strTaskContext == "MODEL-PLAN") {
+	    // Success
+	  } else if(strTaskContext == "WITH-FAILURE-HANDLING") {
+	    mapRelFail["LOCATION-NOT-REACHED-FAILURE"] = 1.0f;
+	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-MODEL-PLAN") {
+	    // Success
+	  } else if(strTaskContext == "WITH-DESIGNATORS") {
+	    // Success
+	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-PERFORM-PLAN-TASKS") {
+	    // Success
+	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-GO-TO") {
+	    // Success
+	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-GRASP") {
+	    // Success
+	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-FIND-OBJ") {
+	    // Success
+	  }
+	}
+      }
+
+      return mapRelFail;
+    }
+    
+    PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::probability(list<Property*> lstSequence, Property* prParameters, list<Property*> lstParameters) {
+      PredictionResult presResult;
+      
+      if(lstSequence.size() > 0) {
+	Property* prCurrentNode = lstSequence.back();
+	
+	// Relative occurrences
+	map<string, double> mapFailureRelOcc = this->relativeFailuresForNode(prCurrentNode, prParameters);
 	
 	double dLocalSuccess = 1.0f;
-	
 	for(auto itMap = mapFailureRelOcc.begin(); itMap != mapFailureRelOcc.end(); itMap++) {
 	  pair<string, double> prPair = *itMap;
 	  dLocalSuccess -= prPair.second;
 	}
 	
-	// Prepare list for recursion
-	list<Property*> lstAllButLast = lstSequence;
-	lstAllButLast.pop_back();
-	
-	// Recurse
-	PredictionResult presSub = this->probability(lstAllButLast, lstParameters);
-	list<Failure> lstSubFailures = presSub.lstFailureProbabilities;
-	
-	if(lstSequence.size() > 1) {
-	  presResult.dSuccessRate = dLocalSuccess * presSub.dSuccessRate;
+	list<Failure> lstSubFailures;
+	if(dLocalSuccess > 0.0f) { // Recursion only makes sense if we can actually reach the sub-node.
+	  // Prepare list for recursion
+	  list<Property*> lstAllButLast = lstSequence;
+	  lstAllButLast.pop_back();
 	  
-	  for(Failure flFailure : presSub.lstFailureProbabilities) {
-	    flFailure.dProbability *= dLocalSuccess;
-	    presResult.lstFailureProbabilities.push_back(flFailure);
-	  }
+	  // Recurse
+	  PredictionResult presSub = this->probability(lstAllButLast, prParameters, lstParameters);
+	  lstSubFailures = presSub.lstFailureProbabilities;
 	} else {
-	  presResult.dSuccessRate = dLocalSuccess;
-	  
-	  for(auto itMap = mapFailureRelOcc.begin(); itMap != mapFailureRelOcc.end(); itMap++) {
-	    pair<string, double> prMap = *itMap;
-	    
-	    Failure flFailure;
-	    flFailure.strClass = prMap.first;
-	    flFailure.dProbability = prMap.second;
-	    
-	    presResult.lstFailureProbabilities.push_back(flFailure);
-	  }
+	  lstSequence.clear();
 	}
+	
+	// Add the failures from THIS node
+	for(auto itMap = mapFailureRelOcc.begin(); itMap != mapFailureRelOcc.end(); itMap++) {
+	  pair<string, double> prMap = *itMap;
+	  
+	  Failure flFailure;
+	  flFailure.strClass = prMap.first;
+	  flFailure.dProbability = prMap.second;
+	  presResult.lstFailureProbabilities.push_back(flFailure);
+	}
+	
+	double dLocalSuccessDelta = 0.0f;
+	
+	// Add the failures from CHILD node
+	for(Failure flFailure : lstSubFailures) {
+	  Failure flFailureScaled;
+	  flFailureScaled = flFailure;
+	  flFailureScaled.dProbability *= dLocalSuccess;
+	  presResult.lstFailureProbabilities.push_back(flFailureScaled);
+	  
+	  dLocalSuccessDelta += flFailureScaled.dProbability;
+	}
+	
+	presResult.dSuccessRate = dLocalSuccess - dLocalSuccessDelta;
       } else {
-	// This is the node we already passed. This is S0.
+	// This is the node we already passed. This is S0, which has
+	// 100% success rate per definition.
 	presResult.dSuccessRate = 1.0f;
       }
-
+      
+      // cout << "Resulting probability:" << endl;
+      // for(Failure flFailure : presResult.lstFailureProbabilities) {
+      // 	cout << " - " << flFailure.strClass << ": " << flFailure.dProbability << endl;
+      // }
+      // cout << " - SUCCESS: " << presResult.dSuccessRate << endl;
+      
       return presResult;
     }
   }
