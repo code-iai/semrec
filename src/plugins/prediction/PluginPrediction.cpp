@@ -107,14 +107,12 @@ namespace beliefstate {
       if(evEvent.strEventName == "symbolic-begin-context") {
 	if(evEvent.lstNodes.size() > 0) {
 	  this->descend(evEvent.lstNodes.front()->title());
-	  //this->descend(m_expOwl->owlClassForNode(evEvent.lstNodes.front(), true));
 	} else {
 	  this->warn("Consuming 'symbolic-begin-context' event without nodes!");
 	}
       } else if(evEvent.strEventName == "symbolic-end-context") {
 	if(evEvent.lstNodes.size() > 0) {
 	  this->ascend(evEvent.lstNodes.front()->title());
-	  //this->ascend(m_expOwl->owlClassForNode(evEvent.lstNodes.front(), true));
 	} else {
 	  this->warn("Consuming 'symbolic-end-context' event without nodes!");
 	}
@@ -442,8 +440,6 @@ namespace beliefstate {
 	    
 	    // Automatic tree walking
 	    list<Property*> lstLinearTree = this->linearizeTree(ptCurrent.prLevel);
-	    //lstLinearTree.reverse();
-	    
 	    list<Property*> lstRunTree;
 	    double dLeftOverSuccess = 1.0f;
 	    
@@ -689,12 +685,6 @@ namespace beliefstate {
 	// 100% success rate per definition.
 	presResult.dSuccessRate = 1.0f;
       }
-      
-      // cout << "Resulting probability:" << endl;
-      // for(Failure flFailure : presResult.lstFailureProbabilities) {
-      // 	cout << " - " << flFailure.strClass << ": " << flFailure.dProbability << endl;
-      // }
-      // cout << " - SUCCESS: " << presResult.dSuccessRate << endl;
       
       return presResult;
     }
