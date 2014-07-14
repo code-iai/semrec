@@ -485,10 +485,11 @@ namespace beliefstate {
 		itFailure != lstFailures.end();
 		itFailure++, unIndex++) {
 	      CKeyValuePair *ckvpFailure = *itFailure;
-	  
+	      
 	      stringstream sts;
 	      sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
 	      strDot += "        <knowrob:eventFailure rdf:resource=\"&" + strNamespace + ";" + sts.str() + "\"/>\n";
+	      this->info("Added thrown failure: " + sts.str());
 	    }
 	  }
 	
@@ -497,18 +498,20 @@ namespace beliefstate {
 	  
 	  if(ckvpCaughtFailures) {
 	    list<CKeyValuePair*> lstCaughtFailures = ckvpCaughtFailures->children();
-	  
+	    
 	    unsigned int unIndex = 0;
 	    for(list<CKeyValuePair*>::iterator itCaughtFailure = lstCaughtFailures.begin();
 		itCaughtFailure != lstCaughtFailures.end();
 		itCaughtFailure++, unIndex++) {
 	      CKeyValuePair *ckvpCaughtFailure = *itCaughtFailure;
 	      
-	      Node* ndFailureEmitter = ndCurrent->emitterForCaughtFailure(ckvpCaughtFailure->stringValue("failure-id"), ckvpCaughtFailure->stringValue("time-catch"), unIndex);
-	      
+	      Node* ndFailureEmitter = ndCurrent->emitterForCaughtFailure(ckvpCaughtFailure->stringValue("failure-id"), ckvpCaughtFailure->stringValue("emitter-id"), ckvpCaughtFailure->stringValue("time-catch"));
 	      if(ndFailureEmitter) {
 		string strCaughtFailure = ndFailureEmitter->uniqueID() + "_" + ckvpCaughtFailure->stringValue("failure-id");
+		this->info("Added +caught failure: " + strCaughtFailure);
 		strDot += "        <knowrob:caughtFailure rdf:resource=\"&" + strNamespace + ";" + strCaughtFailure + "\"/>\n";
+	      } else {
+		this->warn("No emitter for failure '" + ckvpCaughtFailure->stringValue("failure-id") + "'.");
 	      }
 	    }
 	  }

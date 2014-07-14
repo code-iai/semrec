@@ -219,6 +219,8 @@ namespace beliefstate {
 	evAlterContext.strEventName = "symbolic-update-object-pose";
       } else if(strCommand == "catch-failure") {
 	evAlterContext.strEventName = "catch-failure";
+      } else if(strCommand == "rethrow-failure") {
+	evAlterContext.strEventName = "rethrow-failure";
       } else {
 	this->warn("Unknown command when altering context: '" + strCommand + "'");
       }

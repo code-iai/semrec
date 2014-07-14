@@ -186,11 +186,11 @@ namespace beliefstate {
     return m_ndParent;
   }
 
-  Node* Node::relativeWithID(int nID) {
+  Node* Node::relativeWithID(int nID, bool bIgnoreSelf) {
     if(this->parent() == NULL) {
       return NULL;
     } else {
-      if(this->id() == nID) {
+      if(not bIgnoreSelf && this->id() == nID) {
 	return this;
       } else {
 	return this->parent()->relativeWithID(nID);
@@ -247,29 +247,53 @@ namespace beliefstate {
     return ckvpFailure->key();
   }
   
-  string Node::catchFailure(pair<string, Node*> prCaughtFailure, string strTimestamp) {
+  string Node::catchFailure(string strFailureID, Node* ndEmitter, string strTimestamp) {
+    stringstream sts;
+    sts << ndEmitter;
+    
     CKeyValuePair* ckvpFailure = this->addDescriptionListItem("caught_failures", "caught_failure");
     
-    ckvpFailure->setValue(string("failure-id"), prCaughtFailure.first);
+    ckvpFailure->setValue(string("failure-id"), strFailureID);
     ckvpFailure->setValue(string("time-catch"), strTimestamp);
+    ckvpFailure->setValue(string("emitter-id"), sts.str());
     
-    m_lstCaughtFailures.push_back(prCaughtFailure);
+    m_lstCaughtFailures.push_back(make_pair(strFailureID, ndEmitter));
     
     return ckvpFailure->key();
   }
   
-  Node* Node::emitterForCaughtFailure(string strFailureID, string strTimestamp, int nOffset) {
+  void Node::removeCaughtFailure(string strFailureID) {
     for(list< pair<string, Node*> >::iterator itPr = m_lstCaughtFailures.begin();
 	itPr != m_lstCaughtFailures.end();
 	itPr++) {
       pair<string, Node*> prCurrent = *itPr;
       
       if(prCurrent.first == strFailureID) {
-	if(nOffset > 0) {
-	  nOffset--;
-	} else {
-	  return prCurrent.second;
+	m_lstCaughtFailures.erase(itPr);
+	break;
+      }
+    }
+    
+    CKeyValuePair* ckvpCaughtFailures = this->metaInformation()->childForKey("caught_failures");
+    if(ckvpCaughtFailures) {
+	for(CKeyValuePair* ckvpCaughtFailure : ckvpCaughtFailures->children()) {
+	  string strCurrentFailureID = ckvpCaughtFailure->stringValue("failure-id");
+	  
+	  if(strCurrentFailureID == strFailureID) {
+	    ckvpCaughtFailures->removeChildForKey(ckvpCaughtFailure->key());
+	    break;
+	  }
 	}
+    }
+  }
+  
+  Node* Node::emitterForCaughtFailure(string strFailureID, string strEmitterID, string strTimestamp) {
+    for(pair<string, Node*> prCurrent : m_lstCaughtFailures) {
+      stringstream sts;
+      sts << prCurrent.second;
+      
+      if(prCurrent.first == strFailureID && sts.str() == strEmitterID) {
+	return prCurrent.second;
       }
     }
     

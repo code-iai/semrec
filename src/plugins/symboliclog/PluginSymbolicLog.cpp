@@ -76,6 +76,7 @@ namespace beliefstate {
       this->setSubscribedToEvent("add-object", true);
       this->setSubscribedToEvent("add-failure", true);
       this->setSubscribedToEvent("catch-failure", true);
+      this->setSubscribedToEvent("rethrow-failure", true);
       this->setSubscribedToEvent("add-image-from-file", true);
       this->setSubscribedToEvent("equate-designators", true);
       
@@ -285,27 +286,29 @@ namespace beliefstate {
 	}
       } else if(evEvent.strEventName == "add-failure") {
 	if(evEvent.cdDesignator) {
-	  if(this->activeNode()) {
+	  Node* ndActive = this->activeNode();
+	  
+	  if(ndActive) {
 	    // Adding a failure to a node also means to set its success state to 'false'.
 	    string strCondition = evEvent.cdDesignator->stringValue("condition");
 	    string strTimeFail = this->getTimeStampStr();
 	    
-	    string strFailureID = this->activeNode()->addFailure(strCondition, strTimeFail);
+	    string strFailureID = ndActive->addFailure(strCondition, strTimeFail);
 	    this->replaceStringInPlace(strFailureID, "-", "_");
 	    
-	    m_prLastFailure = make_pair(strFailureID, this->activeNode());
-	    this->activeNode()->setSuccess(false);
+	    m_prLastFailure = make_pair(strFailureID, ndActive);
+	    ndActive->setSuccess(false);
 	    
 	    stringstream sts;
-	    sts << this->activeNode()->id();
+	    sts << ndActive->id();
 	    this->info("Added failure '" + m_prLastFailure.first + "' to active node (id " + sts.str() + "): '" + strCondition.c_str() + "'");
 	    
 	    Event evSymbAddFailure = defaultEvent("symbolic-add-failure");
-	    evSymbAddFailure.lstNodes.push_back(this->activeNode());
+	    evSymbAddFailure.lstNodes.push_back(ndActive);
 	    evSymbAddFailure.cdDesignator = new CDesignator();
 	    evSymbAddFailure.cdDesignator->setType(ACTION);
 	    evSymbAddFailure.cdDesignator->setValue("condition", strCondition);
-	    evSymbAddFailure.cdDesignator->setValue("time-failure", strTimeFail);
+	    evSymbAddFailure.cdDesignator->setValue("time-fail", strTimeFail);
 	    this->deployEvent(evSymbAddFailure);
 	  } else {
 	    this->warn("No node context available. Cannot add failure while on top-level.");
@@ -313,7 +316,9 @@ namespace beliefstate {
 	}
       } else if(evEvent.strEventName == "catch-failure") {
 	if(evEvent.cdDesignator) {
-	  if(this->activeNode()) {
+	  Node* ndActive = this->activeNode();
+	  
+	  if(ndActive) {
 	    if(m_prLastFailure.first != "") {
 	      string strID = evEvent.cdDesignator->stringValue("context-id");
 	      
@@ -321,14 +326,16 @@ namespace beliefstate {
 		int nID;
 		sscanf(strID.c_str(), "%d", &nID);
 		
-		Node* ndRelative = this->activeNode()->relativeWithID(nID);
+		Node* ndRelative = ndActive->relativeWithID(nID);
 		if(ndRelative) {
-		  ndRelative->catchFailure(m_prLastFailure, this->getTimeStampStr());
+		  ndRelative->catchFailure(m_prLastFailure.first, m_prLastFailure.second, this->getTimeStampStr());
+		  
+		  // Associate this failure with its catching node
+		  m_mapFailureCatchers[m_prLastFailure.first] = ndRelative;
 		  
 		  this->info("Context (ID = " + strID + ") caught failure '" + m_prLastFailure.first + "'");
-		  //m_prLastFailure = make_pair("", (Node*)NULL);
 		} else {
-		  this->warn("Relative with ID " + strID + " not found up the chain while catching failure.");
+		  this->fail("Relative with ID " + strID + " not found up the chain while catching failure.");
 		}
 	      } else {
 		this->warn("Invalid context ID when catching failure: '" + strID + "'.");
@@ -338,6 +345,22 @@ namespace beliefstate {
 	    }
 	  } else {
 	    this->fail("Cannot catch failures outside of context.");
+	  }
+	}
+      } else if(evEvent.strEventName == "rethrow-failure") {
+	if(evEvent.cdDesignator) {
+	  if(m_prLastFailure.first != "") {
+	    if(m_mapFailureCatchers[m_prLastFailure.first]) {
+	      m_mapFailureCatchers[m_prLastFailure.first]->removeCaughtFailure(m_prLastFailure.first);
+	      m_mapFailureCatchers[m_prLastFailure.first] = NULL;
+		
+	      string strID = evEvent.cdDesignator->stringValue("context-id");
+	      this->info("Context (ID = " + strID + ") rethrew failure '" + m_prLastFailure.first + "'");
+	    } else {
+	      this->warn("Apparently caught failure '" + m_prLastFailure.first + "' is not in failure catchers map.");
+	    }
+	  } else {
+	    this->warn("Tried to rethrow failure without active failure. This is probably not what you wanted.");
 	  }
 	}
       } else if(evEvent.strEventName == "add-designator") {

@@ -74,6 +74,7 @@ namespace beliefstate {
       list< pair<string, string> > m_lstDesignatorEquations;
       list< pair<string, string> > m_lstDesignatorEquationTimes;
       pair<string, Node*> m_prLastFailure;
+      map<string, Node*> m_mapFailureCatchers;
       
     public:
       PLUGIN_CLASS();

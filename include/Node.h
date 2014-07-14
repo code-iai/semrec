@@ -83,7 +83,7 @@ namespace beliefstate {
   
     void setParent(Node* ndParent);
     Node* parent();
-    Node* relativeWithID(int nID);
+    Node* relativeWithID(int nID, bool bIgnoreSelf = false);
   
     void addSubnode(Node* ndAdd);
     list<Node*> subnodes();
@@ -107,8 +107,9 @@ namespace beliefstate {
     string addImage(string strOrigin, string strFilename, string strTimestamp);
     string addObject(list<CKeyValuePair*> lstDescription);
     string addFailure(string strCondition, string strTimestamp);
-    string catchFailure(pair<string, Node*> prCaughtFailure, string strTimestamp);
-    Node* emitterForCaughtFailure(string strFailureID, string strTimestamp, int nOffset = 0);
+    string catchFailure(string strFailureID, Node* ndEmitter, string strTimestamp);
+    void removeCaughtFailure(string strFailureID);
+    Node* emitterForCaughtFailure(string strFailureID, string strEmitterID, string strTimestamp);
     bool hasFailures();
     void addDesignator(string strType, list<CKeyValuePair*> lstDescription, string strUniqueID, string strAnnotation = "");
     
