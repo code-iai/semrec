@@ -65,8 +65,6 @@ namespace beliefstate {
       
       CDesignator* cdConfig = this->getIndividualConfig();
       
-      this->setSubscribedToEvent("add-image-from-file", true);
-      this->setSubscribedToEvent("add-image-from-topic", true);
       this->setSubscribedToEvent("symbolic-create-designator", true);
       this->setSubscribedToEvent("interactive-callback", true);
       

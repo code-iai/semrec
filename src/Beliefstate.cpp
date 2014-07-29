@@ -504,7 +504,10 @@ namespace beliefstate {
   
   void Beliefstate::spreadServiceEvent(ServiceEvent seServiceEvent) {
     if(m_psPlugins->spreadServiceEvent(seServiceEvent) == 0) {
+      // The service event wasn't handled (i.e. there was no valid
+      // receiver for it).
       ConfigSettings cfgSet = configSettings();
+      
       if(cfgSet.bDisplayUnhandledServiceEvents) {
 	this->warn("Unhandled service event ('" + seServiceEvent.strServiceName + "') dropped.");
 	
@@ -513,6 +516,13 @@ namespace beliefstate {
 	  //seServiceEvent.cdDesignator->printDesignator();
 	}
       }
+      
+      // Send back an answer to the initial caller, stating that there
+      // was no response (this will help avoiding deadlocks on plugins
+      // that actually wait for the reply).
+      
+      // TODO(winkler): Implement automatic reply to non-answered
+      // service event requests.
     }
   }
   

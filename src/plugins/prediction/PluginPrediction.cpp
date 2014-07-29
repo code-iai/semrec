@@ -596,20 +596,26 @@ namespace beliefstate {
 	    if(bObjDist && dObjDist <= 3) {
 	      // Success
 	    } else {
-	      mapRelFail["MANIPULATION-FAILURE"] = 1.0f;
+	      if(bObjDist) {
+		mapRelFail["MANIPULATION-FAILURE"] = 1.0f;
+	      }
 	    }
 	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-FIND-OBJ") {
 	    if(bObjDist && dObjDist <= 4.47214) {
 	      // Success
 	    } else {
-	      mapRelFail["OBJECT-NOT-FOUND"] = 1.0f;
+	      if(bObjDist) {
+		mapRelFail["OBJECT-NOT-FOUND"] = 1.0f;
+	      }
 	    }
 	  }
 	} else { // nav y > 5
 	  if(strTaskContext == "MODEL-PLAN") {
 	    // Success
 	  } else if(strTaskContext == "WITH-FAILURE-HANDLING") {
-	    mapRelFail["LOCATION-NOT-REACHED-FAILURE"] = 1.0f;
+	    if(bNavY) {
+	      mapRelFail["LOCATION-NOT-REACHED-FAILURE"] = 1.0f;
+	    }
 	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-MODEL-PLAN") {
 	    // Success
 	  } else if(strTaskContext == "WITH-DESIGNATORS") {
