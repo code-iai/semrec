@@ -103,6 +103,7 @@ namespace beliefstate {
       Node* m_ndActive;
       map< Property*, list<Property*> > m_mapNodeFailures;
       map< Property*, list<Property*> > m_mapNodeParameters;
+      bool m_bModelLoaded;
 
     public:
       PLUGIN_CLASS();

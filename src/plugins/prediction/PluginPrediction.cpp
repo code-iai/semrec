@@ -48,6 +48,7 @@ namespace beliefstate {
       m_expOwl = NULL;
       m_bInsidePredictionModel = false;
       m_ndActive = NULL;
+      m_bModelLoaded = false;
       
       this->addDependency("ros");
       this->setPluginVersion("0.1");
@@ -144,6 +145,10 @@ namespace beliefstate {
           this->info(" - Load model: '" + strFile + "'");
 
           bSuccess = this->load(strFile);
+	  
+	  if(bSuccess) {
+	    m_bModelLoaded = true;
+	  }
         } else {
           this->fail(" - No model file specified!");
         }
@@ -162,15 +167,21 @@ namespace beliefstate {
       CDesignator* desigResponse = new CDesignator();
       desigResponse->setType(ACTION);
 
-      this->info("Received Prediction Request.");
-
       bool bSuccess = false;
-      if(this->predict(desigRequest, desigResponse)) {
-        res.response.designators.push_back(desigResponse->serializeToMessage());
-
-        bSuccess = true;
+      if(m_bModelLoaded) {
+	this->info("Received Prediction Request.");
+	
+	if(this->predict(desigRequest, desigResponse)) {
+	  res.response.designators.push_back(desigResponse->serializeToMessage());
+	  
+	  bSuccess = true;
+	} else {
+	  this->fail("Failed to predict!");
+	}
       } else {
-        this->fail("Failed to predict!");
+	this->warn("Received Prediction Request without loaded prediction model. Ignoring.");
+	
+	bSuccess = true;
       }
 
       delete desigRequest;
