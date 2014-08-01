@@ -43,6 +43,7 @@
 namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
+      this->addDependency("imagecapturer");
       this->setPluginVersion("0.9");
       
       m_prLastFailure = make_pair("", (Node*)NULL);
