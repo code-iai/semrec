@@ -16,11 +16,6 @@ include_directories(
   include
   3rdparty)
 
-add_library(bs_plugin_ros SHARED
-  src/GlobalFunctions.cpp
-  src/Plugin.cpp
-  src/plugins/ros/PluginROS.cpp)
-
 add_library(bs_aux_c50
   3rdparty/C50/attwinnow.c
   3rdparty/C50/classify.c
@@ -43,8 +38,16 @@ add_library(bs_aux_c50
   3rdparty/C50/subset.c
   3rdparty/C50/trees.c
   3rdparty/C50/update.c
+#  3rdparty/C50/xval.c
   3rdparty/C50/utility.c)
-#  3rdparty/C50/xval.c)
+
+add_library(bs_base_plugins)
+set_target_properties(bs_base_plugins PROPERTIES LINKER_LANGUAGE C)
+
+target_link_libraries(bs_base_plugins
+  ${catkin_LIBRARIES}
+  config++
+)
 
 add_library(bs_plugin_prediction SHARED
   src/GlobalFunctions.cpp
@@ -56,6 +59,11 @@ add_library(bs_plugin_prediction SHARED
   src/Node.cpp
   src/JSON.cpp
   src/Property.cpp)
+
+add_library(bs_plugin_ros SHARED
+  src/GlobalFunctions.cpp
+  src/Plugin.cpp
+  src/plugins/ros/PluginROS.cpp)
 
 add_library(bs_plugin_gazebo SHARED
   src/GlobalFunctions.cpp
@@ -122,6 +130,7 @@ add_library(bs_plugin_dotexporter SHARED
 
 add_executable(beliefstate
   src/UtilityBase.cpp
+  src/ArbitraryMappingsHolder.cpp
   src/main.cpp
   src/GlobalFunctions.cpp
   src/PluginSystem.cpp
@@ -135,57 +144,55 @@ add_dependencies(bs_plugin_ros designator_integration_generate_messages_cpp)
 add_dependencies(beliefstate designator_integration_generate_messages_cpp)
 
 target_link_libraries(beliefstate
-  ${catkin_LIBRARIES}
+  bs_base_plugins
   dl
-  config++
 )
 
 target_link_libraries(bs_plugin_ros
-  ${catkin_LIBRARIES}
+  bs_base_plugins
 )
 
 target_link_libraries(bs_plugin_prediction
-  ${catkin_LIBRARIES}
+  bs_base_plugins
   json
   bs_aux_c50
 )
 
 target_link_libraries(bs_plugin_gazebo
-  ${catkin_LIBRARIES}
+  bs_base_plugins
 )
 
 target_link_libraries(bs_plugin_console
-  ${catkin_LIBRARIES}
+  bs_base_plugins
   ncurses
 )
 
 target_link_libraries(bs_plugin_experiment_knowledge
-  ${catkin_LIBRARIES}
+  bs_base_plugins
 )
 
 target_link_libraries(bs_plugin_experiment_context
-  ${catkin_LIBRARIES}
+  bs_base_plugins
 )
 
 target_link_libraries(bs_plugin_interactive
-  ${catkin_LIBRARIES}
+  bs_base_plugins
 )
 
 target_link_libraries(bs_plugin_owlexporter
-  ${catkin_LIBRARIES}
-  config++
+  bs_base_plugins
 )
 
 target_link_libraries(bs_plugin_dotexporter
-  ${catkin_LIBRARIES}
+  bs_base_plugins
 )
 
 target_link_libraries(bs_plugin_imagecapturer
-  ${catkin_LIBRARIES}
+  bs_base_plugins
 )
 
 target_link_libraries(bs_plugin_supervisor
-  ${catkin_LIBRARIES}
+  bs_base_plugins
 )
 
 install(TARGETS beliefstate

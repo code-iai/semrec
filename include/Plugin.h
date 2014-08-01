@@ -51,14 +51,14 @@
 // Private
 #include <Types.h>
 #include <ForwardDeclarations.h>
-#include <UtilityBase.h>
+#include <ArbitraryMappingsHolder.h>
 
 using namespace std;
 
 
 namespace beliefstate {
   namespace plugins {
-    class Plugin : public UtilityBase {
+    class Plugin : public ArbitraryMappingsHolder {
     private:
       list<string> m_lstDependencies;
       string m_strName;
