@@ -103,8 +103,9 @@ namespace beliefstate {
       Node* m_ndActive;
       map< Property*, list<Property*> > m_mapNodeFailures;
       map< Property*, list<Property*> > m_mapNodeParameters;
+      map< string, pair<int, int> > m_mapTimeStamps;
       bool m_bModelLoaded;
-
+      
     public:
       PLUGIN_CLASS();
       ~PLUGIN_CLASS();
@@ -125,6 +126,8 @@ namespace beliefstate {
       bool ascend(string strClass);
       
       void mapNodeFailuresParameters();
+      void mapTimeStamps();
+      
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
       list<Property*> linearizeTree(Property* prTop);
       PredictionResult probability(list<Property*> lstSequence, Property* prParameters, list<Property*> lstParameters);

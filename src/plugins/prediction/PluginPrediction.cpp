@@ -209,6 +209,8 @@ namespace beliefstate {
 	  
 	  this->info("Optimizing: Mapping node failures and parameters");
 	  this->mapNodeFailuresParameters();
+	  this->info("Optimizing: Timestamps");
+	  this->mapTimeStamps();
 	  this->info("Optimized");
 	} else {
 	  this->fail("Failed to load model '" + strFile + "', unable to parse.");
@@ -419,6 +421,22 @@ namespace beliefstate {
       stringstream sts;
       sts << "Mapped " << nFailures << " failures and " << nParameters << " parameter sets on " << nNodes << " nodes.";
       this->info(sts.str());
+    }
+    
+    void PLUGIN_CLASS::mapTimeStamps() {
+      Property* prTimestamps = NULL;
+      m_mapTimeStamps.clear();
+      
+      if(m_jsnModel->rootProperty()->namedSubProperty("timestamps")->subProperties().size() > 0) {
+	prTimestamps = m_jsnModel->rootProperty()->namedSubProperty("timestamps");
+      }
+      
+      if(prTimestamps) {
+	for(Property* prTimestamp : prTimestamps->subProperties()) {
+	  m_mapTimeStamps[prTimestamp->key()] = make_pair(prTimestamp->namedSubProperty("start")->getInteger(),
+							  prTimestamp->namedSubProperty("end")->getInteger());
+	}
+      }
     }
     
     bool PLUGIN_CLASS::predict(CDesignator* desigRequest, CDesignator* desigResponse) {
