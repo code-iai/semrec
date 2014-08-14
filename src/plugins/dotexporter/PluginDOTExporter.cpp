@@ -70,7 +70,7 @@ namespace beliefstate {
     
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.cdDesignator) {
-	string strFormat = evEvent.cdDesignator->stringValue("format");
+	std::string strFormat = evEvent.cdDesignator->stringValue("format");
 	transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
 	
 	if(strFormat == "dot") {
@@ -90,23 +90,20 @@ namespace beliefstate {
 	    if(seServiceEvent.lstResultEvents.size() > 0) {
 	      Event evCar = seServiceEvent.lstResultEvents.front();
 	      
-	      string strFormat = seServiceEvent.cdDesignator->stringValue("format");
+	      std::string strFormat = seServiceEvent.cdDesignator->stringValue("format");
 	      transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
 	      
 	      if(strFormat == "dot") {
 		this->info("DOTExporter Plugin received plan log data. Exporting symbolic log.");
 		
-		CExporterDot *expDot = new CExporterDot();
+		CExporterDot* expDot = new CExporterDot();
 		expDot->configuration()->setValue(string("display-successes"), (int)seServiceEvent.cdDesignator->floatValue("show-successes"));
 		expDot->configuration()->setValue(string("display-failures"), (int)seServiceEvent.cdDesignator->floatValue("show-fails"));
 		expDot->configuration()->setValue(string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));
 		
 		this->info("Using max detail level of " + this->str((int)expDot->configuration()->floatValue("max-detail-level")) + ".");
 		
-		for(list<Node*>::iterator itN = evCar.lstNodes.begin();
-		    itN != evCar.lstNodes.end();
-		    itN++) {
-		  Node* ndNode = *itN;
+		for(Node* ndNode : evCar.lstNodes) {
 		  expDot->addNode(ndNode);
 		}
 		

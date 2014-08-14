@@ -59,7 +59,7 @@ namespace beliefstate {
       Result resInit = defaultResult();
       
       // Initialize server
-      m_imsServer = new InteractiveMarkerServer("interactive_beliefstate", "", false);
+      m_imsServer = new interactive_markers::InteractiveMarkerServer("interactive_beliefstate", "", false);
       
       // Subscribe to internal events
       this->setSubscribedToEvent("symbolic-add-object", true);
@@ -67,14 +67,10 @@ namespace beliefstate {
       this->setSubscribedToEvent("symbolic-update-object-pose", true);
       this->setSubscribedToEvent("symbolic-set-interactive-object-menu", true);
       
-      // Just for development: Add objects
-      //InteractiveObject* ioNew = this->addInteractiveObject("object0");
-      //ioNew->addMenuEntry("Pick up", "pickup");
-      
       return resInit;
     }
     
-    InteractiveObject* PLUGIN_CLASS::updatePoseForInteractiveObject(string strName, geometry_msgs::Pose posUpdate) {
+    InteractiveObject* PLUGIN_CLASS::updatePoseForInteractiveObject(std::string strName, geometry_msgs::Pose posUpdate) {
       InteractiveObject* ioUpdate = this->interactiveObjectForName(strName);
       
       if(!ioUpdate) {
@@ -86,7 +82,7 @@ namespace beliefstate {
       return ioUpdate;
     }
     
-    InteractiveObject* PLUGIN_CLASS::addInteractiveObject(string strName) {
+    InteractiveObject* PLUGIN_CLASS::addInteractiveObject(std::string strName) {
       return this->addInteractiveObject(new InteractiveObject(strName));
     }
     
@@ -97,12 +93,8 @@ namespace beliefstate {
       return ioAdd;
     }
     
-    InteractiveObject* PLUGIN_CLASS::interactiveObjectForName(string strName) {
-      for(list<InteractiveObject*>::iterator itIO = m_lstInteractiveObjects.begin();
-	  itIO != m_lstInteractiveObjects.end();
-	  itIO++) {
-	InteractiveObject* ioCurrent = *itIO;
-	
+    InteractiveObject* PLUGIN_CLASS::interactiveObjectForName(std::string strName) {
+      for(InteractiveObject* ioCurrent : m_lstInteractiveObjects) {
 	if(ioCurrent->name() == strName) {
 	  return ioCurrent;
 	}
@@ -111,8 +103,8 @@ namespace beliefstate {
       return NULL;
     }
     
-    bool PLUGIN_CLASS::removeInteractiveObject(string strName) {
-      for(list<InteractiveObject*>::iterator itIO = m_lstInteractiveObjects.begin();
+    bool PLUGIN_CLASS::removeInteractiveObject(std::string strName) {
+      for(std::list<InteractiveObject*>::iterator itIO = m_lstInteractiveObjects.begin();
 	  itIO != m_lstInteractiveObjects.end();
 	  itIO++) {
 	if((*itIO)->name() == strName) {
@@ -129,10 +121,8 @@ namespace beliefstate {
     Result PLUGIN_CLASS::deinit() {
       Result resReturn = defaultResult();
       
-      for(list<InteractiveObject*>::iterator itIO = m_lstInteractiveObjects.begin();
-	  itIO != m_lstInteractiveObjects.end();
-	  itIO++) {
-	delete *itIO;
+      for(InteractiveObject* ioDelete : m_lstInteractiveObjects) {
+	delete ioDelete;
       }
       
       return resReturn;
@@ -141,16 +131,10 @@ namespace beliefstate {
     Result PLUGIN_CLASS::cycle() {
       Result resCycle = defaultResult();
       
-      for(list<InteractiveObject*>::iterator itIO = m_lstInteractiveObjects.begin();
-	  itIO != m_lstInteractiveObjects.end();
-	  itIO++) {
-	list<InteractiveObjectCallbackResult> lstCBResults = (*itIO)->callbackResults();
+      for(InteractiveObject* ioCurrent : m_lstInteractiveObjects) {
+	list<InteractiveObjectCallbackResult> lstCBResults = ioCurrent->callbackResults();
 	
-	for(list<InteractiveObjectCallbackResult>::iterator itCBR = lstCBResults.begin();
-	    itCBR != lstCBResults.end();
-	    itCBR++) {
-	  InteractiveObjectCallbackResult iocrResult = *itCBR;
-	  
+	for(InteractiveObjectCallbackResult iocrResult : lstCBResults) {
 	  this->info("Interactive callback for object '" + iocrResult.strObject + "': '" + iocrResult.strCommand + "', '" + iocrResult.strParameter + "'");
 	  
 	  Event evCallback = defaultEvent("interactive-callback");
@@ -172,7 +156,7 @@ namespace beliefstate {
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "symbolic-add-object") {
 	if(evEvent.cdDesignator) {
-	  string strObjectName = evEvent.cdDesignator->stringValue("name");
+	  std::string strObjectName = evEvent.cdDesignator->stringValue("name");
 	  
 	  if(strObjectName != "") {
 	    InteractiveObject* ioNew = this->addInteractiveObject(strObjectName);
@@ -213,17 +197,13 @@ namespace beliefstate {
 	      ioNew->clearMenuEntries();
 	      
 	      CKeyValuePair* ckvpMenu = evEvent.cdDesignator->childForKey("menu");
-	      list<string> lstMenuKeys = ckvpMenu->keys();
-	    
-	      for(list<string>::iterator itKey = lstMenuKeys.begin();
-		  itKey != lstMenuKeys.end();
-		  itKey++) {
-		string strKey = *itKey;
+	      std::list<std::string> lstMenuKeys = ckvpMenu->keys();
 	      
+	      for(string strKey : lstMenuKeys) {
 		CKeyValuePair* ckvpMenuEntry = ckvpMenu->childForKey(strKey);
-		string strLabel = ckvpMenuEntry->stringValue("label");
-		string strParameter = ckvpMenuEntry->stringValue("parameter");
-	      
+		std::string strLabel = ckvpMenuEntry->stringValue("label");
+		std::string strParameter = ckvpMenuEntry->stringValue("parameter");
+		
 		ioNew->addMenuEntry(strLabel, strKey, strParameter);
 		this->info("Added menu entry '" + strKey + "': '" + strLabel + "'");
 	      }
@@ -240,7 +220,7 @@ namespace beliefstate {
 	}
       } else if(evEvent.strEventName == "symbolic-remove-object") {
 	if(evEvent.cdDesignator) {
-	  string strObjectName = evEvent.cdDesignator->stringValue("name");
+	  std::string strObjectName = evEvent.cdDesignator->stringValue("name");
 	  
 	  if(strObjectName != "") {
 	    if(!this->removeInteractiveObject(strObjectName)) {
@@ -250,7 +230,7 @@ namespace beliefstate {
 	}
       } else if(evEvent.strEventName == "symbolic-update-object-pose") {
 	if(evEvent.cdDesignator) {
-	  string strObjectName = evEvent.cdDesignator->stringValue("name");
+	  std::string strObjectName = evEvent.cdDesignator->stringValue("name");
 	  
 	  if(strObjectName != "") {
 	    geometry_msgs::Pose psSet = evEvent.cdDesignator->poseValue("pose");
@@ -260,26 +240,22 @@ namespace beliefstate {
 	}
       } else if(evEvent.strEventName == "symbolic-set-interactive-object-menu") {
 	if(evEvent.cdDesignator) {
-	  string strObjectName = evEvent.cdDesignator->stringValue("name");
+	  std::string strObjectName = evEvent.cdDesignator->stringValue("name");
 	  
 	  if(strObjectName != "") {
 	    InteractiveObject* ioNew = this->interactiveObjectForName(strObjectName);
 	    
 	    if(ioNew) {
 	      ioNew->clearMenuEntries();
-	    
+	      
 	      CKeyValuePair* ckvpMenu = evEvent.cdDesignator->childForKey("menu");
-	      list<string> lstMenuKeys = ckvpMenu->keys();
-	    
-	      for(list<string>::iterator itKey = lstMenuKeys.begin();
-		  itKey != lstMenuKeys.end();
-		  itKey++) {
-		string strKey = *itKey;
+	      std::list<std::string> lstMenuKeys = ckvpMenu->keys();
 	      
+	      for(string strKey : lstMenuKeys) {
 		CKeyValuePair* ckvpMenuEntry = ckvpMenu->childForKey(strKey);
-		string strLabel = ckvpMenuEntry->stringValue("label");
-		string strParameter = ckvpMenuEntry->stringValue("parameter");
-	      
+		std::string strLabel = ckvpMenuEntry->stringValue("label");
+		std::string strParameter = ckvpMenuEntry->stringValue("parameter");
+		
 		ioNew->addMenuEntry(strLabel, strKey, strParameter);
 		this->info("Added menu entry '" + strKey + "': '" + strLabel + "'");
 	      }

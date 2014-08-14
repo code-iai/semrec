@@ -47,8 +47,6 @@
 // Private
 #include <CExporterFileoutput.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   class CExporterDot : public CExporterFileoutput {
@@ -56,13 +54,13 @@ namespace beliefstate {
   public:
     CExporterDot();
     ~CExporterDot();
-  
+    
     virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);
-    string generateDotStringForNodes(list<Node*> lstNodes, string strParentID);
-    string generateDotImagesStringForNode(Node *ndImages);
-    string generateDotObjectsStringForNode(Node *ndObjects);
-    string generateDotStringForDescription(list<CKeyValuePair*> lstDescription);  
-    string dotEscapeString(string strValue);
+    std::string generateDotStringForNodes(std::list<Node*> lstNodes, std::string strParentID);
+    std::string generateDotImagesStringForNode(Node* ndImages);
+    std::string generateDotObjectsStringForNode(Node* ndObjects);
+    std::string generateDotStringForDescription(std::list<CKeyValuePair*> lstDescription);  
+    std::string dotEscapeString(std::string strValue);
   };
 }
 

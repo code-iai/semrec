@@ -43,19 +43,19 @@
 namespace beliefstate {
   CExporterDot::CExporterDot() {
   }
-
+  
   CExporterDot::~CExporterDot() {
   }
-
+  
   bool CExporterDot::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
     this->renewUniqueIDs();
     int nMaxDetailLevel = this->configuration()->floatValue("max-detail-level");
     
     if(this->outputFilename() != "") {
-      string strGraphID = this->generateRandomIdentifier("plangraph_", 8);
-      string strToplevelID = this->generateUniqueID("node_", 8);
+      std::string strGraphID = this->generateRandomIdentifier("plangraph_", 8);
+      std::string strToplevelID = this->generateUniqueID("node_", 8);
       
-      string strDot = "digraph " + strGraphID + " {\n";
+      std::string strDot = "digraph " + strGraphID + " {\n";
       
       strDot += "  " + strToplevelID + " [shape=doublecircle, style=bold, label=\"top-level\"];\n";
       
@@ -69,16 +69,12 @@ namespace beliefstate {
     return false;
   }
   
-  string CExporterDot::generateDotStringForDescription(list<CKeyValuePair*> lstDescription) {
-    string strDot = "";
+  string CExporterDot::generateDotStringForDescription(std::list<CKeyValuePair*> lstDescription) {
+    std::string strDot = "";
     
-    for(list<CKeyValuePair*>::iterator itPair = lstDescription.begin();
-	itPair != lstDescription.end();
-	itPair++) {
-      CKeyValuePair *ckvpCurrent = *itPair;
-      
+    for(CKeyValuePair* ckvpCurrent : lstDescription) {
       if(ckvpCurrent->key().at(0) != '_') {
-	string strValue = "?";
+	std::string strValue = "?";
 	bool bEscape = true;
 	
 	if(ckvpCurrent->type() == STRING) {
@@ -88,7 +84,7 @@ namespace beliefstate {
 	} else if(ckvpCurrent->type() == POSE) {
 	  bEscape = false;
 	  geometry_msgs::Pose psPose = ckvpCurrent->poseValue();
-	  stringstream stsPS;
+	  std::stringstream stsPS;
 	  
 	  stsPS << "|{position |{{x | " << psPose.position.x << "} "
 		<< "|{y | " << psPose.position.y << "} "
@@ -102,7 +98,7 @@ namespace beliefstate {
 	} else if(ckvpCurrent->type() == POSESTAMPED) {
 	  bEscape = false;
 	  geometry_msgs::PoseStamped psPoseStamped = ckvpCurrent->poseStampedValue();
-	  stringstream stsPS;
+	  std::stringstream stsPS;
 	  
 	  stsPS << "{{frame-id | \\\"" << psPoseStamped.header.frame_id << "\\\"} "
 		<< "|{position |{{x | " << psPoseStamped.pose.position.x << "} "
@@ -136,19 +132,15 @@ namespace beliefstate {
     return strDot;
   }
 
-  string CExporterDot::generateDotStringForNodes(list<Node*> lstNodes, string strParentID) {
-    string strDot = "";
-  
-    for(list<Node*>::iterator itNode = lstNodes.begin();
-	itNode != lstNodes.end();
-	itNode++) {
-      Node *ndCurrent = *itNode;
-      
-      if(this->nodeDisplayable(ndCurrent)) {
-	string strNodeID = ndCurrent->uniqueID();
+  std::string CExporterDot::generateDotStringForNodes(std::list<Node*> lstNodes, std::string strParentID) {
+    std::string strDot = "";
     
-	string strFillColor;
-	string strEdgeColor;
+    for(Node* ndCurrent : lstNodes) {
+      if(this->nodeDisplayable(ndCurrent)) {
+	std::string strNodeID = ndCurrent->uniqueID();
+	
+	std::string strFillColor;
+	std::string strEdgeColor;
 	
 	if(ndCurrent->metaInformation()->floatValue("success") == 1) {
 	  strFillColor = "#ddffdd";
@@ -158,8 +150,8 @@ namespace beliefstate {
 	  strEdgeColor = "red";
 	}
 	
-	string strParameters = this->generateDotStringForDescription(ndCurrent->description());
-	string strLabel = "{" + this->dotEscapeString(ndCurrent->title()) + strParameters + "}";
+	std::string strParameters = this->generateDotStringForDescription(ndCurrent->description());
+	std::string strLabel = "{" + this->dotEscapeString(ndCurrent->title()) + strParameters + "}";
 	
 	strDot += "\n  " + strNodeID + " [shape=Mrecord, style=filled, fillcolor=\"" + strFillColor + "\", label=\"" + strLabel + "\"];\n";
 	strDot += "  edge [color=\"" + strEdgeColor + "\", label=\"\"];\n";
@@ -187,66 +179,58 @@ namespace beliefstate {
     return strDot;
   }
   
-  string CExporterDot::generateDotImagesStringForNode(Node *ndImages) {
-    string strDot = "";
-  
+  std::string CExporterDot::generateDotImagesStringForNode(Node *ndImages) {
+    std::string strDot = "";
+    
     CKeyValuePair *ckvpImages = ndImages->metaInformation()->childForKey("images");
-  
+    
     if(ckvpImages) {
       list<CKeyValuePair*> lstChildren = ckvpImages->children();
-  
+      
       unsigned int unIndex = 0;
-      for(list<CKeyValuePair*>::iterator itChild = lstChildren.begin();
-	  itChild != lstChildren.end();
-	  itChild++, unIndex++) {
-	CKeyValuePair *ckvpChild = *itChild;
-    
-	string strOrigin = ckvpChild->stringValue("origin");
-	string strFilename = ckvpChild->stringValue("filename");
-    
-	stringstream sts;
+      for(CKeyValuePair* ckvpChild : lstChildren) {
+	std::string strOrigin = ckvpChild->stringValue("origin");
+	std::string strFilename = ckvpChild->stringValue("filename");
+	
+	std::stringstream sts;
 	sts << ndImages->uniqueID() << "_image_" << unIndex;
-    
+	
 	strDot += "  " + sts.str() + " [shape=box, label=\"" + strOrigin + "\", width=\"6cm\", height=\"6cm\", fixedsize=true, imagescale=true, image=\"" + strFilename + "\"];\n";
 	strDot += "  edge [color=\"black\", label=\"camera image\"];\n";
 	strDot += "  " + sts.str() + " -> " + ndImages->uniqueID() + ";\n";
       }
     }
-  
+    
     return strDot;
   }
 
-  string CExporterDot::generateDotObjectsStringForNode(Node *ndObjects) {
-    string strDot = "";
-  
+  std::string CExporterDot::generateDotObjectsStringForNode(Node *ndObjects) {
+    std::string strDot = "";
+    
     CKeyValuePair *ckvpObjects = ndObjects->metaInformation()->childForKey("objects");
-  
+    
     if(ckvpObjects) {
-      list<CKeyValuePair*> lstChildren = ckvpObjects->children();
-  
+      std::list<CKeyValuePair*> lstChildren = ckvpObjects->children();
+      
       unsigned int unIndex = 0;
-      for(list<CKeyValuePair*>::iterator itChild = lstChildren.begin();
-	  itChild != lstChildren.end();
-	  itChild++, unIndex++) {
-	CKeyValuePair *ckvpChild = *itChild;
-    
-	stringstream sts;
+      for(CKeyValuePair* ckvpChild : lstChildren) {
+	std::stringstream sts;
 	sts << ndObjects->uniqueID() << "_object_" << unIndex;
-    
-	string strParameters = this->generateDotStringForDescription(ckvpChild->children());
-	string strTitle = "Some Object";
-	string strLabel = "{" + this->dotEscapeString(strTitle) + strParameters + "}";
-    
+	
+	std::string strParameters = this->generateDotStringForDescription(ckvpChild->children());
+	std::string strTitle = "Some Object";
+	std::string strLabel = "{" + this->dotEscapeString(strTitle) + strParameters + "}";
+	
 	strDot += "  " + sts.str() + " [shape=Mrecord, label=\"" + strLabel + "\"];\n";
 	strDot += "  edge [color=\"black\", label=\"associated object\"];\n";
 	strDot += "  " + sts.str() + " -> " + ndObjects->uniqueID() + ";\n";
       }
     }
-  
+    
     return strDot;
   }
 
-  string CExporterDot::dotEscapeString(string strValue) {
+  string CExporterDot::dotEscapeString(std::string strValue) {
     strValue = this->replaceString(strValue, "\n", "\\n");
     strValue = this->replaceString(strValue, "{", "\\{");
     strValue = this->replaceString(strValue, "}", "\\}");

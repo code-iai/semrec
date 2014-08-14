@@ -63,16 +63,12 @@
 #include <Plugin.h>
 #include <plugins/interactive/InteractiveObject.h>
 
-using namespace std;
-using namespace visualization_msgs;
-using namespace interactive_markers;
-
 
 namespace beliefstate {
   namespace plugins {
     class PLUGIN_CLASS : public Plugin {
     private:
-      InteractiveMarkerServer* m_imsServer;
+      interactive_markers::InteractiveMarkerServer* m_imsServer;
       list<InteractiveObject*> m_lstInteractiveObjects;
       
     public:
@@ -87,10 +83,10 @@ namespace beliefstate {
       virtual void consumeEvent(Event evEvent);
       
       InteractiveObject* addInteractiveObject(InteractiveObject* ioAdd);
-      InteractiveObject* addInteractiveObject(string strName);
-      InteractiveObject* interactiveObjectForName(string strName);
-      InteractiveObject* updatePoseForInteractiveObject(string strName, geometry_msgs::Pose posUpdate);
-      bool removeInteractiveObject(string strName);
+      InteractiveObject* addInteractiveObject(std::string strName);
+      InteractiveObject* interactiveObjectForName(std::string strName);
+      InteractiveObject* updatePoseForInteractiveObject(std::string strName, geometry_msgs::Pose posUpdate);
+      bool removeInteractiveObject(std::string strName);
     };
   }
   

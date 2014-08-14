@@ -72,9 +72,9 @@ namespace beliefstate {
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "export-planlog") {
 	if(evEvent.cdDesignator) {
-	  string strFormat = evEvent.cdDesignator->stringValue("format");
+	  std::string strFormat = evEvent.cdDesignator->stringValue("format");
 	  transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
-	
+	  
 	  if(strFormat == "owl") {
 	    ServiceEvent seGetPlanTree = defaultServiceEvent("symbolic-plan-tree");
 	    seGetPlanTree.cdDesignator = new CDesignator(evEvent.cdDesignator);
@@ -102,16 +102,16 @@ namespace beliefstate {
 	    if(seServiceEvent.lstResultEvents.size() > 0) {
 	      Event evCar = seServiceEvent.lstResultEvents.front();
 	      
-	      string strFormat = seServiceEvent.cdDesignator->stringValue("format");
+	      std::string strFormat = seServiceEvent.cdDesignator->stringValue("format");
 	      transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
 	      
 	      if(strFormat == "owl") {
 		this->info("OWLExporter Plugin received plan log data. Exporting symbolic log.");
 		
-		CExporterOwl *expOwl = new CExporterOwl();
+		CExporterOwl* expOwl = new CExporterOwl();
 		
 		CDesignator* cdConfig = this->getIndividualConfig();
-		string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
+		std::string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
 		
 		if(strSemanticsDescriptorFile != "") {
 		  this->info("Loading semantics descriptor file '" + strSemanticsDescriptorFile + "'");
@@ -128,11 +128,7 @@ namespace beliefstate {
 		expOwl->configuration()->setValue(string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));
 		
 		bool bFailed = false;
-		for(list<Node*>::iterator itN = evCar.lstNodes.begin();
-		    itN != evCar.lstNodes.end();
-		    itN++) {
-		  Node* ndNode = *itN;
-		  
+		for(Node* ndNode : evCar.lstNodes) {
 		  if(ndNode) {
 		    expOwl->addNode(ndNode);
 		  } else {
@@ -144,6 +140,7 @@ namespace beliefstate {
 		
 		if(!bFailed) {
 		  this->info("Parameterizing exporter");
+		  
 		  expOwl->setDesignatorIDs(evCar.lstDesignatorIDs);
 		  expOwl->setDesignatorEquations(evCar.lstEquations);
 		  expOwl->setDesignatorEquationTimes(evCar.lstEquationTimes);
@@ -152,6 +149,7 @@ namespace beliefstate {
 		  expOwl->setOutputFilename(cfgsetCurrent.strExperimentDirectory + seServiceEvent.cdDesignator->stringValue("filename"));
 		  
 		  this->info("Exporting OWL file to '" + expOwl->outputFilename() + "'");
+		  
 		  if(expOwl->runExporter(NULL)) {
 		    this->info("Successfully exported OWL file '" + expOwl->outputFilename() + "'");
 		  } else {

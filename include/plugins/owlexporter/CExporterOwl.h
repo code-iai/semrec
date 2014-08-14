@@ -49,58 +49,55 @@
 // Private
 #include <CExporterFileoutput.h>
 
-using namespace std;
-using namespace libconfig;
-
 
 namespace beliefstate {
   class CExporterOwl : public CExporterFileoutput {
   private:
-    list< pair<string, string> > m_lstEntities;
-    list< pair<string, string> > m_lstFailureMapping;
-    list<string> m_lstDefinedProperties;
-    list< pair<string, string> > m_lstAnnotationPurposeMapping;
-    string m_strPropertyNamespace;
-    string m_strDefaultAnnotation;
+    std::list< std::pair<std::string, std::string> > m_lstEntities;
+    std::list< std::pair<std::string, std::string> > m_lstFailureMapping;
+    std::list<std::string> m_lstDefinedProperties;
+    std::list< std::pair<std::string, std::string> > m_lstAnnotationPurposeMapping;
+    std::string m_strPropertyNamespace;
+    std::string m_strDefaultAnnotation;
     
-    void addEntity(string strNickname, string strNamespace);
+    void addEntity(std::string strNickname, std::string strNamespace);
     
   public:
     CExporterOwl();
     ~CExporterOwl();
     
-    list<string> gatherClassesForNodes(list<Node*> lstNodes);
-    list<string> gatherTimepointsForNodes(list<Node*> lstNodes);
+    std::list<std::string> gatherClassesForNodes(std::list<Node*> lstNodes);
+    std::list<std::string> gatherTimepointsForNodes(std::list<Node*> lstNodes);
     
-    bool loadSemanticsDescriptorFile(string strFilepath);
+    bool loadSemanticsDescriptorFile(std::string strFilepath);
     
-    void prepareEntities(string strNamespaceID, string strNamespace);
-    string generateDocTypeBlock();
-    string generateXMLNSBlock(string strNamespace);
-    string generateOwlImports(string strNamespace);
-    string generatePropertyDefinitions();
-    string generateClassDefinitions();
-    string generateEventIndividualsForNodes(list<Node*> lstNodes, string strNamespace);
-    string generateEventIndividuals(string strNamespace);
-    string generateObjectIndividualsForNodes(list<Node*> lstNodes, string strNamespace);
-    string generateObjectIndividuals(string strNamespace);
-    string generateImageIndividualsForNodes(list<Node*> lstNodes, string strNamespace);
-    string generateImageIndividuals(string strNamespace);
-    string generateDesignatorIndividuals(string strNamespace);
-    string generateFailureIndividualsForNodes(list<Node*> lstNodes, string strNamespace);
-    string generateFailureIndividuals(string strNamespace);
-    string generateTimepointIndividuals(string strNamespace);
+    void prepareEntities(std::string strNamespaceID, std::string strNamespace);
+    std::string generateDocTypeBlock();
+    std::string generateXMLNSBlock(std::string strNamespace);
+    std::string generateOwlImports(std::string strNamespace);
+    std::string generatePropertyDefinitions();
+    std::string generateClassDefinitions();
+    std::string generateEventIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace);
+    std::string generateEventIndividuals(std::string strNamespace);
+    std::string generateObjectIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace);
+    std::string generateObjectIndividuals(std::string strNamespace);
+    std::string generateImageIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace);
+    std::string generateImageIndividuals(std::string strNamespace);
+    std::string generateDesignatorIndividuals(std::string strNamespace);
+    std::string generateFailureIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace);
+    std::string generateFailureIndividuals(std::string strNamespace);
+    std::string generateTimepointIndividuals(std::string strNamespace);
     
-    string owlClassForNode(Node *ndNode, bool bClassOnly = false, bool bPrologSyntax = false);
-    string owlClassForObject(CKeyValuePair *ckvpObject);  
-    virtual string nodeIDPrefix(Node* ndInQuestion, string strProposition);
+    std::string owlClassForNode(Node *ndNode, bool bClassOnly = false, bool bPrologSyntax = false);
+    std::string owlClassForObject(CKeyValuePair *ckvpObject);  
+    virtual std::string nodeIDPrefix(Node* ndInQuestion, std::string strProposition);
     
     virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);
-    string owlEscapeString(string strValue);
-    string generateOwlStringForNodes(list<Node*> lstNodes, string strNamespaceID, string strNamespace);
+    std::string owlEscapeString(std::string strValue);
+    std::string generateOwlStringForNodes(std::list<Node*> lstNodes, std::string strNamespaceID, std::string strNamespace);
     
-    string failureClassForCondition(string strCondition);
-    string resolveDesignatorAnnotationTagName(string strAnnotation);
+    std::string failureClassForCondition(std::string strCondition);
+    std::string resolveDesignatorAnnotationTagName(std::string strAnnotation);
   };
 }
 

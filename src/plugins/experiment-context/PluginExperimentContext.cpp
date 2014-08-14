@@ -81,8 +81,8 @@ namespace beliefstate {
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "set-experiment-meta-data") {
 	if(evEvent.cdDesignator) {
-	  string strField = evEvent.cdDesignator->stringValue("field");
-	  string strValue = evEvent.cdDesignator->stringValue("value");
+	  std::string strField = evEvent.cdDesignator->stringValue("field");
+	  std::string strValue = evEvent.cdDesignator->stringValue("value");
 	  
 	  if(strField != "") {
 	    this->info("Set '" + strField + "' to '" + strValue + "'");
@@ -90,7 +90,7 @@ namespace beliefstate {
 	  }
 	}
       } else if(evEvent.strEventName == "export-planlog") {
-	string strFormat = evEvent.cdDesignator->stringValue("format");
+	std::string strFormat = evEvent.cdDesignator->stringValue("format");
 	transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
 	
 	if(strFormat == "meta") {
@@ -109,11 +109,7 @@ namespace beliefstate {
 	  string strMetaXML = "";
 	  strMetaXML += "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\n";
 	  strMetaXML += "<meta-data>\n";
-	  for(map<string, string>::iterator itValues = m_mapValues.begin();
-	      itValues != m_mapValues.end();
-	      itValues++) {
-	    pair<string, string> prEntry = *itValues;
-	    
+	  for(std::pair<std::string, std::string> prEntry : m_mapValues) {
 	    strMetaXML += "  <" + prEntry.first + ">" + prEntry.second + "</" + prEntry.first + ">\n";
 	    cdMeta->setValue(prEntry.first, prEntry.second);
 	  }

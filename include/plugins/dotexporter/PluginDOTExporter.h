@@ -61,8 +61,6 @@
 #include <Plugin.h>
 #include <plugins/dotexporter/CExporterDot.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   namespace plugins {
