@@ -51,8 +51,6 @@
 // Private
 #include <Node.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   typedef enum {
@@ -76,74 +74,74 @@ namespace beliefstate {
   } ResultIdentifier;
   
   typedef struct {
-    string strColorCode;
+    std::string strColorCode;
     bool bBold;
-    string strPrefix;
-    string strMessage;
+    std::string strPrefix;
+    std::string strMessage;
   } StatusMessage;
   
   typedef struct {
-    string strEventName;
+    std::string strEventName;
     int nContextID;
     CDesignator* cdDesignator;
-    string strSupplementary;
-    string strAnnotation;
+    std::string strSupplementary;
+    std::string strAnnotation;
     int nOriginID;
     int nOpenRequestID;
     bool bRequest;
     bool bPreempt;
     StatusMessage msgStatusMessage;
-    list<Node*> lstNodes;
-    list< pair<string, string> > lstDesignatorIDs;
-    list< pair<string, string> > lstEquations;
-    list< pair<string, string> > lstEquationTimes;
+    std::list<Node*> lstNodes;
+    std::list< std::pair<std::string, std::string> > lstDesignatorIDs;
+    std::list< std::pair<std::string, std::string> > lstEquations;
+    std::list< std::pair<std::string, std::string> > lstEquationTimes;
   } Event;
   
   typedef struct {
     ServiceIdentifier siServiceIdentifier;
     ServiceModifier smResultModifier;
-    string strServiceName;
+    std::string strServiceName;
     int nServiceEventID;
     int nRequesterID;
     CDesignator* cdDesignator;
-    list<Event> lstResultEvents;
+    std::list<Event> lstResultEvents;
   } ServiceEvent;
   
   typedef struct {
     // Generic fields
     bool bSuccess;
     ResultIdentifier riResultIdentifier;
-    list<Event> lstEvents;
-    list<ServiceEvent> lstServiceEvents;
+    std::list<Event> lstEvents;
+    std::list<ServiceEvent> lstServiceEvents;
     
     // In case of failure
-    string strErrorMessage;
+    std::string strErrorMessage;
     
     // Status message that were collected
-    list<StatusMessage> lstStatusMessages;
+    std::list<StatusMessage> lstStatusMessages;
   } Result;
   
   typedef struct {
     // Basics
-    string strBaseDataDirectory;
-    string strExperimentNameMask;
+    std::string strBaseDataDirectory;
+    std::string strExperimentNameMask;
     
     // Current Experiment Instance
-    string strExperimentDirectory;
-    string strSymlinkName;
+    std::string strExperimentDirectory;
+    std::string strSymlinkName;
     
     // MongoDB
     bool bUseMongoDB;
-    string strMongoDBHost;
+    std::string strMongoDBHost;
     int nMongoDBPort;
-    string strMongoDBDatabase;
+    std::string strMongoDBDatabase;
     
     // Plugin loading
     bool bLoadDevelopmentPlugins;
     bool bFailedPluginsInvalidateStartup;
     
     // Plugin output
-    vector<string> vecPluginOutputColors;
+    std::vector<std::string> vecPluginOutputColors;
     
     // Miscellaneous
     bool bDisplayUnhandledEvents;

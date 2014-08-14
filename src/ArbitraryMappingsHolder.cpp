@@ -52,23 +52,23 @@ namespace beliefstate {
     m_lstArbitraryMappings.clear();
   }
   
-  void ArbitraryMappingsHolder::parseBranch(Setting& sBranch) {
+  void ArbitraryMappingsHolder::parseBranch(libconfig::Setting& sBranch) {
     // TODO(winkler): Actually parse the mapping branch here and
     // assert it into a new part of the designator mapping storage.
   }
   
-  bool ArbitraryMappingsHolder::loadArbitraryMappingsFile(string strFilepath) {
+  bool ArbitraryMappingsHolder::loadArbitraryMappingsFile(std::string strFilepath) {
     if(this->fileExists(strFilepath)) {
-      Config cfgConfig;
+      libconfig::Config cfgConfig;
       
       try {
 	cfgConfig.readFile(strFilepath.c_str());
 	
 	if(cfgConfig.exists("arbitrary-mappings")) {
-	  Setting &sArbitraryMappings = cfgConfig.lookup("arbitrary-mappings");
+	  libconfig::Setting &sArbitraryMappings = cfgConfig.lookup("arbitrary-mappings");
 	  
 	  if(sArbitraryMappings.exists("mappings")) {
-	    Setting &sMappings = sArbitraryMappings["mappings"];
+	    libconfig::Setting &sMappings = sArbitraryMappings["mappings"];
 	    
 	    for(int nI = 0; nI < sMappings.getLength(); nI++) {
 	      this->parseBranch(sMappings[nI]);
@@ -77,8 +77,8 @@ namespace beliefstate {
 	}
 	
 	return true;
-      } catch(ParseException e) {
-        stringstream sts;
+      } catch(libconfig::ParseException e) {
+	std::stringstream sts;
         sts << e.getLine();
 	
         this->fail("Error while parsing arbitrary mappings file '" + strFilepath + "': " + e.getError() + ", on line " + sts.str());
@@ -92,7 +92,7 @@ namespace beliefstate {
     return false;
   }
   
-  list<CKeyValuePair*> ArbitraryMappingsHolder::arbitraryMappings() {
+  std::list<CKeyValuePair*> ArbitraryMappingsHolder::arbitraryMappings() {
     return m_lstArbitraryMappings;
   }
 }

@@ -66,79 +66,74 @@ namespace beliefstate {
   }
 
   void CExporter::clearNodes() {
-    for(list<Node*>::iterator itNode = m_lstNodes.begin();
-	itNode != m_lstNodes.end();
-	itNode++) {
-      delete *itNode;
+    for(Node* ndDelete : m_lstNodes) {
+      delete ndDelete;
     }
-  
+    
     m_lstNodes.clear();
   }
-
+  
   CKeyValuePair* CExporter::configuration() {
     return m_ckvpConfiguration;
   }
-
-  string CExporter::nodeIDPrefix(Node* ndInQuestion, string strProposition) {
+  
+  std::string CExporter::nodeIDPrefix(Node* ndInQuestion, std::string strProposition) {
     // NOTE(winkler): Override this function in subsequent subclasses to
     // decide on unique ID prefixes according to what the content of
     // `ndInQuestion' is. In this basic implementation, the default
     // proposition `strProposition' is always accepted.
-  
+    
     return strProposition;
   }
   
   void CExporter::renewUniqueIDsForNode(Node *ndRenew) {
-    string strNodeIDPrefix = this->nodeIDPrefix(ndRenew, "node_");
+    std::string strNodeIDPrefix = this->nodeIDPrefix(ndRenew, "node_");
     ndRenew->setUniqueID(this->generateUniqueID(strNodeIDPrefix, 8));
+    
+    std::list<Node*> lstSubnodes = ndRenew->subnodes();
+    for(Node* ndNode : lstSubnodes) {
+      this->renewUniqueIDsForNode(ndNode);
+    }
+  }
   
-    list<Node*> lstSubnodes = ndRenew->subnodes();
-    for(list<Node*>::iterator itNode = lstSubnodes.begin();
-	itNode != lstSubnodes.end();
-	itNode++) {
-      this->renewUniqueIDsForNode(*itNode);
-    }
-  }
-
   void CExporter::renewUniqueIDs() {
-    for(list<Node*>::iterator itNode = m_lstNodes.begin();
-	itNode != m_lstNodes.end();
-	itNode++) {
-      this->renewUniqueIDsForNode(*itNode);
+    for(Node* ndNode : m_lstNodes) {
+      this->renewUniqueIDsForNode(ndNode);
     }
   }
-
+  
   bool CExporter::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
     // NOTE(winkler): This is a dummy, superclass exporter. It does not
     // actually export anything. Subclass it to get *actual*
     // functionality.
-  
+    
     return true;
   }
-
-  string CExporter::generateRandomIdentifier(string strPrefix, unsigned int unLength) {
-    stringstream sts;
-    sts << strPrefix;
   
+  std::string CExporter::generateRandomIdentifier(std::string strPrefix, unsigned int unLength) {
+    std::stringstream sts;
+    sts << strPrefix;
+    
     for(unsigned int unI = 0; unI < unLength; unI++) {
       int nRandom;
+      
       do {
 	nRandom = rand() % 122 + 48;
       } while(nRandom < 48 ||
 	      (nRandom > 57 && nRandom < 65) ||
 	      (nRandom > 90 && nRandom < 97) ||
 	      nRandom > 122);
-    
+      
       char cRandom = (char)nRandom;
       sts << cRandom;
     }
-  
+    
     return sts.str();
   }
-
-  string CExporter::generateUniqueID(string strPrefix, unsigned int unLength) {
-    string strID;
   
+  std::string CExporter::generateUniqueID(std::string strPrefix, unsigned int unLength) {
+    std::string strID;
+    
     do {
       strID = this->generateRandomIdentifier(strPrefix, unLength);
     } while(this->uniqueIDPresent(strID));
@@ -146,27 +141,25 @@ namespace beliefstate {
     return strID;
   }
 
-  bool CExporter::uniqueIDPresent(string strUniqueID) {
-    for(list<Node*>::iterator itNode = m_lstNodes.begin();
-	itNode != m_lstNodes.end();
-	itNode++) {
-      if((*itNode)->includesUniqueID(strUniqueID)) {
+  bool CExporter::uniqueIDPresent(std::string strUniqueID) {
+    for(Node* ndNode : m_lstNodes) {
+      if(ndNode->includesUniqueID(strUniqueID)) {
 	return true;
       }
     }
-  
+    
     return false;
   }
 
-  string CExporter::replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy) {
+  std::string CExporter::replaceString(std::string strOriginal, std::string strReplaceWhat, std::string strReplaceBy) {
     size_t found;
-  
+    
     found = strOriginal.find(strReplaceWhat);
     while(found != string::npos) {
       strOriginal.replace(found, strReplaceWhat.length(), strReplaceBy);
       found = strOriginal.find(strReplaceWhat, found + strReplaceBy.length());
     };
-  
+    
     return strOriginal;
   }
   
@@ -187,81 +180,66 @@ namespace beliefstate {
 	return true;
       }
     }
-  
+    
     return false;
   }
 
-  void CExporter::setDesignatorIDs(list< pair<string, string> > lstDesignatorIDs) {
+  void CExporter::setDesignatorIDs(std::list< std::pair<std::string, std::string> > lstDesignatorIDs) {
     m_lstDesignatorIDs = lstDesignatorIDs;
   }
 
-  void CExporter::setDesignatorEquations(list< pair<string, string> > lstDesignatorEquations) {
+  void CExporter::setDesignatorEquations(std::list< std::pair<std::string, std::string> > lstDesignatorEquations) {
     m_lstDesignatorEquations = lstDesignatorEquations;
   }
-
-  void CExporter::setDesignatorEquationTimes(list< pair<string, string> > lstDesignatorEquationTimes) {
+  
+  void CExporter::setDesignatorEquationTimes(std::list< std::pair<std::string, std::string> > lstDesignatorEquationTimes) {
     m_lstDesignatorEquationTimes = lstDesignatorEquationTimes;
   }
-
-  list<string> CExporter::designatorIDs() {
-    list<string> lstResult;
   
-    for(list< pair<string, string> >::iterator itPair = m_lstDesignatorIDs.begin();
-	itPair != m_lstDesignatorIDs.end();
-	itPair++) {
-      pair<string, string> prPair = *itPair;
+  std::list<std::string> CExporter::designatorIDs() {
+    std::list<std::string> lstResult;
+    
+    for(std::pair<std::string, std::string> prPair : m_lstDesignatorIDs) {
       lstResult.push_back(prPair.second);
     }
-  
+    
     return lstResult;
   }
-
-  list<string> CExporter::parentDesignatorsForID(string strID) {
-    list<string> lstResult;
   
-    for(list< pair<string, string> >::iterator itPair = m_lstDesignatorEquations.begin();
-	itPair != m_lstDesignatorEquations.end();
-	itPair++) {
-      pair<string, string> prPair = *itPair;
+  std::list<std::string> CExporter::parentDesignatorsForID(std::string strID) {
+    std::list<std::string> lstResult;
     
+    for(std::pair<std::string, std::string> prPair : m_lstDesignatorEquations) {
       if(prPair.second == strID) {
 	lstResult.push_back(prPair.first);
       }
     }
-  
+    
     return lstResult;
   }
-
-  list<string> CExporter::successorDesignatorsForID(string strID) {
-    list<string> lstResult;
   
-    for(list< pair<string, string> >::iterator itPair = m_lstDesignatorEquations.begin();
-	itPair != m_lstDesignatorEquations.end();
-	itPair++) {
-      pair<string, string> prPair = *itPair;
+  std::list<std::string> CExporter::successorDesignatorsForID(std::string strID) {
+    std::list<std::string> lstResult;
     
+    for(std::pair<std::string, std::string> prPair : m_lstDesignatorEquations) {
       if(prPair.first == strID) {
 	lstResult.push_back(prPair.second);
       }
     }
-  
+    
     return lstResult;
   }
-
-  string CExporter::equationTimeForSuccessorID(string strID) {
-    string strReturn = "";
   
-    for(list< pair<string, string> >::iterator itPair = m_lstDesignatorEquationTimes.begin();
-	itPair != m_lstDesignatorEquationTimes.end();
-	itPair++) {
-      pair<string, string> prPair = *itPair;
+  std::string CExporter::equationTimeForSuccessorID(std::string strID) {
+    string strReturn = "";
     
+    for(std::pair<std::string, std::string> prPair : m_lstDesignatorEquationTimes) {
       if(prPair.first == strID) {
 	strReturn = prPair.second;
 	break;
       }
     }
-  
+    
     return strReturn;
   }
 }

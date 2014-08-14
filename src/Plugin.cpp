@@ -68,7 +68,7 @@ namespace beliefstate {
     void Plugin::setPluginID(int nID) {
       m_nID = nID;
       
-      stringstream sts;
+      std::stringstream sts;
       sts << this->pluginName();
       sts << "/";
       sts << this->pluginID();
@@ -95,7 +95,7 @@ namespace beliefstate {
       return defaultResult();
     }
     
-    void Plugin::setSubscribedToEvent(string strEventName, bool bSubscribed) {
+    void Plugin::setSubscribedToEvent(std::string strEventName, bool bSubscribed) {
       m_lstSubscribedEventNames.remove(strEventName);
       
       if(bSubscribed) {
@@ -103,11 +103,9 @@ namespace beliefstate {
       }
     }
     
-    bool Plugin::subscribedToEvent(string strEventName) {
-      for(list<string>::iterator itEI = m_lstSubscribedEventNames.begin();
-	  itEI != m_lstSubscribedEventNames.end();
-	  itEI++) {
-	if(*itEI == strEventName) {
+    bool Plugin::subscribedToEvent(std::string strEventName) {
+      for(string strCurrentName : m_lstSubscribedEventNames) {
+	if(strCurrentName == strEventName) {
 	  return true;
 	}
       }
@@ -119,7 +117,7 @@ namespace beliefstate {
       // Dummy.
     }
     
-    void Plugin::setOffersService(string strServiceName, bool bOffering) {
+    void Plugin::setOffersService(std::string strServiceName, bool bOffering) {
       m_lstOfferedServices.remove(strServiceName);
       
       if(bOffering) {
@@ -127,11 +125,9 @@ namespace beliefstate {
       }
     }
     
-    bool Plugin::offersService(string strServiceName) {
-      for(list<string>::iterator itService = m_lstOfferedServices.begin();
-	  itService != m_lstOfferedServices.end();
-	  itService++) {
-	if(*itService == strServiceName) {
+    bool Plugin::offersService(std::string strServiceName) {
+      for(string strCurrentName : m_lstOfferedServices) {
+	if(strCurrentName == strServiceName) {
 	  return true;
 	}
       }
@@ -141,20 +137,20 @@ namespace beliefstate {
     
     Event Plugin::consumeServiceEvent(ServiceEvent seServiceEvent) {
       Event evReturn = defaultEvent();
+      
       // Dummy.
+      
       return evReturn;
     }
     
-    void Plugin::addDependency(string strPluginName) {
+    void Plugin::addDependency(std::string strPluginName) {
       m_lstDependencies.remove(strPluginName);
       m_lstDependencies.push_back(strPluginName);
     }
     
-    bool Plugin::dependsOn(string strPluginName) {
-      for(list<string>::iterator itDep = m_lstDependencies.begin();
-	  itDep != m_lstDependencies.end();
-	  itDep++) {
-	if(*itDep == strPluginName) {
+    bool Plugin::dependsOn(std::string strPluginName) {
+      for(string strDepName : m_lstDependencies) {
+	if(strDepName == strPluginName) {
 	  return true;
 	}
       }
@@ -162,7 +158,7 @@ namespace beliefstate {
       return false;
     }
     
-    list<string> Plugin::dependencies() {
+    std::list<std::string> Plugin::dependencies() {
       return m_lstDependencies;
     }
     
@@ -198,26 +194,26 @@ namespace beliefstate {
       m_mtxServiceEventsStore.unlock();
     }
     
-    void Plugin::setPluginName(string strName) {
+    void Plugin::setPluginName(std::string strName) {
       m_strName = strName;
       
       this->setPluginID(m_nID);
     }
     
-    string Plugin::pluginName() {
+    std::string Plugin::pluginName() {
       return m_strName;
     }
     
-    void Plugin::setPluginVersion(string strVersion) {
+    void Plugin::setPluginVersion(std::string strVersion) {
       m_strVersion = strVersion;
     }
     
-    string Plugin::pluginVersion() {
+    std::string Plugin::pluginVersion() {
       return m_strVersion;
     }
     
-    string Plugin::pluginIdentifierString(bool bBold) {
-      stringstream sts;
+    std::string Plugin::pluginIdentifierString(bool bBold) {
+      std::stringstream sts;
       sts << colorSpecifierForID(this->pluginID(), bBold);
       sts << "[" << this->pluginName() << "/";
       sts << this->pluginID();
@@ -226,16 +222,8 @@ namespace beliefstate {
       return sts.str();
     }
     
-    // void Plugin::warn(string strMessage) {
-    //   cerr << this->pluginIdentifierString(true) << " " << strMessage << normalColorSpecifier() << endl;
-    // }
-    
-    // void Plugin::info(string strMessage) {
-    //   cout << this->pluginIdentifierString(false) << " " << strMessage << normalColorSpecifier() << endl;
-    // }
-    
-    void Plugin::unimplemented(string strMessage) {
-      cout << this->pluginIdentifierString(false) << " NOT IMPLEMENTED: " << strMessage << normalColorSpecifier() << endl;
+    void Plugin::unimplemented(std::string strMessage) {
+      std::cout << this->pluginIdentifierString(false) << " NOT IMPLEMENTED: " << strMessage << normalColorSpecifier() << std::endl;
     }
     
     int Plugin::openNewRequestID() {
@@ -246,14 +234,13 @@ namespace beliefstate {
       }
       
       m_lstOpenRequestIDs.push_back(nID);
+      
       return nID;
     }
     
     bool Plugin::isRequestIDOpen(int nID) {
-      for(list<int>::iterator itID = m_lstOpenRequestIDs.begin();
-	  itID != m_lstOpenRequestIDs.end();
-	  itID++) {
-	if(*itID == nID) {
+      for(int nCurrentID : m_lstOpenRequestIDs) {
+	if(nCurrentID == nID) {
 	  return true;
 	}
       }
@@ -291,19 +278,19 @@ namespace beliefstate {
       }
     }
     
-    void Plugin::success(string strMessage) {
+    void Plugin::success(std::string strMessage) {
       this->coloredText(strMessage, colorSpecifierForID(this->pluginID()));
     }
     
-    void Plugin::info(string strMessage) {
+    void Plugin::info(std::string strMessage) {
       this->coloredText(strMessage, colorSpecifierForID(this->pluginID()));
     }
     
-    void Plugin::warn(string strMessage) {
+    void Plugin::warn(std::string strMessage) {
       this->coloredText(strMessage, colorSpecifierForID(this->pluginID()), true);
     }
     
-    void Plugin::fail(string strMessage) {
+    void Plugin::fail(std::string strMessage) {
       this->coloredText(strMessage, colorSpecifierForID(this->pluginID()), true);
     }
   }

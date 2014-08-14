@@ -53,29 +53,27 @@
 #include <ForwardDeclarations.h>
 #include <ArbitraryMappingsHolder.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   namespace plugins {
     class Plugin : public ArbitraryMappingsHolder {
     private:
-      list<string> m_lstDependencies;
-      string m_strName;
-      string m_strVersion;
+      std::list<std::string> m_lstDependencies;
+      std::string m_strName;
+      std::string m_strVersion;
       int m_nID;
       bool m_bRunCycle;
-      mutex m_mtxRunCycle;
+      std::mutex m_mtxRunCycle;
       bool m_bDevelopmentPlugin;
       
     protected:
-      list<Event> m_lstEvents;
-      mutex m_mtxEventsStore;
-      list<string> m_lstSubscribedEventNames;
-      list<ServiceEvent> m_lstServiceEvents;
-      mutex m_mtxServiceEventsStore;
-      list<string> m_lstOfferedServices;
-      list<int> m_lstOpenRequestIDs;
+      std::list<Event> m_lstEvents;
+      std::mutex m_mtxEventsStore;
+      std::list<string> m_lstSubscribedEventNames;
+      std::list<ServiceEvent> m_lstServiceEvents;
+      std::mutex m_mtxServiceEventsStore;
+      std::list<std::string> m_lstOfferedServices;
+      std::list<int> m_lstOpenRequestIDs;
       
     public:
       Plugin();
@@ -84,8 +82,8 @@ namespace beliefstate {
       void setPluginID(int nID);
       int pluginID();
       
-      void setPluginName(string strName);
-      string pluginName();
+      void setPluginName(std::string strName);
+      std::string pluginName();
       
       virtual Result init(int argc, char** argv);
       virtual Result deinit();
@@ -97,28 +95,28 @@ namespace beliefstate {
       
       void setDevelopmentPlugin(bool bDevelopmentPlugin);
       bool developmentPlugin();
-      void setPluginVersion(string strVersion);
-      string pluginVersion();
+      void setPluginVersion(std::string strVersion);
+      std::string pluginVersion();
       
-      void setSubscribedToEvent(string strEventName, bool bSubscribed);
-      bool subscribedToEvent(string strEventName);
+      void setSubscribedToEvent(std::string strEventName, bool bSubscribed);
+      bool subscribedToEvent(std::string strEventName);
       virtual void consumeEvent(Event evEvent);
       
-      void setOffersService(string strServiceName, bool bOffering);
-      bool offersService(string strServiceName);
+      void setOffersService(std::string strServiceName, bool bOffering);
+      bool offersService(std::string strServiceName);
       virtual Event consumeServiceEvent(ServiceEvent seServiceEvent);
       
-      void addDependency(string strPluginName);
-      bool dependsOn(string strPluginName);
-      list<string> dependencies();
+      void addDependency(std::string strPluginName);
+      bool dependsOn(std::string strPluginName);
+      std::list<std::string> dependencies();
       
       void deployCycleData(Result& resDeployTo);
       
       void deployEvent(Event evDeploy, bool bWaitForEvent = false);
       void deployServiceEvent(ServiceEvent seDeploy);
       
-      string pluginIdentifierString(bool bBold);
-      void unimplemented(string strMessage);
+      std::string pluginIdentifierString(bool bBold);
+      void unimplemented(std::string strMessage);
       
       int openNewRequestID();
       bool isRequestIDOpen(int nID);
@@ -130,10 +128,10 @@ namespace beliefstate {
       
       void waitForEvent(Event evWait);
       
-      void success(string strMessage);
-      void info(string strMessage);
-      void warn(string strMessage);
-      void fail(string strMessage);
+      void success(std::string strMessage);
+      void info(std::string strMessage);
+      void warn(std::string strMessage);
+      void fail(std::string strMessage);
     };
   }
 }

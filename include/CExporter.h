@@ -53,56 +53,54 @@
 #include <Node.h>
 #include <UtilityBase.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   class CExporter : public UtilityBase {
   private:
-    list<Node*> m_lstNodes;
-    list< pair<string, string> > m_lstDesignatorIDs;
-    list< pair<string, string> > m_lstDesignatorEquations;
+    std::list<Node*> m_lstNodes;
+    std::list< std::pair<std::string, std::string> > m_lstDesignatorIDs;
+    std::list< std::pair<std::string, std::string> > m_lstDesignatorEquations;
   
     CKeyValuePair* m_ckvpConfiguration;
   
     void renewUniqueIDsForNode(Node *ndRenew);
   
   protected:
-    list< pair<string, string> > m_lstDesignatorEquationTimes;
+    std::list< std::pair<string, string> > m_lstDesignatorEquationTimes;
   
   public:
     CExporter();
     virtual ~CExporter();
-  
+    
     CKeyValuePair* configuration();
-  
+    
     void addNode(Node *ndAdd);
-    list<Node*> nodes();
-  
+    std::list<Node*> nodes();
+    
     void clearNodes();
-  
+    
     virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);
-  
-    string generateRandomIdentifier(string strPrefix, unsigned int unLength);
-    string generateUniqueID(string strPrefix, unsigned int unLength);
-    bool uniqueIDPresent(string strUniqueID);
-  
+    
+    std::string generateRandomIdentifier(std::string strPrefix, unsigned int unLength);
+    std::string generateUniqueID(std::string strPrefix, unsigned int unLength);
+    bool uniqueIDPresent(std::string strUniqueID);
+    
     void renewUniqueIDs();
-  
-    virtual string nodeIDPrefix(Node* ndInQuestion, string strProposition);
-  
-    string replaceString(string strOriginal, string strReplaceWhat, string strReplaceBy);
+    
+    virtual std::string nodeIDPrefix(Node* ndInQuestion, std::string strProposition);
+    
+    std::string replaceString(std::string strOriginal, std::string strReplaceWhat, std::string strReplaceBy);
     virtual bool nodeHasValidDetailLevel(Node* ndDisplay);
     virtual bool nodeDisplayable(Node* ndDisplay);
-  
-    void setDesignatorIDs(list< pair<string, string> > lstDesignatorIDs);
-    void setDesignatorEquations(list< pair<string, string> > lstDesignatorEquations);
-    void setDesignatorEquationTimes(list< pair<string, string> > lstDesignatorEquationTimes);  
-  
-    list<string> designatorIDs();
-    list<string> parentDesignatorsForID(string strID);
-    list<string> successorDesignatorsForID(string strID);
-    string equationTimeForSuccessorID(string strID);
+    
+    void setDesignatorIDs(std::list< std::pair<std::string, std::string> > lstDesignatorIDs);
+    void setDesignatorEquations(std::list< std::pair<std::string, std::string> > lstDesignatorEquations);
+    void setDesignatorEquationTimes(std::list< std::pair<std::string, std::string> > lstDesignatorEquationTimes);  
+    
+    std::list<std::string> designatorIDs();
+    std::list<std::string> parentDesignatorsForID(std::string strID);
+    std::list<std::string> successorDesignatorsForID(std::string strID);
+    std::string equationTimeForSuccessorID(std::string strID);
   };
 }
 

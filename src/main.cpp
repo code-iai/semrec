@@ -49,9 +49,6 @@
 // Private
 #include <BeliefstateROS.h>
 
-using namespace std;
-using namespace beliefstate;
-
 
 // Storage of former signal handlers
 typedef void (*Handler)(int signum);
@@ -59,20 +56,20 @@ Handler hdlrOldSIGWINCH = SIG_IGN;
 
 
 // Global variable for shutdown triggering
-BeliefstateROS* g_bsBeliefstate;
+beliefstate::BeliefstateROS* g_bsBeliefstate;
 
 
 void printHelp(string strExecutableName) {
-  cout << "Beliefstate System (version " + g_bsBeliefstate->version() + ") by Jan Winkler <winkler@cs.uni-bremen.de>" << endl;
-  cout << "Licensed under BSD. https://www.github.com/fairlight1337/beliefstate" << endl << endl;
-  cout << "Usage: " << strExecutableName << " [options]" << endl << endl;
+  std::cout << "Beliefstate System (version " + g_bsBeliefstate->version() + ") by Jan Winkler <winkler@cs.uni-bremen.de>" << std::endl;
+  std::cout << "Licensed under BSD. https://www.github.com/fairlight1337/beliefstate" << std::endl << std::endl;
+  std::cout << "Usage: " << strExecutableName << " [options]" << std::endl << std::endl;
   
-  cout << "Available options are:" << endl;
-  cout << "  -h, --help\t\tPrint this help" << endl;
-  cout << "  -c, --config <file>\tLoad config file <file> instead of the default one" << endl;
-  cout << endl;
+  std::cout << "Available options are:" << std::endl;
+  std::cout << "  -h, --help\t\tPrint this help" << std::endl;
+  std::cout << "  -c, --config <file>\tLoad config file <file> instead of the default one" << std::endl;
+  std::cout << std::endl;
   
-  cout << "Should any questions arise, feel free to send an email to winkler@cs.uni-bremen.de" << endl;
+  std::cout << "Should any questions arise, feel free to send an email to winkler@cs.uni-bremen.de" << std::endl;
 }
 
 void catchHandler(int nSignum) {
@@ -96,7 +93,7 @@ void catchHandler(int nSignum) {
 }
 
 int main(int argc, char** argv) {
-  g_bsBeliefstate = new BeliefstateROS(argc, argv);
+  g_bsBeliefstate = new beliefstate::BeliefstateROS(argc, argv);
   
   // Read command line parameters
   int nC, option_index = 0;
@@ -104,7 +101,7 @@ int main(int argc, char** argv) {
 					 {"help",   no_argument,       0, 'h'},
 					 {0,        0,                 0, 0}};
   
-  string strConfigFile = "";
+  std::string strConfigFile = "";
   bool bQuit = false;
   
   while((nC = getopt_long(argc, argv, "c:h", long_options, &option_index)) != -1) {
@@ -126,8 +123,8 @@ int main(int argc, char** argv) {
   if(bQuit == false) {
     g_bsBeliefstate->info("Starting beliefstate system (version " + g_bsBeliefstate->version() + ").");
     
-    Result resInit = g_bsBeliefstate->init(strConfigFile);
-  
+    beliefstate::Result resInit = g_bsBeliefstate->init(strConfigFile);
+    
     if(resInit.bSuccess) {
       // Catch SIGTERM and SIGINT and bind them to the callback function
       // catchSIGTERMandSIGINT. This will trigger the shutdown mechanism
@@ -148,7 +145,7 @@ int main(int argc, char** argv) {
       g_bsBeliefstate->fail("Initialization of the beliefstate system failed. Being a quitter.");
     }
     
-    cout << "\r";
+    std::cout << "\r";
     g_bsBeliefstate->info("Exiting gracefully.");
     g_bsBeliefstate->cycle();
     

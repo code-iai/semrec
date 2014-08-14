@@ -58,23 +58,20 @@
 #include <ForwardDeclarations.h>
 #include <UtilityBase.h>
 
-using namespace std;
-using namespace libconfig;
-
 
 namespace beliefstate {
   class ArbitraryMappingsHolder : public UtilityBase {
   private:
-    list<CKeyValuePair*> m_lstArbitraryMappings;
+    std::list<CKeyValuePair*> m_lstArbitraryMappings;
     
   protected:
   public:
     ArbitraryMappingsHolder();
     ~ArbitraryMappingsHolder();
     
-    void parseBranch(Setting& sBranch);
-    bool loadArbitraryMappingsFile(string strFilepath);
-    list<CKeyValuePair*> arbitraryMappings();
+    void parseBranch(libconfig::Setting& sBranch);
+    bool loadArbitraryMappingsFile(std::string strFilepath);
+    std::list<CKeyValuePair*> arbitraryMappings();
   };
 }
 
