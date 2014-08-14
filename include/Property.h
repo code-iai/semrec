@@ -46,8 +46,6 @@
 #include <list>
 #include <string>
 
-using namespace std;
-
 
 namespace beliefstate {
   class Property {
@@ -62,41 +60,41 @@ namespace beliefstate {
     } PropertyType;
 
   private:
-    list<Property*> m_lstSubProperties;
-    string m_strKey;
-    string m_strValue;
+    std::list<Property*> m_lstSubProperties;
+    std::string m_strKey;
+    std::string m_strValue;
     double m_dValue;
     PropertyType m_ptType;
-
+    
   protected:
   public:
-    Property(string strKey = "", PropertyType ptType = String);
+    Property(std::string strKey = "", PropertyType ptType = String);
     ~Property();
-
-    void setKey(string strKey);
-    string key();
-
+    
+    void setKey(std::string strKey);
+    std::string key();
+    
     void set(PropertyType ptType);
     PropertyType type();
-
-    void set(string strValue);
-    string getString();
-
+    
+    void set(std::string strValue);
+    std::string getString();
+    
     void set(int nValue);
     int getInteger();
-
+    
     void set(double dValue);
     double getDouble();
-
+    
     void set(bool bValue);
     bool getBoolean();
-
+    
     void addSubProperty(Property* prSubProperty);
-    list<Property*> subProperties();
-
+    std::list<Property*> subProperties();
+    
     void print(int nIndentationLevel = 0, bool bPrintKey = true);
-
-    Property* namedSubProperty(string strKey);
+    
+    Property* namedSubProperty(std::string strKey);
   };
 }
 

@@ -57,8 +57,6 @@
 #include <cv.h>
 #include <highgui.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   class CImageCapturer {
@@ -66,21 +64,21 @@ namespace beliefstate {
     ros::Subscriber m_subImage;
     bool m_bReceived;
     sensor_msgs::Image m_imgReceived;
-  
-    bool fileExists(string strFileName);
-    void freeFilename(string& strFileName, string strWorkingDirectory);
-  
-    string m_strImagesTopic;
+    
+    bool fileExists(std::string strFileName);
+    void freeFilename(std::string& strFileName, std::string strWorkingDirectory);
+    
+    std::string m_strImagesTopic;
     ros::Publisher m_pubImages;
-
+    
   public:
     CImageCapturer();
     ~CImageCapturer();
-  
-    bool captureFromTopic(string strTopicName, string &strFileName, string strWorkingDirectory, bool bUseFreeName = true);
+    
+    bool captureFromTopic(std::string strTopicName, std::string &strFileName, std::string strWorkingDirectory, bool bUseFreeName = true);
     void imageCallback(const sensor_msgs::Image &imgData);
-  
-    void publishImages(string strImagesTopic);
+    
+    void publishImages(std::string strImagesTopic);
   };
 }
 

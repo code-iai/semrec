@@ -56,8 +56,6 @@
 #include <ForwardDeclarations.h>
 #include <Plugin.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   namespace plugins {
@@ -69,7 +67,7 @@ namespace beliefstate {
     
     class PLUGIN_CLASS : public Plugin {
     private:
-      list<ActiveEvent> m_lstActiveEvents;
+      std::list<ActiveEvent> m_lstActiveEvents;
       
     public:
       PLUGIN_CLASS();

@@ -62,8 +62,6 @@
 #include <ForwardDeclarations.h>
 #include <Plugin.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   namespace plugins {
@@ -79,7 +77,7 @@ namespace beliefstate {
       bool m_bStartedSpinning;
       ros::AsyncSpinner* m_aspnAsyncSpinner;
       bool m_bRoslogMessages;
-      mutex m_mtxGlobalInputLock;
+      std::mutex m_mtxGlobalInputLock;
       
     public:
       PLUGIN_CLASS();
@@ -97,7 +95,7 @@ namespace beliefstate {
       virtual void consumeEvent(Event evEvent);
       virtual Event consumeServiceEvent(ServiceEvent seServiceEvent);
       
-      string getDesignatorTypeString(CDesignator* desigDesignator);
+      std::string getDesignatorTypeString(CDesignator* desigDesignator);
     };
   }
   

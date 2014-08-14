@@ -41,14 +41,14 @@
 
 
 namespace beliefstate {
-  InteractiveObject::InteractiveObject(string strName) {
+  InteractiveObject::InteractiveObject(std::string strName) {
     m_imsServer = NULL;
     
     m_imMarker.header.frame_id = "/map";
     m_imMarker.scale = 1;
     m_imMarker.name = strName;
     
-    m_mkrMarker.type = Marker::CUBE;
+    m_mkrMarker.type = visualization_msgs::Marker::CUBE;
     m_mkrMarker.scale.x = m_imMarker.scale * 0.45;
     m_mkrMarker.scale.y = m_imMarker.scale * 0.45;
     m_mkrMarker.scale.z = m_imMarker.scale * 0.45;
@@ -69,7 +69,7 @@ namespace beliefstate {
     this->insertIntoServer(m_imsServer);
   }
   
-  void InteractiveObject::setPose(string strFixedFrame, geometry_msgs::Pose posPose) {
+  void InteractiveObject::setPose(std::string strFixedFrame, geometry_msgs::Pose posPose) {
     m_imMarker.header.frame_id = strFixedFrame;
     m_imMarker.pose = posPose;
     
@@ -87,16 +87,16 @@ namespace beliefstate {
   }
   
   void InteractiveObject::clickCallback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback) {
-    MenuHandler::EntryHandle entHandle = feedback->menu_entry_id;
+    interactive_markers::MenuHandler::EntryHandle entHandle = feedback->menu_entry_id;
     
     bool bFound = false;
     InteractiveMenuEntry imeEntry;
-    for(list<InteractiveMenuEntry>::iterator itIME = m_lstMenuEntries.begin();
-	itIME != m_lstMenuEntries.end();
-	itIME++) {
-      if((*itIME).unMenuEntryID == entHandle) {
-	imeEntry = *itIME;
+    
+    for(InteractiveMenuEntry imeEntry : m_lstMenuEntries) {
+      if(imeEntry.unMenuEntryID == entHandle) {
+	imeEntry = imeEntry;
 	bFound = true;
+	
 	break;
       }
     }
@@ -114,10 +114,10 @@ namespace beliefstate {
     }
   }
   
-  bool InteractiveObject::insertIntoServer(InteractiveMarkerServer* imsServer) {
+  bool InteractiveObject::insertIntoServer(interactive_markers::InteractiveMarkerServer* imsServer) {
     if(ros::ok()) {
       if(imsServer) {
-	m_imcControl.interaction_mode = InteractiveMarkerControl::BUTTON;
+	m_imcControl.interaction_mode = visualization_msgs::InteractiveMarkerControl::BUTTON;
 	m_imcControl.always_visible = true;
       
 	m_imcControl.markers.clear();
@@ -152,18 +152,18 @@ namespace beliefstate {
     return false;
   }
   
-  string InteractiveObject::name() {
+  std::string InteractiveObject::name() {
     return m_imMarker.name;
   }
   
-  void InteractiveObject::addMenuEntry(string strLabel, string strIdentifier, string strParameter) {
+  void InteractiveObject::addMenuEntry(std::string strLabel, std::string strIdentifier, std::string strParameter) {
     InteractiveMenuEntry imeEntry;
     imeEntry.strLabel = strLabel;
     imeEntry.strIdentifier = strIdentifier;
     imeEntry.strParameter = strParameter;
     
-    MenuHandler::EntryHandle entEntry = m_mhMenu.insert(strLabel, boost::bind(&InteractiveObject::clickCallback, this, _1));
-    m_mhMenu.setCheckState(entEntry, MenuHandler::NO_CHECKBOX);
+    interactive_markers::MenuHandler::EntryHandle entEntry = m_mhMenu.insert(strLabel, boost::bind(&InteractiveObject::clickCallback, this, _1));
+    m_mhMenu.setCheckState(entEntry, interactive_markers::MenuHandler::NO_CHECKBOX);
     
     imeEntry.unMenuEntryID = entEntry;
     
@@ -175,7 +175,7 @@ namespace beliefstate {
   }
   
   void InteractiveObject::clearMenuEntries() {
-    MenuHandler mhMenu;
+    interactive_markers::MenuHandler mhMenu;
     
     m_lstMenuEntries.clear();
     m_mhMenu = mhMenu;
@@ -185,23 +185,22 @@ namespace beliefstate {
     }
   }
   
-  void InteractiveObject::removeMenuEntry(string strIdentifier, string strParameter) {
-    MenuHandler mhMenu;
+  void InteractiveObject::removeMenuEntry(std::string strIdentifier, std::string strParameter) {
+    interactive_markers::MenuHandler mhMenu;
     
-    for(list<InteractiveMenuEntry>::iterator itIME = m_lstMenuEntries.begin();
+    for(std::list<InteractiveMenuEntry>::iterator itIME = m_lstMenuEntries.begin();
 	itIME != m_lstMenuEntries.end();
 	itIME++) {
       if((*itIME).strIdentifier == strIdentifier && (*itIME).strParameter == strParameter) {
 	m_lstMenuEntries.erase(itIME);
+	
 	break;
       }
     }
     
-    for(list<InteractiveMenuEntry>::iterator itIME = m_lstMenuEntries.begin();
-	itIME != m_lstMenuEntries.end();
-	itIME++) {
-      MenuHandler::EntryHandle entEntry = m_mhMenu.insert((*itIME).strLabel, boost::bind(&InteractiveObject::clickCallback, this, _1));
-      m_mhMenu.setCheckState(entEntry, MenuHandler::NO_CHECKBOX);
+    for(InteractiveMenuEntry imeEntry : m_lstMenuEntries) {
+      interactive_markers::MenuHandler::EntryHandle entEntry = m_mhMenu.insert(imeEntry.strLabel, boost::bind(&InteractiveObject::clickCallback, this, _1));
+      m_mhMenu.setCheckState(entEntry, interactive_markers::MenuHandler::NO_CHECKBOX);
     }
     
     m_mhMenu = mhMenu;
@@ -211,8 +210,8 @@ namespace beliefstate {
     }
   }
   
-  list<InteractiveObjectCallbackResult> InteractiveObject::callbackResults() {
-    list<InteractiveObjectCallbackResult> lstResults;
+  std::list<InteractiveObjectCallbackResult> InteractiveObject::callbackResults() {
+    std::list<InteractiveObjectCallbackResult> lstResults;
     
     m_mtxCallbackResults.lock();
     lstResults = m_lstCallbackResults;

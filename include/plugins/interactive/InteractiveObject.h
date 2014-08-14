@@ -42,6 +42,7 @@
 
 
 // System
+#include <string>
 #include <iostream>
 #include <mutex>
 
@@ -50,55 +51,51 @@
 #include <interactive_markers/menu_handler.h>
 #include <ros/ros.h>
 
-using namespace std;
-using namespace visualization_msgs;
-using namespace interactive_markers;
-
 
 namespace beliefstate {
   typedef struct {
-    string strLabel;
-    string strIdentifier;
-    string strParameter;
+    std::string strLabel;
+    std::string strIdentifier;
+    std::string strParameter;
     uint8_t unMenuEntryID;
   } InteractiveMenuEntry;
   
   typedef struct {
-    string strObject;
-    string strCommand;
-    string strParameter;
+    std::string strObject;
+    std::string strCommand;
+    std::string strParameter;
   } InteractiveObjectCallbackResult;
   
   class InteractiveObject {
   private:
-    Marker m_mkrMarker;
-    MenuHandler m_mhMenu;
-    InteractiveMarker m_imMarker;
-    InteractiveMarkerServer* m_imsServer;
-    InteractiveMarkerControl m_imcControl;
-    list<InteractiveMenuEntry> m_lstMenuEntries;
-    list<InteractiveObjectCallbackResult> m_lstCallbackResults;
-    mutex m_mtxCallbackResults;
+    visualization_msgs::Marker m_mkrMarker;
+    interactive_markers::MenuHandler m_mhMenu;
+    visualization_msgs::InteractiveMarker m_imMarker;
+    interactive_markers::InteractiveMarkerServer* m_imsServer;
+    visualization_msgs::InteractiveMarkerControl m_imcControl;
+    std::list<InteractiveMenuEntry> m_lstMenuEntries;
+    std::list<InteractiveObjectCallbackResult> m_lstCallbackResults;
+    std::mutex m_mtxCallbackResults;
     
   public:
-    InteractiveObject(string strName);
+    InteractiveObject(std::string strName);
     ~InteractiveObject();
     
-    bool insertIntoServer(InteractiveMarkerServer* imsServer);
+    bool insertIntoServer(interactive_markers::InteractiveMarkerServer* imsServer);
     bool removeFromServer();
     void clickCallback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
     
     void setMarker(visualization_msgs::Marker mkrMarker);
     void setSize(float fWidth, float fDepth, float fHeight);
-    void setPose(string strFixedFrame, geometry_msgs::Pose posPose);
+    void setPose(std::string strFixedFrame, geometry_msgs::Pose posPose);
     void setPose(geometry_msgs::Pose posPose);
     
-    string name();
-    void addMenuEntry(string strLabel, string strIdentifier, string strParameter = "");
-    void removeMenuEntry(string strIdentifier, string strParameter = "");
+    std::string name();
+    void addMenuEntry(std::string strLabel, std::string strIdentifier, std::string strParameter = "");
+    void removeMenuEntry(std::string strIdentifier, std::string strParameter = "");
     void clearMenuEntries();
     
-    list<InteractiveObjectCallbackResult> callbackResults();
+    std::list<InteractiveObjectCallbackResult> callbackResults();
   };
 }
 

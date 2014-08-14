@@ -44,6 +44,7 @@ namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_icapImageCapturer = NULL;
+      
       this->addDependency("ros");
       this->setPluginVersion("0.2");
     }
@@ -79,8 +80,8 @@ namespace beliefstate {
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "add-image-from-topic") {
 	if(evEvent.cdDesignator) {
-	  string strTopic = evEvent.cdDesignator->stringValue("origin");
-	  string strFilename = evEvent.cdDesignator->stringValue("filename");
+	  std::string strTopic = evEvent.cdDesignator->stringValue("origin");
+	  std::string strFilename = evEvent.cdDesignator->stringValue("filename");
 	  
 	  if(strTopic != "") {
 	    if(strFilename == "") {
@@ -92,7 +93,7 @@ namespace beliefstate {
 	    ConfigSettings cfgsetCurrent = configSettings();
 	    
 	    if(m_icapImageCapturer->captureFromTopic(strTopic, strFilename, cfgsetCurrent.strExperimentDirectory)) {
-	      string strFilepath = cfgsetCurrent.strExperimentDirectory + strFilename;
+	      std::string strFilepath = cfgsetCurrent.strExperimentDirectory + strFilename;
 	      this->info("Wrote image from topic '" + strTopic + "' to file '" + strFilepath + "'");
 	      
 	      Event evImage = eventInResponseTo(evEvent, "add-image-from-file");

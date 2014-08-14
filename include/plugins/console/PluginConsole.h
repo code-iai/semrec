@@ -58,8 +58,6 @@
 #include <ForwardDeclarations.h>
 #include <Plugin.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   namespace plugins {
@@ -67,16 +65,16 @@ namespace beliefstate {
     private:
       int m_nScreenHeight;
       int m_nScreenWidth;
-      map<string, short> m_mapColors;
+      std::map<std::string, short> m_mapColors;
       bool m_bNeedsRedisplay;
-      mutex m_mtxRedisplay;
+      std::mutex m_mtxRedisplay;
       bool m_bFirstDisplay;
-      list<StatusMessage> m_lstStatusMessages;
-      mutex m_mtxStatusMessages;
+      std::list<StatusMessage> m_lstStatusMessages;
+      std::mutex m_mtxStatusMessages;
       WINDOW* m_winMain;
       WINDOW* m_winLog;
       int m_nBufferLineSize;
-
+      
     public:
       PLUGIN_CLASS();
       ~PLUGIN_CLASS();
@@ -94,8 +92,8 @@ namespace beliefstate {
       
       virtual void consumeEvent(Event evEvent);
       
-      void registerColor(string strColorCode, short sColor);
-      short colorNumber(string strColorCode);
+      void registerColor(std::string strColorCode, short sColor);
+      short colorNumber(std::string strColorCode);
       
       void setNeedsRedisplay();
       bool needsRedisplay();

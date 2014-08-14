@@ -73,7 +73,7 @@ namespace beliefstate {
       }
       
       if(!ros::ok()) {
-	string strROSNodeName = cdConfig->stringValue("node-name");
+	std::string strROSNodeName = cdConfig->stringValue("node-name");
 	
 	if(strROSNodeName == "") {
 	  strROSNodeName = "beliefstate_ros";
@@ -92,7 +92,7 @@ namespace beliefstate {
 	  m_pubInteractiveCallback = m_nhHandle->advertise<designator_integration_msgs::Designator>("/interactive_callback", 1);
 	  
 	  if(cdConfig->floatValue("roslog-messages") != 0) {
-	    string strTopic = cdConfig->stringValue("roslog-topic");
+	    std::string strTopic = cdConfig->stringValue("roslog-topic");
 	    
 	    if(strTopic != "") {
 	      m_pubStatusMessages = m_nhHandle->advertise<rosgraph_msgs::Log>(strTopic, 1);
@@ -135,13 +135,11 @@ namespace beliefstate {
     }
     
     bool PLUGIN_CLASS::serviceCallbackBeginContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      //m_mtxGlobalInputLock.lock();
-      
       Event evBeginContext = defaultEvent("begin-context");
       evBeginContext.nContextID = createContextID();
       evBeginContext.cdDesignator = new CDesignator(req.request.designator);
       
-      stringstream sts;
+      std::stringstream sts;
       sts << evBeginContext.nContextID;
       
       this->info("Beginning context (ID = " + sts.str() + "): '" + evBeginContext.cdDesignator->stringValue("_name") + "'");
@@ -154,19 +152,15 @@ namespace beliefstate {
       res.response.designators.push_back(desigResponse->serializeToMessage());
       delete desigResponse;
       
-      //m_mtxGlobalInputLock.unlock();
-      
       return true;
     }
     
     bool PLUGIN_CLASS::serviceCallbackEndContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      //m_mtxGlobalInputLock.lock();
-      
       Event evEndContext = defaultEvent("end-context");
       evEndContext.cdDesignator = new CDesignator(req.request.designator);
       
       int nContextID = (int)evEndContext.cdDesignator->floatValue("_id");
-      stringstream sts;
+      std::stringstream sts;
       sts << nContextID;
       
       this->info("When ending context (ID = " + sts.str() + "), received " + this->getDesignatorTypeString(evEndContext.cdDesignator) + " designator");
@@ -174,20 +168,16 @@ namespace beliefstate {
       
       freeContextID(nContextID);
       
-      //m_mtxGlobalInputLock.unlock();
-      
       return true;
     }
 
     bool PLUGIN_CLASS::serviceCallbackAlterContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      //m_mtxGlobalInputLock.lock();
-      
       Event evAlterContext = defaultEvent();
       evAlterContext.cdDesignator = new CDesignator(req.request.designator);
       
       this->info("When altering context, received " + this->getDesignatorTypeString(evAlterContext.cdDesignator) + " designator");
       
-      string strCommand = evAlterContext.cdDesignator->stringValue("command");
+      std::string strCommand = evAlterContext.cdDesignator->stringValue("command");
       transform(strCommand.begin(), strCommand.end(), strCommand.begin(), ::tolower);
       
       if(strCommand == "add-image") {
@@ -224,8 +214,6 @@ namespace beliefstate {
       }
       
       this->deployEvent(evAlterContext, true);
-      
-      //m_mtxGlobalInputLock.unlock();
       
       return true;
     }
@@ -271,7 +259,8 @@ namespace beliefstate {
     }
     
     string PLUGIN_CLASS::getDesignatorTypeString(CDesignator* desigDesignator) {
-      string strDesigType = "UNKNOWN";
+      std::string strDesigType = "UNKNOWN";
+      
       switch(desigDesignator->type()) {
       case ACTION:
 	strDesigType = "ACTION";

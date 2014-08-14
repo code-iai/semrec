@@ -74,23 +74,18 @@ namespace beliefstate {
       
       CKeyValuePair* ckvpExtensions = cdIndivConfig->childForKey("experiment-validation-extensions");
       
-      list<CKeyValuePair*> lstChildren = ckvpExtensions->children();
-      list<string> lstExtensions;
+      std::list<CKeyValuePair*> lstChildren = ckvpExtensions->children();
+      std::list<std::string> lstExtensions;
       
-      for(list<CKeyValuePair*>::iterator itPair = lstChildren.begin();
-	  itPair != lstChildren.end();
-	  itPair++) {
-	CKeyValuePair* ckvpChild = *itPair;
-	
+      for(CKeyValuePair* ckvpChild : lstChildren) {
 	lstExtensions.push_back(ckvpChild->stringValue());
       }
       
       bool bAnyPresent = false;
-      for(list<string>::iterator itExt = lstExtensions.begin();
-	  itExt != lstExtensions.end();
-	  itExt++) {
-	if(this->extensionPresent(cfgsetCurrent.strExperimentDirectory, *itExt)) {
+      for(std::string strExt : lstExtensions) {
+	if(this->extensionPresent(cfgsetCurrent.strExperimentDirectory, strExt)) {
 	  bAnyPresent = true;
+	  
 	  break;
 	}
       }
@@ -101,7 +96,7 @@ namespace beliefstate {
 	
 	deleteDirectory(cfgsetCurrent.strExperimentDirectory);
 	
-	string strSymlinkName = cfgsetCurrent.strBaseDataDirectory + "/" + cfgsetCurrent.strSymlinkName;
+	std::string strSymlinkName = cfgsetCurrent.strBaseDataDirectory + "/" + cfgsetCurrent.strSymlinkName;
 	::remove(strSymlinkName.c_str());
       }
       
@@ -115,10 +110,10 @@ namespace beliefstate {
       return resCycle;
     }
     
-    bool PLUGIN_CLASS::extensionPresent(string strPath, string strExtension) {
+    bool PLUGIN_CLASS::extensionPresent(std::string strPath, std::string strExtension) {
       bool bFound = false;
       DIR* dirFile = opendir(strPath.c_str());
-      string strPointExt = "." + strExtension;
+      std::string strPointExt = "." + strExtension;
       
       if(dirFile) {
 	struct dirent* hFile;
@@ -129,7 +124,7 @@ namespace beliefstate {
 	  
 	  if(strstr(hFile->d_name, strPointExt.c_str())) {
 	    struct stat sb;
-	    string strFilepath = strPath + "/" + hFile->d_name;
+	    std::string strFilepath = strPath + "/" + hFile->d_name;
 	    lstat(strFilepath.c_str(), &sb);
 	    
 	    if((sb.st_mode & S_IFMT) != S_IFLNK) { // Symlinks don't count.
@@ -176,13 +171,13 @@ namespace beliefstate {
 	// here.
 	char cName[cfgsetCurrent.strExperimentNameMask.size() + 80];
 	
-	string strNewName;
-	string strNewExp;
+	std::string strNewName;
+	std::string strNewExp;
 	
 	if(cfgsetCurrent.strExperimentNameMask.find("%d") != string::npos) {
 	  int nIndex = 0;
 	  bool bExists;
-	
+	  
 	  do {
 	    sprintf(cName, (const char*)(cfgsetCurrent.strExperimentNameMask.c_str()), nIndex);
 	    strNewExp = cName;
@@ -214,13 +209,13 @@ namespace beliefstate {
 	evSetExpNameMeta.cdDesignator->setValue("value", strNewExp);
 	this->deployEvent(evSetExpNameMeta);
 	
-	string strSymlink = cfgsetCurrent.strBaseDataDirectory + "/" + cfgsetCurrent.strSymlinkName;
+	std::string strSymlink = cfgsetCurrent.strBaseDataDirectory + "/" + cfgsetCurrent.strSymlinkName;
 	remove(strSymlink.c_str());
 	symlink(strNewName.c_str(), strSymlink.c_str());
 	this->info("Symlink set accordingly.");
 	
 	CDesignator* cdConfig = this->getIndividualConfig();
-	string strKnowRobOwl = cdConfig->stringValue("knowrob-symlink-path");
+	std::string strKnowRobOwl = cdConfig->stringValue("knowrob-symlink-path");
 	
 	if(strKnowRobOwl != "") {
 	  symlink(strKnowRobOwl.c_str(), string(strNewName + "knowrob.owl").c_str());

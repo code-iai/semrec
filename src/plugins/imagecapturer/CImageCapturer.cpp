@@ -44,31 +44,31 @@ namespace beliefstate {
   CImageCapturer::CImageCapturer() {
     m_strImagesTopic = "";
   }
-
+  
   CImageCapturer::~CImageCapturer() {
   }
-
-  bool CImageCapturer::fileExists(string strFileName) {
-    ifstream ifile(strFileName.c_str());
   
+  bool CImageCapturer::fileExists(std::string strFileName) {
+    std::ifstream ifile(strFileName.c_str());
+    
     if(ifile) {
       return true;
     }
-  
+    
     return false;
   }
-
-  void CImageCapturer::freeFilename(string& strFileName, string strWorkingDirectory) {
+  
+  void CImageCapturer::freeFilename(std::string& strFileName, std::string strWorkingDirectory) {
     int nIndex = 0;
-    string strBase = strWorkingDirectory + strFileName;
-    string strFile = strFileName;
+    std::string strBase = strWorkingDirectory + strFileName;
+    std::string strFile = strFileName;
     
     while(this->fileExists(strBase)) {
-      stringstream sts;
+      std::stringstream sts;
       sts << nIndex;
       sts << "_";
       sts << strFileName;
-    
+      
       nIndex++;
       
       strFile = sts.str();
@@ -78,7 +78,7 @@ namespace beliefstate {
     strFileName = strFile;
   }
   
-  bool CImageCapturer::captureFromTopic(string strTopicName, string& strFileName, string strWorkingDirectory, bool bUseFreeName) {
+  bool CImageCapturer::captureFromTopic(std::string strTopicName, std::string& strFileName, std::string strWorkingDirectory, bool bUseFreeName) {
     int nTimeout = 1000;
     bool bReturnvalue = false;
     bool bGoon = true;
@@ -112,10 +112,10 @@ namespace beliefstate {
       
       try {
 	cv_ptr = cv_bridge::toCvCopy(m_imgReceived, sensor_msgs::image_encodings::BGR8);
-      
-	cv::Mat imgMat = cv_ptr->image;
 	
-	string strUseFilename = "";
+	cv::Mat imgMat = cv_ptr->image;
+	std::string strUseFilename = "";
+	
 	if(bUseFreeName) {
 	  this->freeFilename(strFileName, strWorkingDirectory);
 	  strUseFilename = strWorkingDirectory + strFileName;
@@ -136,7 +136,7 @@ namespace beliefstate {
     
     return bReturnvalue;
   }
-
+  
   void CImageCapturer::imageCallback(const sensor_msgs::Image &imgData) {
     if(!m_bReceived) {
       m_bReceived = true;
@@ -144,7 +144,7 @@ namespace beliefstate {
     }
   }
 
-  void CImageCapturer::publishImages(string strImagesTopic) {
+  void CImageCapturer::publishImages(std::string strImagesTopic) {
     m_strImagesTopic = strImagesTopic;
     ros::NodeHandle nh;
     

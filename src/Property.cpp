@@ -41,137 +41,133 @@
 
 
 namespace beliefstate {
-  Property::Property(string strKey, PropertyType ptType) {
+  Property::Property(std::string strKey, PropertyType ptType) {
     m_strValue = "";
     m_dValue = 0.0f;
-
+    
     this->set(ptType);
     this->setKey(strKey);
   }
-
+  
   Property::~Property() {
-    for(list<Property*>::iterator itP = m_lstSubProperties.begin();
-        itP != m_lstSubProperties.end();
-        itP++) {
-      delete *itP;
+    for(Property* prDelete : m_lstSubProperties) {
+      delete prDelete;
     }
-
+    
     m_lstSubProperties.clear();
   }
-
-  void Property::setKey(string strKey) {
+  
+  void Property::setKey(std::string strKey) {
     m_strKey = strKey;
   }
-
-  string Property::key() {
+  
+  std::string Property::key() {
     return m_strKey;
   }
-
+  
   void Property::set(Property::PropertyType ptType) {
     m_ptType = ptType;
   }
-
+  
   Property::PropertyType Property::type() {
     return m_ptType;
   }
-
-  void Property::set(string strValue) {
+  
+  void Property::set(std::string strValue) {
     m_strValue = strValue;
   }
-
-  string Property::getString() {
+  
+  std::string Property::getString() {
     return m_strValue;
   }
-
+  
   void Property::set(int nValue) {
     m_dValue = nValue;
   }
-
+  
   int Property::getInteger() {
     return (int)m_dValue;
   }
-
+  
   void Property::set(double dValue) {
     m_dValue = dValue;
   }
-
+  
   double Property::getDouble() {
     return m_dValue;
   }
-
+  
   void Property::set(bool bValue) {
     m_dValue = (bValue ? 1 : 0);
   }
-
+  
   bool Property::getBoolean() {
     return (m_dValue != 0);
   }
-
+  
   void Property::addSubProperty(Property* prSubProperty) {
     m_lstSubProperties.push_back(prSubProperty);
   }
-
-  list<Property*> Property::subProperties() {
+  
+  std::list<Property*> Property::subProperties() {
     return m_lstSubProperties;
   }
-
+  
   void Property::print(int nIndentationLevel, bool bPrintKey) {
-    string strIndent = "";
+    std::string strIndent = "";
+    
     for(int nI = 0; nI < nIndentationLevel; nI++) {
       strIndent += " ";
     }
     
-    cout << strIndent;
+    std::cout << strIndent;
+    
     if(bPrintKey) {
-      cout << this->key() << ": ";
+      std::cout << this->key() << ": ";
     }
     
     switch(this->type()) {
     case String:
-      cout << this->getString() << endl;
+      std::cout << this->getString() << std::endl;
       break;
-
+      
     case Integer:
-      cout << this->getInteger() << endl;
+      std::cout << this->getInteger() << std::endl;
       break;
-
+      
     case Boolean:
-      cout << this->getBoolean() << endl;
+      std::cout << this->getBoolean() << std::endl;
       break;
-
+      
     case Double:
-      cout << this->getDouble() << endl;
+      std::cout << this->getDouble() << std::endl;
       break;
-
+      
     case Array:
-      cout << endl;
+      std::cout << std::endl;
       
       for(Property* prCurrent : m_lstSubProperties) {
-        prCurrent->print(nIndentationLevel + 1);//, false);
+        prCurrent->print(nIndentationLevel + 1);
       }
       break;
-
+      
     case Object:
-      cout << endl;
-
+      std::cout << std::endl;
+      
       for(Property* prCurrent : m_lstSubProperties) {
         prCurrent->print(nIndentationLevel + 1);
       }
       break;
     }
   }
-
-  Property* Property::namedSubProperty(string strKey) {
-    for(list<Property*>::iterator itP = m_lstSubProperties.begin();
-        itP != m_lstSubProperties.end();
-        itP++) {
-      Property* prCurrent = *itP;
-
+  
+  Property* Property::namedSubProperty(std::string strKey) {
+    for(Property* prCurrent : m_lstSubProperties) {
       if(prCurrent->key() == strKey) {
         return prCurrent;
       }
     }
-
+    
     return NULL;
   }
 }

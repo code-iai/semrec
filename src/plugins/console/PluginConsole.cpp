@@ -121,7 +121,7 @@ namespace beliefstate {
       for(list<StatusMessage>::reverse_iterator itSMr = m_lstStatusMessages.rbegin();
 	  itSMr != m_lstStatusMessages.rend(); itSMr++) {
 	StatusMessage msgStatus = *itSMr;
-	string strStatus = "[ " + msgStatus.strPrefix + " ] " + msgStatus.strMessage;
+	std::string strStatus = "[ " + msgStatus.strPrefix + " ] " + msgStatus.strMessage;
 	int nLinesPerLine = 1;
 	
 	while(strStatus.length() > nLogWidth) {
@@ -140,7 +140,7 @@ namespace beliefstate {
       }
       
       int nLine = 0;
-      list<StatusMessage>::iterator itSM = m_lstStatusMessages.begin();
+      std::list<StatusMessage>::iterator itSM = m_lstStatusMessages.begin();
       int nDiff = m_lstStatusMessages.size() - nReverseIndex;
       
       if(nDiff > 0) {
@@ -156,7 +156,7 @@ namespace beliefstate {
       	  wattron(m_winLog, COLOR_PAIR(sColor));
       	}
 	
-	string strPrint = "[ " + msgStatus.strPrefix + " ] " + msgStatus.strMessage;
+	std::string strPrint = "[ " + msgStatus.strPrefix + " ] " + msgStatus.strMessage;
 	
 	while(strPrint.length() > 0) {
 	  move(nLine, 0);
@@ -200,12 +200,13 @@ namespace beliefstate {
 	wresize(m_winLog, m_nScreenHeight - 2, m_nScreenWidth - 2);
 	wresize(m_winMain, m_nScreenHeight, m_nScreenWidth);
 	
-	
 	m_mtxStatusMessages.unlock();
+	
 	return true;
       }
       
       m_mtxStatusMessages.unlock();
+      
       return false;
     }
     
@@ -246,14 +247,14 @@ namespace beliefstate {
       }
     }
     
-    void PLUGIN_CLASS::registerColor(string strColorCode, short sColor) {
+    void PLUGIN_CLASS::registerColor(std::string strColorCode, short sColor) {
       short sPair = m_mapColors.size() + 1;
       init_pair(sPair, sColor, COLOR_BLACK);
       m_mapColors[strColorCode] = sPair;
     }
     
-    short PLUGIN_CLASS::colorNumber(string strColorCode) {
-      map<string, short>::iterator itEntry = m_mapColors.find(strColorCode);
+    short PLUGIN_CLASS::colorNumber(std::string strColorCode) {
+      std::map<std::string, short>::iterator itEntry = m_mapColors.find(strColorCode);
       
       if(itEntry != m_mapColors.end()) {
 	return (*itEntry).second;

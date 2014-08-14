@@ -60,8 +60,6 @@
 #include <ForwardDeclarations.h>
 #include <Plugin.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   namespace plugins {

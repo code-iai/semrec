@@ -61,20 +61,18 @@
 #include <Plugin.h>
 #include <Node.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   namespace plugins {
     class PLUGIN_CLASS : public Plugin {
     private:
-      list<Node*> m_lstNodes;
+      std::list<Node*> m_lstNodes;
       Node* m_ndActive;
-      list< pair<string, string> > m_lstDesignatorIDs;
-      list< pair<string, string> > m_lstDesignatorEquations;
-      list< pair<string, string> > m_lstDesignatorEquationTimes;
-      pair<string, Node*> m_prLastFailure;
-      map<string, Node*> m_mapFailureCatchers;
+      std::list< std::pair<std::string, std::string> > m_lstDesignatorIDs;
+      std::list< std::pair<std::string, std::string> > m_lstDesignatorEquations;
+      std::list< std::pair<std::string, std::string> > m_lstDesignatorEquationTimes;
+      std::pair<std::string, Node*> m_prLastFailure;
+      std::map<std::string, Node*> m_mapFailureCatchers;
       
     public:
       PLUGIN_CLASS();
@@ -88,16 +86,16 @@ namespace beliefstate {
       virtual void consumeEvent(Event evEvent);
       virtual Event consumeServiceEvent(ServiceEvent seServiceEvent);
       
-      Node* addNode(string strName, int nContextID);
+      Node* addNode(std::string strName, int nContextID);
       void setNodeAsActive(Node* ndActive);
       Node* activeNode();
       
-      string getDesignatorID(string strMemoryAddress);
-      string getUniqueDesignatorID(string strMemoryAddress);
-      string generateRandomIdentifier(string strPrefix, unsigned int unLength);
-      string equateDesignators(string strMAChild, string strMAParent);
+      std::string getDesignatorID(std::string strMemoryAddress);
+      std::string getUniqueDesignatorID(std::string strMemoryAddress);
+      std::string generateRandomIdentifier(std::string strPrefix, unsigned int unLength);
+      std::string equateDesignators(std::string strMAChild, std::string strMAParent);
       
-      bool ensureDesignatorPublished(list<CKeyValuePair*> lstDescription, string strMemoryAddress, string strType, string strAnnotation = "", bool bAdd = false);
+      bool ensureDesignatorPublished(std::list<CKeyValuePair*> lstDescription, std::string strMemoryAddress, std::string strType, std::string strAnnotation = "", bool bAdd = false);
       void setNestedDesignatorUniqueIDs(CKeyValuePair* ckvpParent);
     };
   }

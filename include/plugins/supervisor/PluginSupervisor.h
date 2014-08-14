@@ -56,8 +56,6 @@
 #include <ForwardDeclarations.h>
 #include <Plugin.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   namespace plugins {
@@ -74,7 +72,7 @@ namespace beliefstate {
       
       virtual Result cycle();
       
-      bool extensionPresent(string strPath, string strExtension);
+      bool extensionPresent(std::string strPath, std::string strExtension);
       virtual void consumeEvent(Event evEvent);
     };
   }
