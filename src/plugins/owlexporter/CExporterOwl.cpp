@@ -881,9 +881,53 @@ namespace beliefstate {
     } else if(strName.substr(0, 8) == "PERFORM-") {
       // This is the performance of probably a designator
       string strPerformer = strName.substr(8);
-    
+      
       if(strPerformer == "ACTION-DESIGNATOR") {
-	strClass = "PerformActionDesignator"; // Added
+	CKeyValuePair* ckvpDescription = NULL;
+	list<CKeyValuePair*> lstDesc = ndNode->description();
+	
+	for(CKeyValuePair* ckvpCurrent : lstDesc) {
+	  if(ckvpCurrent->key() == "DESCRIPTION") {
+	    ckvpDescription = ckvpCurrent;
+	    break;
+	  }
+	}
+	
+	bool bSpecializedDesignator = true;
+	if(ckvpDescription) {
+	  string strTo = ckvpDescription->stringValue("TO");
+	  
+	  if(strTo == "GRASP") {
+	    // Specializer: Grasping.
+	    strClass = "PickingUpAnObject";
+	  } else if(strTo == "LIFT") {
+	    // Specializer: Lifting.
+	    strClass = "LiftingAnObject";
+	  } else if(strTo == "CARRY") {
+	    // Specializer: Carrying.
+	    strClass = "CarryingAnObject";
+	  } else if(strTo == "PERCEIVE") {
+	    // Specializer: Perceiving.
+	    strClass = "PerceivingObjects";
+	  } else if(strTo == "PUT-DOWN") {
+	    // Specializer: Putting down.
+	    strClass = "PuttingDownAnObject";
+	  } else if(strTo == "PARK") {
+	    // Specializer: Putting down.
+	    strClass = "ParkingArms";
+	  } else {
+	    // Fallback.
+	    bSpecializedDesignator = false;
+	  }
+	} else {
+	  // Fallback.
+	  bSpecializedDesignator = false;
+	}
+	
+	if(bSpecializedDesignator == false) {
+	  // Default class if no specializer could be found.
+	  strClass = "PerformActionDesignator";
+	}
       }
     } else if(strName == "UIMA-PERCEIVE") {
       strClass = "UIMAPerception"; // NOTE(winkler): was 'VisualPerception'
