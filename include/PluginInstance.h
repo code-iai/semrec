@@ -55,25 +55,23 @@
 #include <Plugin.h>
 #include <UtilityBase.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   class PluginInstance : public UtilityBase {
   private:
     void* m_vdLibHandle;
     plugins::Plugin* m_piInstance;
-    string m_strName;
-    thread* m_thrdPluginCycle;
+    std::string m_strName;
+    std::thread* m_thrdPluginCycle;
     bool m_bRunCycle;
-    mutex m_mtxCycleResults;
+    std::mutex m_mtxCycleResults;
     Result m_resCycleResult;
     
   public:
     PluginInstance();
     ~PluginInstance();
     
-    Result loadPluginLibrary(string strFilepath);
+    Result loadPluginLibrary(std::string strFilepath);
     void unload();
     
     void setDevelopmentPlugin(bool bDevelopmentPlugin);
@@ -84,14 +82,14 @@ namespace beliefstate {
     Result init(int argc, char** argv);
     Result cycle();
     void spinCycle();
-    list<string> dependencies();
+    std::list<std::string> dependencies();
     
-    bool subscribedToEvent(string strEventName);
+    bool subscribedToEvent(std::string strEventName);
     void consumeEvent(Event evEvent);
-    bool offersService(string strServiceName);
+    bool offersService(std::string strServiceName);
     Event consumeServiceEvent(ServiceEvent seServiceEvent);
     
-    string name();
+    std::string name();
     
     Result currentResult();
     void setRunning(bool bRunCycle);

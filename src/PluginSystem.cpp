@@ -52,27 +52,17 @@ namespace beliefstate {
     m_lstLoadedPlugins.reverse();
     
     // Trigger kill signals
-    for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
-	itPlugin != m_lstLoadedPlugins.end();
-	itPlugin++) {
-      PluginInstance* icCurrent = *itPlugin;
+    for(PluginInstance* icCurrent : m_lstLoadedPlugins) {
       icCurrent->setRunning(false);
     }
     
     // Join all threads
-    for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
-	itPlugin != m_lstLoadedPlugins.end();
-	itPlugin++) {
-      PluginInstance* icCurrent = *itPlugin;
+    for(PluginInstance* icCurrent : m_lstLoadedPlugins) {
       icCurrent->waitForJoin();
     }
     
     // Delete all structures
-    for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
-	itPlugin != m_lstLoadedPlugins.end();
-	itPlugin++) {
-      PluginInstance* icCurrent = *itPlugin;
-      
+    for(PluginInstance* icCurrent : m_lstLoadedPlugins) {
       icCurrent->unload();
       delete icCurrent;
     }
@@ -94,7 +84,7 @@ namespace beliefstate {
     }
     
     // Remove plugin prefix
-    string strPrefix = "libbs_plugin_";
+    std::string strPrefix = "libbs_plugin_";
     
     if(strPath.substr(0, strPrefix.size()) == strPrefix) {
       strPath = strPath.substr(strPrefix.size());
@@ -103,12 +93,8 @@ namespace beliefstate {
     return strPath;
   }
   
-  bool PluginSystem::pluginLoaded(string strPluginName) {
-    for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
-	itPlugin != m_lstLoadedPlugins.end();
-	itPlugin++) {
-      PluginInstance* icCurrent = *itPlugin;
-      
+  bool PluginSystem::pluginLoaded(std::string strPluginName) {
+    for(PluginInstance* icCurrent : m_lstLoadedPlugins) {
       if(icCurrent->name() == strPluginName) {
 	return true;
       }
@@ -125,11 +111,9 @@ namespace beliefstate {
     return m_bLoadDevelopmentPlugins;
   }
   
-  bool PluginSystem::pluginFailedToLoadBefore(string strName) {
-    for(list<string>::iterator itP = m_lstLoadFailedPlugins.begin();
-	itP != m_lstLoadFailedPlugins.end();
-	itP++) {
-      if(*itP == strName) {
+  bool PluginSystem::pluginFailedToLoadBefore(std::string strName) {
+    for(std::string strPluginName : m_lstLoadFailedPlugins) {
+      if(strPluginName == strName) {
 	return true;
       }
     }
@@ -137,16 +121,16 @@ namespace beliefstate {
     return false;
   }
   
-  Result PluginSystem::loadPluginLibrary(string strFilepath, bool bIsNameOnly) {
+  Result PluginSystem::loadPluginLibrary(std::string strFilepath, bool bIsNameOnly) {
     PluginInstance* icLoad = NULL;
-    string strPrefix = "libbs_plugin_";
-    string strSuffix = ".so";
+    std::string strPrefix = "libbs_plugin_";
+    std::string strSuffix = ".so";
     
     if(bIsNameOnly) {
       strFilepath = strPrefix + strFilepath + strSuffix;
     }
     
-    list<string> lstSearchPaths = m_lstPluginSearchPaths;
+    std::list<std::string> lstSearchPaths = m_lstPluginSearchPaths;
     lstSearchPaths.push_front("./"); // Add local path as search path
     
     Result resLoad = defaultResult();
@@ -157,50 +141,43 @@ namespace beliefstate {
       resLoad.bSuccess = true;
     } else {
       if(!this->pluginFailedToLoadBefore(strFilepath)) {
-	for(list<string>::iterator itSP = lstSearchPaths.begin();
-	    itSP != lstSearchPaths.end();
-	    itSP++) {
-	  string strSP = *itSP;
+	for(string strSP : lstSearchPaths) {
 	  string strSearchFilepath = strSP + (strSP[strSP.size() - 1] != '/' && strFilepath[0] != '/' && strSP.size() > 0 ? "/" : "") + strFilepath;
-	
+	  
 	  icLoad = new PluginInstance();
 	  resLoad = icLoad->loadPluginLibrary(strSearchFilepath);
-	
+	  
 	  if(resLoad.bSuccess) {
 	    // Check if this is a development plugin and if we're supposed to load it.
 	    if((icLoad->developmentPlugin() && m_bLoadDevelopmentPlugins) || !icLoad->developmentPlugin()) {
 	      if(icLoad->developmentPlugin()) {
 		this->info("This is a development plugin: '" + strFilepath + "'");
 	      }
-	    
-	      // Check and meet dependencies
-	      list<string> lstDeps = icLoad->dependencies();
-	      for(list<string>::iterator itDep = lstDeps.begin();
-		  itDep != lstDeps.end();
-		  itDep++) {
-		string strDep = *itDep;
 	      
+	      // Check and meet dependencies
+	      std::list<std::string> lstDeps = icLoad->dependencies();
+	      for(string strDep : lstDeps) {
 		if(this->pluginLoaded(strDep) == false) {
 		  Result resLoadDep = this->loadPluginLibrary(strPrefix + strDep + strSuffix);
-	    
+		  
 		  if(resLoadDep.bSuccess == false) {
 		    this->fail("Unable to meet dependency of '" + strSearchFilepath + "': '" + strDep + "'");
-	      
+		    
 		    resLoad.bSuccess = false;
 		    resLoad.riResultIdentifier = RI_PLUGIN_DEPENDENCY_NOT_MET;
 		    resLoad.strErrorMessage = strDep;
-	      
+		    
 		    break;
 		  }
 		}
 	      }
 	    } else {
 	      this->info("Not loading development plugin: '" + strFilepath + "'");
-	    
+	      
 	      resLoad.bSuccess = false;
 	      resLoad.riResultIdentifier = RI_PLUGIN_DEVELOPMENT_NOT_LOADING;
 	    }
-	  
+	    
 	    if(resLoad.bSuccess) {
 	      // Initialize the plugin
 	      Result rsResult = icLoad->init(m_argc, m_argv);
@@ -218,11 +195,11 @@ namespace beliefstate {
 	    resLoad.bSuccess = false;
 	    resLoad.riResultIdentifier = RI_PLUGIN_LOADING_FAILED;
 	  }
-      
+	  
 	  if(resLoad.bSuccess == false) {
 	    icLoad->unload();
 	    m_lstLoadFailedPlugins.push_back(strFilepath);
-	  
+	    
 	    delete icLoad;
 	  } else {
 	    break;
@@ -247,11 +224,7 @@ namespace beliefstate {
   int PluginSystem::spreadEvent(Event evEvent) {
     int nReceivers = 0;
     
-    for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
-	itPlugin != m_lstLoadedPlugins.end();
-	itPlugin++) {
-      PluginInstance* piPlugin = *itPlugin;
-      
+    for(PluginInstance* piPlugin : m_lstLoadedPlugins) {
       if(piPlugin->subscribedToEvent(evEvent.strEventName)) {
 	piPlugin->consumeEvent(evEvent);
 	nReceivers++;
@@ -265,11 +238,7 @@ namespace beliefstate {
     list<Event> lstResultEvents;
     int nReceivers = 0;
     
-    for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
-	itPlugin != m_lstLoadedPlugins.end();
-	itPlugin++) {
-      PluginInstance* piPlugin = *itPlugin;
-      
+    for(PluginInstance* piPlugin : m_lstLoadedPlugins) {
       if(piPlugin->offersService(seServiceEvent.strServiceName)) {
 	Event evResult = piPlugin->consumeServiceEvent(seServiceEvent);
 	nReceivers++;
@@ -302,16 +271,11 @@ namespace beliefstate {
   Result PluginSystem::cycle() {
     Result resCycle = defaultResult();
     
-    for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
-	itPlugin != m_lstLoadedPlugins.end();
-	itPlugin++) {
-      PluginInstance* icCurrent = *itPlugin;
+    for(PluginInstance* icCurrent : m_lstLoadedPlugins) {
       Result resCurrent = icCurrent->cycle();
       
-      for(list<StatusMessage>::iterator itSM = resCurrent.lstStatusMessages.begin();
-	  itSM != resCurrent.lstStatusMessages.end();
-	  itSM++) {
-	resCycle.lstStatusMessages.push_back(*itSM);
+      for(StatusMessage smCurrent : resCurrent.lstStatusMessages) {
+	resCycle.lstStatusMessages.push_back(smCurrent);
       }
       
       if(resCurrent.bSuccess == false) {
@@ -321,25 +285,17 @@ namespace beliefstate {
 	// plugins (in order of dependency) to "recover".
 	this->queueUnloadPluginInstance(icCurrent);
       } else {
-	for(list<Event>::iterator itEvent = resCurrent.lstEvents.begin();
-	    itEvent != resCurrent.lstEvents.end();
-	    itEvent++) {
-	  resCycle.lstEvents.push_back(*itEvent);
+	for(Event evtCurrent : resCurrent.lstEvents) {
+	  resCycle.lstEvents.push_back(evtCurrent);
 	}
 	
-	for(list<ServiceEvent>::iterator itEvent = resCurrent.lstServiceEvents.begin();
-	    itEvent != resCurrent.lstServiceEvents.end();
-	    itEvent++) {
-	  resCycle.lstServiceEvents.push_back(*itEvent);
+	for(ServiceEvent seCurrent : resCurrent.lstServiceEvents) {
+	  resCycle.lstServiceEvents.push_back(seCurrent);
 	}
       }
     }
     
-    for(list<PluginInstance*>::iterator itPlugin = m_lstUnloadPlugins.begin();
-	itPlugin != m_lstUnloadPlugins.end();
-	itPlugin++) {
-      PluginInstance* icCurrent = *itPlugin;
-      
+    for(PluginInstance* icCurrent : m_lstUnloadPlugins) {
       icCurrent->unload();
       m_lstLoadedPlugins.remove(icCurrent);
       delete icCurrent;
@@ -348,19 +304,14 @@ namespace beliefstate {
     return resCycle;
   }
   
-  void PluginSystem::addPluginSearchPath(string strPath) {
+  void PluginSystem::addPluginSearchPath(std::string strPath) {
     // Make sure it is in there only once.
     m_lstPluginSearchPaths.remove(strPath);
-    
     m_lstPluginSearchPaths.push_back(strPath);
   }
   
   PluginInstance* PluginSystem::pluginInstanceByID(int nID) {
-    for(list<PluginInstance*>::iterator itPlugin = m_lstLoadedPlugins.begin();
-	itPlugin != m_lstLoadedPlugins.end();
-	itPlugin++) {
-      PluginInstance* icCurrent = *itPlugin;
-      
+    for(PluginInstance* icCurrent : m_lstLoadedPlugins) {
       if(icCurrent->pluginID() == nID) {
 	return icCurrent;
       }

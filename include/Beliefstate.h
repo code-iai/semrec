@@ -55,9 +55,6 @@
 #include <PluginSystem.h>
 #include <UtilityBase.h>
 
-using namespace std;
-using namespace libconfig;
-
 
 /*! \brief Main beliefstate system class
   
@@ -86,26 +83,26 @@ namespace beliefstate {
     /*! \brief List of plugins to load. This list is populated by the
         plugins/load configuration section in the configuration
         file. */
-    list<string> m_lstPluginsToLoad;
+    std::list<std::string> m_lstPluginsToLoad;
     /*! \brief List of currently available global events to
         process. The entries in this list only last one cycle of the
         main loop. They are dropped afterwards, but are handed to all
         plugins that subscribed to the respective event type
         beforehand. This is the main communication mechanism between
         the belief state system and loaded plugins. */
-    list<Event> m_lstGlobalEvents;
+    std::list<Event> m_lstGlobalEvents;
     /*! \brief In case a static workspace directory was specified in
         the configuration file, its value is stored here. This value,
         if not empty, takes precedence over the dynamically resolved
         return value of workspaceDirectory(). */
-    string m_strWorkspaceDirectory;
-    mutex m_mtxTerminalResize;
+    std::string m_strWorkspaceDirectory;
+    std::mutex m_mtxTerminalResize;
     bool m_bTerminalWindowResize;
     bool m_bCommandLineOutput;
-    string m_strVersion;
+    std::string m_strVersion;
     
   protected:
-    list<string> m_lstConfigFileLocations;
+    std::list<std::string> m_lstConfigFileLocations;
     
   public:
     /*! \brief Constructor of the main belief state system class.
@@ -113,7 +110,7 @@ namespace beliefstate {
       \param argc The main argc variable supplied to main(), holding
       the number of available command line parameters issues when
       running the system.
-
+      
       \param argv The main argv variable supplied to main(), holding
       the actual available command line parameters issues when running
       the system. */
@@ -123,18 +120,18 @@ namespace beliefstate {
       Deletes all instances of internal objects. */
     ~Beliefstate();
     
-    string version();
+    std::string version();
     
     /*! \brief Main initialization method for the belief state system.
       
       Initializes the default search paths for configuration files,
       creates instances for the PluginSystem and triggers the loading
       of configuration files and plugins (as configured).
-
+      
       \param strConfigFile Overrides the default plugin search
       mechanism and uses the file specified in this parameter. If this
       fails, the function falls back to the default mechanism. */
-    Result init(string strConfigFile = "");
+    Result init(std::string strConfigFile = "");
     
     /*! \brief Deinitialization method for the belief state system
       
@@ -152,7 +149,7 @@ namespace beliefstate {
       
       \param strConfigFile Configuration file path to open for loading
       configuration */
-    bool loadConfigFile(string strConfigFile);
+    bool loadConfigFile(std::string strConfigFile);
     
     /*! \brief Loads the plugin-specific configuration portion of the configuration file
       
@@ -173,7 +170,7 @@ namespace beliefstate {
       \param bIgnorePluginField Ignore the 'plugin' field in the
       current branch. This is only used on the first level, as that
       level holds the plugin name of the plugin to configure. */
-    bool loadIndividualPluginConfigurationBranch(Setting &sBranch, CKeyValuePair* ckvpInto, string strConfigPath = "", bool bIgnorePluginField = false);
+    bool loadIndividualPluginConfigurationBranch(libconfig::Setting &sBranch, CKeyValuePair* ckvpInto, std::string strConfigPath = "", bool bIgnorePluginField = false);
     
     bool spreadEvent(Event evEvent);
     void spreadServiceEvent(ServiceEvent seServiceEvent);
@@ -187,9 +184,9 @@ namespace beliefstate {
     void triggerShutdown();
     void triggerTerminalResize();
     
-    void setBaseDataDirectory(string strBaseDataDirectory);
-    string baseDataDirectory();
-    string resolveDirectoryTokens(string strPath);
+    void setBaseDataDirectory(std::string strBaseDataDirectory);
+    std::string baseDataDirectory();
+    std::string resolveDirectoryTokens(std::string strPath);
     
     /*! \brief Returns the current set workspace directory
       
@@ -198,18 +195,18 @@ namespace beliefstate {
       $WORKSPACE. In this function, the directory manually set in the
       config.cfg file is returned, or an empty string if it is not set
       there. */
-    virtual string workspaceDirectory();
+    virtual std::string workspaceDirectory();
     
     /*! \brief Returns the current user's home directory
       
       Returns whatever is stored in the environmental variable
       '${HOME}'. */
-    string homeDirectory();
+    std::string homeDirectory();
     
-    virtual string findTokenReplacement(string strToken);
+    virtual std::string findTokenReplacement(std::string strToken);
     bool handleUnhandledEvent(Event evEvent);
     
-    string findPrefixPath(string strPathList, string strMatchingSuffix, string strDelimiter = ":");
+    std::string findPrefixPath(std::string strPathList, std::string strMatchingSuffix, std::string strDelimiter = ":");
   };
 }
 

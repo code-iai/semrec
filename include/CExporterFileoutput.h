@@ -47,8 +47,6 @@
 // Private
 #include <CExporter.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   class CExporterFileoutput : public CExporter {
@@ -57,10 +55,10 @@ namespace beliefstate {
     CExporterFileoutput();
     ~CExporterFileoutput();
   
-    void setOutputFilename(string strFilename);
-    string outputFilename();
+    void setOutputFilename(std::string strFilename);
+    std::string outputFilename();
   
-    bool writeToFile(string strContent, string strFilename = "");
+    bool writeToFile(std::string strContent, std::string strFilename = "");
   };
 }
 

@@ -55,10 +55,10 @@ namespace beliefstate {
   PluginInstance::~PluginInstance() {
   }
   
-  Result PluginInstance::loadPluginLibrary(string strFilepath) {
+  Result PluginInstance::loadPluginLibrary(std::string strFilepath) {
     Result resLoad = defaultResult();
     
-    fstream fsFile;
+    std::fstream fsFile;
     fsFile.open(strFilepath.c_str(), std::fstream::in);
     
     if(fsFile.is_open()) {
@@ -85,10 +85,10 @@ namespace beliefstate {
 	}
 	
 	// Remove plugin prefix
-	string strPrefix = "libbs_plugin_";
+	std::string strPrefix = "libbs_plugin_";
 	m_strName = m_strName.substr(strPrefix.size());
 	
-	string strVersionString = m_piInstance->pluginVersion();
+	std::string strVersionString = m_piInstance->pluginVersion();
 	
 	this->info("Loaded plugin '" + m_strName + "'" + (strVersionString == "" ? "" : " (version: " + strVersionString + ")"));
 	m_piInstance->setPluginName(m_strName);
@@ -152,7 +152,7 @@ namespace beliefstate {
   
   Result PluginInstance::cycle() {
     if(m_thrdPluginCycle == NULL) {
-      m_thrdPluginCycle = new thread(&PluginInstance::spinCycle, this);
+      m_thrdPluginCycle = new std::thread(&PluginInstance::spinCycle, this);
     }
     
     return this->currentResult();
@@ -163,35 +163,30 @@ namespace beliefstate {
       Result resCycle = m_piInstance->cycle();
       
       m_mtxCycleResults.lock();
-      for(list<Event>::iterator itEvt = resCycle.lstEvents.begin();
-	  itEvt != resCycle.lstEvents.end();
-	  itEvt++) {
-	m_resCycleResult.lstEvents.push_back(*itEvt);
+      for(Event evCurrent : resCycle.lstEvents) {
+	m_resCycleResult.lstEvents.push_back(evCurrent);
       }
       resCycle.lstEvents.clear();
       
-      for(list<ServiceEvent>::iterator itEvt = resCycle.lstServiceEvents.begin();
-	  itEvt != resCycle.lstServiceEvents.end();
-	  itEvt++) {
-	m_resCycleResult.lstServiceEvents.push_back(*itEvt);
+      for(ServiceEvent seCurrent : resCycle.lstServiceEvents) {
+	m_resCycleResult.lstServiceEvents.push_back(seCurrent);
       }
-      
-      for(list<StatusMessage>::iterator itSM = resCycle.lstStatusMessages.begin();
-	  itSM != resCycle.lstStatusMessages.end();
-	  itSM++) {
-	m_resCycleResult.lstStatusMessages.push_back(*itSM);
-      }
-      
       resCycle.lstServiceEvents.clear();
+      
+      for(StatusMessage smCurrent : resCycle.lstStatusMessages) {
+	m_resCycleResult.lstStatusMessages.push_back(smCurrent);
+      }
+      // TODO(winkler): Maybe there is a `clear` missing here. Check this.
+      
       m_mtxCycleResults.unlock();
     }
   }
   
-  list<string> PluginInstance::dependencies() {
+  std::list<std::string> PluginInstance::dependencies() {
     return m_piInstance->dependencies();
   }
   
-  bool PluginInstance::subscribedToEvent(string strEventName) {
+  bool PluginInstance::subscribedToEvent(std::string strEventName) {
     return m_piInstance->subscribedToEvent(strEventName);
   }
   
@@ -199,7 +194,7 @@ namespace beliefstate {
     m_piInstance->consumeEvent(evEvent);
   }
   
-  bool PluginInstance::offersService(string strServiceName) {
+  bool PluginInstance::offersService(std::string strServiceName) {
     return m_piInstance->offersService(strServiceName);
   }
   
@@ -207,7 +202,7 @@ namespace beliefstate {
     return m_piInstance->consumeServiceEvent(seServiceEvent);
   }
   
-  string PluginInstance::name() {
+  std::string PluginInstance::name() {
     return m_strName;
   }
   

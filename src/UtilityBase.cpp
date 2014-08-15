@@ -52,15 +52,15 @@ namespace beliefstate {
   UtilityBase::~UtilityBase() {
   }
   
-  void UtilityBase::setMessagePrefixLabel(string strMessagePrefixLabel) {
+  void UtilityBase::setMessagePrefixLabel(std::string strMessagePrefixLabel) {
     m_strMessagePrefixLabel = strMessagePrefixLabel;
   }
   
-  string UtilityBase::messagePrefixLabel() {
+  std::string UtilityBase::messagePrefixLabel() {
     return m_strMessagePrefixLabel;
   }
   
-  void UtilityBase::coloredText(string strText, string strColorValue, bool bBold) {
+  void UtilityBase::coloredText(std::string strText, std::string strColorValue, bool bBold) {
     StatusMessage msgStatus = queueMessage(strColorValue, bBold, this->messagePrefixLabel(), strText);
     
     if(!m_bRedirectOutput) {
@@ -68,24 +68,24 @@ namespace beliefstate {
     }
   }
   
-  void UtilityBase::info(string strMessage) {
+  void UtilityBase::info(std::string strMessage) {
     this->coloredText(strMessage, "37");
   }
   
-  void UtilityBase::success(string strMessage) {
+  void UtilityBase::success(std::string strMessage) {
     this->coloredText(strMessage, "32");
   }
   
-  void UtilityBase::warn(string strMessage) {
+  void UtilityBase::warn(std::string strMessage) {
     this->coloredText(strMessage, "33", true);
   }
   
-  void UtilityBase::fail(string strMessage) {
+  void UtilityBase::fail(std::string strMessage) {
     this->coloredText(strMessage, "31", true);
   }
   
-  bool UtilityBase::fileExists(string strFileName) {
-    ifstream ifile(strFileName.c_str());
+  bool UtilityBase::fileExists(std::string strFileName) {
+    std::ifstream ifile(strFileName.c_str());
     
     if(ifile) {
       ifile.close();
@@ -96,7 +96,7 @@ namespace beliefstate {
     return false;
   }
   
-  string UtilityBase::stripPostfix(string strString, string strPostfix) {
+  std::string UtilityBase::stripPostfix(std::string strString, std::string strPostfix) {
     if(strString.length() >= strPostfix.length()) {
       if(strString.substr(strString.length() - strPostfix.length()) == strPostfix) {
 	return strString.substr(0, strString.length() - strPostfix.length());
@@ -107,15 +107,15 @@ namespace beliefstate {
   }
   
   void UtilityBase::outputColoredStatusMessage(StatusMessage msgStatus) {
-    cout << "\033[" << (msgStatus.bBold ? "1" : "0") << ";" << msgStatus.strColorCode << "m"
-	 << "[ " << msgStatus.strPrefix << " ] " << msgStatus.strMessage << "\033[0m" << endl;
+    std::cout << "\033[" << (msgStatus.bBold ? "1" : "0") << ";" << msgStatus.strColorCode << "m"
+	      << "[ " << msgStatus.strPrefix << " ] " << msgStatus.strMessage << "\033[0m" << std::endl;
   }
   
   void UtilityBase::setRedirectOutput(bool bRedirect) {
     m_bRedirectOutput = bRedirect;
   }
   
-  void UtilityBase::replaceStringInPlace(string& subject, const string& search, const string& replace) {
+  void UtilityBase::replaceStringInPlace(std::string& subject, const std::string& search, const std::string& replace) {
     size_t pos = 0;
     
     while((pos = subject.find(search, pos)) != string::npos) {
@@ -128,12 +128,12 @@ namespace beliefstate {
     return std::time(0);
   }
   
-  string UtilityBase::getTimeStampStr() {
+  std::string UtilityBase::getTimeStampStr() {
     return this->str(this->getTimeStamp());
   }
   
-  string UtilityBase::str(float fValue) {
-    stringstream sts;
+  std::string UtilityBase::str(float fValue) {
+    std::stringstream sts;
     sts.imbue(std::locale(sts.getloc(), new std::numpunct<char>()));
     
     sts << fValue;
@@ -141,8 +141,8 @@ namespace beliefstate {
     return sts.str();
   }
   
-  string UtilityBase::str(double dValue) {
-    stringstream sts;
+  std::string UtilityBase::str(double dValue) {
+    std::stringstream sts;
     sts.imbue(std::locale(sts.getloc(), new std::numpunct<char>()));
     
     sts << dValue;
@@ -150,8 +150,8 @@ namespace beliefstate {
     return sts.str();
   }
   
-  string UtilityBase::str(int nValue) {
-    stringstream sts;
+  std::string UtilityBase::str(int nValue) {
+    std::stringstream sts;
     sts.imbue(std::locale(sts.getloc(), new std::numpunct<char>()));
     
     sts << nValue;

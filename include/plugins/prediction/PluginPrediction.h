@@ -70,8 +70,6 @@
 #include <JSON.h>
 #include <Node.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   namespace plugins {
@@ -79,16 +77,16 @@ namespace beliefstate {
     private:
       typedef struct {
 	Property* prLevel;
-	string strClass;
+	std::string strClass;
       } PredictionTrack;
       
       typedef struct {
-	string strClass;
+	std::string strClass;
 	double dProbability;
       } Failure;
       
       typedef struct {
-	list<Failure> lstFailureProbabilities;
+	std::list<Failure> lstFailureProbabilities;
 	double dSuccessRate;
       } PredictionResult;
       
@@ -96,14 +94,14 @@ namespace beliefstate {
       ros::ServiceServer m_srvPredict;
       ros::ServiceServer m_srvLoad;
       JSON* m_jsnModel;
-      list<PredictionTrack> m_lstPredictionStack;
+      std::list<PredictionTrack> m_lstPredictionStack;
       CExporterOwl* m_expOwl;
       bool m_bInsidePredictionModel;
-      mutex m_mtxStackProtect;
+      std::mutex m_mtxStackProtect;
       Node* m_ndActive;
-      map< Property*, list<Property*> > m_mapNodeFailures;
-      map< Property*, list<Property*> > m_mapNodeParameters;
-      map< string, pair<int, int> > m_mapTimeStamps;
+      std::map< Property*, std::list<Property*> > m_mapNodeFailures;
+      std::map< Property*, std::list<Property*> > m_mapNodeParameters;
+      std::map< std::string, std::pair<int, int> > m_mapTimeStamps;
       bool m_bModelLoaded;
       
     public:
@@ -120,21 +118,21 @@ namespace beliefstate {
       bool serviceCallbackLoad(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
       bool serviceCallbackPredict(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
       
-      bool load(string strFile);
+      bool load(std::string strFile);
       
-      bool descend(string strClass);
-      bool ascend(string strClass);
+      bool descend(std::string strClass);
+      bool ascend(std::string strClass);
       
       void mapNodeFailuresParameters();
       void mapTimeStamps();
       
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
-      list<Property*> linearizeTree(Property* prTop);
-      PredictionResult probability(list<Property*> lstSequence, Property* prParameters, list<Property*> lstParameters);
-      map<string, double> relativeFailureOccurrences(list<Property*> lstFailures, int nTracks);
-      list<Property*> failuresForTreeNode(Property* prNode);
-      map<string, double> relativeFailuresForNode(Property* prNode, Property* prParameters);
-      list<Property*> parametersForTreeNode(Property* prNode);
+      std::list<Property*> linearizeTree(Property* prTop);
+      PredictionResult probability(std::list<Property*> lstSequence, Property* prParameters, std::list<Property*> lstParameters);
+      std::map<std::string, double> relativeFailureOccurrences(std::list<Property*> lstFailures, int nTracks);
+      std::list<Property*> failuresForTreeNode(Property* prNode);
+      std::map<std::string, double> relativeFailuresForNode(Property* prNode, Property* prParameters);
+      std::list<Property*> parametersForTreeNode(Property* prNode);
     };
   }
   

@@ -69,7 +69,7 @@ namespace beliefstate {
       
       m_lstPredictionStack.clear();
     }
-
+    
     Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
@@ -86,24 +86,24 @@ namespace beliefstate {
       
       // ROS-related initialization
       m_nhHandle = new ros::NodeHandle("~");
-
+      
       m_srvPredict = m_nhHandle->advertiseService<PLUGIN_CLASS>("predict", &PLUGIN_CLASS::serviceCallbackPredict, this);
       m_srvLoad = m_nhHandle->advertiseService<PLUGIN_CLASS>("load", &PLUGIN_CLASS::serviceCallbackLoad, this);
-
+      
       return resInit;
     }
-
+    
     Result PLUGIN_CLASS::deinit() {
       return defaultResult();
     }
-
+    
     Result PLUGIN_CLASS::cycle() {
       Result resCycle = defaultResult();
       this->deployCycleData(resCycle);
-
+      
       return resCycle;
     }
-
+    
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "symbolic-begin-context") {
 	if(evEvent.lstNodes.size() > 0) {
@@ -129,21 +129,21 @@ namespace beliefstate {
 	}
       }
     }
-
+    
     bool PLUGIN_CLASS::serviceCallbackLoad(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
       bool bSuccess = false;
-
+      
       CDesignator* desigRequest = new CDesignator(req.request.designator);
       CDesignator *desigResponse = new CDesignator();
       desigResponse->setType(ACTION);
-
+      
       if(desigRequest->stringValue("load") == "model") {
         this->info("Received Model Load Request.");
-
-        string strFile = desigRequest->stringValue("file");
+	
+        std::string strFile = desigRequest->stringValue("file");
         if(strFile != "") {
           this->info(" - Load model: '" + strFile + "'");
-
+	  
           bSuccess = this->load(strFile);
 	  
 	  if(bSuccess) {
@@ -153,12 +153,12 @@ namespace beliefstate {
           this->fail(" - No model file specified!");
         }
       }
-
+      
       res.response.designators.push_back(desigResponse->serializeToMessage());
-
+      
       delete desigRequest;
       delete desigResponse;
-
+      
       return bSuccess;
     }
     
@@ -166,7 +166,7 @@ namespace beliefstate {
       CDesignator* desigRequest = new CDesignator(req.request.designator);
       CDesignator* desigResponse = new CDesignator();
       desigResponse->setType(ACTION);
-
+      
       bool bSuccess = false;
       if(m_bModelLoaded) {
 	this->info("Received Prediction Request.");
@@ -183,19 +183,19 @@ namespace beliefstate {
 	
 	bSuccess = true;
       }
-
+      
       delete desigRequest;
       delete desigResponse;
-
+      
       return bSuccess;
     }
-
+    
     bool PLUGIN_CLASS::load(string strFile) {
       bool bReturn = false;
       
-      ifstream ifFile(strFile.c_str());
+      std::ifstream ifFile(strFile.c_str());
       if(ifFile.good()) {
-	string strJSON((istreambuf_iterator<char>(ifFile)), (istreambuf_iterator<char>()));
+	std::string strJSON((istreambuf_iterator<char>(ifFile)), (istreambuf_iterator<char>()));
 	
 	m_jsnModel->parse(strJSON);
 	
@@ -230,7 +230,7 @@ namespace beliefstate {
       
       Property* prTopmost = NULL;
       Property* prSubs = NULL;
-
+      
       m_mtxStackProtect.lock();
       if(m_lstPredictionStack.size() > 0) {
 	prTopmost = m_lstPredictionStack.back().prLevel;
@@ -246,7 +246,7 @@ namespace beliefstate {
 	}
       }
       
-      list<string> lstSubClasses;
+      std::list<std::string> lstSubClasses;
       
       if(prSubs) {
 	for(Property* prSub : prSubs->subProperties()) {
@@ -257,7 +257,7 @@ namespace beliefstate {
 	    bool bWildcardPresent = false;
 	    
 	    for(Property* prClass : prClasses->subProperties()) {
-	      string strSubClass = prClass->getString();
+	      std::string strSubClass = prClass->getString();
 	      
 	      if(strSubClass == "*") {
 		bWildcardPresent = true;
@@ -268,7 +268,7 @@ namespace beliefstate {
 	    }
 	    
 	    for(Property* prClass : prClasses->subProperties()) {
-	      string strSubClass = prClass->getString();
+	      std::string strSubClass = prClass->getString();
 	      
 	      if(strSubClass == strClass || strSubClass == "*") {
 		// This is the sub property we're looking for.
@@ -295,7 +295,7 @@ namespace beliefstate {
       } else {
 	this->warn("Couldn't descend by class: '" + strClass + "'");
 	
-	string strClasses = "";
+	std::string strClasses = "";
 	for(string strClass : lstSubClasses) {
 	  strClasses += " " + strClass;
 	}
@@ -319,7 +319,7 @@ namespace beliefstate {
       return bResult;
     }
     
-    bool PLUGIN_CLASS::ascend(string strClass) {
+    bool PLUGIN_CLASS::ascend(std::string strClass) {
       bool bResult = false;
       
       m_mtxStackProtect.lock();
@@ -368,7 +368,7 @@ namespace beliefstate {
     
     void PLUGIN_CLASS::mapNodeFailuresParameters() {
       Property* prToplevel = NULL;
-      list<Property*> lstLinearModel;
+      std::list<Property*> lstLinearModel;
       
       m_mapNodeFailures.clear();
       m_mapNodeParameters.clear();
@@ -387,14 +387,14 @@ namespace beliefstate {
       
       for(Property* prNode : lstLinearModel) {
 	nNodes++;
-	list<string> lstNames;
+	std::list<std::string> lstNames;
 	
 	for(Property* prName : prNode->namedSubProperty("names")->subProperties()) {
 	  lstNames.push_back(prName->getString());
 	}
 	
-	list<Property*> lstFailures;
-	list<Property*> lstParameters;
+	std::list<Property*> lstFailures;
+	std::list<Property*> lstParameters;
 	for(Property* prFailureSet : m_jsnModel->rootProperty()->namedSubProperty("failures")->subProperties()) {
 	  for(Property* prFailure : prFailureSet->namedSubProperty("failures")->subProperties()) {
 	    if(find(lstNames.begin(), lstNames.end(), prFailure->namedSubProperty("emitter")->getString()) != lstNames.end()) {
@@ -418,7 +418,7 @@ namespace beliefstate {
 	m_mapNodeParameters[prNode] = lstParameters;
       }
       
-      stringstream sts;
+      std::stringstream sts;
       sts << "Mapped " << nFailures << " failures and " << nParameters << " parameter sets on " << nNodes << " nodes.";
       this->info(sts.str());
     }
@@ -450,9 +450,9 @@ namespace beliefstate {
 	if(prRoot) {
 	  if(m_lstPredictionStack.size() > 0) {
 	    PredictionTrack ptCurrent = m_lstPredictionStack.back();
-	    list<Property*> lstParameters;
+	    std::list<Property*> lstParameters;
 	    PredictionResult presResult;
-	    map<string, double> mapEffectiveFailureRates;
+	    std::map<std::string, double> mapEffectiveFailureRates;
 	    Property* prParameters = new Property();
 	    prParameters->set(Property::Array);
 	    
@@ -468,8 +468,8 @@ namespace beliefstate {
 	    }
 	    
 	    // Automatic tree walking
-	    list<Property*> lstLinearTree = this->linearizeTree(ptCurrent.prLevel);
-	    list<Property*> lstRunTree;
+	    std::list<Property*> lstLinearTree = this->linearizeTree(ptCurrent.prLevel);
+	    std::list<Property*> lstRunTree;
 	    double dLeftOverSuccess = 1.0f;
 	    
 	    for(Property* prCurrent : lstLinearTree) {
@@ -488,13 +488,13 @@ namespace beliefstate {
 	    
 	    CKeyValuePair* ckvpFailures = desigResponse->addChild("failures");
 	    presResult.dSuccessRate = 1.0f;
-	    for(auto itMap = mapEffectiveFailureRates.begin(); itMap != mapEffectiveFailureRates.end(); itMap++) {
-	      pair<string, double> prFailure = *itMap;
+	    
+	    for(std::pair<std::string, double> prFailure : mapEffectiveFailureRates) {
 	      ckvpFailures->setValue(prFailure.first, prFailure.second);
 	      
 	      presResult.dSuccessRate -= prFailure.second;
 	    }
-
+	    
 	    desigResponse->setValue("success", presResult.dSuccessRate);
 	    
 	    delete prParameters;
@@ -516,15 +516,15 @@ namespace beliefstate {
       return bResult;
     }
     
-    list<Property*> PLUGIN_CLASS::linearizeTree(Property* prTop) {
-      list<Property*> lstProps;
+    std::list<Property*> PLUGIN_CLASS::linearizeTree(Property* prTop) {
+      std::list<Property*> lstProps;
       lstProps.push_back(prTop);
       
       Property* prSubs = prTop->namedSubProperty("subs");
       
       if(prSubs) {
 	for(Property* prSub : prSubs->subProperties()) {
-	  list<Property*> lstSubProps = this->linearizeTree(prSub);
+	  std::list<Property*> lstSubProps = this->linearizeTree(prSub);
 	  
 	  for(Property* prSubSub : lstSubProps) {
 	    lstProps.push_back(prSubSub);
@@ -535,11 +535,11 @@ namespace beliefstate {
       return lstProps;
     }
     
-    map<string, double> PLUGIN_CLASS::relativeFailureOccurrences(list<Property*> lstFailures, int nTracks) {
-      map<string, int> mapFailureOcc;
+    std::map<std::string, double> PLUGIN_CLASS::relativeFailureOccurrences(std::list<Property*> lstFailures, int nTracks) {
+      std::map<std::string, int> mapFailureOcc;
       
       for(Property* prFailure : lstFailures) {
-	string strType = prFailure->namedSubProperty("type")->getString();
+	std::string strType = prFailure->namedSubProperty("type")->getString();
 	
 	if(mapFailureOcc[strType] == 0) {
 	  mapFailureOcc[strType] = 1;
@@ -548,45 +548,43 @@ namespace beliefstate {
 	}
       }
       
-      map<string, double> mapFailureRelOcc;
-      for(auto itMap = mapFailureOcc.begin(); itMap != mapFailureOcc.end(); itMap++) {
-	pair<string, int> prFailOcc = *itMap;
-	
+      std::map<std::string, double> mapFailureRelOcc;
+      for(std::pair<std::string, int> prFailOcc : mapFailureOcc) {
 	mapFailureRelOcc[prFailOcc.first] = (double)prFailOcc.second / (double)nTracks;
       }
       
       return mapFailureRelOcc;
     }
     
-    list<Property*> PLUGIN_CLASS::failuresForTreeNode(Property* prNode) {
+    std::list<Property*> PLUGIN_CLASS::failuresForTreeNode(Property* prNode) {
       if(m_mapNodeFailures.find(prNode) != m_mapNodeFailures.end()) {
 	return m_mapNodeFailures[prNode];
       }
       
-      list<Property*> lstEmpty;
+      std::list<Property*> lstEmpty;
       return lstEmpty;
     }
     
-    list<Property*> PLUGIN_CLASS::parametersForTreeNode(Property* prNode) {
+    std::list<Property*> PLUGIN_CLASS::parametersForTreeNode(Property* prNode) {
       if(m_mapNodeParameters.find(prNode) != m_mapNodeParameters.end()) {
 	return m_mapNodeParameters[prNode];
       }
       
-      list<Property*> lstEmpty;
+      std::list<Property*> lstEmpty;
       return lstEmpty;
     }
     
-    map<string, double> PLUGIN_CLASS::relativeFailuresForNode(Property* prNode, Property* prParameters) {
-      map<string, double> mapRelFail;
+    std::map<std::string, double> PLUGIN_CLASS::relativeFailuresForNode(Property* prNode, Property* prParameters) {
+      std::map<std::string, double> mapRelFail;
       
       int nBranches = prNode->namedSubProperty("names")->subProperties().size();
       
-      list<Property*> lstFailures = this->failuresForTreeNode(prNode);
-      map<string, double> mapFailureRelOcc = this->relativeFailureOccurrences(lstFailures, nBranches);
+      std::list<Property*> lstFailures = this->failuresForTreeNode(prNode);
+      std::map<std::string, double> mapFailureRelOcc = this->relativeFailureOccurrences(lstFailures, nBranches);
       
       if(prNode) {
 	Property* prClass = prNode->namedSubProperty("class");
-	string strTaskContext = "";
+	std::string strTaskContext = "";
 	
 	if(prClass) {
 	  if(prClass->subProperties().size() > 0) {
@@ -660,29 +658,28 @@ namespace beliefstate {
 	  }
 	}
       }
-
+      
       return mapRelFail;
     }
     
-    PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::probability(list<Property*> lstSequence, Property* prParameters, list<Property*> lstParameters) {
+    PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::probability(std::list<Property*> lstSequence, Property* prParameters, std::list<Property*> lstParameters) {
       PredictionResult presResult;
       
       if(lstSequence.size() > 0) {
 	Property* prCurrentNode = lstSequence.back();
 	
 	// Relative occurrences
-	map<string, double> mapFailureRelOcc = this->relativeFailuresForNode(prCurrentNode, prParameters);
+	std::map<std::string, double> mapFailureRelOcc = this->relativeFailuresForNode(prCurrentNode, prParameters);
 	
 	double dLocalSuccess = 1.0f;
-	for(auto itMap = mapFailureRelOcc.begin(); itMap != mapFailureRelOcc.end(); itMap++) {
-	  pair<string, double> prPair = *itMap;
+	for(std::pair<std::string, double> prPair : mapFailureRelOcc) {
 	  dLocalSuccess -= prPair.second;
 	}
 	
-	list<Failure> lstSubFailures;
+	std::list<Failure> lstSubFailures;
 	if(dLocalSuccess > 0.0f) { // Recursion only makes sense if we can actually reach the sub-node.
 	  // Prepare list for recursion
-	  list<Property*> lstAllButLast = lstSequence;
+	  std::list<Property*> lstAllButLast = lstSequence;
 	  lstAllButLast.pop_back();
 	  
 	  // Recurse
@@ -693,9 +690,7 @@ namespace beliefstate {
 	}
 	
 	// Add the failures from THIS node
-	for(auto itMap = mapFailureRelOcc.begin(); itMap != mapFailureRelOcc.end(); itMap++) {
-	  pair<string, double> prMap = *itMap;
-	  
+	for(std::pair<std::string, double> prMap : mapFailureRelOcc) {
 	  Failure flFailure;
 	  flFailure.strClass = prMap.first;
 	  flFailure.dProbability = prMap.second;

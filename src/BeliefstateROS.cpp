@@ -48,12 +48,12 @@ namespace beliefstate {
   BeliefstateROS::~BeliefstateROS() {
   }
   
-  string BeliefstateROS::findTokenReplacement(string strToken) {
-    string strReplacement = "";
+  std::string BeliefstateROS::findTokenReplacement(std::string strToken) {
+    std::string strReplacement = "";
     
     if(strToken.size() > 8) {
       if(strToken.substr(0, 8) == "PACKAGE ") {
-	string strPackage = strToken.substr(8);
+	std::string strPackage = strToken.substr(8);
 	  
 	strReplacement = ros::package::getPath(strPackage);
       } else if(strToken == "WORKSPACE") {
@@ -68,17 +68,17 @@ namespace beliefstate {
     return strReplacement;
   }
   
-  string BeliefstateROS::workspaceDirectory() {
-    string strWorkspaceReplacement = this->Beliefstate::workspaceDirectory();
+  std::string BeliefstateROS::workspaceDirectory() {
+    std::string strWorkspaceReplacement = this->Beliefstate::workspaceDirectory();
     
     if(strWorkspaceReplacement == "") {
       const char* cROSWorkspace = getenv("ROS_WORKSPACE");
       const char* cCMAKEPrefixPath = getenv("CMAKE_PREFIX_PATH");
       const char* cROSPackagePath = getenv("ROS_PACKAGE_PATH");
       
-      string strROSWorkspace = "";
-      string strCMAKEPrefixPath = "";
-      string strROSPackagePath = "";
+      std::string strROSWorkspace = "";
+      std::string strCMAKEPrefixPath = "";
+      std::string strROSPackagePath = "";
       
       if(cROSWorkspace) {
 	strROSWorkspace = cROSWorkspace;

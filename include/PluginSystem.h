@@ -53,16 +53,14 @@
 #include <PluginInstance.h>
 #include <UtilityBase.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   class PluginSystem : public UtilityBase {
   private:
-    list<PluginInstance*> m_lstLoadedPlugins;
-    list<PluginInstance*> m_lstUnloadPlugins;
-    list<string> m_lstLoadFailedPlugins;
-    list<string> m_lstPluginSearchPaths;
+    std::list<PluginInstance*> m_lstLoadedPlugins;
+    std::list<PluginInstance*> m_lstUnloadPlugins;
+    std::list<std::string> m_lstLoadFailedPlugins;
+    std::list<std::string> m_lstPluginSearchPaths;
     int m_argc;
     char** m_argv;
     bool m_bLoadDevelopmentPlugins;
@@ -74,19 +72,19 @@ namespace beliefstate {
     void setLoadDevelopmentPlugins(bool bLoadDevelopmentPlugins);
     bool loadDevelopmentPlugins();
     
-    string pluginNameFromPath(string strPath);
-    bool pluginLoaded(string strPluginName);
-    Result loadPluginLibrary(string strFilepath, bool bIsNameOnly = false);
+    std::string pluginNameFromPath(std::string strPath);
+    bool pluginLoaded(std::string strPluginName);
+    Result loadPluginLibrary(std::string strFilepath, bool bIsNameOnly = false);
     void queueUnloadPluginInstance(PluginInstance* icUnload);
     
     int spreadEvent(Event evEvent);
     int spreadServiceEvent(ServiceEvent seServiceEvent);
     Result cycle();
     
-    void addPluginSearchPath(string strPath);
+    void addPluginSearchPath(std::string strPath);
     
     PluginInstance* pluginInstanceByID(int nID);
-    bool pluginFailedToLoadBefore(string strName);
+    bool pluginFailedToLoadBefore(std::string strName);
   };
 }
 

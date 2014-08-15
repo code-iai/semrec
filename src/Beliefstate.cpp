@@ -62,11 +62,11 @@ namespace beliefstate {
   Beliefstate::~Beliefstate() {
   }
   
-  string Beliefstate::version() {
+  std::string Beliefstate::version() {
     return m_strVersion;
   }
   
-  Result Beliefstate::init(string strConfigFile) {
+  Result Beliefstate::init(std::string strConfigFile) {
     Result resInit = defaultResult();
     
     // Do the actual init here.
@@ -78,10 +78,7 @@ namespace beliefstate {
     }
     
     if(!bConfigLoaded) {
-      for(list<string>::iterator itPath = m_lstConfigFileLocations.begin();
-	  itPath != m_lstConfigFileLocations.end();
-	  itPath++) {
-	string strPath = *itPath;
+      for(std::string strPath : m_lstConfigFileLocations) {
 	if(strPath.length() > 0) {
 	  if(strPath[strPath.length() - 1] != '/') {
 	    strPath += "/";
@@ -110,10 +107,8 @@ namespace beliefstate {
       
       // Set the settings concerning MongoDB, and experiment name mask
       // for each plugin here (through PluginSystem).
-      for(list<string>::iterator itPluginName = m_lstPluginsToLoad.begin();
-	  itPluginName != m_lstPluginsToLoad.end();
-	  itPluginName++) {
-	Result rsResult = m_psPlugins->loadPluginLibrary(*itPluginName, true);
+      for(string strPluginName : m_lstPluginsToLoad) {
+	Result rsResult = m_psPlugins->loadPluginLibrary(strPluginName, true);
 	
 	if(!rsResult.bSuccess) {
 	  if(cfgsetCurrent.bFailedPluginsInvalidateStartup) {
@@ -150,9 +145,9 @@ namespace beliefstate {
     return resInit;
   }
   
-  bool Beliefstate::loadConfigFile(string strConfigFile) {
+  bool Beliefstate::loadConfigFile(std::string strConfigFile) {
     if(this->fileExists(strConfigFile)) {
-      Config cfgConfig;
+      libconfig::Config cfgConfig;
       
       try {
 	cfgConfig.readFile(strConfigFile.c_str());
@@ -165,7 +160,7 @@ namespace beliefstate {
 	bool bDisplayUnhandledServiceEvents = true;
 	
 	if(cfgConfig.exists("miscellaneous")) {
-	  Setting &sMiscellaneous = cfgConfig.lookup("miscellaneous");
+	  libconfig::Setting &sMiscellaneous = cfgConfig.lookup("miscellaneous");
 	  sMiscellaneous.lookupValue("display-unhandled-events", bDisplayUnhandledEvents);
 	  sMiscellaneous.lookupValue("display-unhandled-service-events", bDisplayUnhandledServiceEvents);
 	  sMiscellaneous.lookupValue("workspace-directory", m_strWorkspaceDirectory);
@@ -177,14 +172,14 @@ namespace beliefstate {
 	}
 	
 	// Section: Persistent data storage
-	string strBaseDataDirectory = "";
-	bool bUseMongoDB = false;
-	string strMongoDBHost = "";
+	std::string strBaseDataDirectory = "";
+	std::string strMongoDBHost = "";
+	std::string strMongoDBDatabase = "";
 	int nMongoDBPort = 27017;
-	string strMongoDBDatabase = "";
+	bool bUseMongoDB = false;
 	
 	if(cfgConfig.exists("persistent-data-storage")) {
-	  Setting &sPersistentDataStorage = cfgConfig.lookup("persistent-data-storage");
+	  libconfig::Setting &sPersistentDataStorage = cfgConfig.lookup("persistent-data-storage");
 	  sPersistentDataStorage.lookupValue("base-data-directory", strBaseDataDirectory);
 	  strBaseDataDirectory = this->resolveDirectoryTokens(strBaseDataDirectory);
 	  
@@ -192,7 +187,7 @@ namespace beliefstate {
 	  
 	  if(bUseMongoDB) {
 	    if(cfgConfig.exists("persistent-data-storage.mongodb")) {
-	      Setting &sMongoDB = cfgConfig.lookup("persistent-data-storage.mongodb");
+	      libconfig::Setting &sMongoDB = cfgConfig.lookup("persistent-data-storage.mongodb");
 	      sMongoDB.lookupValue("host", strMongoDBHost);
 	      sMongoDB.lookupValue("port", nMongoDBPort);
 	      sMongoDB.lookupValue("database", strMongoDBDatabase);
@@ -201,11 +196,11 @@ namespace beliefstate {
 	}
 	
 	// Section: Experiment data
-	string strExperimentNameMask = "";
-	string strSymlinkName = "";
+	std::string strExperimentNameMask = "";
+	std::string strSymlinkName = "";
 	
 	if(cfgConfig.exists("experiment-data")) {
-	  Setting &sExperimentData = cfgConfig.lookup("experiment-data");
+	  libconfig::Setting &sExperimentData = cfgConfig.lookup("experiment-data");
 	  sExperimentData.lookupValue("experiment-name-mask", strExperimentNameMask);
 	  sExperimentData.lookupValue("symlink-name", strSymlinkName);
 	}
@@ -264,19 +259,20 @@ namespace beliefstate {
 	// Section: Plugins
 	bool bLoadDevelopmentPlugins = false;
 	bool bFailedPluginsInvalidateStartup = true;
-	vector<string> vecPluginOutputColors;
+	std::vector<std::string> vecPluginOutputColors;
 	bool bSearchPathsSet = false;
 	
 	if(cfgConfig.exists("plugins")) {
-	  Setting &sPlugins = cfgConfig.lookup("plugins");
+	  libconfig::Setting &sPlugins = cfgConfig.lookup("plugins");
 	  sPlugins.lookupValue("load-development-plugins", bLoadDevelopmentPlugins);
 	  sPlugins.lookupValue("failed-plugins-invalidate-startup", bFailedPluginsInvalidateStartup);
 	  
 	  if(cfgConfig.exists("plugins.load")) {
-	    Setting &sPluginsLoad = cfgConfig.lookup("plugins.load");
+	    libconfig::Setting &sPluginsLoad = cfgConfig.lookup("plugins.load");
 	    m_lstPluginsToLoad.clear();
+	    
 	    for(int nI = 0; nI < sPluginsLoad.getLength(); nI++) {
-	      string strLoad = sPluginsLoad[nI];
+	      std::string strLoad = sPluginsLoad[nI];
 	      
 	      m_lstPluginsToLoad.remove(strLoad);
 	      m_lstPluginsToLoad.push_back(strLoad);
@@ -284,9 +280,10 @@ namespace beliefstate {
 	  }
 	  
 	  if(cfgConfig.exists("plugins.search-paths")) {
-	    Setting &sPluginsPaths = cfgConfig.lookup("plugins.search-paths");
+	    libconfig::Setting &sPluginsPaths = cfgConfig.lookup("plugins.search-paths");
+	    
 	    for(int nI = 0; nI < sPluginsPaths.getLength(); nI++) {
-	      string strPath = sPluginsPaths[nI];
+	      std::string strPath = sPluginsPaths[nI];
 	      
 	      strPath = this->resolveDirectoryTokens(strPath);
 	      m_psPlugins->addPluginSearchPath(strPath);
@@ -296,18 +293,19 @@ namespace beliefstate {
 	  }
 	  
 	  if(cfgConfig.exists("plugins.colors")) {
-	    Setting &sPluginsColors = cfgConfig.lookup("plugins.colors");
+	    libconfig::Setting &sPluginsColors = cfgConfig.lookup("plugins.colors");
+	    
 	    for(int nI = 0; nI < sPluginsColors.getLength(); nI++) {
-	      string strColor = sPluginsColors[nI];
+	      std::string strColor = sPluginsColors[nI];
 	      vecPluginOutputColors.push_back(strColor);
 	    }
 	  }
 	  
 	  if(cfgConfig.exists("plugins.individual-configurations")) {
-	    Setting &sPluginsIndividualConfigurations = cfgConfig.lookup("plugins.individual-configurations");
+	    libconfig::Setting &sPluginsIndividualConfigurations = cfgConfig.lookup("plugins.individual-configurations");
 	    
 	    for(int nI = 0; nI < sPluginsIndividualConfigurations.getLength(); nI++) {
-	      string strPluginName;
+	      std::string strPluginName;
 	      
 	      if(sPluginsIndividualConfigurations[nI].lookupValue("plugin", strPluginName)) {
 		this->info("Loading per-plugin configuration for plugin '" + strPluginName + "'");
@@ -327,7 +325,7 @@ namespace beliefstate {
 	if(bSearchPathsSet == false) {
 	  this->warn("You didn't specify any search paths. This will prevent the system");
 	  this->warn("from finding any plugins. A default will be assumed.");
-	  string strSP = this->resolveDirectoryTokens("$WORKSPACE/lib/");
+	  std::string strSP = this->resolveDirectoryTokens("$WORKSPACE/lib/");
 	  this->warn("Defaulting to: '" + strSP + "'");
 	  
 	  m_psPlugins->addPluginSearchPath(strSP);
@@ -344,12 +342,8 @@ namespace beliefstate {
 	  vecPluginOutputColors.push_back("36");
 	  vecPluginOutputColors.push_back("37");
 	  
-	  string strColors = "";
-	  for(vector<string>::iterator itC = vecPluginOutputColors.begin();
-	      itC != vecPluginOutputColors.end();
-	      itC++) {
-	    string strC = *itC;
-	    
+	  std::string strColors = "";
+	  for(string strC : vecPluginOutputColors) {
 	    strColors += (strColors != "" ? ", " : "") + string("\033[0;") + strC + "m" + strC + "\033[0m";
 	  }
 	  
@@ -373,8 +367,8 @@ namespace beliefstate {
 	setConfigSettings(cfgsetCurrent);
 	
 	return true;
-      } catch(ParseException e) {
-        stringstream sts;
+      } catch(libconfig::ParseException e) {
+	std::stringstream sts;
         sts << e.getLine();
 	
 	this->fail("Error while parsing config file '" + strConfigFile + "': " + e.getError() + ", on line " + sts.str());
@@ -386,11 +380,11 @@ namespace beliefstate {
     return false;
   }
   
-  bool Beliefstate::loadIndividualPluginConfigurationBranch(Setting &sBranch, CKeyValuePair* ckvpInto, string strConfigPath, bool bIgnorePluginField) {
+  bool Beliefstate::loadIndividualPluginConfigurationBranch(libconfig::Setting &sBranch, CKeyValuePair* ckvpInto, std::string strConfigPath, bool bIgnorePluginField) {
     for(int nJ = 0; nJ < sBranch.getLength(); nJ++) {
       if(sBranch.getType() != libconfig::Setting::TypeGroup) {
 	for(int nI = 0; nI < sBranch.getLength(); nI++) {
-	  stringstream sts;
+	  std::stringstream sts;
 	  sts << nI;
 	  
 	  this->info(" - " + strConfigPath + (strConfigPath == "" ? "" : "/") + sts.str());
@@ -398,7 +392,7 @@ namespace beliefstate {
 	  
 	  switch(sBranch[nI].getType()) {
 	  case libconfig::Setting::TypeString: {
-	    string strContent = sBranch[nI];
+	    std::string strContent = sBranch[nI];
 	    strContent = this->resolveDirectoryTokens(strContent);
 	    ckvpInto->setValue(sts.str(), strContent);
 	  } break;
@@ -421,14 +415,14 @@ namespace beliefstate {
 	  }
 	}
       } else {
-	string strConfigDetailName = sBranch[nJ].getName();
-      
+	std::string strConfigDetailName = sBranch[nJ].getName();
+	
 	if(strConfigDetailName != "plugin" || !bIgnorePluginField) {
 	  this->info(" - " + strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName);
-	
+	  
 	  switch(sBranch[strConfigDetailName].getType()) {
 	  case libconfig::Setting::TypeString: {
-	    string strContent;
+	    std::string strContent;
 	    sBranch.lookupValue(strConfigDetailName, strContent);
 	    strContent = this->resolveDirectoryTokens(strContent);
 	    ckvpInto->setValue(strConfigDetailName, strContent);
@@ -455,16 +449,16 @@ namespace beliefstate {
 	  
 	  case libconfig::Setting::TypeGroup: {
 	    CKeyValuePair* ckvpChild = ckvpInto->addChild(strConfigDetailName);
-	    Setting& sBranchChild = sBranch[strConfigDetailName];
-	  
+	    libconfig::Setting& sBranchChild = sBranch[strConfigDetailName];
+	    
 	    if(this->loadIndividualPluginConfigurationBranch(sBranchChild, ckvpChild, strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName) == false) {
 	      return false;
 	    }
 	  } break;
-	  
+	    
 	  case libconfig::Setting::TypeArray: {
 	    CKeyValuePair* ckvpChild = ckvpInto->addChild(strConfigDetailName);
-	    Setting& sBranchChild = sBranch[strConfigDetailName];
+	    libconfig::Setting& sBranchChild = sBranch[strConfigDetailName];
 	    
 	    if(this->loadIndividualPluginConfigurationBranch(sBranchChild, ckvpChild, strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName) == false) {
 	      return false;
@@ -534,18 +528,14 @@ namespace beliefstate {
       
       // Forward all status messages collected from the plugins and
       // the core into the event system
-      list<StatusMessage> lstCoreMessages = queuedMessages();
-      for(list<StatusMessage>::iterator itSM = lstCoreMessages.begin();
-	  itSM != lstCoreMessages.end();
-	  itSM++) {
-	resCycle.lstStatusMessages.push_back(*itSM);
+      std::list<StatusMessage> lstCoreMessages = queuedMessages();
+      for(StatusMessage smCurrent : lstCoreMessages) {
+	resCycle.lstStatusMessages.push_back(smCurrent);
       }
-	
-      for(list<StatusMessage>::iterator itSM = resCycle.lstStatusMessages.begin();
-	  itSM != resCycle.lstStatusMessages.end();
-	  itSM++) {
+      
+      for(StatusMessage smCurrent : resCycle.lstStatusMessages) {
 	Event evEvent = defaultEvent("status-message");
-	evEvent.msgStatusMessage = *itSM;
+	evEvent.msgStatusMessage = smCurrent;
 	evEvent.bPreempt = false;
 	
 	if(this->spreadEvent(evEvent)) {
@@ -553,20 +543,15 @@ namespace beliefstate {
 	}
       }
       
-      for(list<Event>::iterator itEv = m_lstGlobalEvents.begin();
-	  itEv != m_lstGlobalEvents.end();
-	  itEv++) {
-	resCycle.lstEvents.push_back(*itEv);
+      for(Event evtCurrent : m_lstGlobalEvents) {
+	resCycle.lstEvents.push_back(evtCurrent);
       }
+      
       m_lstGlobalEvents.clear();
       
       if(resCycle.bSuccess) {
 	// Events
-	for(list<Event>::iterator itEvent = resCycle.lstEvents.begin();
-	    itEvent != resCycle.lstEvents.end();
-	    itEvent++) {
-	  Event evEvent = *itEvent;
-	  
+	for(Event evEvent : resCycle.lstEvents) {
 	  // Distribute the event
 	  this->spreadEvent(evEvent);
 	  
@@ -577,11 +562,7 @@ namespace beliefstate {
 	}
 	
 	// Services
-	for(list<ServiceEvent>::iterator itEvent = resCycle.lstServiceEvents.begin();
-	    itEvent != resCycle.lstServiceEvents.end();
-	    itEvent++) {
-	  ServiceEvent seServiceEvent = *itEvent;
-	  
+	for(ServiceEvent seServiceEvent : resCycle.lstServiceEvents) {
 	  // Distribute the event
 	  this->spreadServiceEvent(seServiceEvent);
 	  
@@ -606,12 +587,10 @@ namespace beliefstate {
       bContinue = false;
       
       // Last shot for the unhandled messages
-      list<StatusMessage> lstCoreMessages = queuedMessages();
-      for(list<StatusMessage>::iterator itSM = lstCoreMessages.begin();
-	  itSM != lstCoreMessages.end();
-	  itSM++) {
+      std::list<StatusMessage> lstCoreMessages = queuedMessages();
+      for(StatusMessage smCurrent : lstCoreMessages) {
 	Event evMessage = defaultEvent("status-message");
-	evMessage.msgStatusMessage = *itSM;
+	evMessage.msgStatusMessage = smCurrent;
 	
 	this->handleUnhandledEvent(evMessage);
       }
@@ -633,23 +612,23 @@ namespace beliefstate {
     m_mtxTerminalResize.unlock();
   }
   
-  void Beliefstate::setBaseDataDirectory(string strBaseDataDirectory) {
+  void Beliefstate::setBaseDataDirectory(std::string strBaseDataDirectory) {
     ConfigSettings cfgsetCurrent = configSettings();
     cfgsetCurrent.strBaseDataDirectory = strBaseDataDirectory;
     setConfigSettings(cfgsetCurrent);
   }
   
-  string Beliefstate::baseDataDirectory() {
+  std::string Beliefstate::baseDataDirectory() {
     ConfigSettings cfgsetCurrent = configSettings();
     return cfgsetCurrent.strBaseDataDirectory;
   }
   
-  string Beliefstate::workspaceDirectory() {
+  std::string Beliefstate::workspaceDirectory() {
     return m_strWorkspaceDirectory;
   }
   
-  string Beliefstate::homeDirectory() {
-    string strHome = "";
+  std::string Beliefstate::homeDirectory() {
+    std::string strHome = "";
     
     char* cHome = getenv("HOME");
     if(cHome) {
@@ -659,23 +638,23 @@ namespace beliefstate {
     return strHome;
   }
   
-  string Beliefstate::resolveDirectoryTokens(string strSubject) {
+  std::string Beliefstate::resolveDirectoryTokens(std::string strSubject) {
     // First, make list of things to replace
-    list< pair<string, bool> > lstTokens;
-  
+    std::list< std::pair<std::string, bool> > lstTokens;
+    
     size_t pos = 0;
     while((pos = strSubject.find("$", pos)) != string::npos) {
       size_t offset = 1;
-    
+      
       if(pos < strSubject.size() - 1) {
 	if(strSubject.at(pos + 1) != ' ') {
-	  string strToken = "";
+	  std::string strToken = "";
 	  bool bInBrackets = false;
-	
+	  
 	  if(strSubject.at(pos + 1) == '{') {
 	    offset++;
 	    size_t pos_endbracket = strSubject.find("}", pos + 1);
-	  
+	    
 	    if(pos_endbracket != string::npos) {
 	      strToken = strSubject.substr(pos + 2, pos_endbracket - (pos + 2));
 	      offset += 1 + pos_endbracket - (pos + 2);
@@ -695,24 +674,21 @@ namespace beliefstate {
 	      offset += pos_space_or_end - (pos + 1);
 	    }
 	  }
-	
+	  
 	  if(strToken != "") {
 	    lstTokens.push_back(make_pair(strToken, bInBrackets));
 	  }
 	}
       }
-    
+      
       pos += offset;
     }
     
-    for(list< pair<string, bool> >::iterator itToken = lstTokens.begin();
-	  itToken != lstTokens.end();
-	  itToken++) {
-      pair<string, bool> prToken = *itToken;
-      string strToken = prToken.first;
+    for(pair<string, bool> prToken : lstTokens) {
+      std::string strToken = prToken.first;
       bool bInBrackets = prToken.second;
-      string strToReplace = (bInBrackets ? "${" + strToken + "}" : "$" + strToken);
-      string strReplacement = this->findTokenReplacement(strToken);
+      std::string strToReplace = (bInBrackets ? "${" + strToken + "}" : "$" + strToken);
+      std::string strReplacement = this->findTokenReplacement(strToken);
       
       if(strReplacement == "") {
 	this->warn("Failed to resolve directory token '" + strToken + "', asserting value \"\".");
@@ -724,8 +700,8 @@ namespace beliefstate {
     return strSubject;
   }
   
-  string Beliefstate::findTokenReplacement(string strToken) {
-    string strReplacement = "";
+  std::string Beliefstate::findTokenReplacement(std::string strToken) {
+    std::string strReplacement = "";
     
     if(strToken == "HOME") {
       strReplacement = this->homeDirectory();
@@ -750,8 +726,8 @@ namespace beliefstate {
     return false;
   }
   
-  string Beliefstate::findPrefixPath(string strPathList, string strMatchingSuffix, string strDelimiter) {
-    string strPathReturn = "";
+  std::string Beliefstate::findPrefixPath(std::string strPathList, std::string strMatchingSuffix, std::string strDelimiter) {
+    std::string strPathReturn = "";
     size_t szLastPos = 0;
     size_t szCurrentPos = 0;
     
@@ -760,7 +736,7 @@ namespace beliefstate {
 	szCurrentPos = strPathList.find(strDelimiter, szLastPos + strDelimiter.length());
 	
 	if(szCurrentPos != string::npos) {
-	  string strPath = strPathList.substr(szLastPos + (szLastPos != 0 ? strDelimiter.length() : 0), szCurrentPos - (szLastPos + (szLastPos == 0 ? 0 : strDelimiter.length())));
+	  std::string strPath = strPathList.substr(szLastPos + (szLastPos != 0 ? strDelimiter.length() : 0), szCurrentPos - (szLastPos + (szLastPos == 0 ? 0 : strDelimiter.length())));
 	  
 	  if(strPath.length() >= strMatchingSuffix.length()) {
 	    if(strPath.substr(strPath.length() - strMatchingSuffix.length()) == strMatchingSuffix) {

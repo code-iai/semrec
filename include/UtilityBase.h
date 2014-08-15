@@ -50,31 +50,29 @@
 #include <Types.h>
 #include <ForwardDeclarations.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   class UtilityBase {
   private:
     static bool m_bRedirectOutput;
-    string m_strMessagePrefixLabel;
+    std::string m_strMessagePrefixLabel;
     
   public:
     UtilityBase();
     ~UtilityBase();
     
-    void setMessagePrefixLabel(string strMessagePrefixLabel);
-    string messagePrefixLabel();
+    void setMessagePrefixLabel(std::string strMessagePrefixLabel);
+    std::string messagePrefixLabel();
     
-    void coloredText(string strText, string strColorValue, bool bBold = false);
-    virtual void success(string strMessage);
-    virtual void info(string strMessage);
-    virtual void warn(string strMessage);
-    virtual void fail(string strMessage);
+    void coloredText(std::string strText, std::string strColorValue, bool bBold = false);
+    virtual void success(std::string strMessage);
+    virtual void info(std::string strMessage);
+    virtual void warn(std::string strMessage);
+    virtual void fail(std::string strMessage);
     
-    bool fileExists(string strFileName);
+    bool fileExists(std::string strFileName);
     
-    string stripPostfix(string strString, string strPostfix);
+    std::string stripPostfix(std::string strString, std::string strPostfix);
     
     void outputColoredStatusMessage(StatusMessage msgStatus);
     void setRedirectOutput(bool bRedirect);
@@ -88,14 +86,14 @@ namespace beliefstate {
       \param search The string to search for
       
       \param replace The string to use as a replacement */
-    void replaceStringInPlace(string& subject, const string& search, const string& replace);
+    void replaceStringInPlace(string& subject, const std::string& search, const std::string& replace);
     
     int getTimeStamp();
-    string getTimeStampStr();
+    std::string getTimeStampStr();
     
-    string str(float fValue);
-    string str(double dValue);
-    string str(int nValue);
+    std::string str(float fValue);
+    std::string str(double dValue);
+    std::string str(int nValue);
   };
 }
 

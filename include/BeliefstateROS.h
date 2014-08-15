@@ -47,9 +47,6 @@
 // Private
 #include <Beliefstate.h>
 
-using namespace std;
-using namespace libconfig;
-
 
 namespace beliefstate {
   class BeliefstateROS : public Beliefstate {
@@ -58,7 +55,7 @@ namespace beliefstate {
     BeliefstateROS(int argc, char** argv);
     ~BeliefstateROS();
     
-    virtual string findTokenReplacement(string strToken);
+    virtual std::string findTokenReplacement(std::string strToken);
     
     /*! \brief Returns the current ROS workspace directory
       
@@ -82,7 +79,7 @@ namespace beliefstate {
       printed. The configuration file allows for manual override of
       this in case the workspace directory cannot be detected
       properly. */
-    virtual string workspaceDirectory();
+    virtual std::string workspaceDirectory();
   };
 }
 

@@ -47,22 +47,20 @@
 // Other
 #include <designators/CKeyValuePair.h>
 
-using namespace std;
-
 
 namespace beliefstate {
   class Node {
   private:
-    string m_strTitle;
-    string m_strUniqueID;
+    std::string m_strTitle;
+    std::string m_strUniqueID;
     int m_nID;
   
-    Node *m_ndParent;
-    list<CKeyValuePair*> m_lstDescription;
-    list<Node*> m_lstSubnodes;
-    CKeyValuePair *m_ckvpMetaInformation;
+    Node* m_ndParent;
+    std::list<CKeyValuePair*> m_lstDescription;
+    std::list<Node*> m_lstSubnodes;
+    CKeyValuePair* m_ckvpMetaInformation;
     
-    list< pair<string, Node*> > m_lstCaughtFailures;
+    std::list< std::pair<std::string, Node*> > m_lstCaughtFailures;
     
     void init();
     
@@ -71,54 +69,54 @@ namespace beliefstate {
     
   public:
     Node();
-    Node(string strTitle);
-    Node(list<CKeyValuePair*> lstDescription);
+    Node(std::string strTitle);
+    Node(std::list<CKeyValuePair*> lstDescription);
     ~Node();
     
-    void setDescription(list<CKeyValuePair*> lstDescription);
-    list<CKeyValuePair*> description();
-  
-    void setTitle(string strTitle);
-    string title();
-  
+    void setDescription(std::list<CKeyValuePair*> lstDescription);
+    std::list<CKeyValuePair*> description();
+    
+    void setTitle(std::string strTitle);
+    std::string title();
+    
     void setParent(Node* ndParent);
     Node* parent();
     Node* relativeWithID(int nID, bool bIgnoreSelf = false);
-  
+    
     void addSubnode(Node* ndAdd);
-    list<Node*> subnodes();
-  
-    void setUniqueID(string strUniqueID);
-    string uniqueID();
-  
+    std::list<Node*> subnodes();
+    
+    void setUniqueID(std::string strUniqueID);
+    std::string uniqueID();
+    
     void setID(int nID);
     int id();
-  
+    
     int highestID();
-  
-    bool includesUniqueID(string strUniqueID);
-  
-    CKeyValuePair *metaInformation();
-  
+    
+    bool includesUniqueID(std::string strUniqueID);
+    
+    CKeyValuePair* metaInformation();
+    
     void setPrematurelyEnded(bool bPrematurelyEnded);
     bool prematurelyEnded();
     
-    CKeyValuePair* addDescriptionListItem(string strDomain, string strPrefix);
-    string addImage(string strOrigin, string strFilename, string strTimestamp);
-    string addObject(list<CKeyValuePair*> lstDescription);
-    string addFailure(string strCondition, string strTimestamp);
-    string catchFailure(string strFailureID, Node* ndEmitter, string strTimestamp);
-    void removeCaughtFailure(string strFailureID);
-    Node* emitterForCaughtFailure(string strFailureID, string strEmitterID, string strTimestamp);
+    CKeyValuePair* addDescriptionListItem(std::string strDomain, std::string strPrefix);
+    std::string addImage(std::string strOrigin, std::string strFilename, std::string strTimestamp);
+    std::string addObject(std::list<CKeyValuePair*> lstDescription);
+    std::string addFailure(std::string strCondition, std::string strTimestamp);
+    std::string catchFailure(std::string strFailureID, Node* ndEmitter, std::string strTimestamp);
+    void removeCaughtFailure(std::string strFailureID);
+    Node* emitterForCaughtFailure(std::string strFailureID, std::string strEmitterID, std::string strTimestamp);
     bool hasFailures();
-    void addDesignator(string strType, list<CKeyValuePair*> lstDescription, string strUniqueID, string strAnnotation = "");
+    void addDesignator(std::string strType, std::list<CKeyValuePair*> lstDescription, std::string strUniqueID, std::string strAnnotation = "");
     
     void setSuccess(bool bSuccess);
     bool success();
     
     Node* previousNode();
     
-    void ensureProperty(string strKey, string strDefaultValue);
+    void ensureProperty(std::string strKey, std::string strDefaultValue);
   };
 }
 
