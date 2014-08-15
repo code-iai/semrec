@@ -230,141 +230,119 @@ namespace beliefstate {
       if(ndCurrent) {
 	std::list<std::string> lstClassesSubnodes = this->gatherClassesForNodes(ndCurrent->subnodes());
 	lstClassesSubnodes.push_back(this->owlClassForNode(ndCurrent));
-    
-	for(std::list<std::string>::iterator itClassSubnode = lstClassesSubnodes.begin();
-	    itClassSubnode != lstClassesSubnodes.end();
-	    itClassSubnode++) {
+	
+	for(std::string strClassSubnode : lstClassesSubnodes) {
 	  bool bExists = false;
 	  
-	  for(std::list<std::string>::iterator itClassNode = lstClasses.begin();
-	      itClassNode != lstClasses.end();
-	      itClassNode++) {
-	    if(*itClassSubnode == *itClassNode) {
+	  for(std::string strClassNode : lstClasses) {
+	    if(strClassSubnode == strClassNode) {
 	      bExists = true;
 	      break;
 	    }
 	  }
-      
+	  
 	  if(!bExists) {
-	    lstClasses.push_back(*itClassSubnode);
+	    lstClasses.push_back(strClassSubnode);
 	  }
 	}
       } else {
 	this->fail("Class for invalid node requested!");
       }
     }
-  
+    
     return lstClasses;
   }
-
+  
   std::list<std::string> CExporterOwl::gatherTimepointsForNodes(std::list<Node*> lstNodes) {
     std::list<std::string> lstTimepoints;
     
-    for(std::list<Node*>::iterator itNode = lstNodes.begin();
-	itNode != lstNodes.end();
-	itNode++) {
-      Node *ndCurrent = *itNode;
-      
+    for(Node* ndCurrent : lstNodes) {
       if(ndCurrent) {
 	// Gather node timepoints
 	std::list<std::string> lstTimepointsSubnodes = this->gatherTimepointsForNodes(ndCurrent->subnodes());
 	lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-start"));
 	lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-end"));
-      
+	
 	// Gather failure timepoints
 	CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
-      
+	
 	if(ckvpFailures) {
 	  std::list<CKeyValuePair*> lstFailures = ckvpFailures->children();
-	
+	  
 	  unsigned int unIndex = 0;
-	  for(std::list<CKeyValuePair*>::iterator itFailure = lstFailures.begin();
-	      itFailure != lstFailures.end();
-	      itFailure++, unIndex++) {
-	    CKeyValuePair *ckvpFailure = *itFailure;
+	  for(CKeyValuePair* ckvpFailure : lstFailures) {
 	    lstTimepointsSubnodes.push_back(ckvpFailure->stringValue("time-fail"));
 	  }
 	}
-      
+	
 	// Gather image timepoints
 	CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
-      
+	
 	if(ckvpImages) {
 	  std::list<CKeyValuePair*> lstImages = ckvpImages->children();
-	
+	  
 	  unsigned int unIndex = 0;
-	  for(std::list<CKeyValuePair*>::iterator itImage = lstImages.begin();
-	      itImage != lstImages.end();
-	      itImage++, unIndex++) {
-	    CKeyValuePair *ckvpImage = *itImage;
+	  for(CKeyValuePair* ckvpImage : lstImages) {
 	    lstTimepointsSubnodes.push_back(ckvpImage->stringValue("time-capture"));
 	  }
 	}
-      
+	
 	// Gather designator equation timepoints
-	for(std::list< std::pair<std::string, std::string> >::iterator itPair = m_lstDesignatorEquationTimes.begin();
-	    itPair != m_lstDesignatorEquationTimes.end();
-	    itPair++) {
-	  lstTimepointsSubnodes.push_back((*itPair).second);
+	for(std::pair<std::string, std::string> prPair : m_lstDesignatorEquationTimes) {
+	  lstTimepointsSubnodes.push_back(prPair.second);
 	}
-    
+	
 	// Unify all timepoints
-	for(std::list<std::string>::iterator itTimepointSubnode = lstTimepointsSubnodes.begin();
-	    itTimepointSubnode != lstTimepointsSubnodes.end();
-	    itTimepointSubnode++) {
+	for(std::string strTimepointSubnode : lstTimepointsSubnodes) {
 	  bool bExists = false;
-      
-	  for(std::list<std::string>::iterator itTimepointNode = lstTimepoints.begin();
-	      itTimepointNode != lstTimepoints.end();
-	      itTimepointNode++) {
-	    if(*itTimepointSubnode == *itTimepointNode) {
+	  
+	  for(std::string strTimepointNode : lstTimepoints) {
+	    if(strTimepointSubnode == strTimepointNode) {
 	      bExists = true;
 	      break;
 	    }
 	  }
-      
+	  
 	  if(!bExists) {
-	    lstTimepoints.push_back(*itTimepointSubnode);
+	    lstTimepoints.push_back(strTimepointSubnode);
 	  }
 	}
       } else {
 	this->fail("Timepoints for invalid node requested!");
       }
     }
-  
+    
     return lstTimepoints;
   }
-
+  
   std::string CExporterOwl::generateClassDefinitions() {
     std::string strDot = "    <!-- Class Definitions -->\n\n";
-  
+    
     std::list<std::string> lstClasses = this->gatherClassesForNodes(this->nodes());
     lstClasses.push_back("&knowrob;TimePoint");
-  
-    for(std::list<std::string>::iterator itClass = lstClasses.begin();
-	itClass != lstClasses.end();
-	itClass++) {
-      strDot += "    <owl:Class rdf:about=\"" + *itClass + "\"/>\n\n";
+    
+    for(std::string strClass : lstClasses) {
+      strDot += "    <owl:Class rdf:about=\"" + strClass + "\"/>\n\n";
     }
-  
+    
     return strDot;
   }
-
+  
   std::string CExporterOwl::nodeIDPrefix(Node* ndInQuestion, std::string strProposition) {
     std::string strPrefix = CExporter::nodeIDPrefix(ndInQuestion, strProposition);
     strPrefix = this->owlClassForNode(ndInQuestion, true) + "_";
-  
+    
     return strPrefix;
   }
-
+  
   std::string CExporterOwl::generateEventIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace) {
     std::string strDot = "";
     
-    Node *ndLastDisplayed = NULL;
+    Node* ndLastDisplayed = NULL;
     for(std::list<Node*>::iterator itNode = lstNodes.begin();
 	itNode != lstNodes.end();
 	itNode++) {
-      Node *ndCurrent = *itNode;
+      Node* ndCurrent = *itNode;
       
       if(ndCurrent) {
 	if(this->nodeDisplayable(ndCurrent)) {
@@ -380,14 +358,10 @@ namespace beliefstate {
 	  if(ndCurrent->title() == "GOAL-ACHIEVE") {
 	    std::list<CKeyValuePair*> lstDescription = ndCurrent->description();
 	    std::string strPattern = "";
-	  
-	    for(std::list<CKeyValuePair*>::iterator itDesc = lstDescription.begin();
-		itDesc != lstDescription.end();
-		itDesc++) {
-	      CKeyValuePair *prNow = *itDesc;
-	  
-	      if(prNow->key() == "PATTERN") {
-		strPattern = prNow->stringValue();
+	    
+	    for(CKeyValuePair* ckvpNow : lstDescription) {
+	      if(ckvpNow->key() == "PATTERN") {
+		strPattern = ckvpNow->stringValue();
 		break;
 	      }
 	    }
@@ -398,20 +372,16 @@ namespace beliefstate {
 	  }
 	  
 	  std::list<Node*> lstSubnodes = ndCurrent->subnodes();
-	  for(std::list<Node*>::iterator itSubnode = lstSubnodes.begin();
-	      itSubnode != lstSubnodes.end();
-	      itSubnode++) {
-	    Node *ndSubnode = *itSubnode;
-	  
+	  for(Node* ndSubnode : lstSubnodes) {
 	    if(this->nodeDisplayable(ndSubnode)) {
 	      strDot += "        <knowrob:subAction rdf:resource=\"&" + strNamespace + ";" + ndSubnode->uniqueID() + "\"/>\n";
 	    }
 	  }
-	
+	  
 	  if(ndLastDisplayed) {
 	    strDot += "        <knowrob:previousAction rdf:resource=\"&" + strNamespace + ";" + ndLastDisplayed->uniqueID() + "\"/>\n";
 	  }
-	
+	  
 	  std::list<Node*>::iterator itPostEvent = itNode;
 	  itPostEvent++;
 	  while(itPostEvent != lstNodes.end()) {
@@ -430,14 +400,10 @@ namespace beliefstate {
 	    std::list<CKeyValuePair*> lstObjects = ckvpObjects->children();
 	    
 	    unsigned int unIndex = 0;
-	    for(std::list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
-		itObject != lstObjects.end();
-		itObject++, unIndex++) {
-	      CKeyValuePair *ckvpObject = *itObject;
-	      
+	    for(CKeyValuePair* ckvpObject : lstObjects) {
 	      std::stringstream sts;
 	      sts << ndCurrent->uniqueID() << "_object_" << unIndex;
-	  
+	      
 	      if(strOwlClass == "&knowrob;VisualPerception") {
 		strDot += "        <knowrob:detectedObject rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
 	      } else {
@@ -445,26 +411,22 @@ namespace beliefstate {
 	      }
 	    }
 	  }
-	
+	  
 	  // Image references here.
 	  CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
-	
+	  
 	  if(ckvpImages) {
 	    std::list<CKeyValuePair*> lstImages = ckvpImages->children();
-	  
-	    unsigned int unIndex = 0;
-	    for(std::list<CKeyValuePair*>::iterator itImage = lstImages.begin();
-		itImage != lstImages.end();
-		itImage++, unIndex++) {
-	      CKeyValuePair *ckvpImage = *itImage;
 	    
+	    unsigned int unIndex = 0;
+	    for(CKeyValuePair* ckvpImage : lstImages) {
 	      std::stringstream sts;
 	      sts << ndCurrent->uniqueID() << "_image_" << unIndex;
-	    
+	      
 	      strDot += "        <knowrob:capturedImage rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
 	    }
 	  }
-	
+	  
 	  // Failure references here.
 	  CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
 	  
@@ -472,18 +434,14 @@ namespace beliefstate {
 	    std::list<CKeyValuePair*> lstFailures = ckvpFailures->children();
 	    
 	    unsigned int unIndex = 0;
-	    for(std::list<CKeyValuePair*>::iterator itFailure = lstFailures.begin();
-		itFailure != lstFailures.end();
-		itFailure++, unIndex++) {
-	      CKeyValuePair *ckvpFailure = *itFailure;
-	      
+	    for(CKeyValuePair* ckvpFailure : lstFailures) {
 	      std::stringstream sts;
 	      sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
 	      strDot += "        <knowrob:eventFailure rdf:resource=\"&" + strNamespace + ";" + sts.str() + "\"/>\n";
 	      this->info("Added thrown failure: " + sts.str());
 	    }
 	  }
-	
+	  
 	  // Caught failure here.
 	  CKeyValuePair *ckvpCaughtFailures = ndCurrent->metaInformation()->childForKey("caught_failures");
 	  
@@ -491,12 +449,9 @@ namespace beliefstate {
 	    std::list<CKeyValuePair*> lstCaughtFailures = ckvpCaughtFailures->children();
 	    
 	    unsigned int unIndex = 0;
-	    for(std::list<CKeyValuePair*>::iterator itCaughtFailure = lstCaughtFailures.begin();
-		itCaughtFailure != lstCaughtFailures.end();
-		itCaughtFailure++, unIndex++) {
-	      CKeyValuePair *ckvpCaughtFailure = *itCaughtFailure;
-	      
+	    for(CKeyValuePair* ckvpCaughtFailure : lstCaughtFailures) {
 	      Node* ndFailureEmitter = ndCurrent->emitterForCaughtFailure(ckvpCaughtFailure->stringValue("failure-id"), ckvpCaughtFailure->stringValue("emitter-id"), ckvpCaughtFailure->stringValue("time-catch"));
+	      
 	      if(ndFailureEmitter) {
 		std::string strCaughtFailure = ndFailureEmitter->uniqueID() + "_" + ckvpCaughtFailure->stringValue("failure-id");
 		this->info("Added +caught failure: " + strCaughtFailure);
@@ -512,13 +467,9 @@ namespace beliefstate {
 	  
 	  if(ckvpDesignators) {
 	    std::list<CKeyValuePair*> lstDesignators = ckvpDesignators->children();
-	
+	    
 	    unsigned int unIndex = 0;
-	    for(std::list<CKeyValuePair*>::iterator itDesignator = lstDesignators.begin();
-		itDesignator != lstDesignators.end();
-		itDesignator++, unIndex++) {
-	      CKeyValuePair *ckvpDesignator = *itDesignator;
-	      
+	    for(CKeyValuePair* ckvpDesignator : lstDesignators) {
 	      std::string strAnnotation = ckvpDesignator->stringValue("annotation");
 	      std::string strDesigID = ckvpDesignator->stringValue("id");
 	      
@@ -568,11 +519,7 @@ namespace beliefstate {
   std::string CExporterOwl::resolveDesignatorAnnotationTagName(std::string strAnnotation) {
     std::string strDesigPurpose = "";
     
-    for(std::list< std::pair<std::string, std::string> >::iterator itP = m_lstAnnotationPurposeMapping.begin();
-	itP != m_lstAnnotationPurposeMapping.end();
-	itP++) {
-      std::pair<std::string, std::string> prMapping = *itP;
-      
+    for(std::pair<std::string, std::string> prMapping : m_lstAnnotationPurposeMapping) {
       if(prMapping.first == strAnnotation) {
 	strDesigPurpose = prMapping.second;
 	break;
@@ -589,10 +536,10 @@ namespace beliefstate {
   std::string CExporterOwl::generateEventIndividuals(std::string strNamespace) {
     std::string strDot = "    <!-- Event Individuals -->\n\n";
     strDot += this->generateEventIndividualsForNodes(this->nodes(), strNamespace);
-  
+    
     return strDot;
   }
-
+  
   std::string CExporterOwl::owlClassForObject(CKeyValuePair *ckvpObject) {
     return "&knowrob;HumanScaleObject";
   }
@@ -600,11 +547,7 @@ namespace beliefstate {
   std::string CExporterOwl::failureClassForCondition(std::string strCondition) {
     std::string strFailureClass = "CRAMFailure";
     
-    for(std::list< std::pair<std::string, std::string> >::iterator itPair = m_lstFailureMapping.begin();
-	itPair != m_lstFailureMapping.end();
-	itPair++) {
-      std::pair<std::string, std::string> prCurrent = *itPair;
-      
+    for(std::pair<std::string, std::string> prCurrent : m_lstFailureMapping) {
       if(strCondition == prCurrent.first) {
 	strFailureClass = prCurrent.second;
 	break;
@@ -617,31 +560,23 @@ namespace beliefstate {
   std::string CExporterOwl::generateFailureIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace) {
     std::string strDot = "";
     
-    for(std::list<Node*>::iterator itNode = lstNodes.begin();
-	itNode != lstNodes.end();
-	itNode++) {
-      Node *ndCurrent = *itNode;
-      
+    for(Node* ndCurrent : lstNodes) {
       if(ndCurrent) {
 	CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
-      
+	
 	if(ckvpFailures) {
 	  std::list<CKeyValuePair*> lstFailures = ckvpFailures->children();
-      
+	  
 	  unsigned int unIndex = 0;
-	  for(std::list<CKeyValuePair*>::iterator itFailure = lstFailures.begin();
-	      itFailure != lstFailures.end();
-	      itFailure++, unIndex++) {
-	    CKeyValuePair *ckvpFailure = *itFailure;
-	
+	  for(CKeyValuePair* ckvpFailure : lstFailures) {
 	    std::stringstream sts;
 	    sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
-	
+	    
 	    std::string strCondition = ckvpFailure->stringValue("condition");
 	    std::string strTimestamp = ckvpFailure->stringValue("time-fail");
-	  
+	    
 	    std::string strFailureClass = this->failureClassForCondition(strCondition);
-	  
+	    
 	    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
 	    strDot += "        <rdf:type rdf:resource=\"&knowrob;" + strFailureClass + "\"/>\n";
 	    strDot += "        <rdfs:label rdf:datatype=\"&xsd;std::string\">" + this->owlEscapeString(strCondition) + "</rdfs:label>\n";
@@ -655,86 +590,71 @@ namespace beliefstate {
 	this->fail("Failure node with invalid content!");
       }
     }
-  
+    
     return strDot;
   }
-
+  
   std::string CExporterOwl::generateObjectIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace) {
     std::string strDot = "";
-  
-    for(std::list<Node*>::iterator itNode = lstNodes.begin();
-	itNode != lstNodes.end();
-	itNode++) {
-      Node *ndCurrent = *itNode;
-      
+    
+    for(Node* ndCurrent : lstNodes) {
       if(ndCurrent) {
 	CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
-    
+	
 	if(ckvpObjects) {
 	  std::list<CKeyValuePair*> lstObjects = ckvpObjects->children();
-      
+	  
 	  unsigned int unIndex = 0;
-	  for(std::list<CKeyValuePair*>::iterator itObject = lstObjects.begin();
-	      itObject != lstObjects.end();
-	      itObject++, unIndex++) {
-	    CKeyValuePair *ckvpObject = *itObject;
-	
+	  for(CKeyValuePair* ckvpObject : lstObjects) {
 	    std::stringstream sts;
 	    sts << ndCurrent->uniqueID() << "_object_" << unIndex;
-	
+	    
 	    std::string strDesignatorID = ckvpObject->stringValue("__id");
 	    std::string strOwlClass = this->owlClassForObject(ckvpObject);
+	    
 	    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
 	    strDot += "        <knowrob:designator rdf:resource=\"&" + strNamespace + ";" + strDesignatorID + "\"/>\n";
 	    strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
 	    strDot += "    </owl:namedIndividual>\n\n";
 	  }
 	}
-    
+	
 	strDot += this->generateObjectIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
       } else {
 	this->fail("Generation of object individual for node with invalid content requested!");
       }
     }
-  
+    
     return strDot;
   }
-
+  
   std::string CExporterOwl::generateObjectIndividuals(std::string strNamespace) {
     std::string strDot = "    <!-- Object Individuals -->\n\n";
     strDot += this->generateObjectIndividualsForNodes(this->nodes(), strNamespace);
-  
+    
     return strDot;
   }
-
+  
   std::string CExporterOwl::generateImageIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace) {
     std::string strDot = "";
     
-    for(std::list<Node*>::iterator itNode = lstNodes.begin();
-	itNode != lstNodes.end();
-	itNode++) {
-      Node *ndCurrent = *itNode;
-      
+    for(Node* ndCurrent : lstNodes) {
       if(ndCurrent) {
-	CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
-      
+	CKeyValuePair* ckvpImages = ndCurrent->metaInformation()->childForKey("images");
+	
 	if(ckvpImages) {
 	  std::list<CKeyValuePair*> lstImages = ckvpImages->children();
-	
-	  unsigned int unIndex = 0;
-	  for(std::list<CKeyValuePair*>::iterator itImage = lstImages.begin();
-	      itImage != lstImages.end();
-	      itImage++, unIndex++) {
-	    CKeyValuePair *ckvpImage = *itImage;
 	  
+	  unsigned int unIndex = 0;
+	  for(CKeyValuePair* ckvpImage : lstImages) {
 	    std::stringstream sts;
 	    sts << ndCurrent->uniqueID() << "_image_" << unIndex;
-	  
+	    
 	    std::string strOwlClass = "&knowrob;CameraImage";
 	    std::string strFilename = ckvpImage->stringValue("filename");
 	    std::string strTopic = ckvpImage->stringValue("origin");
 	    std::string strCaptureTime = ckvpImage->stringValue("time-capture");
-	  
+	    
 	    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
 	    strDot += "        <knowrob:linkToImageFile rdf:datatype=\"&xsd;std::string\">" + strFilename + "</knowrob:linkToImageFile>\n";
 	    strDot += "        <knowrob:rosTopic rdf:datatype=\"&xsd;std::string\">" + strTopic + "</knowrob:rosTopic>\n";
@@ -749,36 +669,28 @@ namespace beliefstate {
 	this->fail("Image node with invalid content!");
       }
     }
-  
+    
     return strDot;
   }
-
+  
   std::string CExporterOwl::generateImageIndividuals(std::string strNamespace) {
     std::string strDot = "    <!-- Image Individuals -->\n\n";
     strDot += this->generateImageIndividualsForNodes(this->nodes(), strNamespace);
-  
+    
     return strDot;
   }
-
+  
   std::string CExporterOwl::generateDesignatorIndividuals(std::string strNamespace) {
     std::string strDot = "    <!-- Designator Individuals -->\n\n";
     
     std::list<std::string> lstDesigIDs = this->designatorIDs();
     
-    for(std::list<std::string>::iterator itID = lstDesigIDs.begin();
-	itID != lstDesigIDs.end();
-	itID++) {
-      std::string strID = *itID;
-      
+    for(std::string strID : lstDesigIDs) {
       strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + strID + "\">\n";
       strDot += "        <rdf:type rdf:resource=\"&knowrob;CRAMDesignator\"/>\n";
       
       std::list<std::string> lstSuccessorIDs = this->successorDesignatorsForID(strID);
-      for(std::list<std::string>::iterator itID2 = lstSuccessorIDs.begin();
-	  itID2 != lstSuccessorIDs.end();
-	  itID2++) {
-	std::string strID2 = *itID2;
-	
+      for(std::string strID2 : lstSuccessorIDs) {
 	strDot += "        <knowrob:successorDesignator rdf:resource=\"&" + strNamespace + ";" + strID2 + "\"/>\n";
       }
       
@@ -792,29 +704,27 @@ namespace beliefstate {
     
     return strDot;
   }
-
+  
   std::string CExporterOwl::generateFailureIndividuals(std::string strNamespace) {
     std::string strDot = "    <!-- Failure Individuals -->\n\n";
     strDot += this->generateFailureIndividualsForNodes(this->nodes(), strNamespace);
     
     return strDot;
   }
-
+  
   std::string CExporterOwl::generateTimepointIndividuals(std::string strNamespace) {
     std::string strDot = "    <!-- Timepoint Individuals -->\n\n";
-  
+    
     std::list<std::string> lstTimepoints = this->gatherTimepointsForNodes(this->nodes());
-    for(std::list<std::string>::iterator itTimepoint = lstTimepoints.begin();
-	itTimepoint != lstTimepoints.end();
-	itTimepoint++) {
-      strDot += "    <owl:NamedIndividual rdf:about=\"&" + strNamespace + ";timepoint_" + *itTimepoint + "\">\n";
+    for(std::string strTimepoint : lstTimepoints) {
+      strDot += "    <owl:NamedIndividual rdf:about=\"&" + strNamespace + ";timepoint_" + strTimepoint + "\">\n";
       strDot += "        <rdf:type rdf:resource=\"&knowrob;TimePoint\"/>\n";
       strDot += "    </owl:NamedIndividual>\n\n";
     }
-  
+    
     return strDot;
   }
-
+  
   std::string CExporterOwl::owlClassForNode(Node *ndNode, bool bClassOnly, bool bPrologSyntax) {
     std::string strName = "";
     
@@ -832,14 +742,14 @@ namespace beliefstate {
     } else if(strName.substr(0, 5) == "GOAL-") {
       // This is a goal definition.
       std::string strGoal = strName.substr(5);
-    
+      
       // Missing yet:
       /*
 	PREVENT
 	MAINTAIN
 	INFORM (speech act, add information to belief state from outside)
       */
-    
+      
       if(strGoal == "PERCEIVE-OBJECT") {
 	strClass = "CRAMPerceive";
       } else if(strGoal == "ACHIEVE") {
@@ -856,7 +766,7 @@ namespace beliefstate {
     } else if(strName.substr(0, 8) == "RESOLVE-") {
       // This is a designator resolution.
       std::string strDesigType = strName.substr(8);
-    
+      
       if(strDesigType == "LOCATION-DESIGNATOR") {
 	strClass = "ResolveLocationDesignator";
       } else if(strDesigType == "ACTION-DESIGNATOR") {
