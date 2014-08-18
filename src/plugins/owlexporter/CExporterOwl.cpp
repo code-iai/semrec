@@ -351,7 +351,7 @@ namespace beliefstate {
 	  
 	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
 	  strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
-	  strDot += "        <knowrob:taskContext rdf:datatype=\"&xsd;std::string\">" + ndCurrent->title() + "</knowrob:taskContext>\n";
+	  strDot += "        <knowrob:taskContext rdf:datatype=\"&xsd;string\">" + ndCurrent->title() + "</knowrob:taskContext>\n";
 	  strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-start") + "\"/>\n";
 	  strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-end") + "\"/>\n";
 	  
@@ -367,7 +367,7 @@ namespace beliefstate {
 	    }
 	    
 	    if(strPattern != "") {
-	      strDot += "        <knowrob:goalContext rdf:datatype=\"&xsd;std::string\">" + strPattern + "</knowrob:goalContext>\n";
+	      strDot += "        <knowrob:goalContext rdf:datatype=\"&xsd;string\">" + strPattern + "</knowrob:goalContext>\n";
 	    }
 	  }
 	  
@@ -579,7 +579,7 @@ namespace beliefstate {
 	    
 	    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
 	    strDot += "        <rdf:type rdf:resource=\"&knowrob;" + strFailureClass + "\"/>\n";
-	    strDot += "        <rdfs:label rdf:datatype=\"&xsd;std::string\">" + this->owlEscapeString(strCondition) + "</rdfs:label>\n";
+	    strDot += "        <rdfs:label rdf:datatype=\"&xsd;string\">" + this->owlEscapeString(strCondition) + "</rdfs:label>\n";
 	    strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strTimestamp + "\"/>\n";
 	    strDot += "    </owl:namedIndividual>\n\n";
 	  }
@@ -656,8 +656,8 @@ namespace beliefstate {
 	    std::string strCaptureTime = ckvpImage->stringValue("time-capture");
 	    
 	    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
-	    strDot += "        <knowrob:linkToImageFile rdf:datatype=\"&xsd;std::string\">" + strFilename + "</knowrob:linkToImageFile>\n";
-	    strDot += "        <knowrob:rosTopic rdf:datatype=\"&xsd;std::string\">" + strTopic + "</knowrob:rosTopic>\n";
+	    strDot += "        <knowrob:linkToImageFile rdf:datatype=\"&xsd;string\">" + strFilename + "</knowrob:linkToImageFile>\n";
+	    strDot += "        <knowrob:rosTopic rdf:datatype=\"&xsd;string\">" + strTopic + "</knowrob:rosTopic>\n";
 	    strDot += "        <knowrob:captureTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strCaptureTime + "\"/>\n";
 	    strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
 	    strDot += "    </owl:namedIndividual>\n\n";
@@ -797,6 +797,7 @@ namespace beliefstate {
 	bool bSpecializedDesignator = true;
 	if(ckvpDescription) {
 	  std::string strTo = ckvpDescription->stringValue("TO");
+	  std::string strType = ckvpDescription->stringValue("TYPE");
 	  
 	  if(strTo == "GRASP") {
 	    // Specializer: Grasping.
@@ -816,6 +817,9 @@ namespace beliefstate {
 	  } else if(strTo == "PARK") {
 	    // Specializer: Putting down.
 	    strClass = "ParkingArms";
+	  } else if(strType == "NAVIGATION") {
+	    // Specializer: Navigating.
+	    strClass = "Navigate";
 	  } else {
 	    // Fallback.
 	    bSpecializedDesignator = false;
