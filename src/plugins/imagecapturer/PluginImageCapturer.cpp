@@ -106,6 +106,7 @@ namespace beliefstate {
 	      // (i.e. in the same directory). When moving all files
 	      // somewhere else, global paths would make finding of
 	      // files very difficult.
+	      evImage.nOpenRequestID = evEvent.nOpenRequestID;
 	      evImage.cdDesignator->setValue("filename", strFilename);
 	      
 	      m_mtxEventsStore.lock();

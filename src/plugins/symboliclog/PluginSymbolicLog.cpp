@@ -276,6 +276,7 @@ namespace beliefstate {
 	      evSymbolicAddImage.cdDesignator->setValue("origin", strTopic);
 	      evSymbolicAddImage.cdDesignator->setValue("filename", strFilepath);
 	      evSymbolicAddImage.cdDesignator->setValue("time-capture", strTimeImage);
+	      evSymbolicAddImage.nOpenRequestID = evEvent.nOpenRequestID;
 	      this->deployEvent(evSymbolicAddImage);
 	    } else {
 	      this->warn("No filename given. Will not add unnamed image to active node. The designator was:");
