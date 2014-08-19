@@ -12,8 +12,9 @@ class LogAnalyzer:
     def analyzeLog(self, strPath):
         log = self.rdrLog.loadLog(strPath)
         data = log.getOwlData()["task-tree"]
+        tti = log.getOwlData()["task-tree-individuals"]
 
-        #with open("data.pkl", "r") as f:
+        #with open("data.pkl", "wb") as f:
         #    pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
         #    data = pickle.load(f)
 
@@ -29,6 +30,34 @@ class LogAnalyzer:
         imgTaskPie.write("out.png")
 
         toTasks = self.timelyOrderedTasks(data)
+
+        dicClassTimes = {}
+        for dicTask in toTasks:
+            owlTask = tti[dicTask["name"]]
+            strType = owlTask.type()
+
+            if not strType in dicClassTimes:
+                dicClassTimes[strType] = int(dicTask["time"])
+            else:
+                dicClassTimes[strType] += int(dicTask["time"])
+
+        with open("classtimes.pkl", "wb") as f:
+            pickle.dump(dicClassTimes, f, pickle.HIGHEST_PROTOCOL)
+
+        print "Longest Task: ", toTasks[len(toTasks) - 1]
+
+        for strItem in dicClassTimes:
+            print strItem, dicClassTimes[strItem]
+
+        print ""
+        print "Picking Up Objects: " + str(dicClassTimes["PickingUpAnObject"])
+        print "Placing Objects: " + str(dicClassTimes["PuttingDownAnObject"])
+        print "Manipulation Recovery: " + str(-1)
+        print "Path Planning + Motion Execution: " + str(dicClassTimes["ArmMovement"])
+        print "Navigation: " + str(dicClassTimes["BaseMovement"])
+        print "Head Movement: " + str(dicClassTimes["HeadMovement"])
+        print "Perception Queries: " + str(dicClassTimes["UIMAPerception"])
+        print "Object Identity Resolution + Belief State Updates: " + str(dicClassTimes["PerceivingObjects"] - dicClassTimes["UIMAPerception"])
 
     def timelyOrderedTasks(self, data):
         dicLinear = self.linearizeTaskTree(data)

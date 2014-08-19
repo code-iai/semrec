@@ -44,10 +44,11 @@ class OwlIndividual:
     def time(self):
         arrTimespan = self.timeSpan()
 
-        if len(arrTimespan) == 2:
-            return int(arrTimespan[1]) - int(arrTimespan[0])
-        else:
-            return 0
+        if arrTimespan:
+            if len(arrTimespan) == 2:
+                return int(arrTimespan[1]) - int(arrTimespan[0])
+
+        return 0
 
     def subActions(self, bSplitNamespace = True):
         arrReturn = []
