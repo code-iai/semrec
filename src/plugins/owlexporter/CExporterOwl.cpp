@@ -838,6 +838,8 @@ namespace beliefstate {
       strClass = "UIMAPerception"; // NOTE(winkler): was 'VisualPerception'
     } else if(strName == "OBJECT-IDENTITY-RESOLUTION") {
       strClass = "ObjectIdentityResolution";
+    } else if(strName == "BELIEF-STATE-UPDATE") {
+      strClass = "BeliefStateUpdate";
     } else if(strName == "MOTION-PLANNING") {
       strClass = "MotionPlanning";
     } else if(strName == "MOTION-EXECUTION") {
