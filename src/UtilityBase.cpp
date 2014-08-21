@@ -47,6 +47,7 @@ namespace beliefstate {
   UtilityBase::UtilityBase() {
     m_strMessagePrefixLabel = "";
     m_bRedirectOutput = false;
+    m_bOnlyDisplayImportant = false;
   }
   
   UtilityBase::~UtilityBase() {
@@ -60,28 +61,30 @@ namespace beliefstate {
     return m_strMessagePrefixLabel;
   }
   
-  void UtilityBase::coloredText(std::string strText, std::string strColorValue, bool bBold) {
-    StatusMessage msgStatus = queueMessage(strColorValue, bBold, this->messagePrefixLabel(), strText);
-    
-    if(!m_bRedirectOutput) {
-      this->outputColoredStatusMessage(msgStatus);
+  void UtilityBase::coloredText(std::string strText, std::string strColorValue, bool bBold, bool bImportant) {
+    if(!m_bOnlyDisplayImportant || (m_bOnlyDisplayImportant && bImportant)) {
+      StatusMessage msgStatus = queueMessage(strColorValue, bBold, this->messagePrefixLabel(), strText);
+      
+      if(!m_bRedirectOutput) {
+	this->outputColoredStatusMessage(msgStatus);
+      }
     }
   }
   
-  void UtilityBase::info(std::string strMessage) {
-    this->coloredText(strMessage, "37");
+  void UtilityBase::info(std::string strMessage, bool bImportant) {
+    this->coloredText(strMessage, "37", false, bImportant);
   }
   
-  void UtilityBase::success(std::string strMessage) {
-    this->coloredText(strMessage, "32");
+  void UtilityBase::success(std::string strMessage, bool bImportant) {
+    this->coloredText(strMessage, "32", false, bImportant);
   }
   
-  void UtilityBase::warn(std::string strMessage) {
-    this->coloredText(strMessage, "33", true);
+  void UtilityBase::warn(std::string strMessage, bool bImportant) {
+    this->coloredText(strMessage, "33", true, bImportant);
   }
   
-  void UtilityBase::fail(std::string strMessage) {
-    this->coloredText(strMessage, "31", true);
+  void UtilityBase::fail(std::string strMessage, bool bImportant) {
+    this->coloredText(strMessage, "31", true, bImportant);
   }
   
   bool UtilityBase::fileExists(std::string strFileName) {
@@ -157,5 +160,13 @@ namespace beliefstate {
     sts << nValue;
     
     return sts.str();
+  }
+  
+  void UtilityBase::setOnlyDisplayImportant(bool bOnly) {
+    m_bOnlyDisplayImportant = bOnly;
+  }
+  
+  bool UtilityBase::onlyDisplayImportant() {
+    return m_bOnlyDisplayImportant;
   }
 }

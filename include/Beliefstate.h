@@ -99,6 +99,7 @@ namespace beliefstate {
     std::mutex m_mtxTerminalResize;
     bool m_bTerminalWindowResize;
     bool m_bCommandLineOutput;
+    bool m_bOnlyDisplayImportant;
     std::string m_strVersion;
     
   protected:

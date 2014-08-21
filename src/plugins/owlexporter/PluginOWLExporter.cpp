@@ -169,15 +169,15 @@ namespace beliefstate {
 		  ConfigSettings cfgsetCurrent = configSettings();
 		  expOwl->setOutputFilename(cfgsetCurrent.strExperimentDirectory + seServiceEvent.cdDesignator->stringValue("filename"));
 		  
-		  this->info("Exporting OWL file to '" + expOwl->outputFilename() + "'");
+		  this->info("Exporting OWL file to '" + expOwl->outputFilename() + "'", true);
 		  
 		  if(expOwl->runExporter(NULL)) {
-		    this->info("Successfully exported OWL file '" + expOwl->outputFilename() + "'");
+		    this->info("Successfully exported OWL file '" + expOwl->outputFilename() + "'", true);
 		  } else {
-		    this->warn("Failed to export to OWL file '" + expOwl->outputFilename() + "'");
+		    this->warn("Failed to export to OWL file '" + expOwl->outputFilename() + "'", true);
 		  }
 		} else {
-		  this->warn("Failed to export to OWL file '" + expOwl->outputFilename() + "'");
+		  this->warn("Failed to export to OWL file '" + expOwl->outputFilename() + "'", true);
 		}
 		
 		delete expOwl;

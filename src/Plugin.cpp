@@ -47,6 +47,11 @@ namespace beliefstate {
       m_bRunCycle = true;
       m_bDevelopmentPlugin = false;
       m_strVersion = "";
+      
+      ConfigSettings cfgsetCurrent = configSettings();
+      if(cfgsetCurrent.bOnlyDisplayImportant) {
+	this->setOnlyDisplayImportant(true);
+      }
     }
     
     Plugin::~Plugin() {
@@ -278,20 +283,20 @@ namespace beliefstate {
       }
     }
     
-    void Plugin::success(std::string strMessage) {
-      this->coloredText(strMessage, colorSpecifierForID(this->pluginID()));
+    void Plugin::success(std::string strMessage, bool bImportant) {
+      this->coloredText(strMessage, colorSpecifierForID(this->pluginID()), false, bImportant);
     }
     
-    void Plugin::info(std::string strMessage) {
-      this->coloredText(strMessage, colorSpecifierForID(this->pluginID()));
+    void Plugin::info(std::string strMessage, bool bImportant) {
+      this->coloredText(strMessage, colorSpecifierForID(this->pluginID()), false, bImportant);
     }
     
-    void Plugin::warn(std::string strMessage) {
-      this->coloredText(strMessage, colorSpecifierForID(this->pluginID()), true);
+    void Plugin::warn(std::string strMessage, bool bImportant) {
+      this->coloredText(strMessage, colorSpecifierForID(this->pluginID()), true, bImportant);
     }
     
-    void Plugin::fail(std::string strMessage) {
-      this->coloredText(strMessage, colorSpecifierForID(this->pluginID()), true);
+    void Plugin::fail(std::string strMessage, bool bImportant) {
+      this->coloredText(strMessage, colorSpecifierForID(this->pluginID()), true, bImportant);
     }
   }
 }

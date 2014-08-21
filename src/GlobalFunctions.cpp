@@ -123,6 +123,7 @@ namespace beliefstate {
     resDefault.bSuccess = true;
     resDefault.riResultIdentifier = RI_NONE;
     resDefault.strErrorMessage = "";
+    resDefault.piPlugin = NULL;
     
     return resDefault;
   }

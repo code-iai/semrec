@@ -116,6 +116,10 @@ namespace beliefstate {
 	    resInit.bSuccess = false;
 	    break;
 	  }
+	} else {
+	  if(rsResult.piPlugin) {
+	    rsResult.piPlugin->setOnlyDisplayImportant(m_bOnlyDisplayImportant);
+	  }
 	}
       }
     } else {
@@ -158,6 +162,7 @@ namespace beliefstate {
 	// afterwards that might use the ${WORKSPACE} token.
 	bool bDisplayUnhandledEvents = true;
 	bool bDisplayUnhandledServiceEvents = true;
+	m_bOnlyDisplayImportant = false;
 	
 	if(cfgConfig.exists("miscellaneous")) {
 	  libconfig::Setting &sMiscellaneous = cfgConfig.lookup("miscellaneous");
@@ -165,6 +170,7 @@ namespace beliefstate {
 	  sMiscellaneous.lookupValue("display-unhandled-service-events", bDisplayUnhandledServiceEvents);
 	  sMiscellaneous.lookupValue("workspace-directory", m_strWorkspaceDirectory);
 	  sMiscellaneous.lookupValue("command-line-output", m_bCommandLineOutput);
+	  sMiscellaneous.lookupValue("only-display-important-messages", m_bOnlyDisplayImportant);
 	  
 	  if(!m_bCommandLineOutput) {
 	    this->setRedirectOutput(true);
@@ -364,6 +370,7 @@ namespace beliefstate {
 	cfgsetCurrent.bDisplayUnhandledEvents = bDisplayUnhandledEvents;
 	cfgsetCurrent.bDisplayUnhandledServiceEvents = bDisplayUnhandledServiceEvents;
 	cfgsetCurrent.vecPluginOutputColors = vecPluginOutputColors;
+	cfgsetCurrent.bOnlyDisplayImportant = m_bOnlyDisplayImportant;
 	setConfigSettings(cfgsetCurrent);
 	
 	return true;

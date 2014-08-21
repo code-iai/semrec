@@ -53,6 +53,8 @@
 
 
 namespace beliefstate {
+  class PluginInstance;
+  
   typedef enum {
     SI_REQUEST,
     SI_RESPONSE
@@ -119,6 +121,8 @@ namespace beliefstate {
     
     // Status message that were collected
     std::list<StatusMessage> lstStatusMessages;
+    
+    PluginInstance* piPlugin;
   } Result;
   
   typedef struct {
@@ -146,6 +150,7 @@ namespace beliefstate {
     // Miscellaneous
     bool bDisplayUnhandledEvents;
     bool bDisplayUnhandledServiceEvents;
+    bool bOnlyDisplayImportant;
   } ConfigSettings;
 }
 

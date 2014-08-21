@@ -115,9 +115,9 @@ namespace beliefstate {
 		expDot->setOutputFilename(cfgsetCurrent.strExperimentDirectory + seServiceEvent.cdDesignator->stringValue("filename"));
 		
 		if(expDot->runExporter(NULL)) {
-		  this->info("Successfully exported DOT file '" + expDot->outputFilename() + "'");
+		  this->info("Successfully exported DOT file '" + expDot->outputFilename() + "'", true);
 		} else {
-		  this->warn("Failed to export to DOT file '" + expDot->outputFilename() + "'");
+		  this->warn("Failed to export to DOT file '" + expDot->outputFilename() + "'", true);
 		}
 		
 		delete expDot;

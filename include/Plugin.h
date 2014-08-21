@@ -128,10 +128,10 @@ namespace beliefstate {
       
       void waitForEvent(Event evWait);
       
-      void success(std::string strMessage);
-      void info(std::string strMessage);
-      void warn(std::string strMessage);
-      void fail(std::string strMessage);
+      void success(std::string strMessage, bool bImportant = false);
+      void info(std::string strMessage, bool bImportant = false);
+      void warn(std::string strMessage, bool bImportant = false);
+      void fail(std::string strMessage, bool bImportant = false);
     };
   }
 }

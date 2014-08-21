@@ -146,6 +146,7 @@ namespace beliefstate {
 	  
 	  icLoad = new PluginInstance();
 	  resLoad = icLoad->loadPluginLibrary(strSearchFilepath);
+	  resLoad.piPlugin = icLoad;
 	  
 	  if(resLoad.bSuccess) {
 	    // Check if this is a development plugin and if we're supposed to load it.
@@ -212,6 +213,8 @@ namespace beliefstate {
     
     if(resLoad.bSuccess == false) {
       this->fail("Failed to load plugin '" + strFilepath + "'");
+    } else {
+      resLoad.piPlugin = icLoad;
     }
     
     return resLoad;

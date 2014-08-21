@@ -56,6 +56,7 @@ namespace beliefstate {
   private:
     static bool m_bRedirectOutput;
     std::string m_strMessagePrefixLabel;
+    bool m_bOnlyDisplayImportant;
     
   public:
     UtilityBase();
@@ -64,11 +65,14 @@ namespace beliefstate {
     void setMessagePrefixLabel(std::string strMessagePrefixLabel);
     std::string messagePrefixLabel();
     
-    void coloredText(std::string strText, std::string strColorValue, bool bBold = false);
-    virtual void success(std::string strMessage);
-    virtual void info(std::string strMessage);
-    virtual void warn(std::string strMessage);
-    virtual void fail(std::string strMessage);
+    void coloredText(std::string strText, std::string strColorValue, bool bBold = false, bool bImportant = false);
+    virtual void success(std::string strMessage, bool bImportant = false);
+    virtual void info(std::string strMessage, bool bImportant = false);
+    virtual void warn(std::string strMessage, bool bImportant = false);
+    virtual void fail(std::string strMessage, bool bImportant = false);
+    
+    void setOnlyDisplayImportant(bool bOnly);
+    bool onlyDisplayImportant();
     
     bool fileExists(std::string strFileName);
     
