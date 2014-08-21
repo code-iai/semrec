@@ -748,7 +748,7 @@ namespace beliefstate {
 	}
       }
       
-      strDot += "        <knowrob:" + strCamelCaseKey + " rdf:datatype=\"&xsd:string\">" + prEntry.second + "</knowrob:" + strCamelCaseKey + ">\n";
+      strDot += "        <knowrob:" + strCamelCaseKey + " rdf:datatype=\"&xsd;string\">" + prEntry.second + "</knowrob:" + strCamelCaseKey + ">\n";
     }
     strDot += "    </owl:NamedIndividual>\n\n";
     
