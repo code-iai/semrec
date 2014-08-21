@@ -51,6 +51,10 @@ namespace beliefstate {
   CExporterOwl::~CExporterOwl() {
   }
   
+  void CExporterOwl::setMetaData(std::map<std::string, std::string> mapMetaData) {
+    m_mapMetaData = mapMetaData;
+  }
+  
   bool CExporterOwl::loadSemanticsDescriptorFile(std::string strFilepath) {
     if(this->fileExists(strFilepath)) {
       libconfig::Config cfgConfig;
@@ -725,6 +729,32 @@ namespace beliefstate {
     return strDot;
   }
   
+  std::string CExporterOwl::generateMetaDataIndividual(std::string strNamespace) {
+    std::string strDot = "    <!-- Meta Data Individual -->\n\n";
+    
+    strDot += "    <owl:NamedIndividual rdf:about=\"&" + strNamespace + ";ExperimentMetadata\">\n";
+    strDot += "        <rdf:type rdf:resource=\"&knowrob;ExperimentMetaData\"/>\n";
+    for(std::pair<std::string, std::string> prEntry : m_mapMetaData) {
+      std::string strCamelCaseKey = prEntry.first;
+      int nCharCount = prEntry.first.length();
+      
+      for(int nI = 0; nI < nCharCount; nI++) {
+	if(strCamelCaseKey[nI] == '-') {
+	  std::string strTemp = strCamelCaseKey.substr(nI + 1, 1);
+	  transform(strTemp.begin(), strTemp.end(), strTemp.begin(), ::toupper);
+	  strCamelCaseKey.erase(nI, 2);
+	  strCamelCaseKey.insert(nI, strTemp);
+	  nCharCount--;
+	}
+      }
+      
+      strDot += "        <knowrob:" + strCamelCaseKey + " rdf:datatype=\"&xsd:string\">" + prEntry.second + "</knowrob:" + strCamelCaseKey + ">\n";
+    }
+    strDot += "    </owl:NamedIndividual>\n\n";
+    
+    return strDot;
+  }
+  
   std::string CExporterOwl::owlClassForNode(Node *ndNode, bool bClassOnly, bool bPrologSyntax) {
     std::string strName = "";
     
@@ -920,6 +950,8 @@ namespace beliefstate {
     strOwl += this->generateFailureIndividuals(strNamespaceID);
     this->info(" - Block: TPIndivs");
     strOwl += this->generateTimepointIndividuals(strNamespaceID);
+    this->info(" - Meta Data");
+    strOwl += this->generateMetaDataIndividual(strNamespaceID);
     strOwl += "</rdf:RDF>\n";
     
     return strOwl;

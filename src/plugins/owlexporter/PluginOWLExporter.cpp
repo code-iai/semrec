@@ -52,8 +52,10 @@ namespace beliefstate {
     Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
+      this->setSubscribedToEvent("set-experiment-meta-data", true);
       this->setSubscribedToEvent("export-planlog", true);
       this->setSubscribedToEvent("experiment-start", true);
+      this->setSubscribedToEvent("experiment-shutdown", true);
       
       return resInit;
     }
@@ -76,6 +78,10 @@ namespace beliefstate {
 	  transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
 	  
 	  if(strFormat == "owl") {
+	    if(m_mapMetaData.find("time-end") == m_mapMetaData.end()) {
+	      m_mapMetaData["time-end"] = this->getTimeStampStr();
+	    }
+	    
 	    ServiceEvent seGetPlanTree = defaultServiceEvent("symbolic-plan-tree");
 	    seGetPlanTree.cdDesignator = new CDesignator(evEvent.cdDesignator);
 	    this->deployServiceEvent(seGetPlanTree);
@@ -90,6 +96,20 @@ namespace beliefstate {
 	evSendOwlExporterVersion.cdDesignator->setValue("value", this->pluginVersion());
 	
 	this->deployEvent(evSendOwlExporterVersion);
+	
+	m_mapMetaData["time-start"] = this->getTimeStampStr();
+      } else if(evEvent.strEventName == "experiment-shutdown") {
+	m_mapMetaData["time-end"] = this->getTimeStampStr();
+      } else if(evEvent.strEventName == "set-experiment-meta-data") {
+	if(evEvent.cdDesignator) {
+	  std::string strField = evEvent.cdDesignator->stringValue("field");
+	  std::string strValue = evEvent.cdDesignator->stringValue("value");
+	  
+	  if(strField != "") {
+	    this->info("Set meta data field '" + strField + "' to '" + strValue + "'");
+	    m_mapMetaData[strField] = strValue;
+	  }
+	}
       }
     }
     
@@ -109,6 +129,7 @@ namespace beliefstate {
 		this->info("OWLExporter Plugin received plan log data. Exporting symbolic log.");
 		
 		CExporterOwl* expOwl = new CExporterOwl();
+		expOwl->setMetaData(m_mapMetaData);
 		
 		CDesignator* cdConfig = this->getIndividualConfig();
 		std::string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
