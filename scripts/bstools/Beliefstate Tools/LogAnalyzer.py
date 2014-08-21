@@ -50,14 +50,26 @@ class LogAnalyzer:
             print strItem, dicClassTimes[strItem]
 
         print ""
-        print "Picking Up Objects: " + str(dicClassTimes["PickingUpAnObject"])
-        print "Placing Objects: " + str(dicClassTimes["PuttingDownAnObject"])
-        print "Manipulation Recovery: " + str(-1)
-        print "Path Planning + Motion Execution: " + str(dicClassTimes["ArmMovement"])
-        print "Navigation: " + str(dicClassTimes["BaseMovement"])
-        print "Head Movement: " + str(dicClassTimes["HeadMovement"])
-        print "Perception Queries: " + str(dicClassTimes["UIMAPerception"])
-        print "Object Identity Resolution + Belief State Updates: " + str(dicClassTimes["PerceivingObjects"] - dicClassTimes["UIMAPerception"])
+        if not "MotionPlanning" in dicClassTimes:
+            print "Picking Up Objects: " + str(dicClassTimes["PickingUpAnObject"])
+            print "Placing Objects: " + str(dicClassTimes["PuttingDownAnObject"])
+            print "Manipulation Recovery: " + str(-1)
+            print "Path Planning + Motion Execution: " + str(dicClassTimes["ArmMovement"])
+            print "Navigation: " + str(dicClassTimes["BaseMovement"])
+            print "Head Movement: " + str(dicClassTimes["HeadMovement"])
+            print "Perception Queries: " + str(dicClassTimes["UIMAPerception"])
+            print "Object Identity Resolution + Belief State Updates: " + str(dicClassTimes["PerceivingObjects"] - dicClassTimes["UIMAPerception"])
+        else:
+            print "Picking Up Objects: " + str(dicClassTimes["PickingUpAnObject"])
+            print "Placing Objects: " + str(dicClassTimes["PuttingDownAnObject"])
+            #print "Manipulation Recovery: " + str(-1)
+            print "Path Planning: " + str(dicClassTimes["MotionPlanning"])
+            print "Motion Execution: " + str(dicClassTimes["MotionExecution"])
+            print "Navigation: " + str(dicClassTimes["BaseMovement"])
+            print "Head Movement: " + str(dicClassTimes["HeadMovement"])
+            print "Perception Queries: " + str(dicClassTimes["UIMAPerception"])
+            print "Object Identity Resolution: " + str(dicClassTimes["ObjectIdentityResolution"])
+            print "Belief State Updates: " + str(dicClassTimes["BeliefStateUpdate"])
 
     def timelyOrderedTasks(self, data):
         dicLinear = self.linearizeTaskTree(data)
