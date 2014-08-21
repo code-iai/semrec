@@ -866,6 +866,8 @@ namespace beliefstate {
       }
     } else if(strName == "UIMA-PERCEIVE") {
       strClass = "UIMAPerception"; // NOTE(winkler): was 'VisualPerception'
+    } else if(strName == "FIND-OBJECTS") {
+      strClass = "FindingObjects";
     } else if(strName == "OBJECT-IDENTITY-RESOLUTION") {
       strClass = "ObjectIdentityResolution";
     } else if(strName == "BELIEF-STATE-UPDATE") {
