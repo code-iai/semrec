@@ -46,8 +46,9 @@ namespace beliefstate {
       m_nhHandle = NULL;
       m_aspnAsyncSpinner = NULL;
       m_bRoslogMessages = false;
+      m_bFirstContextReceived = false;
       
-      this->setPluginVersion("0.9");
+      this->setPluginVersion("0.91");
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {
@@ -152,6 +153,11 @@ namespace beliefstate {
       
       res.response.designators.push_back(desigResponse->serializeToMessage());
       delete desigResponse;
+      
+      if(!m_bFirstContextReceived) {
+	this->info("First context received - logging is active.", true);
+	m_bFirstContextReceived = true;
+      }
       
       return true;
     }

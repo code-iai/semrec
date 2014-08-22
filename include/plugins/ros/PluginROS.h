@@ -78,6 +78,7 @@ namespace beliefstate {
       ros::AsyncSpinner* m_aspnAsyncSpinner;
       bool m_bRoslogMessages;
       std::mutex m_mtxGlobalInputLock;
+      bool m_bFirstContextReceived;
       
     public:
       PLUGIN_CLASS();
