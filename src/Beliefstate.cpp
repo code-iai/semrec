@@ -49,7 +49,7 @@ namespace beliefstate {
     m_strWorkspaceDirectory = "";
     m_bTerminalWindowResize = false;
     m_bCommandLineOutput = true;
-    m_strVersion = "0.6 rh";
+    m_strVersion = "0.7 iai";
     
     this->setRedirectOutput(false);
     
