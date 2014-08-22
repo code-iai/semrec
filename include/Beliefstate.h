@@ -85,21 +85,37 @@ namespace beliefstate {
         file. */
     std::list<std::string> m_lstPluginsToLoad;
     /*! \brief List of currently available global events to
-        process. The entries in this list only last one cycle of the
-        main loop. They are dropped afterwards, but are handed to all
-        plugins that subscribed to the respective event type
-        beforehand. This is the main communication mechanism between
-        the belief state system and loaded plugins. */
+      process. The entries in this list only last one cycle of the
+      main loop. They are dropped afterwards, but are handed to all
+      plugins that subscribed to the respective event type
+      beforehand. This is the main communication mechanism between
+      the belief state system and loaded plugins. */
     std::list<Event> m_lstGlobalEvents;
     /*! \brief In case a static workspace directory was specified in
-        the configuration file, its value is stored here. This value,
-        if not empty, takes precedence over the dynamically resolved
-        return value of workspaceDirectory(). */
+      the configuration file, its value is stored here. This value,
+      if not empty, takes precedence over the dynamically resolved
+      return value of workspaceDirectory(). */
     std::string m_strWorkspaceDirectory;
+    /*! \brief Mutex that controls whether terminal window resizes are
+      currently being processed.
+      
+      Terminal resize events can be received very qickly after
+      another. When one of these events is being processed, it should
+      not be interrupted by a new event following it, as system calls
+      and non-thread-safe operations are involved.
+     */
     std::mutex m_mtxTerminalResize;
+    /*! \brief Flag that signals whether the terminal window is
+      currently being resized. */
     bool m_bTerminalWindowResize;
+    /*! \brief Flag that signals whether command line output should be
+      printed or not. */
     bool m_bCommandLineOutput;
+    /*! \brief Flag that signals whether all, or only important
+      messages should be printed to the console. */
     bool m_bOnlyDisplayImportant;
+    /*! \brief Variable holding the current version of the belief state
+      system core software. */
     std::string m_strVersion;
     
   protected:
@@ -121,6 +137,12 @@ namespace beliefstate {
       Deletes all instances of internal objects. */
     ~Beliefstate();
     
+    /*! \brief Returns the current version of the belief state system software.
+      
+      The version string can contain a version number, and additional
+      content, describing the exact version present.
+    
+      \return Software version string */
     std::string version();
     
     /*! \brief Main initialization method for the belief state system.
@@ -131,7 +153,9 @@ namespace beliefstate {
       
       \param strConfigFile Overrides the default plugin search
       mechanism and uses the file specified in this parameter. If this
-      fails, the function falls back to the default mechanism. */
+      fails, the function falls back to the default mechanism.
+    
+      \return Result construct, describing the outcome of the operation */
     Result init(std::string strConfigFile = "");
     
     /*! \brief Deinitialization method for the belief state system
@@ -139,7 +163,9 @@ namespace beliefstate {
       Dummy deinitialization method, does not deinitialize any
       components. Implemented for the sake of completeness and to make
       subclassing easier in which actual deinitialization mechanisms
-      might occur. */
+      might occur.
+    
+      \return Result construct, describing the outcome of the operation */
     Result deinit();
     
     /*! \brief Loads the specified configuration file
@@ -149,7 +175,10 @@ namespace beliefstate {
       system instance that are affected by the configured options.
       
       \param strConfigFile Configuration file path to open for loading
-      configuration */
+      configuration
+    
+      \return Boolean that signals whether loading of the specified
+      configuration file succeeded or failed. */
     bool loadConfigFile(std::string strConfigFile);
     
     /*! \brief Loads the plugin-specific configuration portion of the configuration file
@@ -170,11 +199,46 @@ namespace beliefstate {
       
       \param bIgnorePluginField Ignore the 'plugin' field in the
       current branch. This is only used on the first level, as that
-      level holds the plugin name of the plugin to configure. */
+      level holds the plugin name of the plugin to configure.
+    
+      \return Boolean that signals whether loading of the individjal
+      plugin configuration branch succeeded or failed. */
     bool loadIndividualPluginConfigurationBranch(libconfig::Setting &sBranch, CKeyValuePair* ckvpInto, std::string strConfigPath = "", bool bIgnorePluginField = false);
     
+    /*! \brief Spreads incoming system events to all subscribing plugins.
+      
+      System events are being accumulated in the system event queue
+      within the main Beliefstate class instance. They are then
+      distributed among the plugins that subscribed to their specific
+      event type.
+      
+      \param evEvent The event to spread among subscribers
+      
+      \return Boolean signalling whether at least one subscriber
+      consumes the event. */
     bool spreadEvent(Event evEvent);
+    
+    /*! \brief Spread incoming system service events to all subscribing plugins.
+      
+      System service events are special events that require a reply
+      from potential receivers. This function spreads a service event
+      request, and its corresponding reply, to the respective plugin
+      instances.
+
+      \param seServiceEvent The service event to spread among
+      subscribers (and receivers of replies). */
     void spreadServiceEvent(ServiceEvent seServiceEvent);
+    
+    /*! \brief Main cycle method, maintaining core functionality for the system.
+      
+      The main cycle function triggers processing of event pipelines,
+      and forwards messages between plugins, utilizing functions
+      present in the beliefstate class. This function is being called
+      from outside the function in a loop.
+      
+      \return Boolean signallig whether the current cycle completed
+      successfully, or if there was a problem that needs further
+      inspection. */
     bool cycle();
     
     /*! \brief Triggers the belief state system shutdown
@@ -183,6 +247,8 @@ namespace beliefstate {
       main loop cycle() method stop execution and return from its
       blocking call. */
     void triggerShutdown();
+    
+    /*! \brief Triggers the processing of a terminal resize event. */
     void triggerTerminalResize();
     
     void setBaseDataDirectory(std::string strBaseDataDirectory);
