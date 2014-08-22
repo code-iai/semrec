@@ -40,7 +40,22 @@ class LogAnalyzer:
                 dicClassTimes[strType] = int(dicTask["time"])
             else:
                 dicClassTimes[strType] += int(dicTask["time"])
-
+        
+        nEarliestTS = -1
+        nLatestTS = -1
+        
+        for dicTask in toTasks:
+            owlTask = tti[dicTask["name"]]
+            TS = owlTask.timeSpan()
+            
+            if TS:
+                if nEarliestTS == -1 or int(TS[0]) < nEarliestTS:
+                    nEarliestTS = int(TS[0])
+                if nLatestTS == -1 or int(TS[1]) > nLatestTS:
+                    nLatestTS = int(TS[1])
+        
+        nOverallTime = nLatestTS - nEarliestTS
+        
         with open("classtimes.pkl", "wb") as f:
             pickle.dump(dicClassTimes, f, pickle.HIGHEST_PROTOCOL)
 
@@ -48,28 +63,37 @@ class LogAnalyzer:
 
         for strItem in dicClassTimes:
             print strItem, dicClassTimes[strItem]
-
+        
         print ""
         if not "MotionPlanning" in dicClassTimes:
             print "Picking Up Objects: " + str(dicClassTimes["PickingUpAnObject"])
             print "Placing Objects: " + str(dicClassTimes["PuttingDownAnObject"])
-            print "Manipulation Recovery: " + str(-1)
             print "Path Planning + Motion Execution: " + str(dicClassTimes["ArmMovement"])
             print "Navigation: " + str(dicClassTimes["BaseMovement"])
             print "Head Movement: " + str(dicClassTimes["HeadMovement"])
             print "Perception Queries: " + str(dicClassTimes["UIMAPerception"])
             print "Object Identity Resolution + Belief State Updates: " + str(dicClassTimes["PerceivingObjects"] - dicClassTimes["UIMAPerception"])
         else:
-            print "Picking Up Objects: " + str(dicClassTimes["PickingUpAnObject"])
-            print "Placing Objects: " + str(dicClassTimes["PuttingDownAnObject"])
-            #print "Manipulation Recovery: " + str(-1)
-            print "Path Planning: " + str(dicClassTimes["MotionPlanning"])
-            print "Motion Execution: " + str(dicClassTimes["MotionExecution"])
-            print "Navigation: " + str(dicClassTimes["BaseMovement"])
-            print "Head Movement: " + str(dicClassTimes["HeadMovement"])
-            print "Perception Queries: " + str(dicClassTimes["UIMAPerception"])
-            print "Object Identity Resolution: " + str(dicClassTimes["ObjectIdentityResolution"])
-            print "Belief State Updates: " + str(dicClassTimes["BeliefStateUpdate"])
+            print "--- General ---"
+            print "Overall                    : " + str(nOverallTime)
+            print "--- High Level ---"
+            print "Picking Up Objects         : " + str(dicClassTimes["PickingUpAnObject"] +
+                                                        dicClassTimes["CarryingAnObject"] +
+                                                        dicClassTimes["LiftingAnObject"])
+            print "Placing Objects            : " + str(dicClassTimes["PuttingDownAnObject"])
+            print "Other Activities           : " + str(nOverallTime -
+                                                        (dicClassTimes["PickingUpAnObject"] +
+                                                         dicClassTimes["CarryingAnObject"] +
+                                                         dicClassTimes["LiftingAnObject"] +
+                                                         dicClassTimes["PuttingDownAnObject"]))
+            print "--- Low Level ---"
+            print "Path Planning              : " + str(dicClassTimes["MotionPlanning"])
+            print "Motion Execution           : " + str(dicClassTimes["MotionExecution"])
+            print "Navigation                 : " + str(dicClassTimes["BaseMovement"])
+            print "Head Movement              : " + str(dicClassTimes["HeadMovement"])
+            print "Perception Queries         : " + str(dicClassTimes["UIMAPerception"])
+            print "Object Identity Resolution : " + str(dicClassTimes["ObjectIdentityResolution"])
+            print "Belief State Updates       : " + str(dicClassTimes["BeliefStateUpdate"])
 
     def timelyOrderedTasks(self, data):
         dicLinear = self.linearizeTaskTree(data)
