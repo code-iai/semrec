@@ -57,7 +57,7 @@
 namespace beliefstate {
   class CExporter : public UtilityBase {
   private:
-    Node* m_ndRoot;
+    std::list<Node*> m_lstRootNodes;
     std::list<Node*> m_lstNodes;
     std::list< std::pair<std::string, std::string> > m_lstDesignatorIDs;
     std::list< std::pair<std::string, std::string> > m_lstDesignatorEquations;
@@ -77,8 +77,9 @@ namespace beliefstate {
     
     void addNode(Node* ndAdd);
     std::list<Node*> nodes();
-    void setRootNode(Node* ndRoot);
-    Node* rootNode();
+    void setRootNodes(std::list<Node*> lstRootNodes);
+    void addRootNode(Node* ndRoot);
+    std::list<Node*> rootNodes();
     
     void clearNodes();
     

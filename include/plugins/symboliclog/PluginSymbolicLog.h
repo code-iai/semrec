@@ -67,7 +67,7 @@ namespace beliefstate {
     class PLUGIN_CLASS : public Plugin {
     private:
       std::list<Node*> m_lstNodes;
-      Node* m_ndRoot;
+      std::list<Node*> m_lstRootNodes;
       Node* m_ndActive;
       std::list< std::pair<std::string, std::string> > m_lstDesignatorIDs;
       std::list< std::pair<std::string, std::string> > m_lstDesignatorEquations;

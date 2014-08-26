@@ -148,9 +148,7 @@ namespace beliefstate {
 		expOwl->configuration()->setValue(string("display-failures"), (int)seServiceEvent.cdDesignator->floatValue("show-fails"));
 		expOwl->configuration()->setValue(string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));
 		
-		if(evCar.ndRoot) {
-		  expOwl->setRootNode(evCar.ndRoot);
-		}
+		expOwl->setRootNodes(evCar.lstRootNodes);
 		
 		bool bFailed = false;
 		for(Node* ndNode : evCar.lstNodes) {

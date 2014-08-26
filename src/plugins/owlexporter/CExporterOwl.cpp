@@ -733,14 +733,11 @@ namespace beliefstate {
     std::string strDot = "    <!-- Meta Data Individual -->\n\n";
     std::string strUniqueName = this->generateUniqueID("ExperimentMetadata_", 8);
     
-    // blabla
-    
     strDot += "    <owl:NamedIndividual rdf:about=\"&" + strNamespace + ";" + strUniqueName + "\">\n";
     strDot += "        <rdf:type rdf:resource=\"&knowrob;ExperimentMetaData\"/>\n";
     
-    Node* ndRoot = this->rootNode();
-    
-    if(ndRoot) {
+    std::list<Node*> lstRootNodes = this->rootNodes();
+    for(Node* ndRoot : lstRootNodes) {
       strDot += "        <knowrob:subAction rdf:resource=\"&" + strNamespace + ";" + ndRoot->uniqueID() + "\"/>\n";
     }
     

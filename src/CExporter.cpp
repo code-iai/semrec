@@ -61,12 +61,16 @@ namespace beliefstate {
     m_lstNodes.push_back(ndAdd);
   }
   
-  void CExporter::setRootNode(Node* ndRoot) {
-    m_ndRoot = ndRoot;
+  void CExporter::setRootNodes(std::list<Node*> lstRootNodes) {
+    m_lstRootNodes = lstRootNodes;
   }
   
-  Node* CExporter::rootNode() {
-    return m_ndRoot;
+  void CExporter::addRootNode(Node* ndRoot) {
+    m_lstRootNodes.push_back(ndRoot);
+  }
+  
+  std::list<Node*> CExporter::rootNodes() {
+    return m_lstRootNodes;
   }
   
   list<Node*> CExporter::nodes() {

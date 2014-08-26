@@ -52,7 +52,6 @@ namespace beliefstate {
       srand(time(NULL));
       
       m_ndActive = NULL;
-      m_ndRoot = NULL;
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {
@@ -111,7 +110,7 @@ namespace beliefstate {
 	if(seServiceEvent.strServiceName == "symbolic-plan-tree") {
 	  // Requested the whole symbolic plan log
 	  evReturn.lstNodes = m_lstNodes;
-	  evReturn.ndRoot = m_ndRoot;
+	  evReturn.lstRootNodes = m_lstRootNodes;
 	  
 	  evReturn.lstDesignatorIDs = m_lstDesignatorIDs;
 	  evReturn.lstEquations = m_lstDesignatorEquations;
@@ -122,7 +121,7 @@ namespace beliefstate {
 	  
 	  while(ndCurrent) {
 	    evReturn.lstNodes.push_back(ndCurrent);
-	    evReturn.ndRoot = m_ndRoot;
+	    evReturn.lstRootNodes = m_lstRootNodes;
 	    
 	    ndCurrent = ndCurrent->parent();
 	  }
@@ -546,11 +545,12 @@ namespace beliefstate {
     
     void PLUGIN_CLASS::setNodeAsActive(Node* ndActive) {
       bool bSame = false;
-      m_ndActive = ndActive;
       
-      if(!m_ndRoot) {
-	m_ndRoot = m_ndActive;
+      if(!m_ndActive && ndActive) {
+	m_lstRootNodes.push_back(ndActive);
       }
+      
+      m_ndActive = ndActive;
       
       if(m_ndActive) {
 	bSame = (m_ndActive->id() == ndActive->id());
