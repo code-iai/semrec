@@ -81,11 +81,14 @@ class LogAnalyzer:
                                                         dicClassTimes["CarryingAnObject"] +
                                                         dicClassTimes["LiftingAnObject"])
             print "Placing Objects            : " + str(dicClassTimes["PuttingDownAnObject"])
+            print "Finding Objects            : " + str(dicClassTimes["FindingObjects"])
             print "Other Activities           : " + str(nOverallTime -
                                                         (dicClassTimes["PickingUpAnObject"] +
                                                          dicClassTimes["CarryingAnObject"] +
                                                          dicClassTimes["LiftingAnObject"] +
-                                                         dicClassTimes["PuttingDownAnObject"]))
+                                                         dicClassTimes["PuttingDownAnObject"] +
+                                                         dicClassTimes["FindingObjects"] -
+                                                         dicClassTimes["UIMAPerception"]))
             print "--- Low Level ---"
             print "Path Planning              : " + str(dicClassTimes["MotionPlanning"])
             print "Motion Execution           : " + str(dicClassTimes["MotionExecution"])
