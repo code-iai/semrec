@@ -100,8 +100,8 @@ namespace beliefstate {
     };
   }
   
-  extern "C" plugins::PluginSymbolicLog* createInstance();
-  extern "C" void destroyInstance(plugins::PluginSymbolicLog* icDestroy);
+  extern "C" plugins::PLUGIN_CLASS* createInstance();
+  extern "C" void destroyInstance(plugins::PLUGIN_CLASS* icDestroy);
 }
 
 
