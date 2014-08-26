@@ -501,6 +501,7 @@ namespace beliefstate {
 	}
 	
 	m_lstNodes.clear();
+	m_lstRootNodes.clear();
 	m_ndActive = NULL;
 	
 	m_lstDesignatorIDs.clear();
