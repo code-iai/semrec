@@ -731,9 +731,19 @@ namespace beliefstate {
   
   std::string CExporterOwl::generateMetaDataIndividual(std::string strNamespace) {
     std::string strDot = "    <!-- Meta Data Individual -->\n\n";
+    std::string strUniqueName = this->generateUniqueID("ExperimentMetadata_", 8);
     
-    strDot += "    <owl:NamedIndividual rdf:about=\"&" + strNamespace + ";ExperimentMetadata\">\n";
+    // blabla
+    
+    strDot += "    <owl:NamedIndividual rdf:about=\"&" + strNamespace + ";" + strUniqueName + "\">\n";
     strDot += "        <rdf:type rdf:resource=\"&knowrob;ExperimentMetaData\"/>\n";
+    
+    Node* ndRoot = this->rootNode();
+    
+    if(ndRoot) {
+      strDot += "        <knowrob:subAction rdf:resource=\"&" + strNamespace + ";" + ndRoot->uniqueID() + "\"/>\n";
+    }
+    
     for(std::pair<std::string, std::string> prEntry : m_mapMetaData) {
       std::string strCamelCaseKey = prEntry.first;
       int nCharCount = prEntry.first.length();

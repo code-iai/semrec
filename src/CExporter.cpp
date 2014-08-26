@@ -57,10 +57,18 @@ namespace beliefstate {
     delete m_ckvpConfiguration;
   }
 
-  void CExporter::addNode(Node *ndAdd) {
+  void CExporter::addNode(Node* ndAdd) {
     m_lstNodes.push_back(ndAdd);
   }
-
+  
+  void CExporter::setRootNode(Node* ndRoot) {
+    m_ndRoot = ndRoot;
+  }
+  
+  Node* CExporter::rootNode() {
+    return m_ndRoot;
+  }
+  
   list<Node*> CExporter::nodes() {
     return m_lstNodes;
   }

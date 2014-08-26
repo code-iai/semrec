@@ -94,6 +94,7 @@ namespace beliefstate {
     bool bPreempt;
     StatusMessage msgStatusMessage;
     std::list<Node*> lstNodes;
+    Node* ndRoot;
     std::list< std::pair<std::string, std::string> > lstDesignatorIDs;
     std::list< std::pair<std::string, std::string> > lstEquations;
     std::list< std::pair<std::string, std::string> > lstEquationTimes;

@@ -43,7 +43,7 @@
 namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
-      this->setPluginVersion("0.73b");
+      this->setPluginVersion("0.93");
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {
@@ -147,6 +147,10 @@ namespace beliefstate {
 		expOwl->configuration()->setValue(string("display-successes"), (int)seServiceEvent.cdDesignator->floatValue("show-successes"));
 		expOwl->configuration()->setValue(string("display-failures"), (int)seServiceEvent.cdDesignator->floatValue("show-fails"));
 		expOwl->configuration()->setValue(string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));
+		
+		if(evCar.ndRoot) {
+		  expOwl->setRootNode(evCar.ndRoot);
+		}
 		
 		bool bFailed = false;
 		for(Node* ndNode : evCar.lstNodes) {

@@ -48,7 +48,7 @@ namespace beliefstate {
       m_bRoslogMessages = false;
       m_bFirstContextReceived = false;
       
-      this->setPluginVersion("0.91");
+      this->setPluginVersion("0.93");
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {

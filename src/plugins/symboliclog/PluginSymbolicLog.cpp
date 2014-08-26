@@ -44,7 +44,7 @@ namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       this->addDependency("imagecapturer");
-      this->setPluginVersion("0.9");
+      this->setPluginVersion("0.93");
       
       m_prLastFailure = make_pair("", (Node*)NULL);
       
@@ -52,6 +52,7 @@ namespace beliefstate {
       srand(time(NULL));
       
       m_ndActive = NULL;
+      m_ndRoot = NULL;
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {
@@ -110,6 +111,7 @@ namespace beliefstate {
 	if(seServiceEvent.strServiceName == "symbolic-plan-tree") {
 	  // Requested the whole symbolic plan log
 	  evReturn.lstNodes = m_lstNodes;
+	  evReturn.ndRoot = m_ndRoot;
 	  
 	  evReturn.lstDesignatorIDs = m_lstDesignatorIDs;
 	  evReturn.lstEquations = m_lstDesignatorEquations;
@@ -120,6 +122,8 @@ namespace beliefstate {
 	  
 	  while(ndCurrent) {
 	    evReturn.lstNodes.push_back(ndCurrent);
+	    evReturn.ndRoot = m_ndRoot;
+	    
 	    ndCurrent = ndCurrent->parent();
 	  }
 	}
@@ -541,10 +545,14 @@ namespace beliefstate {
     }
     
     void PLUGIN_CLASS::setNodeAsActive(Node* ndActive) {
-      m_ndActive = ndActive;
       bool bSame = false;
+      m_ndActive = ndActive;
       
-      if(m_ndActive && ndActive) {
+      if(!m_ndRoot) {
+	m_ndRoot = m_ndActive;
+      }
+      
+      if(m_ndActive) {
 	bSame = (m_ndActive->id() == ndActive->id());
       }
       
