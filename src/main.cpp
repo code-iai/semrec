@@ -138,6 +138,7 @@ int main(int argc, char** argv) {
       hdlrOldSIGWINCH = signal(SIGWINCH, SIG_IGN);
       sigaction(SIGWINCH, &action, NULL);
       
+      g_bsBeliefstate->info("Initialization complete, ready for action.", true);
       while(g_bsBeliefstate->cycle()) {
 	// Idle here at will.
       }
