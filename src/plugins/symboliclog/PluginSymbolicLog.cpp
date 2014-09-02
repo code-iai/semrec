@@ -133,16 +133,16 @@ namespace beliefstate {
     
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "begin-context") {
-	string strName = evEvent.cdDesignator->stringValue("_name");
+	std::string strName = evEvent.cdDesignator->stringValue("_name");
 	
 	Node* ndFormerParent = this->activeNode();
 	Node* ndNew = this->addNode(strName, evEvent.nContextID);
 	ndNew->setDescription(evEvent.cdDesignator->description());
 	
-	ndNew->metaInformation()->setValue(string("time-start"), this->getTimeStampStr());
+	ndNew->metaInformation()->setValue(std::string("time-start"), this->getTimeStampStr());
 	
 	int nDetailLevel = (int)evEvent.cdDesignator->floatValue("_detail-level");
-	ndNew->metaInformation()->setValue(string("detail-level"), nDetailLevel);
+	ndNew->metaInformation()->setValue(std::string("detail-level"), nDetailLevel);
 	
 	Event evSymbolicBeginCtx = defaultEvent("symbolic-begin-context");
 	evSymbolicBeginCtx.lstNodes.push_back(ndNew);
@@ -162,7 +162,7 @@ namespace beliefstate {
 	
 	if(ndCurrent) {
 	  if(ndCurrent->id() == nID) {
-	    stringstream sts;
+	    std::stringstream sts;
 	    sts << "Received stop context designator for ID " << nID << " (success: " << (nSuccess ? "yes" : "no") << ")";
 	    this->info(sts.str());
 	    
@@ -172,11 +172,11 @@ namespace beliefstate {
 	      // NOTE(winkler): This would be the right spot to
 	      // forward the 'failed' condition towards all underlying
 	      // node structures (to signal that this branch failed).
-	      ndCurrent->metaInformation()->setValue(string("success"), nSuccess);
+	      ndCurrent->metaInformation()->setValue(std::string("success"), nSuccess);
 	    }
 	    
-	    string strTimeEnd = this->getTimeStampStr();
-	    ndCurrent->metaInformation()->setValue(string("time-end"), strTimeEnd);
+	    std::string strTimeEnd = this->getTimeStampStr();
+	    ndCurrent->metaInformation()->setValue(std::string("time-end"), strTimeEnd);
 	    
 	    Node *ndParent = ndCurrent->parent();
 	    Node *ndParentLastValid = NULL;
@@ -186,18 +186,18 @@ namespace beliefstate {
 	      ndParentLastValid = ndParent;
 	      
 	      if(ndParent->prematurelyEnded()) {
-		stringstream sts_id;
+		std::stringstream sts_id;
 		sts_id << ndParent->id();
 		this->info("Node ID " + sts_id.str() + " ended prematurely, removing from context stack.");
 		
 		// Setting the same values for success and end time as
 		// for the actually ended node.
-		ndParent->metaInformation()->setValue(string("time-end"), strTimeEnd);
+		ndParent->metaInformation()->setValue(std::string("time-end"), strTimeEnd);
 		
 		// Set success only if no failures are present (in
 		// which case the success is set to 'false' already)
 		if(!ndParent->hasFailures()) {
-		  ndParent->metaInformation()->setValue(string("success"), nSuccess);
+		  ndParent->metaInformation()->setValue(std::string("success"), nSuccess);
 		}
 		
 		Event evSymbolicEndCtx = defaultEvent("symbolic-end-context");
@@ -220,11 +220,11 @@ namespace beliefstate {
 	    evSymbolicEndCtx.lstNodes.push_back(ndCurrent);
 	    this->deployEvent(evSymbolicEndCtx);
 	  } else {
-	    stringstream sts;
+	    std::stringstream sts;
 	    sts << "Received stop node designator for ID " << nID << " while ID " << ndCurrent->id() << " is active.";
 	    this->info(sts.str());
 	    
-	    string strTimeEnd = this->getTimeStampStr();
+	    std::string strTimeEnd = this->getTimeStampStr();
 	    Node *ndEndedPrematurely = NULL;
 	    Node *ndSearchTemp = ndCurrent;
 	    
@@ -402,7 +402,7 @@ namespace beliefstate {
 		this->warn("Added non-existant parent-designator during 'equate'");
 	      }
 	      
-	      string strEquationTime = this->equateDesignators(strMemAddrChild, strMemAddrParent);
+	      string strEquationTime = this->equateDesignators(strMemAddrChild, ckvpDescChild, strMemAddrParent, ckvpDescParent);
 	      
 	      string strUniqueIDParent = this->getDesignatorID(strMemAddrParent);
 	      string strUniqueIDChild = this->getDesignatorID(strMemAddrChild);
@@ -430,7 +430,7 @@ namespace beliefstate {
 	      string strMemAddr = evEvent.cdDesignator->stringValue("memory-address");
 	      
 	      bool bDesigExists = (this->getDesignatorID(strMemAddr) != "");
-	      string strUniqueID = this->getUniqueDesignatorID(strMemAddr);
+	      string strUniqueID = this->getUniqueDesignatorID(strMemAddr, ckvpDesc);
 	      if(!bDesigExists) { // Object does not yet exist. Add it
 				  // symbolically.
 		this->info("Adding non-existant object-designator to current context");
@@ -581,8 +581,8 @@ namespace beliefstate {
       return m_ndActive;
     }
     
-    string PLUGIN_CLASS::getDesignatorID(string strMemoryAddress) {
-      string strID = "";
+    std::string PLUGIN_CLASS::getDesignatorID(std::string strMemoryAddress) {
+      std::string strID = "";
       
       for(pair<string, string> prPair : m_lstDesignatorIDs) {
 	if(prPair.first == strMemoryAddress) {
@@ -594,7 +594,7 @@ namespace beliefstate {
       return strID;
     }
     
-    string PLUGIN_CLASS::getUniqueDesignatorID(string strMemoryAddress) {
+    std::string PLUGIN_CLASS::getUniqueDesignatorID(string strMemoryAddress, CKeyValuePair* ckvpDescription) {
       string strID = this->getDesignatorID(strMemoryAddress);
       
       if(strID == "") {
@@ -625,9 +625,9 @@ namespace beliefstate {
       return sts.str();
     }
     
-    string PLUGIN_CLASS::equateDesignators(string strMAChild, string strMAParent) {
-      string strIDChild = this->getUniqueDesignatorID(strMAChild);
-      string strIDParent = this->getUniqueDesignatorID(strMAParent);
+    string PLUGIN_CLASS::equateDesignators(std::string strMAChild, CKeyValuePair* ckvpDescriptionChild, std::string strMAParent, CKeyValuePair* ckvpDescriptionParent) {
+      string strIDChild = this->getUniqueDesignatorID(strMAChild, ckvpDescriptionChild);
+      string strIDParent = this->getUniqueDesignatorID(strMAParent, ckvpDescriptionParent);
       
       string strTimeStart = this->getTimeStampStr();
       
@@ -639,12 +639,14 @@ namespace beliefstate {
     
     bool PLUGIN_CLASS::ensureDesignatorPublished(list<CKeyValuePair*> lstDescription, string strMemoryAddress, string strType, string strAnnotation, bool bAdd) {
       bool bDesigExists = (this->getDesignatorID(strMemoryAddress) != "");
-      string strUniqueID = this->getUniqueDesignatorID(strMemoryAddress);
+      CKeyValuePair* ckvpTemp = new CKeyValuePair(lstDescription);
+      std::string strUniqueID = this->getUniqueDesignatorID(strMemoryAddress, ckvpTemp);
+      delete ckvpTemp;
       
       if(bAdd) {
 	this->activeNode()->addDesignator(strType, lstDescription, strUniqueID, strAnnotation);
 	
-	stringstream sts;
+	std::stringstream sts;
 	sts << this->activeNode()->id();
 	this->info("Added '" + strType + "' designator (addr=" + strMemoryAddress + ") to active context (id " + sts.str() + "): '" + strUniqueID + "', annotation: '" + strAnnotation + "'");
       }
@@ -689,8 +691,8 @@ namespace beliefstate {
       
       if(ckvpParent->childForKey("_designator_memory_address")) {
 	strMemAddr = ckvpParent->childForKey("_designator_memory_address")->stringValue();
-	string strID = this->getUniqueDesignatorID(strMemAddr);
-	ckvpParent->setValue("_id", strID);	
+	string strID = this->getUniqueDesignatorID(strMemAddr, ckvpParent);
+	ckvpParent->setValue("_id", strID);
 	bIsDesignator = true;
       }
       

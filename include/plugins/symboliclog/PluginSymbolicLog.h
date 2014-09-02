@@ -92,9 +92,9 @@ namespace beliefstate {
       Node* activeNode();
       
       std::string getDesignatorID(std::string strMemoryAddress);
-      std::string getUniqueDesignatorID(std::string strMemoryAddress);
+      std::string getUniqueDesignatorID(std::string strMemoryAddress, CKeyValuePair* ckvpDescription);
       std::string generateRandomIdentifier(std::string strPrefix, unsigned int unLength);
-      std::string equateDesignators(std::string strMAChild, std::string strMAParent);
+      std::string equateDesignators(std::string strMAChild, CKeyValuePair* ckvpDescriptionChild, std::string strMAParent, CKeyValuePair* ckvpDescriptionParent);
       
       bool ensureDesignatorPublished(std::list<CKeyValuePair*> lstDescription, std::string strMemoryAddress, std::string strType, std::string strAnnotation = "", bool bAdd = false);
       void setNestedDesignatorUniqueIDs(CKeyValuePair* ckvpParent);
