@@ -594,11 +594,34 @@ namespace beliefstate {
       return strID;
     }
     
+    std::string PLUGIN_CLASS::getDesignatorIDType(CKeyValuePair* ckvpDescription) {
+      // Specialize the designator ID type here. For now, just
+      // distinguish between action, object, and location designators.
+      std::string strType = "designator";
+      
+      switch(ckvpDescription->type()) {
+      case DESIGNATOR_ACTION:
+	strType = "action";
+	break;
+	
+      case DESIGNATOR_OBJECT:
+	strType = "object";
+	break;
+	
+      case DESIGNATOR_LOCATION:
+	strType = "location";
+	break;
+	
+      default:
+	break;
+      }
+    }
+    
     std::string PLUGIN_CLASS::getUniqueDesignatorID(string strMemoryAddress, CKeyValuePair* ckvpDescription) {
       string strID = this->getDesignatorID(strMemoryAddress);
       
       if(strID == "") {
-	strID = this->generateRandomIdentifier("designator_", 14);
+	strID = this->generateRandomIdentifier(this->getDesignatorIDType(ckvpDescription) + "_", 14);
 	m_lstDesignatorIDs.push_back(make_pair(strMemoryAddress, strID));
       }
       

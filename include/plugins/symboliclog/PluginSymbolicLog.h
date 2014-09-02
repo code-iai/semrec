@@ -92,6 +92,7 @@ namespace beliefstate {
       Node* activeNode();
       
       std::string getDesignatorID(std::string strMemoryAddress);
+      std::string getDesignatorIDType(CKeyValuePair* ckvpDescription);
       std::string getUniqueDesignatorID(std::string strMemoryAddress, CKeyValuePair* ckvpDescription);
       std::string generateRandomIdentifier(std::string strPrefix, unsigned int unLength);
       std::string equateDesignators(std::string strMAChild, CKeyValuePair* ckvpDescriptionChild, std::string strMAParent, CKeyValuePair* ckvpDescriptionParent);
