@@ -57,14 +57,19 @@ namespace beliefstate {
   
   /*! \brief Enumeration of possible ServiceEvent types */
   typedef enum {
+    /*! \brief This is a service request */
     SI_REQUEST,
+    /*! \brief This is a service response */
     SI_RESPONSE
   } ServiceIdentifier;
   
   /*! \brief Enumeration of possible ServiceEvent modificator flags */
   typedef enum {
+    /*! \brief Only return the first response for this service request */
     SM_FIRST_RESULT,
+    /*! \brief Return all responses for this service request */
     SM_AGGREGATE_RESULTS,
+    /*! \brief Don't collect results for this service request */
     SM_IGNORE_RESULTS
   } ServiceModifier;
   
@@ -73,26 +78,59 @@ namespace beliefstate {
    The fixed result types are mostly used internally, for plugin
    loading. */
   typedef enum {
+    /*! \brief No specific fixed result identifier
+     
+     This is the default value for most cases. */
     RI_NONE,
+    /*! \brief Loading a plugin failed */
     RI_PLUGIN_LOADING_FAILED,
+    /*! \brief A configuration file was not found */
     RI_CONFIG_FILE_NOT_FOUND,
+    /*! \brief A file to load was not found */
     RI_FILE_NOT_FOUND,
+    /*! \brief Dependencies for loading a plugin were not met */
     RI_PLUGIN_DEPENDENCY_NOT_MET,
+    /*! \brief A plugin is not loading because it is a development plugin
+     
+     Plugins can be specifically declared as development plugins. When
+     the central system is configured to not load development plugins,
+     these are not loaded, and don't signal a failure. Is the system
+     is configured to load development plugins, this plugin setting is
+     ignored. A message will be displayed in both cases, informing the
+     user about the development plugin and how it is handled. */
     RI_PLUGIN_DEVELOPMENT_NOT_LOADING
   } ResultIdentifier;
   
   /*! \brief Structure describing a status message to be printed to the screen */
   typedef struct {
+    /*! \brief The color code (two digit integer) to use for printing this message */
     std::string strColorCode;
+    /*! \brief Signals whether this message is printed in bold letters */
     bool bBold;
+    /*! \brief The [prefix] to print for this message
+     
+     This has purely esthetical purposes, but helps to distinguish
+     output on the command line. */
     std::string strPrefix;
+    /*! \brief The message to print */
     std::string strMessage;
   } StatusMessage;
   
   /*! \brief Central Event structure, allowing information flow between components */
   typedef struct {
+    /*! \brief The event's identifier
+      
+      Every event needs to have an identifier, allowing components
+      such as the main system and receiving plugins to distinguish on
+      how to handle the event. Plugins can also subscribe to specific
+      types of events, only receiving the types they actually
+      subscribed to. */
     std::string strEventName;
     int nContextID;
+    /*! \brief An optional designator to accompany the event
+      
+      Designators can hold arbitrary information for an event and helps
+      receiving components to process them. */
     CDesignator* cdDesignator;
     std::string strSupplementary;
     std::string strAnnotation;
