@@ -55,8 +55,8 @@ namespace beliefstate {
     
     this->setMessagePrefixLabel("core");
     
-    m_lstConfigFileLocations.push_back("./");
-    m_lstConfigFileLocations.push_back("~/.beliefstate/");
+    m_lstConfigFileLocations.push_back(""); // Current directory
+    m_lstConfigFileLocations.push_back(this->resolveDirectoryTokens("${HOME}/.beliefstate/")); // Home directory
   }
   
   Beliefstate::~Beliefstate() {
@@ -72,28 +72,29 @@ namespace beliefstate {
     // Do the actual init here.
     m_psPlugins = new PluginSystem(m_argc, m_argv);
     
-    bool bConfigLoaded = false;
-    if(strConfigFile != "") {
-      bConfigLoaded = this->loadConfigFile(strConfigFile);
+    std::list<std::string> lstConfigFiles;
+    for(std::string strLocation : m_lstConfigFileLocations) {
+      std::string strLocationCleaned = strLocation;
+      if(strLocationCleaned[strLocationCleaned.length() - 1] != '/') {
+	strLocationCleaned += "/";
+      }
+      
+      strLocationCleaned += "config.cfg";
+      lstConfigFiles.push_back(strLocationCleaned);
     }
     
-    if(!bConfigLoaded) {
-      for(std::string strPath : m_lstConfigFileLocations) {
-	if(strPath.length() > 0) {
-	  if(strPath[strPath.length() - 1] != '/') {
-	    strPath += "/";
-	  }
-	}
+    if(strConfigFile != "") {
+      lstConfigFiles.push_front(strConfigFile);
+    }
+    
+    bool bConfigLoaded = false;
+    for(std::string strConfigFileCurrent : lstConfigFiles) {
+      if(this->loadConfigFile(strConfigFileCurrent)) {
+	this->info("Loaded config file '" + strConfigFileCurrent + "'.");
+	bConfigLoaded = true;
 	
-	if(this->loadConfigFile(strPath + "config.cfg")) {
-	  bConfigLoaded = true;
-	  this->info("Loaded config file '" + strPath + "config.cfg'.");
-	  
-	  break;
-	}
+	break;
       }
-    } else {
-      this->info("Loaded config file '" + strConfigFile + "'.");
     }
     
     if(bConfigLoaded) {

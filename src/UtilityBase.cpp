@@ -88,15 +88,16 @@ namespace beliefstate {
   }
   
   bool UtilityBase::fileExists(std::string strFileName) {
-    std::ifstream ifile(strFileName.c_str());
+    bool bGood = false;
+    std::ifstream ifile(strFileName.c_str(), std::ifstream::in);
     
     if(ifile) {
-      ifile.close();
+      bGood = ifile.good();
       
-      return true;
+      ifile.close();
     }
     
-    return false;
+    return bGood;
   }
   
   std::string UtilityBase::stripPostfix(std::string strString, std::string strPostfix) {
