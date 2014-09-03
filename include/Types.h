@@ -55,17 +55,23 @@
 namespace beliefstate {
   class PluginInstance;
   
+  /*! \brief Enumeration of possible ServiceEvent types */
   typedef enum {
     SI_REQUEST,
     SI_RESPONSE
   } ServiceIdentifier;
   
+  /*! \brief Enumeration of possible ServiceEvent modificator flags */
   typedef enum {
     SM_FIRST_RESULT,
     SM_AGGREGATE_RESULTS,
     SM_IGNORE_RESULTS
   } ServiceModifier;
   
+  /*! \brief Enumeration of fixed result types
+   
+   The fixed result types are mostly used internally, for plugin
+   loading. */
   typedef enum {
     RI_NONE,
     RI_PLUGIN_LOADING_FAILED,
@@ -75,6 +81,7 @@ namespace beliefstate {
     RI_PLUGIN_DEVELOPMENT_NOT_LOADING
   } ResultIdentifier;
   
+  /*! \brief Structure describing a status message to be printed to the screen */
   typedef struct {
     std::string strColorCode;
     bool bBold;
@@ -82,6 +89,7 @@ namespace beliefstate {
     std::string strMessage;
   } StatusMessage;
   
+  /*! \brief Central Event structure, allowing information flow between components */
   typedef struct {
     std::string strEventName;
     int nContextID;
@@ -100,6 +108,7 @@ namespace beliefstate {
     std::list< std::pair<std::string, std::string> > lstEquationTimes;
   } Event;
   
+  /*! \brief Central ServiceEvent structure, allowing asynchronous services between components */
   typedef struct {
     ServiceIdentifier siServiceIdentifier;
     ServiceModifier smResultModifier;
@@ -110,6 +119,10 @@ namespace beliefstate {
     std::list<Event> lstResultEvents;
   } ServiceEvent;
   
+  /*! \brief Central Result container for requests of all types
+   
+    This structure handles primarily success and failure flags inside
+    of the system, also allowing additional information. */
   typedef struct {
     // Generic fields
     bool bSuccess;
@@ -126,6 +139,9 @@ namespace beliefstate {
     PluginInstance* piPlugin;
   } Result;
   
+  /*! \brief Configuration settings container
+    
+    Used to store configurations for the main system, and for individual plugins. */
   typedef struct {
     // Basics
     std::string strBaseDataDirectory;
