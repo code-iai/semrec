@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
 catkin_package(
   INCLUDE_DIRS include 3rdparty
-  LIBRARIES bs_plugin_ros bs_plugin_gazebo bs_plugin_console bs_plugin_experiment_knowledge bs_plugin_experiment_context bs_plugin_interactive bs_plugin_symboliclog bs_plugin_supervisor bs_plugin_owlexporter bs_plugin_dotexporter
+  LIBRARIES bs_plugin_ros bs_plugin_gazebo bs_plugin_console bs_plugin_experiment_context bs_plugin_interactive bs_plugin_symboliclog bs_plugin_supervisor bs_plugin_owlexporter bs_plugin_dotexporter
   CATKIN_DEPENDS roscpp roslib designator_integration designator_integration_msgs sensor_msgs cv_bridge interactive_markers visualization_msgs
 )
 
@@ -74,11 +74,6 @@ add_library(bs_plugin_console SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
   src/plugins/console/PluginConsole.cpp)
-
-add_library(bs_plugin_experiment_knowledge SHARED
-  src/GlobalFunctions.cpp
-  src/Plugin.cpp
-  src/plugins/experiment-knowledge/PluginExperimentKnowledge.cpp)
 
 add_library(bs_plugin_experiment_context SHARED
   src/GlobalFunctions.cpp
@@ -165,10 +160,6 @@ target_link_libraries(bs_plugin_gazebo
 target_link_libraries(bs_plugin_console
   bs_base_plugins
   ncurses
-)
-
-target_link_libraries(bs_plugin_experiment_knowledge
-  bs_base_plugins
 )
 
 target_link_libraries(bs_plugin_experiment_context
