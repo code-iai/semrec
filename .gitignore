@@ -1,3 +1,4 @@
 *~
-*.rrd
+logmemory.*
+logstats.*
 doc/doxygen
