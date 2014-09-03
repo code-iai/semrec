@@ -375,7 +375,7 @@ namespace beliefstate {
 	    string strAnnotation = evEvent.cdDesignator->stringValue("annotation");
 	    string strMemAddr = evEvent.cdDesignator->stringValue("memory-address");
 	    
-	    CKeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description");
+	    CKeyValuePair* ckvpDesc = evEvent.cdDesignator->childForKey("description");
 	    
 	    list<CKeyValuePair*> lstDescription = ckvpDesc->children();
 	    this->ensureDesignatorPublished(lstDescription, strMemAddr, strType, strAnnotation, true);
@@ -402,7 +402,13 @@ namespace beliefstate {
 		this->warn("Added non-existant parent-designator during 'equate'");
 	      }
 	      
-	      string strEquationTime = this->equateDesignators(strMemAddrChild, ckvpDescChild, strMemAddrParent, ckvpDescParent);
+	      CDesignator* desigChild = this->makeDesignator(evEvent.cdDesignator->stringValue("type-child"), ckvpDescChild->children());
+	      CDesignator* desigParent = this->makeDesignator(evEvent.cdDesignator->stringValue("type-parent"), ckvpDescParent->children());
+	      
+	      string strEquationTime = this->equateDesignators(strMemAddrChild, desigChild, strMemAddrParent, desigParent);
+	      
+	      delete desigChild;
+	      delete desigParent;
 	      
 	      string strUniqueIDParent = this->getDesignatorID(strMemAddrParent);
 	      string strUniqueIDChild = this->getDesignatorID(strMemAddrChild);
@@ -430,7 +436,11 @@ namespace beliefstate {
 	      string strMemAddr = evEvent.cdDesignator->stringValue("memory-address");
 	      
 	      bool bDesigExists = (this->getDesignatorID(strMemAddr) != "");
-	      string strUniqueID = this->getUniqueDesignatorID(strMemAddr, ckvpDesc);
+	      
+	      CDesignator* desigCurrent = this->makeDesignator(strType, ckvpDesc->children());
+	      string strUniqueID = this->getUniqueDesignatorID(strMemAddr, desigCurrent);
+	      delete desigCurrent;
+	      
 	      if(!bDesigExists) { // Object does not yet exist. Add it
 				  // symbolically.
 		this->info("Adding non-existant object-designator to current context");
@@ -594,34 +604,36 @@ namespace beliefstate {
       return strID;
     }
     
-    std::string PLUGIN_CLASS::getDesignatorIDType(CKeyValuePair* ckvpDescription) {
+    std::string PLUGIN_CLASS::getDesignatorIDType(CDesignator* desigCurrent) {
       // Specialize the designator ID type here. For now, just
       // distinguish between action, object, and location designators.
       std::string strType = "designator";
       
-      switch(ckvpDescription->type()) {
-      case DESIGNATOR_ACTION:
+      switch(desigCurrent->type()) {
+      case ACTION:
 	strType = "action";
 	break;
 	
-      case DESIGNATOR_OBJECT:
+      case OBJECT:
 	strType = "object";
 	break;
 	
-      case DESIGNATOR_LOCATION:
+      case LOCATION:
 	strType = "location";
 	break;
 	
       default:
 	break;
       }
+      
+      return strType;
     }
     
-    std::string PLUGIN_CLASS::getUniqueDesignatorID(string strMemoryAddress, CKeyValuePair* ckvpDescription) {
+    std::string PLUGIN_CLASS::getUniqueDesignatorID(string strMemoryAddress, CDesignator* desigCurrent) {
       string strID = this->getDesignatorID(strMemoryAddress);
       
       if(strID == "") {
-	strID = this->generateRandomIdentifier(this->getDesignatorIDType(ckvpDescription) + "_", 14);
+	strID = this->generateRandomIdentifier(this->getDesignatorIDType(desigCurrent) + "_", 14);
 	m_lstDesignatorIDs.push_back(make_pair(strMemoryAddress, strID));
       }
       
@@ -648,9 +660,9 @@ namespace beliefstate {
       return sts.str();
     }
     
-    string PLUGIN_CLASS::equateDesignators(std::string strMAChild, CKeyValuePair* ckvpDescriptionChild, std::string strMAParent, CKeyValuePair* ckvpDescriptionParent) {
-      string strIDChild = this->getUniqueDesignatorID(strMAChild, ckvpDescriptionChild);
-      string strIDParent = this->getUniqueDesignatorID(strMAParent, ckvpDescriptionParent);
+    string PLUGIN_CLASS::equateDesignators(std::string strMAChild, CDesignator* desigChild, std::string strMAParent, CDesignator* desigParent) {
+      string strIDChild = this->getUniqueDesignatorID(strMAChild, desigChild);
+      string strIDParent = this->getUniqueDesignatorID(strMAParent, desigParent);
       
       string strTimeStart = this->getTimeStampStr();
       
@@ -662,9 +674,10 @@ namespace beliefstate {
     
     bool PLUGIN_CLASS::ensureDesignatorPublished(list<CKeyValuePair*> lstDescription, string strMemoryAddress, string strType, string strAnnotation, bool bAdd) {
       bool bDesigExists = (this->getDesignatorID(strMemoryAddress) != "");
-      CKeyValuePair* ckvpTemp = new CKeyValuePair(lstDescription);
-      std::string strUniqueID = this->getUniqueDesignatorID(strMemoryAddress, ckvpTemp);
-      delete ckvpTemp;
+      
+      CDesignator* desigCurrent = this->makeDesignator(strType, lstDescription);
+      std::string strUniqueID = this->getUniqueDesignatorID(strMemoryAddress, desigCurrent);
+      delete desigCurrent;
       
       if(bAdd) {
 	this->activeNode()->addDesignator(strType, lstDescription, strUniqueID, strAnnotation);
@@ -714,7 +727,10 @@ namespace beliefstate {
       
       if(ckvpParent->childForKey("_designator_memory_address")) {
 	strMemAddr = ckvpParent->childForKey("_designator_memory_address")->stringValue();
-	string strID = this->getUniqueDesignatorID(strMemAddr, ckvpParent);
+	CDesignator* desigCurrent = this->makeDesignator("", ckvpParent->children());
+	string strID = this->getUniqueDesignatorID(strMemAddr, desigCurrent);
+	delete desigCurrent;
+	
 	ckvpParent->setValue("_id", strID);
 	bIsDesignator = true;
       }
@@ -731,6 +747,24 @@ namespace beliefstate {
 	
 	this->ensureDesignatorPublished(ckvpParent->children(), strMemAddr, strType);
       }
+    }
+    
+    CDesignator* PLUGIN_CLASS::makeDesignator(enum DesignatorType edtType, list<CKeyValuePair*> lstDescription) {
+      return new CDesignator(edtType, lstDescription);
+    }
+    
+    CDesignator* PLUGIN_CLASS::makeDesignator(std::string strType, list<CKeyValuePair*> lstDescription) {
+      enum DesignatorType edtType = UNKNOWN;
+      
+      if(strType == "ACTION") {
+	edtType = ACTION;
+      } else if(strType == "OBJECT") {
+	edtType = OBJECT;
+      } else if(strType == "LOCATION") {
+	edtType = LOCATION;
+      }
+      
+      return this->makeDesignator(edtType, lstDescription);
     }
   }
   
