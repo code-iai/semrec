@@ -133,12 +133,15 @@ namespace beliefstate {
       receiving components to process them. */
     CDesignator* cdDesignator;
     std::string strSupplementary;
+    /*! \brief Optional extra annotation for this event */
     std::string strAnnotation;
+    /*! \brief Internal ID of origin plugin for reference */
     int nOriginID;
     int nOpenRequestID;
     bool bRequest;
     bool bPreempt;
     StatusMessage msgStatusMessage;
+    /*! \brief Node references accompanying this event */
     std::list<Node*> lstNodes;
     std::list<Node*> lstRootNodes;
     std::list< std::pair<std::string, std::string> > lstDesignatorIDs;
