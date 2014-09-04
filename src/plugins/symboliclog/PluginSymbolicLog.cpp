@@ -139,7 +139,12 @@ namespace beliefstate {
 	Node* ndNew = this->addNode(strName, evEvent.nContextID);
 	ndNew->setDescription(evEvent.cdDesignator->description());
 	
-	ndNew->metaInformation()->setValue(std::string("time-start"), this->getTimeStampStr());
+	std::string strTimeStart = this->getTimeStampStr();
+	if(evEvent.cdDesignator->childForKey("time-start")) {
+	  strTimeStart = this->str((int)evEvent.cdDesignator->floatValue("time-start"));
+	}
+	
+	ndNew->metaInformation()->setValue(std::string("time-start"), strTimeStart);
 	
 	int nDetailLevel = (int)evEvent.cdDesignator->floatValue("_detail-level");
 	ndNew->metaInformation()->setValue(std::string("detail-level"), nDetailLevel);
@@ -176,6 +181,9 @@ namespace beliefstate {
 	    }
 	    
 	    std::string strTimeEnd = this->getTimeStampStr();
+	    if(evEvent.cdDesignator->childForKey("time-end")) {
+	      strTimeEnd = this->str((int)evEvent.cdDesignator->floatValue("time-end"));
+	    }
 	    ndCurrent->metaInformation()->setValue(std::string("time-end"), strTimeEnd);
 	    
 	    Node *ndParent = ndCurrent->parent();
