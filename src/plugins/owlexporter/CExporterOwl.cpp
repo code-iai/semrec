@@ -371,11 +371,18 @@ namespace beliefstate {
 	    strOwlClass = this->owlClassForNode(ndCurrent);
 	  }
 	  
+	  // NOTE: The position of this line causes that newer nodes
+	  // are always further up in the log. If this is not
+	  // intended, move it below the generation code for the
+	  // current node.
 	  strDot += this->generateEventIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
 	  
+	  // NOTE: Here, the generation code the the current node
+	  // begins.
 	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
 	  strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
 	  strDot += "        <knowrob:taskContext rdf:datatype=\"&xsd;string\">" + ndCurrent->title() + "</knowrob:taskContext>\n";
+	  strDot += "        <knowrob:taskSuccess rdf:datatype=\"&xsd;boolean\">" + (ndCurrent->success() ? string("true") : string("false")) + "</knowrob:taskSuccess>\n";
 	  strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-start") + "\"/>\n";
 	  strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-end") + "\"/>\n";
 	  
