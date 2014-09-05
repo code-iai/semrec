@@ -108,7 +108,7 @@ namespace beliefstate {
       this->parseArray(jobj, NULL, prParent);
       break;
       
-    case json_type_object:
+    case json_type_object: {
       json_object_object_foreach(jobj, key, val) {
         Property* prChild = new Property();
         prParent->addSubProperty(prChild);
@@ -117,7 +117,7 @@ namespace beliefstate {
 	
         this->parse(val, prChild);
       }
-      break;
+    } break;
       
     default:
       break;
