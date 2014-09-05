@@ -59,7 +59,7 @@ namespace beliefstate {
     std::string generateDotStringForNodes(std::list<Node*> lstNodes, std::string strParentID);
     std::string generateDotImagesStringForNode(Node* ndImages);
     std::string generateDotObjectsStringForNode(Node* ndObjects);
-    std::string generateDotStringForDescription(std::list<CKeyValuePair*> lstDescription);  
+    std::string generateDotStringForDescription(std::list<CKeyValuePair*> lstDescription, int nTimeStart = -1, int nTimeEnd = -1);
     std::string dotEscapeString(std::string strValue);
   };
 }

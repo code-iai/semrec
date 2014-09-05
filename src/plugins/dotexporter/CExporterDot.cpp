@@ -69,8 +69,16 @@ namespace beliefstate {
     return false;
   }
   
-  string CExporterDot::generateDotStringForDescription(std::list<CKeyValuePair*> lstDescription) {
+  string CExporterDot::generateDotStringForDescription(std::list<CKeyValuePair*> lstDescription, int nTimeStart, int nTimeEnd) {
     std::string strDot = "";
+    
+    if(nTimeStart > -1) {
+      strDot += "|{time-start | " + this->str(nTimeStart) + "}";
+    }
+    
+    if(nTimeEnd > -1) {
+      strDot += "|{time-end | " + this->str(nTimeEnd) + "}";
+    }
     
     for(CKeyValuePair* ckvpCurrent : lstDescription) {
       if(ckvpCurrent->key().at(0) != '_') {
@@ -150,7 +158,9 @@ namespace beliefstate {
 	  strEdgeColor = "red";
 	}
 	
-	std::string strParameters = this->generateDotStringForDescription(ndCurrent->description());
+	std::string strParameters = this->generateDotStringForDescription(ndCurrent->description(),
+									  ndCurrent->metaInformation()->floatValue("time-start"),
+									  ndCurrent->metaInformation()->floatValue("time-end"));
 	std::string strLabel = "{" + this->dotEscapeString(ndCurrent->title()) + strParameters + "}";
 	
 	strDot += "\n  " + strNodeID + " [shape=Mrecord, style=filled, fillcolor=\"" + strFillColor + "\", label=\"" + strLabel + "\"];\n";
