@@ -504,6 +504,7 @@ namespace beliefstate {
 		  for(CKeyValuePair* ckvpChild : ckvpChildren->children()) {
 		    std::string strKey = ckvpChild->key();
 		    std::stringstream sts;
+		    bool bSupportedType = true;
 		    
 		    switch(ckvpChild->type()) {
 		    case FLOAT:
@@ -516,10 +517,17 @@ namespace beliefstate {
 		      
 		    default:
 		      this->warn("Unsupported parameter annotation type for key '" + strKey + "'.");
+		      bSupportedType = false;
 		      break;
 		    }
 		    
-		    strDot += "        <knowrob:" + strKey + ">" + sts.str() + "</knowrob:" + strKey + ">\n";
+		    if(bSupportedType) {
+		      if(find(m_lstAnnotatedParameters.begin(), m_lstAnnotatedParameters.end(), strKey) == m_lstAnnotatedParameters.end()) {
+			m_lstAnnotatedParameters.push_back(strKey);
+		      }
+		      
+		      strDot += "        <knowrob:" + strKey + ">" + sts.str() + "</knowrob:" + strKey + ">\n";
+		    }
 		  }
 		}
 	      }
@@ -782,6 +790,22 @@ namespace beliefstate {
     return strDot;
   }
   
+  std::string CExporterOwl::generateParameterAnnotationInformation(std::string strNamespace) {
+    std::string strDot = "    <!-- Parameter Annotation Information Individual -->\n\n";
+    std::string strUniqueName = this->generateUniqueID("AnnotationInformation_", 8);
+    
+    strDot += "    <owl:NamedIndividual rdf:about=\"&" + strNamespace + ";" + strUniqueName + "\">\n";
+    strDot += "        <rdf:type rdf:resource=\"&knowrob;AnnotationInformation\"/>\n";
+    
+    for(std::string strParameterAnnotation : m_lstAnnotatedParameters) {
+      strDot += "        <knowrob:annotatedParameterType rdf:datatype=\"&xsd;string\">" + strParameterAnnotation + "</knowrob:annotatedParameterType>\n";
+    }
+    
+    strDot += "    </owl:NamedIndividual>\n\n";
+    
+    return strDot;
+  }
+  
   std::string CExporterOwl::owlClassForNode(Node *ndNode, bool bClassOnly, bool bPrologSyntax) {
     std::string strName = "";
     
@@ -919,6 +943,8 @@ namespace beliefstate {
   }
   
   bool CExporterOwl::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
+    m_lstAnnotatedParameters.clear();
+    
     this->info("Renewing unique IDs");
     this->renewUniqueIDs();
     
@@ -981,6 +1007,8 @@ namespace beliefstate {
     strOwl += this->generateTimepointIndividuals(strNamespaceID);
     this->info(" - Meta Data");
     strOwl += this->generateMetaDataIndividual(strNamespaceID);
+    this->info(" - Parameter Annotations");
+    strOwl += this->generateParameterAnnotationInformation(strNamespaceID);
     strOwl += "</rdf:RDF>\n";
     
     return strOwl;

@@ -44,6 +44,9 @@
 // System
 #include <string>
 #include <list>
+#include <algorithm>
+
+// LibConfig
 #include <libconfig.h++>
 
 // Private
@@ -60,6 +63,7 @@ namespace beliefstate {
     std::string m_strPropertyNamespace;
     std::string m_strDefaultAnnotation;
     std::map<std::string, std::string> m_mapMetaData;
+    std::list<std::string> m_lstAnnotatedParameters;
     
     void addEntity(std::string strNickname, std::string strNamespace);
     
@@ -90,6 +94,7 @@ namespace beliefstate {
     std::string generateFailureIndividuals(std::string strNamespace);
     std::string generateTimepointIndividuals(std::string strNamespace);
     std::string generateMetaDataIndividual(std::string strNamespace);
+    std::string generateParameterAnnotationInformation(std::string strNamespace);
     
     std::string owlClassForNode(Node *ndNode, bool bClassOnly = false, bool bPrologSyntax = false);
     std::string owlClassForObject(CKeyValuePair *ckvpObject);  
