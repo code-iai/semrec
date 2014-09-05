@@ -233,7 +233,12 @@ namespace beliefstate {
     for(Node* ndCurrent : lstNodes) {
       if(ndCurrent) {
 	std::list<std::string> lstClassesSubnodes = this->gatherClassesForNodes(ndCurrent->subnodes());
-	lstClassesSubnodes.push_back(this->owlClassForNode(ndCurrent));
+	
+	if(ndCurrent->metaInformation()->stringValue("class") != "") {
+	  lstClassesSubnodes.push_back(ndCurrent->metaInformation()->stringValue("classnamespace") + ndCurrent->metaInformation()->stringValue("class"));
+	} else {
+	  lstClassesSubnodes.push_back(this->owlClassForNode(ndCurrent));
+	}
 	
 	for(std::string strClassSubnode : lstClassesSubnodes) {
 	  bool bExists = false;
@@ -334,7 +339,15 @@ namespace beliefstate {
   
   std::string CExporterOwl::nodeIDPrefix(Node* ndInQuestion, std::string strProposition) {
     std::string strPrefix = CExporter::nodeIDPrefix(ndInQuestion, strProposition);
-    strPrefix = this->owlClassForNode(ndInQuestion, true) + "_";
+    std::string strOwlClass = this->owlClassForNode(ndInQuestion, true);
+    
+    if(strPrefix == "") {
+      strPrefix = strOwlClass + "_";
+    } else if(strPrefix == strProposition) {
+      if(strOwlClass != "") {
+	strPrefix = strOwlClass + "_";
+      }
+    }
     
     return strPrefix;
   }
@@ -350,7 +363,14 @@ namespace beliefstate {
       
       if(ndCurrent) {
 	if(this->nodeDisplayable(ndCurrent)) {
-	  std::string strOwlClass = this->owlClassForNode(ndCurrent);
+	  std::string strOwlClass;
+	  
+	  if(ndCurrent->metaInformation()->stringValue("class") != "") {
+	    strOwlClass = ndCurrent->metaInformation()->stringValue("classnamespace") + ndCurrent->metaInformation()->stringValue("class");
+	  } else {
+	    strOwlClass = this->owlClassForNode(ndCurrent);
+	  }
+	  
 	  strDot += this->generateEventIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
 	  
 	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";

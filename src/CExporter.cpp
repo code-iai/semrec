@@ -90,12 +90,15 @@ namespace beliefstate {
   }
   
   std::string CExporter::nodeIDPrefix(Node* ndInQuestion, std::string strProposition) {
-    // NOTE(winkler): Override this function in subsequent subclasses to
-    // decide on unique ID prefixes according to what the content of
-    // `ndInQuestion' is. In this basic implementation, the default
-    // proposition `strProposition' is always accepted.
+    std::string strPrefix = ndInQuestion->metaInformation()->stringValue("class");
     
-    return strProposition;
+    if(strPrefix == "") {
+      strPrefix = strProposition;
+    } else {
+      strPrefix += "_";
+    }
+    
+    return strPrefix;
   }
   
   void CExporter::renewUniqueIDsForNode(Node *ndRenew) {

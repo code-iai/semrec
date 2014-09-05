@@ -146,6 +146,14 @@ namespace beliefstate {
 	
 	ndNew->metaInformation()->setValue(std::string("time-start"), strTimeStart);
 	
+	if(evEvent.cdDesignator->childForKey("_class")) {
+	  ndNew->metaInformation()->setValue(std::string("class"), evEvent.cdDesignator->stringValue("_class"));
+	  
+	  if(evEvent.cdDesignator->childForKey("_classnamespace")) {
+	    ndNew->metaInformation()->setValue(std::string("classnamespace"), evEvent.cdDesignator->stringValue("_classnamespace"));
+	  }
+	}
+	
 	int nDetailLevel = (int)evEvent.cdDesignator->floatValue("_detail-level");
 	ndNew->metaInformation()->setValue(std::string("detail-level"), nDetailLevel);
 	
