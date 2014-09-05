@@ -54,7 +54,11 @@ namespace beliefstate {
     // segfault).
 
     //this->clearNodes();
-    delete m_ckvpConfiguration;
+    
+    if(m_ckvpConfiguration) {
+      delete m_ckvpConfiguration;
+      m_ckvpConfiguration = NULL;
+    }
   }
 
   void CExporter::addNode(Node* ndAdd) {
