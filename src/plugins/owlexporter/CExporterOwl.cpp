@@ -527,6 +527,7 @@ namespace beliefstate {
 		      }
 		      
 		      strDot += "        <knowrob:" + strKey + ">" + sts.str() + "</knowrob:" + strKey + ">\n";
+		      strDot += "        <knowrob:annotatedParameterType rdf:datatype=\"&xsd;string\">" + strKey + "</knowrob:annotatedParameterType>\n";
 		    }
 		  }
 		}
