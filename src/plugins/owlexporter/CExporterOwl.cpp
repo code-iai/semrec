@@ -757,9 +757,9 @@ namespace beliefstate {
     
     std::list<std::string> lstTimepoints = this->gatherTimepointsForNodes(this->nodes());
     for(std::string strTimepoint : lstTimepoints) {
-      strDot += "    <owl:NamedIndividual rdf:about=\"&" + strNamespace + ";timepoint_" + strTimepoint + "\">\n";
+      strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";timepoint_" + strTimepoint + "\">\n";
       strDot += "        <rdf:type rdf:resource=\"&knowrob;TimePoint\"/>\n";
-      strDot += "    </owl:NamedIndividual>\n\n";
+      strDot += "    </owl:namedIndividual>\n\n";
     }
     
     return strDot;
@@ -769,7 +769,7 @@ namespace beliefstate {
     std::string strDot = "    <!-- Meta Data Individual -->\n\n";
     std::string strUniqueName = this->generateUniqueID("ExperimentMetaData_", 8);
     
-    strDot += "    <owl:NamedIndividual rdf:about=\"&" + strNamespace + ";" + strUniqueName + "\">\n";
+    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + strUniqueName + "\">\n";
     strDot += "        <rdf:type rdf:resource=\"&knowrob;ExperimentMetaData\"/>\n";
     
     std::list<Node*> lstRootNodes = this->rootNodes();
@@ -793,7 +793,7 @@ namespace beliefstate {
       
       strDot += "        <knowrob:" + strCamelCaseKey + " rdf:datatype=\"&xsd;string\">" + prEntry.second + "</knowrob:" + strCamelCaseKey + ">\n";
     }
-    strDot += "    </owl:NamedIndividual>\n\n";
+    strDot += "    </owl:namedIndividual>\n\n";
     
     return strDot;
   }
@@ -802,14 +802,14 @@ namespace beliefstate {
     std::string strDot = "    <!-- Parameter Annotation Information Individual -->\n\n";
     std::string strUniqueName = this->generateUniqueID("AnnotationInformation_", 8);
     
-    strDot += "    <owl:NamedIndividual rdf:about=\"&" + strNamespace + ";" + strUniqueName + "\">\n";
+    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + strUniqueName + "\">\n";
     strDot += "        <rdf:type rdf:resource=\"&knowrob;AnnotationInformation\"/>\n";
     
     for(std::string strParameterAnnotation : m_lstAnnotatedParameters) {
       strDot += "        <knowrob:annotatedParameterType rdf:datatype=\"&xsd;string\">" + strParameterAnnotation + "</knowrob:annotatedParameterType>\n";
     }
     
-    strDot += "    </owl:NamedIndividual>\n\n";
+    strDot += "    </owl:namedIndividual>\n\n";
     
     return strDot;
   }
