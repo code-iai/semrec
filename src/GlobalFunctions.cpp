@@ -222,8 +222,13 @@ namespace beliefstate {
   
   list<StatusMessage> queuedMessages() {
     g_mtxStatusMessages.lock();
-    list<StatusMessage> lstMessages = g_lstStatusMessages;
-    g_lstStatusMessages.clear();
+    list<StatusMessage> lstMessages;
+    
+    if(g_lstStatusMessages.size() > 0) {
+      lstMessages = g_lstStatusMessages;
+      g_lstStatusMessages.clear();
+    }
+    
     g_mtxStatusMessages.unlock();
     
     return lstMessages;

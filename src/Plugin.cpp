@@ -169,13 +169,21 @@ namespace beliefstate {
     
     void Plugin::deployCycleData(Result& resDeployTo) {
       m_mtxEventsStore.lock();
-      resDeployTo.lstEvents = m_lstEvents;
-      m_lstEvents.clear();
+
+      if(m_lstEvents.size() > 0) {
+	resDeployTo.lstEvents = m_lstEvents;
+	m_lstEvents.clear();
+      }
+      
       m_mtxEventsStore.unlock();
       
       m_mtxServiceEventsStore.lock();
-      resDeployTo.lstServiceEvents = m_lstServiceEvents;
-      m_lstServiceEvents.clear();
+      
+      if(m_lstServiceEvents.size() > 0) {
+	resDeployTo.lstServiceEvents = m_lstServiceEvents;
+	m_lstServiceEvents.clear();
+      }
+      
       m_mtxServiceEventsStore.unlock();
     }
     

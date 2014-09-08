@@ -49,9 +49,14 @@
 #include <iostream>
 #include <algorithm>
 
+// Boost
+#include <boost/thread.hpp>
+
 // ROS
 #include <ros/ros.h>
+#include <ros/rate.h>
 #include <rosgraph_msgs/Log.h>
+#include <ros/callback_queue.h>
 
 // Designators
 #include <designators/CDesignator.h>
@@ -79,6 +84,11 @@ namespace beliefstate {
       bool m_bRoslogMessages;
       std::mutex m_mtxGlobalInputLock;
       bool m_bFirstContextReceived;
+      std::mutex m_mtxSpinWorker;
+      bool m_bKeepSpinning;
+      boost::thread* m_thrdSpinWorker;
+      bool m_bSpinWorkerRunning;
+      std::mutex m_mtxSpinWorkerRunning;
       
     public:
       PLUGIN_CLASS();
@@ -88,6 +98,13 @@ namespace beliefstate {
       virtual Result deinit();
       
       virtual Result cycle();
+
+      void setKeepSpinning(bool bKeepSpinning);
+      bool keepSpinning();
+      void spinWorker();
+      void setSpinWorkerRunning(bool bSpinWorkerRunning);
+      bool spinWorkerRunning();
+      void shutdownSpinWorker();
       
       bool serviceCallbackBeginContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
       bool serviceCallbackEndContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);

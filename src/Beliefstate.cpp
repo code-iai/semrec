@@ -555,7 +555,9 @@ namespace beliefstate {
 	resCycle.lstEvents.push_back(evtCurrent);
       }
       
-      m_lstGlobalEvents.clear();
+      if(m_lstGlobalEvents.size() > 0) {
+	m_lstGlobalEvents.clear();
+      }
       
       if(resCycle.bSuccess) {
 	// Events

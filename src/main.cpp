@@ -141,6 +141,7 @@ int main(int argc, char** argv) {
       g_bsBeliefstate->info("Initialization complete, ready for action.", true);
       while(g_bsBeliefstate->cycle()) {
 	// Idle here at will.
+	usleep(100000);
       }
     } else {
       g_bsBeliefstate->fail("Initialization of the beliefstate system failed. Being a quitter.");

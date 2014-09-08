@@ -179,6 +179,8 @@ namespace beliefstate {
       // TODO(winkler): Maybe there is a `clear` missing here. Check this.
       
       m_mtxCycleResults.unlock();
+      
+      usleep(100);
     }
   }
   

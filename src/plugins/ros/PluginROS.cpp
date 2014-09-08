@@ -47,18 +47,26 @@ namespace beliefstate {
       m_aspnAsyncSpinner = NULL;
       m_bRoslogMessages = false;
       m_bFirstContextReceived = false;
+      m_bKeepSpinning = true;
+      m_bSpinWorkerRunning = false;
+      m_thrdSpinWorker = NULL;
       
       this->setPluginVersion("0.93");
     }
     
     PLUGIN_CLASS::~PLUGIN_CLASS() {
+      this->shutdownSpinWorker();
+      
       if(m_nhHandle) {
 	delete m_nhHandle;
       }
       
-      if(m_aspnAsyncSpinner) {
-	delete m_aspnAsyncSpinner;
+      if(m_thrdSpinWorker) {
+	delete m_thrdSpinWorker;
       }
+      /*if(m_aspnAsyncSpinner) {
+	delete m_aspnAsyncSpinner;
+	}*/
     }
     
     Result PLUGIN_CLASS::init(int argc, char** argv) {
@@ -104,14 +112,17 @@ namespace beliefstate {
 	    }
 	  }
 	  
-	  int nThreads = 4;
-	  if(cdConfig->childForKey("async-threads")) {
-	    nThreads = cdConfig->floatValue("async-threads");
-	  }
+	  // int nThreads = 4;
+	  // if(cdConfig->childForKey("async-threads")) {
+	  //   nThreads = cdConfig->floatValue("async-threads");
+	  // }
 	  
-	  this->info("ROS node started. Starting to spin (" + this->str(nThreads) + " threads).");
-	  m_aspnAsyncSpinner = new ros::AsyncSpinner(nThreads);
-	  m_aspnAsyncSpinner->start();
+	  // this->info("ROS node started. Starting to spin asynchronously (" + this->str(nThreads) + " threads).");
+	  // m_aspnAsyncSpinner = new ros::AsyncSpinner(nThreads);
+	  // m_aspnAsyncSpinner->start();
+	  
+	  this->info("ROS node started. Starting to spin.");
+	  m_thrdSpinWorker = new boost::thread(&PLUGIN_CLASS::spinWorker, this);
 	} else {
 	  resInit.bSuccess = false;
 	  resInit.strErrorMessage = "Failed to start ROS node.";
@@ -134,6 +145,58 @@ namespace beliefstate {
       this->deployCycleData(resCycle);
       
       return resCycle;
+    }
+    
+    void PLUGIN_CLASS::setKeepSpinning(bool bKeepSpinning) {
+      m_mtxSpinWorker.lock();
+      m_bKeepSpinning = bKeepSpinning;
+      m_mtxSpinWorker.unlock();
+    }
+    
+    bool PLUGIN_CLASS::keepSpinning() {
+      m_mtxSpinWorker.lock();
+      bool bReturn = m_bKeepSpinning;
+      m_mtxSpinWorker.unlock();
+      
+      return bReturn;
+    }
+    
+    void PLUGIN_CLASS::spinWorker() {
+      ros::Rate rSpin(1000);
+      
+      this->setKeepSpinning(true);
+      this->setSpinWorkerRunning(true);
+      
+      while(this->keepSpinning()) {
+	ros::spinOnce();
+	rSpin.sleep();
+      }
+      
+      this->setSpinWorkerRunning(false);
+    }
+    
+    void PLUGIN_CLASS::setSpinWorkerRunning(bool bSpinWorkerRunning) {
+      m_mtxSpinWorkerRunning.lock();
+      m_bSpinWorkerRunning = bSpinWorkerRunning;
+      m_mtxSpinWorkerRunning.unlock();
+    }
+    
+    bool PLUGIN_CLASS::spinWorkerRunning() {
+      m_mtxSpinWorkerRunning.lock();
+      bool bReturn = m_bSpinWorkerRunning;
+      m_mtxSpinWorkerRunning.unlock();
+      
+      return bReturn;
+    }
+    
+    void PLUGIN_CLASS::shutdownSpinWorker() {
+      this->setKeepSpinning(false);
+      
+      while(this->spinWorkerRunning()) {
+	usleep(10000);
+      }
+      
+      m_thrdSpinWorker->join();
     }
     
     bool PLUGIN_CLASS::serviceCallbackBeginContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
