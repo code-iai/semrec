@@ -3,7 +3,9 @@ project(beliefstate)
 
 find_package(catkin REQUIRED COMPONENTS roscpp roslib designator_integration designator_integration_msgs sensor_msgs cv_bridge roslib interactive_markers visualization_msgs)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+if(CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O2 -pg")
+endif()
 
 catkin_package(
   INCLUDE_DIRS include 3rdparty
