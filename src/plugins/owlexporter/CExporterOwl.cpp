@@ -425,21 +425,36 @@ namespace beliefstate {
 	  }
 	  
 	  // Object references here.
-	  CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
+	  CKeyValuePair* ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
 	  
 	  if(ckvpObjects) {
 	    std::list<CKeyValuePair*> lstObjects = ckvpObjects->children();
 	    
 	    unsigned int unIndex = 0;
 	    for(CKeyValuePair* ckvpObject : lstObjects) {
-	      std::stringstream sts;
-	      sts << ndCurrent->uniqueID() << "_object_" << unIndex;
+	      std::string strDefClass = ckvpObject->stringValue("_class");
+	      std::string strDefClassNamespace = ckvpObject->stringValue("_classnamespace");
+	      std::string strDefProperty = ckvpObject->stringValue("_property");
 	      
-	      if(strOwlClass == "&knowrob;VisualPerception") {
-		strDot += "        <knowrob:detectedObject rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
-	      } else {
-		strDot += "        <knowrob:objectActedOn rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+	      if(strDefClass == "") {
+		strDefClass = "object";
 	      }
+	      
+	      if(strDefProperty == "") {
+		if(strOwlClass == "&knowrob;VisualPerception") {
+		  strDefProperty = "knowrob:detectedObject";
+		} else {
+		  strDefProperty = "knowrob:objectActedOn";
+		}
+	      }
+	      
+	      if(strDefClassNamespace == "") {
+		strDefClassNamespace = "&" + strNamespace + ";";
+	      }
+	      
+	      std::stringstream sts;
+	      sts << ndCurrent->uniqueID() << "_" << strDefClass << "_" << unIndex;
+	      strDot += "        <" + strDefProperty + " rdf:resource=\"" + strDefClassNamespace + sts.str() +"\"/>\n";
 	    }
 	  }
 	  
@@ -639,20 +654,37 @@ namespace beliefstate {
     
     for(Node* ndCurrent : lstNodes) {
       if(ndCurrent) {
-	CKeyValuePair *ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
+	CKeyValuePair* ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
 	
 	if(ckvpObjects) {
 	  std::list<CKeyValuePair*> lstObjects = ckvpObjects->children();
 	  
 	  unsigned int unIndex = 0;
 	  for(CKeyValuePair* ckvpObject : lstObjects) {
-	    std::stringstream sts;
-	    sts << ndCurrent->uniqueID() << "_object_" << unIndex;
-	    
 	    std::string strDesignatorID = ckvpObject->stringValue("__id");
-	    std::string strOwlClass = this->owlClassForObject(ckvpObject);
 	    
-	    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
+	    std::string strDefClass = ckvpObject->stringValue("_class");
+	    std::string strDefClassNamespace = ckvpObject->stringValue("_classnamespace");
+	    
+	    std::string strOwlClass = strDefClass;
+	    if(strOwlClass == "") {
+	      strOwlClass = this->owlClassForObject(ckvpObject);
+	    } else {
+	      strOwlClass = strDefClassNamespace + strDefClass;
+	    }
+	    
+	    if(strDefClass == "") {
+	      strDefClass = "object";
+	    }
+	    
+	    if(strDefClassNamespace == "") {
+	      strDefClassNamespace = "&" + strNamespace + ";";
+	    }
+	    
+	    std::stringstream sts;
+	    sts << ndCurrent->uniqueID() << "_" << strDefClass << "_" << unIndex;
+	    
+	    strDot += "    <owl:namedIndividual rdf:about=\"" + strDefClassNamespace + sts.str() + "\">\n";
 	    strDot += "        <knowrob:designator rdf:resource=\"&" + strNamespace + ";" + strDesignatorID + "\"/>\n";
 	    strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
 	    strDot += "    </owl:namedIndividual>\n\n";

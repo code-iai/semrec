@@ -444,7 +444,7 @@ namespace beliefstate {
 	}
       } else if(evEvent.strEventName == "add-object") {
 	if(evEvent.cdDesignator) {
-	  CKeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description");
+	  CKeyValuePair* ckvpDesc = evEvent.cdDesignator->childForKey("description");
 	  
 	  if(ckvpDesc) {
 	    if(this->activeNode()) {
@@ -457,8 +457,7 @@ namespace beliefstate {
 	      string strUniqueID = this->getUniqueDesignatorID(strMemAddr, desigCurrent);
 	      delete desigCurrent;
 	      
-	      if(!bDesigExists) { // Object does not yet exist. Add it
-				  // symbolically.
+	      if(!bDesigExists) { // Object does not yet exist. Add it symbolically.
 		this->info("Adding non-existant object-designator to current context");
 		
 		CKeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description");
@@ -483,6 +482,19 @@ namespace beliefstate {
 	      }
 	      
 	      ckvpDesc->setValue("__id", strUniqueID);
+	      
+	      if(evEvent.cdDesignator->childForKey("class")) {
+		ckvpDesc->setValue(std::string("_class"), evEvent.cdDesignator->stringValue("class"));
+		
+		if(evEvent.cdDesignator->childForKey("classnamespace")) {
+		  ckvpDesc->setValue(std::string("_classnamespace"), evEvent.cdDesignator->stringValue("classnamespace"));
+		}
+	      }
+	      
+	      if(evEvent.cdDesignator->childForKey("property")) {
+		ckvpDesc->setValue(std::string("_property"), evEvent.cdDesignator->stringValue("property"));
+	      }
+	      
 	      this->activeNode()->addObject(ckvpDesc->children());
 	      
 	      stringstream sts;
@@ -493,9 +505,10 @@ namespace beliefstate {
 	      Event evSymAddObj = defaultEvent("symbolic-add-object");
 	      evSymAddObj.cdDesignator = new CDesignator(OBJECT, ckvpDesc);
 	      
-	      // Okay, this is pretty hacky. Right now, the CRAM
-	      // system does not send object names. That needs to be
-	      // fixed. Until then, a dummy name is used here.
+	      // TODO(winkler): Okay, this is pretty hacky. Right now,
+	      // the CRAM system does not send object names. That
+	      // needs to be fixed. Until then, a dummy name is used
+	      // here.
 	      evSymAddObj.cdDesignator->setValue("name", "object0");//strUniqueID);
 	      
 	      if(evSymAddObj.cdDesignator->childForKey("pose") != NULL) {
