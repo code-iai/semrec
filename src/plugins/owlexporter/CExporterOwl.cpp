@@ -484,7 +484,7 @@ namespace beliefstate {
 	      std::stringstream sts;
 	      sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
 	      strDot += "        <knowrob:eventFailure rdf:resource=\"&" + strNamespace + ";" + sts.str() + "\"/>\n";
-	      this->info("Added thrown failure: " + sts.str());
+	      m_nThrowAndCatchFailureCounter++;
 	    }
 	  }
 	  
@@ -500,7 +500,7 @@ namespace beliefstate {
 	      
 	      if(ndFailureEmitter) {
 		std::string strCaughtFailure = ndFailureEmitter->uniqueID() + "_" + ckvpCaughtFailure->stringValue("failure-id");
-		this->info("Added +caught failure: " + strCaughtFailure);
+		m_nThrowAndCatchFailureCounter--;
 		strDot += "        <knowrob:caughtFailure rdf:resource=\"&" + strNamespace + ";" + strCaughtFailure + "\"/>\n";
 	      } else {
 		this->warn("No emitter for failure '" + ckvpCaughtFailure->stringValue("failure-id") + "'.");
@@ -985,6 +985,8 @@ namespace beliefstate {
   bool CExporterOwl::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
     m_lstAnnotatedParameters.clear();
     
+    m_nThrowAndCatchFailureCounter = 0;
+    
     this->info("Renewing unique IDs");
     this->renewUniqueIDs();
     
@@ -1050,6 +1052,10 @@ namespace beliefstate {
     this->info(" - Parameter Annotations");
     strOwl += this->generateParameterAnnotationInformation(strNamespaceID);
     strOwl += "</rdf:RDF>\n";
+    
+    if(m_nThrowAndCatchFailureCounter != 0) {
+      this->warn("Throw/Catch failure counter is != 0: " + this->str(m_nThrowAndCatchFailureCounter));
+    }
     
     return strOwl;
   }
