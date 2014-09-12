@@ -64,9 +64,6 @@ namespace beliefstate {
       if(m_thrdSpinWorker) {
 	delete m_thrdSpinWorker;
       }
-      /*if(m_aspnAsyncSpinner) {
-	delete m_aspnAsyncSpinner;
-	}*/
     }
     
     Result PLUGIN_CLASS::init(int argc, char** argv) {
@@ -98,6 +95,7 @@ namespace beliefstate {
 	  m_srvBeginContext = m_nhHandle->advertiseService<PLUGIN_CLASS>("begin_context", &PLUGIN_CLASS::serviceCallbackBeginContext, this);
 	  m_srvEndContext = m_nhHandle->advertiseService<PLUGIN_CLASS>("end_context", &PLUGIN_CLASS::serviceCallbackEndContext, this);
 	  m_srvAlterContext = m_nhHandle->advertiseService<PLUGIN_CLASS>("alter_context", &PLUGIN_CLASS::serviceCallbackAlterContext, this);
+	  m_srvService = m_nhHandle->advertiseService<PLUGIN_CLASS>("service", &PLUGIN_CLASS::serviceCallbackService, this);
 	  m_pubLoggedDesignators = m_nhHandle->advertise<designator_integration_msgs::Designator>("/logged_designators", 1);
 	  m_pubInteractiveCallback = m_nhHandle->advertise<designator_integration_msgs::Designator>("/interactive_callback", 1);
 	  
@@ -111,15 +109,6 @@ namespace beliefstate {
 	      this->warn("You requested the status messages to be roslog'ged, but didn't specify a roslog topic. Ignoring the whole thing.");
 	    }
 	  }
-	  
-	  // int nThreads = 4;
-	  // if(cdConfig->childForKey("async-threads")) {
-	  //   nThreads = cdConfig->floatValue("async-threads");
-	  // }
-	  
-	  // this->info("ROS node started. Starting to spin asynchronously (" + this->str(nThreads) + " threads).");
-	  // m_aspnAsyncSpinner = new ros::AsyncSpinner(nThreads);
-	  // m_aspnAsyncSpinner->start();
 	  
 	  this->info("ROS node started. Starting to spin.");
 	  m_thrdSpinWorker = new boost::thread(&PLUGIN_CLASS::spinWorker, this);
@@ -162,7 +151,7 @@ namespace beliefstate {
     }
     
     void PLUGIN_CLASS::spinWorker() {
-      ros::Rate rSpin(1000);
+      ros::Rate rSpin(10000);
       
       this->setKeepSpinning(true);
       this->setSpinWorkerRunning(true);
@@ -299,6 +288,34 @@ namespace beliefstate {
       
       return true;
     }
+
+    bool PLUGIN_CLASS::serviceCallbackService(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
+      m_mtxGlobalInputLock.lock();
+      
+      ServiceEvent seService = defaultServiceEvent();
+      seService.smResultModifier = SM_IGNORE_RESULTS;
+      
+      CDesignator* cdRequest = new CDesignator(req.request.designator);
+      seService.cdDesignator = cdRequest;
+      
+      std::string strCommand = seService.cdDesignator->stringValue("command");
+      transform(strCommand.begin(), strCommand.end(), strCommand.begin(), ::tolower);
+      seService.strServiceName = strCommand;
+      
+      ServiceEvent seResult = this->deployServiceEvent(seService, true);
+      
+      if(seResult.cdDesignator) {
+	res.response.designators.push_back(seResult.cdDesignator->serializeToMessage());
+	
+	if(seResult.bPreserve) {
+	  delete seResult.cdDesignator;
+	}
+      }
+      
+      m_mtxGlobalInputLock.unlock();
+      
+      return true;
+    }
     
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.bRequest == false) {
@@ -335,11 +352,11 @@ namespace beliefstate {
     }
     
     Event PLUGIN_CLASS::consumeServiceEvent(ServiceEvent seServiceEvent) {
-      Event evService = defaultEvent();
+      Event evReturn = Plugin::consumeServiceEvent(seServiceEvent);
       
-      this->info("Consume service event of type '" + seServiceEvent.strServiceName + "'!");
+      //this->info("Consume service event of type '" + seServiceEvent.strServiceName + "'!");
       
-      return evService;
+      return evReturn;
     }
     
     string PLUGIN_CLASS::getDesignatorTypeString(CDesignator* desigDesignator) {

@@ -578,7 +578,9 @@ namespace beliefstate {
 	  
 	  // Clean up
 	  if(seServiceEvent.cdDesignator) {
-	    delete seServiceEvent.cdDesignator;
+	    if(!seServiceEvent.bPreserve) {
+	      delete seServiceEvent.cdDesignator;
+	    }
 	  }
 	}
 	

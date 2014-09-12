@@ -115,6 +115,7 @@ namespace beliefstate {
       
       virtual Result cycle();
       
+      virtual Event consumeServiceEvent(ServiceEvent seEvent);
       virtual void consumeEvent(Event evEvent);
       
       bool serviceCallbackLoad(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);

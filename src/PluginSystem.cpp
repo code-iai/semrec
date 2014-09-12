@@ -242,7 +242,8 @@ namespace beliefstate {
     int nReceivers = 0;
     
     for(PluginInstance* piPlugin : m_lstLoadedPlugins) {
-      if(piPlugin->offersService(seServiceEvent.strServiceName)) {
+      if(piPlugin->offersService(seServiceEvent.strServiceName) ||
+	 seServiceEvent.siServiceIdentifier == SI_RESPONSE) {
 	Event evResult = piPlugin->consumeServiceEvent(seServiceEvent);
 	nReceivers++;
 	
@@ -260,7 +261,7 @@ namespace beliefstate {
     }
     
     PluginInstance* piRequester = this->pluginInstanceByID(seServiceEvent.nRequesterID);
-    if(piRequester) {
+    if(piRequester && seServiceEvent.smResultModifier != SM_IGNORE_RESULTS) {
       ServiceEvent seResponses = seServiceEvent;
       seResponses.lstResultEvents = lstResultEvents;
       seResponses.siServiceIdentifier = SI_RESPONSE;

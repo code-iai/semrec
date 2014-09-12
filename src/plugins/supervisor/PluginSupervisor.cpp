@@ -211,15 +211,21 @@ namespace beliefstate {
 	
 	std::string strSymlink = cfgsetCurrent.strBaseDataDirectory + "/" + cfgsetCurrent.strSymlinkName;
 	remove(strSymlink.c_str());
-	symlink(strNewName.c_str(), strSymlink.c_str());
-	this->info("Symlink set accordingly.");
+	if(symlink(strNewName.c_str(), strSymlink.c_str()) == 0) {
+	  this->info("Symlink set accordingly.");
+	} else {
+	  this->fail("Unable to set current experiment symlink!");
+	}
 	
 	CDesignator* cdConfig = this->getIndividualConfig();
 	std::string strKnowRobOwl = cdConfig->stringValue("knowrob-symlink-path");
 	
 	if(strKnowRobOwl != "") {
-	  symlink(strKnowRobOwl.c_str(), string(strNewName + "knowrob.owl").c_str());
-	  this->info("Created KnowRob OWL symlink to: '" + strKnowRobOwl + "'");
+	  if(symlink(strKnowRobOwl.c_str(), string(strNewName + "knowrob.owl").c_str()) == 0) {
+	    this->info("Created KnowRob OWL symlink to: '" + strKnowRobOwl + "'");
+	  } else {
+	    this->fail("Unable to set KnowRob OWL symlink!");
+	  }
 	}
 	
 	// Signal global experiment start.

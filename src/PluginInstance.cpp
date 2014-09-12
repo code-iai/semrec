@@ -180,7 +180,7 @@ namespace beliefstate {
       
       m_mtxCycleResults.unlock();
       
-      usleep(100);
+      usleep(10);
     }
   }
   

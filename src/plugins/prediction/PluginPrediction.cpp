@@ -79,6 +79,8 @@ namespace beliefstate {
       this->setSubscribedToEvent("symbolic-end-context", true);
       this->setSubscribedToEvent("symbolic-node-active", true);
       
+      this->setOffersService("predict", true);
+
       // Prepare the JSON prediction model parser
       m_jsnModel = new JSON();
       
@@ -103,6 +105,48 @@ namespace beliefstate {
       this->deployCycleData(resCycle);
       
       return resCycle;
+    }
+    
+    Event PLUGIN_CLASS::consumeServiceEvent(ServiceEvent seEvent) {
+      Event evReturn = this->Plugin::consumeServiceEvent(seEvent);
+      
+      if(seEvent.siServiceIdentifier == SI_REQUEST) {
+	if(seEvent.strServiceName == "predict") {
+	  ServiceEvent seResponse = eventInResponseTo(seEvent);
+	  CDesignator* cdRequest = seEvent.cdDesignator;
+	  
+	  seResponse.bPreserve = true;
+	  CDesignator* cdResponse = new CDesignator();
+	  cdResponse->setType(ACTION);
+	  
+	  bool bSuccess = false;
+	  if(m_bModelLoaded) {
+	    this->info("Received Prediction Request.");
+	    
+	    if(!this->predict(seEvent.cdDesignator, cdResponse)) {
+	      this->fail("Failed to predict!");
+	      
+	      cdResponse->setValue("success", false);
+	      cdResponse->setValue("message", "Failed to predict.");
+	    } else {
+	      cdResponse->setValue("success", true);
+	    }
+	  } else {
+	    this->warn("Received Prediction Request without loaded prediction model. Ignoring.");
+	    
+	    cdResponse->setValue("success", false);
+	    cdResponse->setValue("message", "No model loaded.");
+	  }
+	  
+	  // TODO(winkler): Maybe set a value field in the response
+	  // designator here, denoting that prediction failed.
+	  
+	  seResponse.cdDesignator = cdResponse;
+	  this->deployServiceEvent(seResponse);
+	}
+      }
+      
+      return evReturn;
     }
     
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
@@ -135,7 +179,7 @@ namespace beliefstate {
       bool bSuccess = false;
       
       CDesignator* desigRequest = new CDesignator(req.request.designator);
-      CDesignator *desigResponse = new CDesignator();
+      CDesignator* desigResponse = new CDesignator();
       desigResponse->setType(ACTION);
       
       if(desigRequest->stringValue("load") == "model") {
@@ -170,7 +214,8 @@ namespace beliefstate {
       
       bool bSuccess = false;
       if(m_bModelLoaded) {
-	this->info("Received Prediction Request.");
+	this->info("Received Prediction Request, waiting for other nodes to converge.");
+	usleep(50000);
 	
 	if(this->predict(desigRequest, desigResponse)) {
 	  res.response.designators.push_back(desigResponse->serializeToMessage());
@@ -530,60 +575,64 @@ namespace beliefstate {
       m_mtxStackProtect.lock();
       
       if(m_bInsidePredictionModel) {
-	Property* prRoot = m_jsnModel->rootProperty();
-	
-	if(prRoot) {
+	// Make sure there is a model present before diving into the
+	// tree.
+	if(m_jsnModel->rootProperty()) {
+	  // Make sure we are actually in a valid prediction state.
 	  if(m_lstPredictionStack.size() > 0) {
 	    PredictionTrack ptCurrent = m_lstPredictionStack.back();
-	    std::list<Property*> lstParameters;
-	    PredictionResult presResult;
-	    std::map<std::string, double> mapEffectiveFailureRates;
-	    Property* prParameters = new Property();
-	    prParameters->set(Property::Array);
 	    
-	    for(string strKey : desigRequest->keys()) {
-	      Property* prParameter = new Property();
-	      
-	      prParameter->set(Property::Double);
-	      prParameter->setKey(strKey);
-	      prParameter->set((double)desigRequest->floatValue(strKey));
-	      
-	      lstParameters.push_back(prParameter);
-	      prParameters->addSubProperty(prParameter);
-	    }
+	    std::cout << "Predicting for class: '" << ptCurrent.strClass << "' at level " << this->str((int)m_lstPredictionStack.size()) << std::endl;
 	    
-	    // Automatic tree walking
-	    std::list<Property*> lstLinearTree = this->linearizeTree(ptCurrent.prLevel);
-	    std::list<Property*> lstRunTree;
-	    double dLeftOverSuccess = 1.0f;
+	    // std::list<Property*> lstParameters;
+	    // PredictionResult presResult;
+	    // std::map<std::string, double> mapEffectiveFailureRates;
+	    // Property* prParameters = new Property();
+	    // prParameters->set(Property::Array);
 	    
-	    for(Property* prCurrent : lstLinearTree) {
-	      lstRunTree.push_back(prCurrent);
+	    // for(string strKey : desigRequest->keys()) {
+	    //   Property* prParameter = new Property();
 	      
-	      presResult = this->probability(lstRunTree, prParameters, lstParameters);
-	      for(Failure flFailure : presResult.lstFailureProbabilities) {
-	    	if(mapEffectiveFailureRates.find(flFailure.strClass) == mapEffectiveFailureRates.end()) {
-		  mapEffectiveFailureRates[flFailure.strClass] = 0.0f;
-		}
+	    //   prParameter->set(Property::Double);
+	    //   prParameter->setKey(strKey);
+	    //   prParameter->set((double)desigRequest->floatValue(strKey));
+	      
+	    //   lstParameters.push_back(prParameter);
+	    //   prParameters->addSubProperty(prParameter);
+	    // }
+	    
+	    // // Automatic tree walking
+	    // std::list<Property*> lstLinearTree = this->linearizeTree(ptCurrent.prLevel);
+	    // std::list<Property*> lstRunTree;
+	    // double dLeftOverSuccess = 1.0f;
+	    
+	    // for(Property* prCurrent : lstLinearTree) {
+	    //   lstRunTree.push_back(prCurrent);
+	      
+	    //   presResult = this->probability(lstRunTree, prParameters, lstParameters);
+	    //   for(Failure flFailure : presResult.lstFailureProbabilities) {
+	    // 	if(mapEffectiveFailureRates.find(flFailure.strClass) == mapEffectiveFailureRates.end()) {
+	    // 	  mapEffectiveFailureRates[flFailure.strClass] = 0.0f;
+	    // 	}
 		
-		mapEffectiveFailureRates[flFailure.strClass] += (flFailure.dProbability * dLeftOverSuccess);
-		dLeftOverSuccess -= (flFailure.dProbability * dLeftOverSuccess);
-	      }
-	    }
+	    // 	mapEffectiveFailureRates[flFailure.strClass] += (flFailure.dProbability * dLeftOverSuccess);
+	    // 	dLeftOverSuccess -= (flFailure.dProbability * dLeftOverSuccess);
+	    //   }
+	    // }
 	    
-	    CKeyValuePair* ckvpFailures = desigResponse->addChild("failures");
-	    presResult.dSuccessRate = 1.0f;
+	    // CKeyValuePair* ckvpFailures = desigResponse->addChild("failures");
+	    // presResult.dSuccessRate = 1.0f;
 	    
-	    for(std::pair<std::string, double> prFailure : mapEffectiveFailureRates) {
-	      ckvpFailures->setValue(prFailure.first, prFailure.second);
+	    // for(std::pair<std::string, double> prFailure : mapEffectiveFailureRates) {
+	    //   ckvpFailures->setValue(prFailure.first, prFailure.second);
 	      
-	      presResult.dSuccessRate -= prFailure.second;
-	    }
+	    //   presResult.dSuccessRate -= prFailure.second;
+	    // }
 	    
-	    desigResponse->setValue("success", presResult.dSuccessRate);
+	    // desigResponse->setValue("success", presResult.dSuccessRate);
 	    
-	    delete prParameters;
-	    lstParameters.clear();
+	    // delete prParameters;
+	    // lstParameters.clear();
 	    
 	    bResult = true;
 	  } else {

@@ -76,6 +76,7 @@ namespace beliefstate {
       ros::ServiceServer m_srvBeginContext;
       ros::ServiceServer m_srvEndContext;
       ros::ServiceServer m_srvAlterContext;
+      ros::ServiceServer m_srvService;
       ros::Publisher m_pubLoggedDesignators;
       ros::Publisher m_pubInteractiveCallback;
       ros::Publisher m_pubStatusMessages;
@@ -109,6 +110,7 @@ namespace beliefstate {
       bool serviceCallbackBeginContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
       bool serviceCallbackEndContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
       bool serviceCallbackAlterContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
+      bool serviceCallbackService(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
       
       virtual void consumeEvent(Event evEvent);
       virtual Event consumeServiceEvent(ServiceEvent seServiceEvent);

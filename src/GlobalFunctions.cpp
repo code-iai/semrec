@@ -133,6 +133,7 @@ namespace beliefstate {
     seDefault.strServiceName = strServiceName;
     seDefault.siServiceIdentifier = SI_REQUEST;
     seDefault.smResultModifier = SM_AGGREGATE_RESULTS;
+    seDefault.bPreserve = false;
     seDefault.cdDesignator = NULL;
     
     return seDefault;
@@ -150,16 +151,28 @@ namespace beliefstate {
     return evDefault;
   }
   
-  Event eventInResponseTo(Event evRequest, string strEventName) {
+  Event eventInResponseTo(Event evRequest, std::string strEventName) {
     if(strEventName == "") {
       strEventName = evRequest.strEventName;
     }
     
-    Event evDefault = defaultEvent(strEventName);
+    Event evDefault = defaultEvent(evRequest.strEventName);
     evDefault.nOpenRequestID = evRequest.nOpenRequestID;
     evDefault.bRequest = false;
     
     return evDefault;
+  }
+
+  ServiceEvent eventInResponseTo(ServiceEvent seRequest, std::string strServiceName) {
+    if(strServiceName == "") {
+      strServiceName = seRequest.strServiceName;
+    }
+    
+    ServiceEvent seDefault = defaultServiceEvent(seRequest.strServiceName);
+    seDefault.siServiceIdentifier = SI_RESPONSE;
+    seDefault.nServiceEventID = seRequest.nServiceEventID;
+    
+    return seDefault;
   }
   
   string colorSpecifierForID(int nID, bool bBold) {

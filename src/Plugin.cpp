@@ -143,7 +143,11 @@ namespace beliefstate {
     Event Plugin::consumeServiceEvent(ServiceEvent seServiceEvent) {
       Event evReturn = defaultEvent();
       
-      // Dummy.
+      if(seServiceEvent.siServiceIdentifier == SI_RESPONSE) {
+	m_mtxReceivedServiceEventResponses.lock();
+	m_lstReceivedServiceEventResponses.push_back(seServiceEvent);
+	m_mtxReceivedServiceEventResponses.unlock();
+      }
       
       return evReturn;
     }
@@ -199,12 +203,22 @@ namespace beliefstate {
       }
     }
     
-    void Plugin::deployServiceEvent(ServiceEvent seDeploy) {
+    ServiceEvent Plugin::deployServiceEvent(ServiceEvent seDeploy, bool bWaitForEvent) {
       seDeploy.nRequesterID = this->pluginID();
+      
+      if(seDeploy.siServiceIdentifier == SI_REQUEST) {
+	seDeploy.nServiceEventID = rand();
+      }
       
       m_mtxServiceEventsStore.lock();
       m_lstServiceEvents.push_back(seDeploy);
       m_mtxServiceEventsStore.unlock();
+      
+      if(bWaitForEvent) {
+	return this->waitForEvent(seDeploy);
+      } else {
+	return seDeploy;
+      }
     }
     
     void Plugin::setPluginName(std::string strName) {
@@ -289,6 +303,31 @@ namespace beliefstate {
 	  // Do nothing and wait.
 	}
       }
+    }
+    
+    ServiceEvent Plugin::waitForEvent(ServiceEvent seWait) {
+      bool bGoon = true;
+      ServiceEvent seReturn = defaultServiceEvent(seWait.strServiceName);
+      
+      while(bGoon && this->running()) {
+	m_mtxReceivedServiceEventResponses.lock();
+	
+	for(list<ServiceEvent>::iterator itSE = m_lstReceivedServiceEventResponses.begin();
+	    itSE != m_lstReceivedServiceEventResponses.end(); itSE++) {
+	  if(((*itSE).nServiceEventID == seWait.nServiceEventID) && (*itSE).siServiceIdentifier == SI_RESPONSE) {
+	    bGoon = false;
+	    seReturn = *itSE;
+	    
+	    m_lstReceivedServiceEventResponses.erase(itSE);
+	    
+	    break;
+	  }
+	}
+	
+	m_mtxReceivedServiceEventResponses.unlock();
+      }
+      
+      return seReturn;
     }
     
     void Plugin::success(std::string strMessage, bool bImportant) {

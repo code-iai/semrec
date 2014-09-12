@@ -62,11 +62,12 @@ namespace beliefstate {
   Result defaultResult();
   
   // Event container specific functions
-  Event defaultEvent(string strEventName = "");
-  Event eventInResponseTo(Event evRequest, string strEventName = "");
+  Event defaultEvent(std::string strEventName = "");
+  Event eventInResponseTo(Event evRequest, std::string strEventName = "");
   
   // Service event container specific functions
-  ServiceEvent defaultServiceEvent(string strServiceName = "");
+  ServiceEvent defaultServiceEvent(std::string strServiceName = "");
+  ServiceEvent eventInResponseTo(ServiceEvent seRequest, std::string strServiceName = "");
   
   // Plugin specific functions
   int createPluginID();

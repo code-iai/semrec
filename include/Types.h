@@ -155,6 +155,7 @@ namespace beliefstate {
     ServiceModifier smResultModifier;
     std::string strServiceName;
     int nServiceEventID;
+    bool bPreserve;
     int nRequesterID;
     CDesignator* cdDesignator;
     std::list<Event> lstResultEvents;

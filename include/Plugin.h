@@ -74,6 +74,8 @@ namespace beliefstate {
       std::mutex m_mtxServiceEventsStore;
       std::list<std::string> m_lstOfferedServices;
       std::list<int> m_lstOpenRequestIDs;
+      std::list<ServiceEvent> m_lstReceivedServiceEventResponses;
+      std::mutex m_mtxReceivedServiceEventResponses;
       
     public:
       Plugin();
@@ -113,7 +115,7 @@ namespace beliefstate {
       void deployCycleData(Result& resDeployTo);
       
       void deployEvent(Event evDeploy, bool bWaitForEvent = false);
-      void deployServiceEvent(ServiceEvent seDeploy);
+      ServiceEvent deployServiceEvent(ServiceEvent seDeploy, bool bWaitForEvent = false);
       
       std::string pluginIdentifierString(bool bBold);
       void unimplemented(std::string strMessage);
@@ -127,6 +129,7 @@ namespace beliefstate {
       bool running();
       
       void waitForEvent(Event evWait);
+      ServiceEvent waitForEvent(ServiceEvent seWait);
       
       void success(std::string strMessage, bool bImportant = false);
       void info(std::string strMessage, bool bImportant = false);
