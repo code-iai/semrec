@@ -49,6 +49,7 @@ namespace beliefstate {
       m_bInsidePredictionModel = false;
       m_ndActive = NULL;
       m_bModelLoaded = false;
+      m_nClassFlexibility = 6;
       
       this->addDependency("ros");
       this->setPluginVersion("0.1");
@@ -107,13 +108,13 @@ namespace beliefstate {
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "symbolic-begin-context") {
 	if(evEvent.lstNodes.size() > 0) {
-	  this->descend(evEvent.lstNodes.front()->title());
+	  this->descend(evEvent.lstNodes.front());
 	} else {
 	  this->warn("Consuming 'symbolic-begin-context' event without nodes!");
 	}
       } else if(evEvent.strEventName == "symbolic-end-context") {
 	if(evEvent.lstNodes.size() > 0) {
-	  this->ascend(evEvent.lstNodes.front()->title());
+	  this->ascend(evEvent.lstNodes.front());
 	} else {
 	  this->warn("Consuming 'symbolic-end-context' event without nodes!");
 	}
@@ -121,7 +122,7 @@ namespace beliefstate {
 	if(evEvent.lstNodes.size() > 0) {
 	  Node* ndNode = evEvent.lstNodes.front();
 	  
-	  this->info("Prediction context is now node '" + ndNode->title() + "'.");
+	  this->info("Prediction context is now node '" + ndNode->title() + "', of class '" + m_expOwl->owlClassForNode(ndNode, true) + "'.");
 	  m_ndActive = ndNode;
 	} else {
 	  this->info("Prediction context is now top-level (so not predicting).");
@@ -204,14 +205,14 @@ namespace beliefstate {
 	  bReturn = true;
 	  m_bInsidePredictionModel = true;
 	  
-	  this->info("Okay, descending to toplevel.");
+	  this->info("Okay, descending to 'Toplevel'.");
 	  this->descend("Toplevel");
 	  
-	  this->info("Optimizing: Mapping node failures and parameters");
-	  this->mapNodeFailuresParameters();
-	  this->info("Optimizing: Timestamps");
-	  this->mapTimeStamps();
-	  this->info("Optimized");
+	  // this->info("Optimizing: Mapping node failures and parameters");
+	  // this->mapNodeFailuresParameters();
+	  // this->info("Optimizing: Timestamps");
+	  // this->mapTimeStamps();
+	  // this->info("Optimized");
 	} else {
 	  this->fail("Failed to load model '" + strFile + "', unable to parse.");
 	}
@@ -225,102 +226,181 @@ namespace beliefstate {
       return bReturn;
     }
     
-    bool PLUGIN_CLASS::descend(string strClass) {
+    bool PLUGIN_CLASS::descend(Node* ndDescend) {
+      return this->descend(m_expOwl->owlClassForNode(ndDescend, true));
+    }
+    
+    bool PLUGIN_CLASS::descend(std::string strClass, bool bForceClass) {
       bool bResult = false;
-      
-      Property* prTopmost = NULL;
-      Property* prSubs = NULL;
+      bool bFlexible = false;
       
       m_mtxStackProtect.lock();
-      if(m_lstPredictionStack.size() > 0) {
-	prTopmost = m_lstPredictionStack.back().prLevel;
-	
-	if(prTopmost) {
-	  prSubs = prTopmost->namedSubProperty("subs");
-	}
+      Property* prDescendTo = NULL;
+      
+      if(m_lstPredictionStack.size() == 0) {
+	// We are on top-level and must look for the class to ascend
+	// into in the current JSON model keys.
+	prDescendTo = m_jsnModel->rootProperty()->namedSubProperty(strClass);
       } else {
-	prTopmost = m_jsnModel->rootProperty();
-	
-	if(prTopmost) {
-	  prSubs = prTopmost->namedSubProperty("tree");
-	}
-      }
-      
-      std::list<std::string> lstSubClasses;
-      
-      if(prSubs) {
-	for(Property* prSub : prSubs->subProperties()) {
-	  Property* prClasses = prSub->namedSubProperty("class");
+	// We are already somewhere in the prediction tree and must
+	// find a fitting subType in the currently active state.
+	if(m_bInsidePredictionModel) {
+	  Property* prActive = m_lstPredictionStack.back().prLevel;
 	  
-	  if(prClasses) {
-	    bool bFound = false;
-	    bool bWildcardPresent = false;
-	    
-	    for(Property* prClass : prClasses->subProperties()) {
-	      std::string strSubClass = prClass->getString();
-	      
-	      if(strSubClass == "*") {
-		bWildcardPresent = true;
-		this->info("Found a wildcard, using it.");
+	  if(prActive->namedSubProperty("subTypes")) {
+	    prDescendTo = prActive->namedSubProperty("subTypes")->namedSubProperty(strClass);
+	  }
+	  
+	  if(!prDescendTo) {
+	    // There was no subType to descend to. Check if we are
+	    // still flexible for other types. If that is the case,
+	    // use the first type that comes up.
+	    std::string strClasses = "";
+	    for(Property* prType : prActive->namedSubProperty("subTypes")->subProperties()) {
+	      if(strClasses != "") {
+		strClasses += " ";
 	      }
 	      
-	      lstSubClasses.push_back(strSubClass);
+	      strClasses += prType->key();
 	    }
 	    
-	    for(Property* prClass : prClasses->subProperties()) {
-	      std::string strSubClass = prClass->getString();
-	      
-	      if(strSubClass == strClass || strSubClass == "*") {
-		// This is the sub property we're looking for.
-		PredictionTrack ptTrack;
-		ptTrack.prLevel = prSub;
-		ptTrack.strClass = (bWildcardPresent ? "*" : strSubClass);
-		m_lstPredictionStack.push_back(ptTrack);
-		
-		bFound = true;
-		break;
+	    this->warn("No match for descend. Available classes: " + strClasses);
+	    
+	    if(m_nClassFlexibility > 0) {
+	      // Yes, we are flexible. Check if there is at least one subType.
+	      if(prActive->namedSubProperty("subTypes")->subProperties().size() > 0) {
+		// There are subTypes. Use the first one.
+		this->warn("Being flexible: Accept '" + prActive->namedSubProperty("subTypes")->subProperties().front()->key() + "' for '" + strClass + "'");
+		prDescendTo = prActive->namedSubProperty("subTypes")->subProperties().front();
+		bFlexible = true;
+		m_nClassFlexibility--;
 	      }
-	    }
-	    
-	    if(bFound) {
-	      bResult = true;
-	      break;
 	    }
 	  }
 	}
       }
       
-      if(bResult) {
-	this->info("Descending by class: '" + strClass + "'");
-      } else {
-	this->warn("Couldn't descend by class: '" + strClass + "'");
+      if(prDescendTo) {
+	m_bInsidePredictionModel = true;
 	
-	std::string strClasses = "";
-	for(string strClass : lstSubClasses) {
-	  strClasses += " " + strClass;
-	}
-	this->warn("Available classes:" + strClasses);
-	
-	if(m_bInsidePredictionModel) {
-	  this->warn("Leaving prediction model, entering unknown sub-tree.");
-	  m_bInsidePredictionModel = false;
-	} else {
-	  this->info("Continuing descent into unknown sub-tree.");
-	}
+       	this->info("Descending by class: '" + strClass + "'");
 	
 	PredictionTrack ptTrack;
-	ptTrack.prLevel = NULL;
-	ptTrack.strClass = strClass;
+	ptTrack.prLevel = prDescendTo;
+	ptTrack.strClass = (bFlexible ? "*" : strClass);
 	m_lstPredictionStack.push_back(ptTrack);
+	
+	bResult = true;
+      } else {
+      	this->warn("Couldn't descend by class: '" + strClass + "'");
+	
+      	if(m_bInsidePredictionModel) {
+      	  this->warn("Leaving prediction model, entering unknown sub-tree.");
+      	  m_bInsidePredictionModel = false;
+      	} else {
+      	  this->info("Continuing descent into unknown sub-tree.");
+      	}
+	
+      	PredictionTrack ptTrack;
+      	ptTrack.prLevel = NULL;
+      	ptTrack.strClass = strClass;
+      	m_lstPredictionStack.push_back(ptTrack);
       }
+      
+      // Property* prTopmost = NULL;
+      // Property* prSubs = NULL;
+      
+      // if(m_lstPredictionStack.size() > 0) {
+      // 	prTopmost = m_lstPredictionStack.back().prLevel;
+	
+      // 	if(prTopmost) {
+      // 	  prSubs = prTopmost->namedSubProperty("subs");
+      // 	}
+      // } else {
+      // 	prTopmost = m_jsnModel->rootProperty();
+	
+      // 	if(prTopmost) {
+      // 	  prSubs = prTopmost->namedSubProperty("tree");
+      // 	}
+      // }
+      
+      // std::list<std::string> lstSubClasses;
+      
+      // if(prSubs) {
+      // 	for(Property* prSub : prSubs->subProperties()) {
+      // 	  Property* prClasses = prSub->namedSubProperty("class");
+	  
+      // 	  if(prClasses) {
+      // 	    bool bFound = false;
+      // 	    bool bWildcardPresent = false;
+	    
+      // 	    for(Property* prClass : prClasses->subProperties()) {
+      // 	      std::string strSubClass = prClass->getString();
+	      
+      // 	      if(strSubClass == "*") {
+      // 		bWildcardPresent = true;
+      // 		this->info("Found a wildcard, using it.");
+      // 	      }
+	      
+      // 	      lstSubClasses.push_back(strSubClass);
+      // 	    }
+	    
+      // 	    for(Property* prClass : prClasses->subProperties()) {
+      // 	      std::string strSubClass = prClass->getString();
+	      
+      // 	      if(strSubClass == strClass || strSubClass == "*") {
+      // 		// This is the sub property we're looking for.
+      // 		PredictionTrack ptTrack;
+      // 		ptTrack.prLevel = prSub;
+      // 		ptTrack.strClass = (bWildcardPresent ? "*" : strSubClass);
+      // 		m_lstPredictionStack.push_back(ptTrack);
+		
+      // 		bFound = true;
+      // 		break;
+      // 	      }
+      // 	    }
+	    
+      // 	    if(bFound) {
+      // 	      bResult = true;
+      // 	      break;
+      // 	    }
+      // 	  }
+      // 	}
+      // }
+      
+      // if(bResult) {
+      // 	this->info("Descending by class: '" + strClass + "'");
+      // } else {
+      // 	this->warn("Couldn't descend by class: '" + strClass + "'");
+	
+      // 	std::string strClasses = "";
+      // 	for(string strClass : lstSubClasses) {
+      // 	  strClasses += " " + strClass;
+      // 	}
+      // 	this->warn("Available classes:" + strClasses);
+	
+      // 	if(m_bInsidePredictionModel) {
+      // 	  this->warn("Leaving prediction model, entering unknown sub-tree.");
+      // 	  m_bInsidePredictionModel = false;
+      // 	} else {
+      // 	  this->info("Continuing descent into unknown sub-tree.");
+      // 	}
+	
+      // 	PredictionTrack ptTrack;
+      // 	ptTrack.prLevel = NULL;
+      // 	ptTrack.strClass = strClass;
+      // 	m_lstPredictionStack.push_back(ptTrack);
+      // }
       
       m_mtxStackProtect.unlock();
       
       return bResult;
     }
     
-    bool PLUGIN_CLASS::ascend(std::string strClass) {
+    bool PLUGIN_CLASS::ascend(Node* ndAscend) {
       bool bResult = false;
+      
+      std::string strClass = m_expOwl->owlClassForNode(ndAscend, true);
       
       m_mtxStackProtect.lock();
       if(m_lstPredictionStack.size() > 0) {
@@ -331,6 +411,10 @@ namespace beliefstate {
 	  m_lstPredictionStack.pop_back();
 	  
 	  if(strClass == ptTrack.strClass || ptTrack.strClass == "*") {
+	    if(ptTrack.strClass == "*") {
+	      m_nClassFlexibility++;
+	    }
+	    
 	    if(m_lstPredictionStack.size() > 0) {
 	      PredictionTrack ptTrackNew = m_lstPredictionStack.back();
 	    
@@ -351,6 +435,7 @@ namespace beliefstate {
 	    bResult = true;
 	  } else {
 	    this->fail("Tried to ascend from '" + strClass + "', but we're in '" + ptTrack.strClass + "'. Moving up the chain.");
+	    bResult = true;
 	  }
 	  
 	  if(m_lstPredictionStack.size() == 0 || bResult) {
@@ -358,7 +443,7 @@ namespace beliefstate {
 	  }
 	}
       } else {
-	this->warn("Ascending although we have no prediction tree loaded. Did you load a model?");
+	this->warn("Ascending although we have no prediction tree loaded. Did you load a model? (Hint: The answer is 'No'.)");
       }
       
       m_mtxStackProtect.unlock();

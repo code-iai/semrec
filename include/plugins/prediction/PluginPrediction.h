@@ -50,6 +50,7 @@
 #include <fstream>
 #include <mutex>
 #include <map>
+#include <sstream>
 
 // Designators
 #include <designators/CDesignator.h>
@@ -103,6 +104,7 @@ namespace beliefstate {
       std::map< Property*, std::list<Property*> > m_mapNodeParameters;
       std::map< std::string, std::pair<int, int> > m_mapTimeStamps;
       bool m_bModelLoaded;
+      int m_nClassFlexibility;
       
     public:
       PLUGIN_CLASS();
@@ -120,8 +122,9 @@ namespace beliefstate {
       
       bool load(std::string strFile);
       
-      bool descend(std::string strClass);
-      bool ascend(std::string strClass);
+      bool descend(std::string strClass, bool bForceClass = false);
+      bool descend(Node* ndDescend);
+      bool ascend(Node* ndAscend);
       
       void mapNodeFailuresParameters();
       void mapTimeStamps();
