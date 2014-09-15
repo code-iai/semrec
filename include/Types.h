@@ -147,6 +147,7 @@ namespace beliefstate {
     std::list< std::pair<std::string, std::string> > lstDesignatorIDs;
     std::list< std::pair<std::string, std::string> > lstEquations;
     std::list< std::pair<std::string, std::string> > lstEquationTimes;
+    int nSequenceNumber;
   } Event;
   
   /*! \brief Central ServiceEvent structure, allowing asynchronous services between components */
@@ -159,6 +160,7 @@ namespace beliefstate {
     int nRequesterID;
     CDesignator* cdDesignator;
     std::list<Event> lstResultEvents;
+    int nSequenceNumber;
   } ServiceEvent;
   
   /*! \brief Central Result container for requests of all types

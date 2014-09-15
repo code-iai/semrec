@@ -560,27 +560,95 @@ namespace beliefstate {
       }
       
       if(resCycle.bSuccess) {
-	// Events
-	for(Event evEvent : resCycle.lstEvents) {
-	  // Distribute the event
-	  this->spreadEvent(evEvent);
-	  
-	  // Clean up
-	  if(evEvent.cdDesignator) {
-	    delete evEvent.cdDesignator;
-	  }
-	}
+	// NOTE(winkler): (Service)Event distribution was done in a
+	// linear manner before. This was changed, as the incoming
+	// events in the feeder plugins (for example, ROS) might
+	// appear in a different order than they are actually
+	// processed in the message queue. The order in the feeder
+	// plugins is __CORRECT__. Therefore, all events in them are
+	// (automatically) equipped with a sequence number. This
+	// number is evaluated here, distributing (i.e. spreading) the
+	// next event on the line, starting with the lowest. This
+	// measure was taken to prevent race conditions, which came up
+	// due to fast, but ordered messages from outside.
 	
-	// Services
-	for(ServiceEvent seServiceEvent : resCycle.lstServiceEvents) {
-	  // Distribute the event
-	  this->spreadServiceEvent(seServiceEvent);
+	// While there are events in either list, look for the lowest
+	// one.
+	while(resCycle.lstEvents.size() > 0 || resCycle.lstServiceEvents.size() > 0) {
+	  // Identify the next highest (i.e. at the moment lowest)
+	  // sequence number
+	  int nSequenceNumber = 100000;
 	  
-	  // Clean up
-	  if(seServiceEvent.cdDesignator) {
-	    if(!seServiceEvent.bPreserve) {
-	      delete seServiceEvent.cdDesignator;
+	  // In Events
+	  for(Event evEvent : resCycle.lstEvents) {
+	    if(evEvent.nSequenceNumber < nSequenceNumber) {
+	      nSequenceNumber = evEvent.nSequenceNumber;
 	    }
+	  }
+	  
+	  // In ServiceEvents
+	  for(ServiceEvent seEvent : resCycle.lstServiceEvents) {
+	    if(seEvent.nSequenceNumber < nSequenceNumber) {
+	      nSequenceNumber = seEvent.nSequenceNumber;
+	    }
+	  }
+	  
+	  // Spread the respective (Service)Event
+	  bool bWasSpread = false;
+	  
+	  for(list<Event>::iterator itEvent = resCycle.lstEvents.begin();
+	      itEvent != resCycle.lstEvents.end(); itEvent++) {
+	    Event evEvent = *itEvent;
+	    
+	    if(evEvent.nSequenceNumber == nSequenceNumber) {
+	      // Distribute the event
+	      this->spreadEvent(evEvent);
+	      
+	      // Clean up
+	      if(evEvent.cdDesignator) {
+		delete evEvent.cdDesignator;
+	      }
+	      
+	      resCycle.lstEvents.erase(itEvent);
+	      
+	      nSequenceNumber = evEvent.nSequenceNumber;
+	      bWasSpread = true;
+	      
+	      break;
+	    }
+	  }
+	  
+	  if(!bWasSpread) {
+	    for(list<ServiceEvent>::iterator itEvent = resCycle.lstServiceEvents.begin();
+		itEvent != resCycle.lstServiceEvents.end(); itEvent++) {
+	      ServiceEvent seEvent = *itEvent;
+	      
+	      if(seEvent.nSequenceNumber == nSequenceNumber) {
+		// Distribute the event
+		this->spreadServiceEvent(seEvent);
+		
+		// Clean up
+		if(seEvent.cdDesignator) {
+		  if(!seEvent.bPreserve) {
+		    delete seEvent.cdDesignator;
+		  }
+		}
+		
+		resCycle.lstServiceEvents.erase(itEvent);
+		
+		nSequenceNumber = seEvent.nSequenceNumber;
+		bWasSpread = true;
+		
+		break;
+	      }
+	    }
+	  }
+	  
+	  if(!bWasSpread) {
+	    // This should __never_ever__ happen. The sequence number
+	    // we found before wasn't found again. This means either
+	    // binary or memory corruption.
+	    this->fail("Sequence number hazard! Restart and possibly recompile.");
 	  }
 	}
 	

@@ -73,10 +73,7 @@ namespace beliefstate {
     class PLUGIN_CLASS : public Plugin {
     private:
       ros::NodeHandle* m_nhHandle;
-      ros::ServiceServer m_srvBeginContext;
-      ros::ServiceServer m_srvEndContext;
-      ros::ServiceServer m_srvAlterContext;
-      ros::ServiceServer m_srvService;
+      ros::ServiceServer m_srvCallback;
       ros::Publisher m_pubLoggedDesignators;
       ros::Publisher m_pubInteractiveCallback;
       ros::Publisher m_pubStatusMessages;
@@ -107,15 +104,14 @@ namespace beliefstate {
       bool spinWorkerRunning();
       void shutdownSpinWorker();
       
-      bool serviceCallbackBeginContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
-      bool serviceCallbackEndContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
-      bool serviceCallbackAlterContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
-      bool serviceCallbackService(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
+      bool serviceCallback(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
       
       virtual void consumeEvent(Event evEvent);
       virtual Event consumeServiceEvent(ServiceEvent seServiceEvent);
       
       std::string getDesignatorTypeString(CDesignator* desigDesignator);
+      
+      void waitForAssuranceToken(std::string strToken);
     };
   }
   

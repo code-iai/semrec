@@ -90,7 +90,7 @@ namespace beliefstate {
       // ROS-related initialization
       m_nhHandle = new ros::NodeHandle("~");
       
-      m_srvPredict = m_nhHandle->advertiseService<PLUGIN_CLASS>("predict", &PLUGIN_CLASS::serviceCallbackPredict, this);
+      //m_srvPredict = m_nhHandle->advertiseService<PLUGIN_CLASS>("predict", &PLUGIN_CLASS::serviceCallbackPredict, this);
       m_srvLoad = m_nhHandle->advertiseService<PLUGIN_CLASS>("load", &PLUGIN_CLASS::serviceCallbackLoad, this);
       
       return resInit;
@@ -153,6 +153,7 @@ namespace beliefstate {
       if(evEvent.strEventName == "symbolic-begin-context") {
 	if(evEvent.lstNodes.size() > 0) {
 	  this->descend(evEvent.lstNodes.front());
+	  issueGlobalToken("symbolic-context-began");
 	} else {
 	  this->warn("Consuming 'symbolic-begin-context' event without nodes!");
 	}
@@ -207,34 +208,34 @@ namespace beliefstate {
       return bSuccess;
     }
     
-    bool PLUGIN_CLASS::serviceCallbackPredict(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      CDesignator* desigRequest = new CDesignator(req.request.designator);
-      CDesignator* desigResponse = new CDesignator();
-      desigResponse->setType(ACTION);
+    // bool PLUGIN_CLASS::serviceCallbackPredict(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
+    //   CDesignator* desigRequest = new CDesignator(req.request.designator);
+    //   CDesignator* desigResponse = new CDesignator();
+    //   desigResponse->setType(ACTION);
       
-      bool bSuccess = false;
-      if(m_bModelLoaded) {
-	this->info("Received Prediction Request, waiting for other nodes to converge.");
-	usleep(50000);
+    //   bool bSuccess = false;
+    //   if(m_bModelLoaded) {
+    // 	this->info("Received Prediction Request, waiting for other nodes to converge.");
+    // 	usleep(50000);
 	
-	if(this->predict(desigRequest, desigResponse)) {
-	  res.response.designators.push_back(desigResponse->serializeToMessage());
+    // 	if(this->predict(desigRequest, desigResponse)) {
+    // 	  res.response.designators.push_back(desigResponse->serializeToMessage());
 	  
-	  bSuccess = true;
-	} else {
-	  this->fail("Failed to predict!");
-	}
-      } else {
-	this->warn("Received Prediction Request without loaded prediction model. Ignoring.");
+    // 	  bSuccess = true;
+    // 	} else {
+    // 	  this->fail("Failed to predict!");
+    // 	}
+    //   } else {
+    // 	this->warn("Received Prediction Request without loaded prediction model. Ignoring.");
 	
-	bSuccess = true;
-      }
+    // 	bSuccess = true;
+    //   }
       
-      delete desigRequest;
-      delete desigResponse;
+    //   delete desigRequest;
+    //   delete desigResponse;
       
-      return bSuccess;
-    }
+    //   return bSuccess;
+    // }
     
     bool PLUGIN_CLASS::load(string strFile) {
       bool bReturn = false;

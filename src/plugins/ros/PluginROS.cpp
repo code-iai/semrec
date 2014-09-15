@@ -92,10 +92,8 @@ namespace beliefstate {
 	m_nhHandle = new ros::NodeHandle("~");
 	
 	if(ros::ok()) {
-	  m_srvBeginContext = m_nhHandle->advertiseService<PLUGIN_CLASS>("begin_context", &PLUGIN_CLASS::serviceCallbackBeginContext, this);
-	  m_srvEndContext = m_nhHandle->advertiseService<PLUGIN_CLASS>("end_context", &PLUGIN_CLASS::serviceCallbackEndContext, this);
-	  m_srvAlterContext = m_nhHandle->advertiseService<PLUGIN_CLASS>("alter_context", &PLUGIN_CLASS::serviceCallbackAlterContext, this);
-	  m_srvService = m_nhHandle->advertiseService<PLUGIN_CLASS>("service", &PLUGIN_CLASS::serviceCallbackService, this);
+	  m_srvCallback = m_nhHandle->advertiseService<PLUGIN_CLASS>("operate", &PLUGIN_CLASS::serviceCallback, this);
+	  
 	  m_pubLoggedDesignators = m_nhHandle->advertise<designator_integration_msgs::Designator>("/logged_designators", 1);
 	  m_pubInteractiveCallback = m_nhHandle->advertise<designator_integration_msgs::Designator>("/interactive_callback", 1);
 	  
@@ -188,135 +186,130 @@ namespace beliefstate {
       m_thrdSpinWorker->join();
     }
     
-    bool PLUGIN_CLASS::serviceCallbackBeginContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
+    bool PLUGIN_CLASS::serviceCallback(designator_integration_msgs::DesignatorCommunication::Request &req,
+				       designator_integration_msgs::DesignatorCommunication::Response &res) {
+      bool bReturn = true;
+      
       m_mtxGlobalInputLock.lock();
       
-      Event evBeginContext = defaultEvent("begin-context");
-      evBeginContext.nContextID = createContextID();
-      evBeginContext.cdDesignator = new CDesignator(req.request.designator);
+      // TODO(winkler): Maybe use this designator instance for the
+      // events below, to not deserialize it twice.
+      CDesignator* cdDesig = new CDesignator(req.request.designator);
+      std::string strCBType = cdDesig->stringValue("_cb_type");
+      delete cdDesig;
       
-      std::stringstream sts;
-      sts << evBeginContext.nContextID;
+      transform(strCBType.begin(), strCBType.end(), strCBType.begin(), ::tolower);
       
-      this->info("Beginning context (ID = " + sts.str() + "): '" + evBeginContext.cdDesignator->stringValue("_name") + "'");
-      this->deployEvent(evBeginContext);
-      
-      CDesignator *desigResponse = new CDesignator();
-      desigResponse->setType(ACTION);
-      desigResponse->setValue(string("_id"), evBeginContext.nContextID);
-      
-      res.response.designators.push_back(desigResponse->serializeToMessage());
-      delete desigResponse;
-      
-      if(!m_bFirstContextReceived) {
-	this->info("First context received - logging is active.", true);
-	m_bFirstContextReceived = true;
-      }
-      
-      m_mtxGlobalInputLock.unlock();
-      
-      return true;
-    }
-    
-    bool PLUGIN_CLASS::serviceCallbackEndContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      m_mtxGlobalInputLock.lock();
-      
-      Event evEndContext = defaultEvent("end-context");
-      evEndContext.cdDesignator = new CDesignator(req.request.designator);
-      
-      int nContextID = (int)evEndContext.cdDesignator->floatValue("_id");
-      std::stringstream sts;
-      sts << nContextID;
-      
-      this->info("When ending context (ID = " + sts.str() + "), received " + this->getDesignatorTypeString(evEndContext.cdDesignator) + " designator");
-      this->deployEvent(evEndContext);
-      
-      freeContextID(nContextID);
-      
-      m_mtxGlobalInputLock.unlock();
-      
-      return true;
-    }
-
-    bool PLUGIN_CLASS::serviceCallbackAlterContext(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      m_mtxGlobalInputLock.lock();
-      
-      Event evAlterContext = defaultEvent();
-      evAlterContext.cdDesignator = new CDesignator(req.request.designator);
-      
-      if(evAlterContext.cdDesignator->stringValue("_type") == "service") {
-	ServiceEvent seService = defaultServiceEvent();
-	seService.smResultModifier = SM_IGNORE_RESULTS;
+      if(strCBType == "begin") {
+	Event evBeginContext = defaultEvent("begin-context");
+	evBeginContext.nContextID = createContextID();
+	evBeginContext.cdDesignator = new CDesignator(req.request.designator);
 	
-	seService.cdDesignator = evAlterContext.cdDesignator;
+	std::stringstream sts;
+	sts << evBeginContext.nContextID;
 	
-	std::string strCommand = seService.cdDesignator->stringValue("command");
-	transform(strCommand.begin(), strCommand.end(), strCommand.begin(), ::tolower);
-	seService.strServiceName = strCommand;
+	this->info("Beginning context (ID = " + sts.str() + "): '" + evBeginContext.cdDesignator->stringValue("_name") + "'");
+	this->deployEvent(evBeginContext);
 	
-	ServiceEvent seResult = this->deployServiceEvent(seService, true);
+	CDesignator *desigResponse = new CDesignator();
+	desigResponse->setType(ACTION);
+	desigResponse->setValue(string("_id"), evBeginContext.nContextID);
 	
-	if(seResult.cdDesignator) {
-	  res.response.designators.push_back(seResult.cdDesignator->serializeToMessage());
+	res.response.designators.push_back(desigResponse->serializeToMessage());
+	delete desigResponse;
+	
+	if(!m_bFirstContextReceived) {
+	  this->info("First context received - logging is active.", true);
+	  m_bFirstContextReceived = true;
+	}
+      } else if(strCBType == "end") {
+	Event evEndContext = defaultEvent("end-context");
+	evEndContext.cdDesignator = new CDesignator(req.request.designator);
+	
+	int nContextID = (int)evEndContext.cdDesignator->floatValue("_id");
+	std::stringstream sts;
+	sts << nContextID;
+	
+	this->info("When ending context (ID = " + sts.str() + "), received " + this->getDesignatorTypeString(evEndContext.cdDesignator) + " designator");
+	this->deployEvent(evEndContext);
+	
+	freeContextID(nContextID);
+      } else if(strCBType == "alter") {
+	Event evAlterContext = defaultEvent();
+	evAlterContext.cdDesignator = new CDesignator(req.request.designator);
+	
+	if(evAlterContext.cdDesignator->stringValue("_type") == "service") {
+	  ServiceEvent seService = defaultServiceEvent();
+	  seService.smResultModifier = SM_IGNORE_RESULTS;
 	  
-	  if(seResult.bPreserve) {
-	    delete seResult.cdDesignator;
+	  seService.cdDesignator = evAlterContext.cdDesignator;
+	  seService.bPreserve = true;
+	  
+	  std::string strCommand = seService.cdDesignator->stringValue("command");
+	  transform(strCommand.begin(), strCommand.end(), strCommand.begin(), ::tolower);
+	  seService.strServiceName = strCommand;
+	  
+	  ServiceEvent seResult = this->deployServiceEvent(seService, true);
+	  
+	  this->waitForAssuranceToken(evAlterContext.cdDesignator->stringValue("_assurance_token"));
+	  
+	  if(seResult.cdDesignator) {
+	    res.response.designators.push_back(seResult.cdDesignator->serializeToMessage());
+	    
+	    if(!seResult.bPreserve) {
+	      delete seResult.cdDesignator;
+	    }
 	  }
+	} else if(evAlterContext.cdDesignator->stringValue("_type") == "alter") {
+	  this->info("When altering context, received " + this->getDesignatorTypeString(evAlterContext.cdDesignator) + " designator");
+	  
+	  std::string strCommand = evAlterContext.cdDesignator->stringValue("command");
+	  transform(strCommand.begin(), strCommand.end(), strCommand.begin(), ::tolower);
+	  
+	  if(strCommand == "add-image") {
+	    evAlterContext.strEventName = "add-image-from-topic";
+	    evAlterContext.nOpenRequestID = this->openNewRequestID();
+	  } else if(strCommand == "add-failure") {
+	    evAlterContext.strEventName = "add-failure";
+	  } else if(strCommand == "add-designator") {
+	    evAlterContext.strEventName = "add-designator";
+	  } else if(strCommand == "equate-designators") {
+	    evAlterContext.strEventName = "equate-designators";
+	  } else if(strCommand == "add-object") {
+	    evAlterContext.strEventName = "add-object";
+	  } else if(strCommand == "export-planlog") {
+	    evAlterContext.strEventName = "export-planlog";
+	  } else if(strCommand == "start-new-experiment") {
+	    evAlterContext.strEventName = "start-new-experiment";
+	  } else if(strCommand == "set-experiment-meta-data") {
+	    evAlterContext.strEventName = "set-experiment-meta-data";
+	  } else if(strCommand == "register-interactive-object") {
+	    evAlterContext.strEventName = "symbolic-add-object";
+	  } else if(strCommand == "unregister-interactive-object") {
+	    evAlterContext.strEventName = "symbolic-remove-object";
+	  } else if(strCommand == "set-interactive-object-menu") {
+	    evAlterContext.strEventName = "symbolic-set-interactive-object-menu";
+	  } else if(strCommand == "update-interactive-object-pose") {
+	    evAlterContext.strEventName = "symbolic-update-object-pose";
+	  } else if(strCommand == "catch-failure") {
+	    evAlterContext.strEventName = "catch-failure";
+	  } else if(strCommand == "rethrow-failure") {
+	    evAlterContext.strEventName = "rethrow-failure";
+	  } else {
+	    this->warn("Unknown command when altering context: '" + strCommand + "'");
+	  }
+	  
+	  this->waitForAssuranceToken(evAlterContext.cdDesignator->stringValue("_assurance_token"));
+	  
+	  this->deployEvent(evAlterContext, true);
 	}
-      } else if(evAlterContext.cdDesignator->stringValue("_type") == "alter") {
-	this->info("When altering context, received " + this->getDesignatorTypeString(evAlterContext.cdDesignator) + " designator");
-      
-	std::string strCommand = evAlterContext.cdDesignator->stringValue("command");
-	transform(strCommand.begin(), strCommand.end(), strCommand.begin(), ::tolower);
-      
-	if(strCommand == "add-image") {
-	  evAlterContext.strEventName = "add-image-from-topic";
-	  evAlterContext.nOpenRequestID = this->openNewRequestID();
-	} else if(strCommand == "add-failure") {
-	  evAlterContext.strEventName = "add-failure";
-	} else if(strCommand == "add-designator") {
-	  evAlterContext.strEventName = "add-designator";
-	} else if(strCommand == "equate-designators") {
-	  evAlterContext.strEventName = "equate-designators";
-	} else if(strCommand == "add-object") {
-	  evAlterContext.strEventName = "add-object";
-	} else if(strCommand == "export-planlog") {
-	  evAlterContext.strEventName = "export-planlog";
-	} else if(strCommand == "start-new-experiment") {
-	  evAlterContext.strEventName = "start-new-experiment";
-	} else if(strCommand == "set-experiment-meta-data") {
-	  evAlterContext.strEventName = "set-experiment-meta-data";
-	} else if(strCommand == "register-interactive-object") {
-	  evAlterContext.strEventName = "symbolic-add-object";
-	} else if(strCommand == "unregister-interactive-object") {
-	  evAlterContext.strEventName = "symbolic-remove-object";
-	} else if(strCommand == "set-interactive-object-menu") {
-	  evAlterContext.strEventName = "symbolic-set-interactive-object-menu";
-	} else if(strCommand == "update-interactive-object-pose") {
-	  evAlterContext.strEventName = "symbolic-update-object-pose";
-	} else if(strCommand == "catch-failure") {
-	  evAlterContext.strEventName = "catch-failure";
-	} else if(strCommand == "rethrow-failure") {
-	  evAlterContext.strEventName = "rethrow-failure";
-	} else {
-	  this->warn("Unknown command when altering context: '" + strCommand + "'");
-	}
-      
-	this->deployEvent(evAlterContext, true);
+      } else {
+	this->fail("Unknown callback operation: '" + strCBType + "'");
       }
       
       m_mtxGlobalInputLock.unlock();
       
-      return true;
-    }
-
-    bool PLUGIN_CLASS::serviceCallbackService(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
-      m_mtxGlobalInputLock.lock();
-      
-      
-      m_mtxGlobalInputLock.unlock();
-      
-      return true;
+      return bReturn;
     }
     
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
@@ -382,6 +375,18 @@ namespace beliefstate {
       }
       
       return strDesigType;
+    }
+    
+    void PLUGIN_CLASS::waitForAssuranceToken(std::string strToken) {
+      if(strToken != "") {
+	// Wait for issueance of assurance token.
+	if(waitForGlobalToken(strToken, 2.0)) { // Timeout of 2.0 seconds
+	  revokeGlobalToken(strToken);
+	} else {
+	  this->warn("Failed to deliver assurance token '" + strToken + "'. Waiting for it was a waste of time. Check your model, something's off.");
+	}
+      }
+	  
     }
   }
   

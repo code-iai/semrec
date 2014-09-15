@@ -41,14 +41,52 @@
 
 
 namespace beliefstate {
-  static list<int> g_lstContextIDs;
-  static list<int> g_lstPluginIDs;
+  static std::list<int> g_lstContextIDs;
+  static std::list<int> g_lstPluginIDs;
   static ConfigSettings g_cfgsetSettings;
-  static mutex g_mtxGlobalSettings;
-  static map<string, CDesignator*> g_mapPluginSettings;
-  static mutex g_mtxStatusMessages;
-  static list<StatusMessage> g_lstStatusMessages;
+  static std::mutex g_mtxGlobalSettings;
+  static std::map<std::string, CDesignator*> g_mapPluginSettings;
+  static std::mutex g_mtxStatusMessages;
+  static std::list<StatusMessage> g_lstStatusMessages;
+  static int g_nHighestSequenceNumber = 0;
+  static std::mutex m_mtxSequenceNumberLock;
+  static std::map<std::string, int> g_mapIssuedGlobalTokens;
+  static std::mutex g_mtxGlobalTokensLock;
   
+  
+  void revokeGlobalToken(std::string strToken) {
+    g_mtxGlobalTokensLock.lock();
+    g_mapIssuedGlobalTokens[strToken] = 0;
+    g_mtxGlobalTokensLock.unlock();
+  }
+  
+  bool wasGlobalTokenIssued(std::string strToken) {
+    bool bReturn = false;
+    
+    g_mtxGlobalTokensLock.lock();
+    bReturn = (g_mapIssuedGlobalTokens[strToken] > 0);
+    g_mtxGlobalTokensLock.unlock();
+    
+    return bReturn;
+  }
+  
+  bool waitForGlobalToken(std::string strToken, float fTimeout) {
+    // TODO(winkler): The timeout is still not implemented, do that!
+    
+    while(true) {
+      if(wasGlobalTokenIssued(strToken)) {
+	return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  void issueGlobalToken(std::string strToken) {
+    g_mtxGlobalTokensLock.lock();
+    g_mapIssuedGlobalTokens[strToken] = 1;
+    g_mtxGlobalTokensLock.unlock();
+  }
   
   int rmfile(const char *path, const struct stat *sb, int flag, struct FTW *ftwbuf) {
     return ::remove(path);
@@ -135,8 +173,24 @@ namespace beliefstate {
     seDefault.smResultModifier = SM_AGGREGATE_RESULTS;
     seDefault.bPreserve = false;
     seDefault.cdDesignator = NULL;
+    seDefault.nSequenceNumber = nextSequenceNumber();
     
     return seDefault;
+  }
+  
+  int nextSequenceNumber() {
+    m_mtxSequenceNumberLock.lock();
+    g_nHighestSequenceNumber++;
+    int nReturn = g_nHighestSequenceNumber;
+    m_mtxSequenceNumberLock.unlock();
+    
+    return nReturn;
+  }
+  
+  void resetSequenceNumbers() {
+    m_mtxSequenceNumberLock.lock();
+    g_nHighestSequenceNumber = 0;
+    m_mtxSequenceNumberLock.unlock();
   }
   
   Event defaultEvent(string strEventName) {
@@ -147,6 +201,7 @@ namespace beliefstate {
     evDefault.nOpenRequestID = -1;
     evDefault.bRequest = true;
     evDefault.bPreempt = true;
+    evDefault.nSequenceNumber = nextSequenceNumber();
     
     return evDefault;
   }

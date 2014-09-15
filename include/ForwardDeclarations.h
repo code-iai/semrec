@@ -88,6 +88,13 @@ namespace beliefstate {
   void queueMessage(StatusMessage msgQueue);
   StatusMessage queueMessage(string strColorCode, bool bBold, string strPrefix, string strMessage);
   list<StatusMessage> queuedMessages();
+  
+  int nextSequenceNumber();
+  
+  void revokeGlobalToken(std::string strToken);
+  bool waitForGlobalToken(std::string strToken, float fTimeout = 2.0);
+  void issueGlobalToken(std::string strToken);
+  bool wasGlobalTokenIssued(std::string strToken);
 }
 
 
