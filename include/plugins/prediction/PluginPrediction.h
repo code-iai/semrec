@@ -92,7 +92,6 @@ namespace beliefstate {
       } PredictionResult;
       
       ros::NodeHandle* m_nhHandle;
-      ros::ServiceServer m_srvPredict;
       ros::ServiceServer m_srvLoad;
       JSON* m_jsnModel;
       std::list<PredictionTrack> m_lstPredictionStack;
