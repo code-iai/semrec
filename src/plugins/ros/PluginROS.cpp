@@ -244,45 +244,66 @@ namespace beliefstate {
       Event evAlterContext = defaultEvent();
       evAlterContext.cdDesignator = new CDesignator(req.request.designator);
       
-      this->info("When altering context, received " + this->getDesignatorTypeString(evAlterContext.cdDesignator) + " designator");
+      if(evAlterContext.cdDesignator->stringValue("_type") == "service") {
+	ServiceEvent seService = defaultServiceEvent();
+	seService.smResultModifier = SM_IGNORE_RESULTS;
+	
+	seService.cdDesignator = evAlterContext.cdDesignator;
+	
+	std::string strCommand = seService.cdDesignator->stringValue("command");
+	transform(strCommand.begin(), strCommand.end(), strCommand.begin(), ::tolower);
+	seService.strServiceName = strCommand;
+	
+	ServiceEvent seResult = this->deployServiceEvent(seService, true);
+	
+	if(seResult.cdDesignator) {
+	  res.response.designators.push_back(seResult.cdDesignator->serializeToMessage());
+	  
+	  if(seResult.bPreserve) {
+	    delete seResult.cdDesignator;
+	  }
+	}
+      } else if(evAlterContext.cdDesignator->stringValue("_type") == "alter") {
+	this->info("When altering context, received " + this->getDesignatorTypeString(evAlterContext.cdDesignator) + " designator");
       
-      std::string strCommand = evAlterContext.cdDesignator->stringValue("command");
-      transform(strCommand.begin(), strCommand.end(), strCommand.begin(), ::tolower);
+	std::string strCommand = evAlterContext.cdDesignator->stringValue("command");
+	transform(strCommand.begin(), strCommand.end(), strCommand.begin(), ::tolower);
       
-      if(strCommand == "add-image") {
-	evAlterContext.strEventName = "add-image-from-topic";
-	evAlterContext.nOpenRequestID = this->openNewRequestID();
-      } else if(strCommand == "add-failure") {
-	evAlterContext.strEventName = "add-failure";
-      } else if(strCommand == "add-designator") {
-	evAlterContext.strEventName = "add-designator";
-      } else if(strCommand == "equate-designators") {
-	evAlterContext.strEventName = "equate-designators";
-      } else if(strCommand == "add-object") {
-	evAlterContext.strEventName = "add-object";
-      } else if(strCommand == "export-planlog") {
-	evAlterContext.strEventName = "export-planlog";
-      } else if(strCommand == "start-new-experiment") {
-	evAlterContext.strEventName = "start-new-experiment";
-      } else if(strCommand == "set-experiment-meta-data") {
-	evAlterContext.strEventName = "set-experiment-meta-data";
-      } else if(strCommand == "register-interactive-object") {
-	evAlterContext.strEventName = "symbolic-add-object";
-      } else if(strCommand == "unregister-interactive-object") {
-	evAlterContext.strEventName = "symbolic-remove-object";
-      } else if(strCommand == "set-interactive-object-menu") {
-	evAlterContext.strEventName = "symbolic-set-interactive-object-menu";
-      } else if(strCommand == "update-interactive-object-pose") {
-	evAlterContext.strEventName = "symbolic-update-object-pose";
-      } else if(strCommand == "catch-failure") {
-	evAlterContext.strEventName = "catch-failure";
-      } else if(strCommand == "rethrow-failure") {
-	evAlterContext.strEventName = "rethrow-failure";
-      } else {
-	this->warn("Unknown command when altering context: '" + strCommand + "'");
+	if(strCommand == "add-image") {
+	  evAlterContext.strEventName = "add-image-from-topic";
+	  evAlterContext.nOpenRequestID = this->openNewRequestID();
+	} else if(strCommand == "add-failure") {
+	  evAlterContext.strEventName = "add-failure";
+	} else if(strCommand == "add-designator") {
+	  evAlterContext.strEventName = "add-designator";
+	} else if(strCommand == "equate-designators") {
+	  evAlterContext.strEventName = "equate-designators";
+	} else if(strCommand == "add-object") {
+	  evAlterContext.strEventName = "add-object";
+	} else if(strCommand == "export-planlog") {
+	  evAlterContext.strEventName = "export-planlog";
+	} else if(strCommand == "start-new-experiment") {
+	  evAlterContext.strEventName = "start-new-experiment";
+	} else if(strCommand == "set-experiment-meta-data") {
+	  evAlterContext.strEventName = "set-experiment-meta-data";
+	} else if(strCommand == "register-interactive-object") {
+	  evAlterContext.strEventName = "symbolic-add-object";
+	} else if(strCommand == "unregister-interactive-object") {
+	  evAlterContext.strEventName = "symbolic-remove-object";
+	} else if(strCommand == "set-interactive-object-menu") {
+	  evAlterContext.strEventName = "symbolic-set-interactive-object-menu";
+	} else if(strCommand == "update-interactive-object-pose") {
+	  evAlterContext.strEventName = "symbolic-update-object-pose";
+	} else if(strCommand == "catch-failure") {
+	  evAlterContext.strEventName = "catch-failure";
+	} else if(strCommand == "rethrow-failure") {
+	  evAlterContext.strEventName = "rethrow-failure";
+	} else {
+	  this->warn("Unknown command when altering context: '" + strCommand + "'");
+	}
+      
+	this->deployEvent(evAlterContext, true);
       }
-      
-      this->deployEvent(evAlterContext, true);
       
       m_mtxGlobalInputLock.unlock();
       
@@ -292,25 +313,6 @@ namespace beliefstate {
     bool PLUGIN_CLASS::serviceCallbackService(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
       m_mtxGlobalInputLock.lock();
       
-      ServiceEvent seService = defaultServiceEvent();
-      seService.smResultModifier = SM_IGNORE_RESULTS;
-      
-      CDesignator* cdRequest = new CDesignator(req.request.designator);
-      seService.cdDesignator = cdRequest;
-      
-      std::string strCommand = seService.cdDesignator->stringValue("command");
-      transform(strCommand.begin(), strCommand.end(), strCommand.begin(), ::tolower);
-      seService.strServiceName = strCommand;
-      
-      ServiceEvent seResult = this->deployServiceEvent(seService, true);
-      
-      if(seResult.cdDesignator) {
-	res.response.designators.push_back(seResult.cdDesignator->serializeToMessage());
-	
-	if(seResult.bPreserve) {
-	  delete seResult.cdDesignator;
-	}
-      }
       
       m_mtxGlobalInputLock.unlock();
       
