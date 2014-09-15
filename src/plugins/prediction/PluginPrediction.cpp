@@ -122,7 +122,7 @@ namespace beliefstate {
 	  if(m_bModelLoaded) {
 	    this->info("Received Prediction Request.");
 	    
-	    if(!this->predict(seEvent.cdDesignator, cdResponse)) {
+	    if(!this->predict(cdRequest, cdResponse)) {
 	      this->fail("Failed to predict!");
 	      
 	      cdResponse->setValue("success", false);
@@ -324,91 +324,6 @@ namespace beliefstate {
       	m_lstPredictionStack.push_back(ptTrack);
       }
       
-      // Property* prTopmost = NULL;
-      // Property* prSubs = NULL;
-      
-      // if(m_lstPredictionStack.size() > 0) {
-      // 	prTopmost = m_lstPredictionStack.back().prLevel;
-	
-      // 	if(prTopmost) {
-      // 	  prSubs = prTopmost->namedSubProperty("subs");
-      // 	}
-      // } else {
-      // 	prTopmost = m_jsnModel->rootProperty();
-	
-      // 	if(prTopmost) {
-      // 	  prSubs = prTopmost->namedSubProperty("tree");
-      // 	}
-      // }
-      
-      // std::list<std::string> lstSubClasses;
-      
-      // if(prSubs) {
-      // 	for(Property* prSub : prSubs->subProperties()) {
-      // 	  Property* prClasses = prSub->namedSubProperty("class");
-	  
-      // 	  if(prClasses) {
-      // 	    bool bFound = false;
-      // 	    bool bWildcardPresent = false;
-	    
-      // 	    for(Property* prClass : prClasses->subProperties()) {
-      // 	      std::string strSubClass = prClass->getString();
-	      
-      // 	      if(strSubClass == "*") {
-      // 		bWildcardPresent = true;
-      // 		this->info("Found a wildcard, using it.");
-      // 	      }
-	      
-      // 	      lstSubClasses.push_back(strSubClass);
-      // 	    }
-	    
-      // 	    for(Property* prClass : prClasses->subProperties()) {
-      // 	      std::string strSubClass = prClass->getString();
-	      
-      // 	      if(strSubClass == strClass || strSubClass == "*") {
-      // 		// This is the sub property we're looking for.
-      // 		PredictionTrack ptTrack;
-      // 		ptTrack.prLevel = prSub;
-      // 		ptTrack.strClass = (bWildcardPresent ? "*" : strSubClass);
-      // 		m_lstPredictionStack.push_back(ptTrack);
-		
-      // 		bFound = true;
-      // 		break;
-      // 	      }
-      // 	    }
-	    
-      // 	    if(bFound) {
-      // 	      bResult = true;
-      // 	      break;
-      // 	    }
-      // 	  }
-      // 	}
-      // }
-      
-      // if(bResult) {
-      // 	this->info("Descending by class: '" + strClass + "'");
-      // } else {
-      // 	this->warn("Couldn't descend by class: '" + strClass + "'");
-	
-      // 	std::string strClasses = "";
-      // 	for(string strClass : lstSubClasses) {
-      // 	  strClasses += " " + strClass;
-      // 	}
-      // 	this->warn("Available classes:" + strClasses);
-	
-      // 	if(m_bInsidePredictionModel) {
-      // 	  this->warn("Leaving prediction model, entering unknown sub-tree.");
-      // 	  m_bInsidePredictionModel = false;
-      // 	} else {
-      // 	  this->info("Continuing descent into unknown sub-tree.");
-      // 	}
-	
-      // 	PredictionTrack ptTrack;
-      // 	ptTrack.prLevel = NULL;
-      // 	ptTrack.strClass = strClass;
-      // 	m_lstPredictionStack.push_back(ptTrack);
-      // }
-      
       m_mtxStackProtect.unlock();
       
       return bResult;
@@ -541,7 +456,16 @@ namespace beliefstate {
       }
     }
     
-    bool PLUGIN_CLASS::predict(CDesignator* desigRequest, CDesignator* desigResponse) {
+    PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::evaluatePredictionRequest(Property* prActive, CKeyValuePair* ckvpFeatures, CKeyValuePair* ckvpRequested) {
+      PredictionResult prResult;
+      
+      // Here, the actual prediction takes place.
+      // TODO(winkler): Implement the prediction mechanism here.
+      
+      return prResult;
+    }
+    
+    bool PLUGIN_CLASS::predict(CDesignator* cdRequest, CDesignator* cdResponse) {
       bool bResult = false;
       
       m_mtxStackProtect.lock();
@@ -553,27 +477,46 @@ namespace beliefstate {
 	  // Make sure we are actually in a valid prediction state.
 	  if(m_lstPredictionStack.size() > 0) {
 	    PredictionTrack ptCurrent = m_lstPredictionStack.back();
+	    this->info("Predicting for class: '" + ptCurrent.strClass + "' at level " + this->str((int)m_lstPredictionStack.size()));
 	    
-	    std::cout << "Predicting for class: '" << ptCurrent.strClass << "' at level " << this->str((int)m_lstPredictionStack.size()) << std::endl;
+	    CKeyValuePair* ckvpActiveFeatures = cdRequest->childForKey("active-features");
+	    CKeyValuePair* ckvpRequestedFeatures = cdRequest->childForKey("requested-features");
+	    
+	    if(ckvpActiveFeatures) {
+	      std::string strActiveFeatures = "";
+	      
+	      for(std::string strKey : ckvpActiveFeatures->keys()) {
+		if(strActiveFeatures != "") {
+		  strActiveFeatures += ", ";
+		}
+		
+		strActiveFeatures += strKey;
+	      }
+	      
+	      this->info("Active features: " + strActiveFeatures);
+	    }
+	    
+	    if(ckvpRequestedFeatures) {
+	      std::string strRequestedFeatures = "";
+	      
+	      for(std::string strKey : ckvpRequestedFeatures->keys()) {
+		if(strRequestedFeatures != "") {
+		  strRequestedFeatures += ", ";
+		}
+		
+		strRequestedFeatures += strKey;
+	      }
+	      
+	      this->info("Requested features: " + strRequestedFeatures);
+	    }
+	    
+	    // Here, the actual prediction is triggered.
+	    Property* prActive = m_lstPredictionStack.back().prLevel;
+	    PredictionResult presResult = this->evaluatePredictionRequest(prActive, ckvpActiveFeatures, ckvpRequestedFeatures);
 	    
 	    
 	    
-	    // std::list<Property*> lstParameters;
-	    // PredictionResult presResult;
 	    // std::map<std::string, double> mapEffectiveFailureRates;
-	    // Property* prParameters = new Property();
-	    // prParameters->set(Property::Array);
-	    
-	    // for(string strKey : desigRequest->keys()) {
-	    //   Property* prParameter = new Property();
-	      
-	    //   prParameter->set(Property::Double);
-	    //   prParameter->setKey(strKey);
-	    //   prParameter->set((double)desigRequest->floatValue(strKey));
-	      
-	    //   lstParameters.push_back(prParameter);
-	    //   prParameters->addSubProperty(prParameter);
-	    // }
 	    
 	    // // Automatic tree walking
 	    // std::list<Property*> lstLinearTree = this->linearizeTree(ptCurrent.prLevel);

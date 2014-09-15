@@ -118,7 +118,6 @@ namespace beliefstate {
       virtual void consumeEvent(Event evEvent);
       
       bool serviceCallbackLoad(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
-      bool serviceCallbackPredict(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res);
       
       bool load(std::string strFile);
       
@@ -130,6 +129,8 @@ namespace beliefstate {
       void mapTimeStamps();
       
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
+      PredictionResult evaluatePredictionRequest(Property* prActive, CKeyValuePair* ckvpFeatures, CKeyValuePair* ckvpRequested);
+      
       std::list<Property*> linearizeTree(Property* prTop);
       PredictionResult probability(std::list<Property*> lstSequence, Property* prParameters, std::list<Property*> lstParameters);
       std::map<std::string, double> relativeFailureOccurrences(std::list<Property*> lstFailures, int nTracks);
