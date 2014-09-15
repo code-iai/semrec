@@ -138,9 +138,6 @@ namespace beliefstate {
 	    cdResponse->setValue("message", "No model loaded.");
 	  }
 	  
-	  // TODO(winkler): Maybe set a value field in the response
-	  // designator here, denoting that prediction failed.
-	  
 	  seResponse.cdDesignator = cdResponse;
 	  this->deployServiceEvent(seResponse);
 	}
