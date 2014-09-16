@@ -90,6 +90,7 @@ namespace beliefstate {
   list<StatusMessage> queuedMessages();
   
   int nextSequenceNumber();
+  void resetSequenceNumbers();
   
   void revokeGlobalToken(std::string strToken);
   bool waitForGlobalToken(std::string strToken, float fTimeout = 2.0);
