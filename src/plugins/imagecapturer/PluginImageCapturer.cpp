@@ -87,7 +87,7 @@ namespace beliefstate {
 	    if(strFilename == "") {
 	      strFilename = strTopic;
 	      replace(strFilename.begin(), strFilename.end(), '/', '_');
-	      strFilename += ".png";
+	      strFilename += ".jpg";
 	    }
 	    
 	    ConfigSettings cfgsetCurrent = configSettings();
