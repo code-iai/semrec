@@ -69,6 +69,7 @@ namespace beliefstate {
       std::list<Node*> m_lstNodes;
       std::list<Node*> m_lstRootNodes;
       Node* m_ndActive;
+      std::list<Node*> m_lstNodeStack;
       std::list< std::pair<std::string, std::string> > m_lstDesignatorIDs;
       std::list< std::pair<std::string, std::string> > m_lstDesignatorEquations;
       std::list< std::pair<std::string, std::string> > m_lstDesignatorEquationTimes;

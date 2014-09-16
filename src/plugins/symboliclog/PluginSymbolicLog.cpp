@@ -194,8 +194,8 @@ namespace beliefstate {
 	    }
 	    ndCurrent->metaInformation()->setValue(std::string("time-end"), strTimeEnd);
 	    
-	    Node *ndParent = ndCurrent->parent();
-	    Node *ndParentLastValid = NULL;
+	    Node* ndParent = ndCurrent->parent();
+	    Node* ndParentLastValid = NULL;
 	    this->setNodeAsActive(ndParent);
 	    
 	    while(ndParent) {
@@ -269,6 +269,8 @@ namespace beliefstate {
 	      this->warn(sts.str());
 	    }
 	  }
+	  
+	  m_lstNodeStack.pop_back();
 	} else {
 	  stringstream sts;
 	  sts << "Received stop node designator for ID " << nID << " while in top-level.";
@@ -535,6 +537,8 @@ namespace beliefstate {
       } else if(evEvent.strEventName == "start-new-experiment") {
 	this->info("Clearing symbolic log for new experiment.");
 	
+	m_lstNodeStack.clear();
+	
 	for(Node* ndNode : m_lstNodes) {
 	  delete ndNode;
 	}
@@ -565,20 +569,18 @@ namespace beliefstate {
 	// Add a new top-level node
 	m_lstNodes.push_back(ndNew);
 	
-	stringstream sts;
-	sts << nContextID;
-	this->info("Adding new top-level context with ID " + sts.str());
+	this->info("Adding new top-level context with ID " + this->str(nContextID));
       } else {
 	// Add it as a subnode to the current contextual node
 	m_ndActive->addSubnode(ndNew);
 	
-	stringstream sts;
-	sts << nContextID;
-	this->info("Adding new sub context with ID " + sts.str());
+	this->info("Adding new sub context with ID " + this->str(nContextID) + " (current depth: " + this->str((int)m_lstNodeStack.size()) + ")");
       }
       
       this->info("The new context's name is '" + strName + "'");
       this->setNodeAsActive(ndNew);
+      
+      m_lstNodeStack.push_back(ndNew);
       
       return ndNew;
     }
