@@ -156,7 +156,7 @@ namespace beliefstate {
       
       while(this->keepSpinning()) {
 	ros::spinOnce();
-	rSpin.sleep();
+	//rSpin.sleep();
       }
       
       this->setSpinWorkerRunning(false);
