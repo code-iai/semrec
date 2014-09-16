@@ -211,7 +211,7 @@ namespace beliefstate {
       strEventName = evRequest.strEventName;
     }
     
-    Event evDefault = defaultEvent(evRequest.strEventName);
+    Event evDefault = defaultEvent(strEventName);
     evDefault.nOpenRequestID = evRequest.nOpenRequestID;
     evDefault.bRequest = false;
     
@@ -223,7 +223,7 @@ namespace beliefstate {
       strServiceName = seRequest.strServiceName;
     }
     
-    ServiceEvent seDefault = defaultServiceEvent(seRequest.strServiceName);
+    ServiceEvent seDefault = defaultServiceEvent(strServiceName);
     seDefault.siServiceIdentifier = SI_RESPONSE;
     seDefault.nServiceEventID = seRequest.nServiceEventID;
     

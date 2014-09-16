@@ -577,7 +577,10 @@ namespace beliefstate {
 	while(resCycle.lstEvents.size() > 0 || resCycle.lstServiceEvents.size() > 0) {
 	  // Identify the next highest (i.e. at the moment lowest)
 	  // sequence number
-	  int nSequenceNumber = 100000;
+	  int nSequenceNumber = 100000; // Dirty: Don't put more than
+					// 100000 msgs in the queue at
+					// the same time, or the
+					// system will deadlock.
 	  
 	  // In Events
 	  for(Event evEvent : resCycle.lstEvents) {
@@ -651,6 +654,8 @@ namespace beliefstate {
 	    this->fail("Sequence number hazard! Restart and possibly recompile.");
 	  }
 	}
+	
+	resetSequenceNumbers();
 	
 	// Special events
 	m_mtxTerminalResize.lock();
