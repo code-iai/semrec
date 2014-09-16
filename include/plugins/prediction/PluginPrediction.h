@@ -59,10 +59,6 @@
 // OWL Exporter for ontology
 #include <plugins/owlexporter/CExporterOwl.h>
 
-// C50
-#include <C50/defns.i>
-#include <C50/extern.i>
-
 // Private
 #include <Types.h>
 #include <ForwardDeclarations.h>
@@ -82,12 +78,8 @@ namespace beliefstate {
       } PredictionTrack;
       
       typedef struct {
-	std::string strClass;
-	double dProbability;
-      } Failure;
-      
-      typedef struct {
-	std::list<Failure> lstFailureProbabilities;
+	std::map<std::string, double> mapFailureProbabilities;
+	std::map<std::string, Property*> mapRequestedFeatureValues;
 	double dSuccessRate;
       } PredictionResult;
       
@@ -131,12 +123,14 @@ namespace beliefstate {
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
       PredictionResult evaluatePredictionRequest(Property* prActive, CKeyValuePair* ckvpFeatures, CKeyValuePair* ckvpRequested);
       
-      std::list<Property*> linearizeTree(Property* prTop);
-      PredictionResult probability(std::list<Property*> lstSequence, Property* prParameters, std::list<Property*> lstParameters);
+      std::list< pair<Property*, int> > linearizeTree(Property* prTop, int nLevel);
+      PredictionResult probability(std::list< pair<Property*, int> > lstSequence, CKeyValuePair* ckvpFeatures, CKeyValuePair* ckvpRequested);
       std::map<std::string, double> relativeFailureOccurrences(std::list<Property*> lstFailures, int nTracks);
       std::list<Property*> failuresForTreeNode(Property* prNode);
-      std::map<std::string, double> relativeFailuresForNode(Property* prNode, Property* prParameters);
+      std::map<std::string, double> relativeFailuresForNode(Property* prNode, int nLevel, CKeyValuePair* ckvpFeatures);
       std::list<Property*> parametersForTreeNode(Property* prNode);
+      
+      std::map<std::string, double> evaluateDecisionTree(std::string strClass, int nLevel, CKeyValuePair* ckvpFeatures);
     };
   }
   
