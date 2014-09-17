@@ -860,6 +860,8 @@ namespace beliefstate {
     if(strName == "WITH-DESIGNATORS") {
       // Is this right? Or is there a more fitting type for that?
       strClass = "WithDesignators";
+    } else if(strName == "TAG") {
+      strClass = "Tag";
     } else if(strName.substr(0, 5) == "GOAL-") {
       // This is a goal definition.
       std::string strGoal = strName.substr(5);
