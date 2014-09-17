@@ -83,8 +83,6 @@ namespace beliefstate {
 	double dSuccessRate;
       } PredictionResult;
       
-      ros::NodeHandle* m_nhHandle;
-      ros::ServiceServer m_srvLoad;
       JSON* m_jsnModel;
       std::list<PredictionTrack> m_lstPredictionStack;
       CExporterOwl* m_expOwl;
@@ -131,6 +129,9 @@ namespace beliefstate {
       std::list<Property*> parametersForTreeNode(Property* prNode);
       
       std::map<std::string, double> evaluateDecisionTree(std::string strClass, int nLevel, CKeyValuePair* ckvpFeatures);
+      
+      bool loadDecisionTree(std::string strPath);
+      Property* evaluateDecisionTree(Property* prTree, Property* prFeatures);
     };
   }
   

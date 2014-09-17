@@ -43,7 +43,6 @@
 namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
-      m_nhHandle = NULL;
       m_jsnModel = NULL;
       m_expOwl = NULL;
       m_bInsidePredictionModel = false;
@@ -51,15 +50,10 @@ namespace beliefstate {
       m_bModelLoaded = false;
       m_nClassFlexibility = 6;
       
-      this->addDependency("ros");
       this->setPluginVersion("0.1");
     }
 
     PLUGIN_CLASS::~PLUGIN_CLASS() {
-      if(m_nhHandle) {
-	delete m_nhHandle;
-      }
-      
       if(m_jsnModel) {
 	delete m_jsnModel;
       }
@@ -80,17 +74,13 @@ namespace beliefstate {
       this->setSubscribedToEvent("symbolic-node-active", true);
       
       this->setOffersService("predict", true);
-
+      this->setOffersService("load-model", true);
+      
       // Prepare the JSON prediction model parser
       m_jsnModel = new JSON();
       
       // OWL Exporter instance for class ontology
       m_expOwl = new CExporterOwl();
-      
-      // ROS-related initialization
-      m_nhHandle = new ros::NodeHandle("~");
-      
-      m_srvLoad = m_nhHandle->advertiseService<PLUGIN_CLASS>("load", &PLUGIN_CLASS::serviceCallbackLoad, this);
       
       return resInit;
     }
@@ -139,6 +129,37 @@ namespace beliefstate {
 	  
 	  seResponse.cdDesignator = cdResponse;
 	  this->deployServiceEvent(seResponse);
+	} else if(seEvent.strServiceName == "load-model") {
+	  CDesignator* cdRequest = seEvent.cdDesignator;
+	  
+	  if(cdRequest) {
+	    if(cdRequest->stringValue("type") == "task-tree") {
+	      std::string strPath = cdRequest->stringValue("file");
+	      
+	      if(strPath != "") {
+		this->info("Load task tree model: '" + strPath + "'");
+		
+		if(this->load(strPath)) {
+		  this->fail("Failed to load task tree model.");
+		}
+	      } else {
+		this->fail("No file specified for loading task tree model.");
+	      }
+	    } else if(cdRequest->stringValue("type") == "decision-tree") {
+	      std::string strPath = cdRequest->stringValue("file");
+	      this->info("Load decision tree model: '" + strPath + "'");
+	      
+	      if(strPath != "") {
+		if(this->loadDecisionTree(strPath)) {
+		  this->info("Finished loading decision tree model.");
+		} else {
+		  this->fail("Failed to load decision tree model.");
+		}
+	      } else {
+		this->fail("No file specified for loading decision tree model.");
+	      }
+	    }
+	  }
 	}
       }
       
@@ -807,6 +828,22 @@ namespace beliefstate {
       }
       
       return presResult;
+    }
+    
+    bool PLUGIN_CLASS::loadDecisionTree(std::string strPath) {
+      bool bResult = false;
+      
+      // ...
+      
+      return bResult;
+    }
+    
+    Property* PLUGIN_CLASS::evaluateDecisionTree(Property* prTree, Property* prFeatures) {
+      Property* prResult = NULL;
+      
+      // ...
+      
+      return prResult;
     }
   }
   
