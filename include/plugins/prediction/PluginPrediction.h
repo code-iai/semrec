@@ -84,6 +84,7 @@ namespace beliefstate {
       } PredictionResult;
       
       JSON* m_jsnModel;
+      JSON* m_jsnDecisionTree;
       std::list<PredictionTrack> m_lstPredictionStack;
       CExporterOwl* m_expOwl;
       bool m_bInsidePredictionModel;
@@ -131,7 +132,7 @@ namespace beliefstate {
       std::map<std::string, double> evaluateDecisionTree(std::string strClass, int nLevel, CKeyValuePair* ckvpFeatures);
       
       bool loadDecisionTree(std::string strPath);
-      Property* evaluateDecisionTree(Property* prTree, Property* prFeatures);
+      Property* evaluateDecisionTree(Property* prTree, CKeyValuePair* ckvpFeatures);
     };
   }
   
