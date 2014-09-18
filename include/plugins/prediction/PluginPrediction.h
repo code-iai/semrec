@@ -133,6 +133,9 @@ namespace beliefstate {
       
       bool loadDecisionTree(std::string strPath);
       Property* evaluateDecisionTree(Property* prTree, CKeyValuePair* ckvpFeatures);
+      
+      void missingFeature(std::string strOperator, std::string strFeatureName);
+      void missingOperand(std::string strOperator);
     };
   }
   

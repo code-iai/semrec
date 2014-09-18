@@ -859,11 +859,11 @@ namespace beliefstate {
 	  // Property* prResult = this->evaluateDecisionTree(m_jsnDecisionTree->rootProperty(), ckvpFeatures);
 	  // delete ckvpFeatures;
 	  
-	  if(prResult) {
-	    std::cout << "Got result: " << prResult->getString() << std::endl;
-	  } else {
-	    std::cout << "Implicit success, as no leaf was reached." << std::endl;
-	  }
+	  // if(prResult) {
+	  //   std::cout << "Got result: " << prResult->getString() << std::endl;
+	  // } else {
+	  //   std::cout << "Implicit success, as no leaf was reached." << std::endl;
+	  // }
 	}
       }
       
@@ -926,10 +926,10 @@ namespace beliefstate {
 		} break;
 		}
 	      } else {
-		this->warn("Decision Tree: Missing features while evaluating operator '='.");
+		this->missingFeature("=", prVariable->getString());
 	      }
 	    } else {
-	      this->warn("Decision Tree: Missing operants while evaluating operator '='.");
+	      this->missingOperand("=");
 	    }
 	  } else if((prOperator = prAction->namedSubProperty("<")) != NULL) {
 	    // Operator: "<"
@@ -960,10 +960,10 @@ namespace beliefstate {
 		  } break;
 		  }
 		} else {
-		  this->warn("Decision Tree: Missing features while evaluating operator '<'.");
+		  this->missingFeature("<", prVariable->getString());
 		}
 	      } else {
-		this->warn("Decision Tree: Missing operants while evaluating operator '<'.");
+		this->missingOperand("<");
 	      }
 	    }
 	  } else if((prOperator = prAction->namedSubProperty("<=")) != NULL) {
@@ -993,10 +993,10 @@ namespace beliefstate {
 		} break;
 		}
 	      } else {
-		this->warn("Decision Tree: Missing features while evaluating operator '<='.");
+		this->missingFeature("<=", prVariable->getString());
 	      }
 	    } else {
-	      this->warn("Decision Tree: Missing operants while evaluating operator '<='.");
+	      this->missingOperand("<=");
 	    }
 	  } else if((prOperator = prAction->namedSubProperty(">")) != NULL) {
 	    prVariable = prOperator->namedSubProperty("variable");
@@ -1025,10 +1025,10 @@ namespace beliefstate {
 		} break;
 		}
 	      } else {
-		this->warn("Decision Tree: Missing features while evaluating operator '>'.");
+		this->missingFeature(">", prVariable->getString());
 	      }
 	    } else {
-	      this->warn("Decision Tree: Missing operants while evaluating operator '>'.");
+	      this->missingOperand(">");
 	    }
 	  } else if((prOperator = prAction->namedSubProperty(">=")) != NULL) {
 	    prVariable = prOperator->namedSubProperty("variable");
@@ -1057,10 +1057,10 @@ namespace beliefstate {
 		} break;
 		}
 	      } else {
-		this->warn("Decision Tree: Missing features while evaluating operator '>='.");
+		this->missingFeature(">=", prVariable->getString());
 	      }
 	    } else {
-	      this->warn("Decision Tree: Missing operants while evaluating operator '>='.");
+	      this->missingOperand(">=");
 	    }
 	  } else if((prOperator = prAction->namedSubProperty("!=")) != NULL) {
 	    prVariable = prOperator->namedSubProperty("variable");
@@ -1103,10 +1103,10 @@ namespace beliefstate {
 		} break;
 		}
 	      } else {
-		this->warn("Decision Tree: Missing features while evaluating operator '!='.");
+		this->missingFeature("!=", prVariable->getString());
 	      }
 	    } else {
-	      this->warn("Decision Tree: Missing operants while evaluating operator '!='.");
+	      this->missingOperand("!=");
 	    }
 	  }
 	  
@@ -1143,6 +1143,14 @@ namespace beliefstate {
       }
       
       return prResult;
+    }
+    
+    void PLUGIN_CLASS::missingFeature(std::string strOperator, std::string strFeatureName) {
+      this->warn("Decision Tree: Missing '" + strFeatureName + "' from feature space while evaluating operator '" + strOperator + "'.");
+    }
+    
+    void PLUGIN_CLASS::missingOperand(std::string strOperator) {
+      this->warn("Decision Tree: Missing operand while evaluating operator '" + strOperator + "'.");
     }
   }
   
