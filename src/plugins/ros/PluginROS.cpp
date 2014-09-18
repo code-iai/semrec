@@ -249,7 +249,7 @@ namespace beliefstate {
 	  transform(strCommand.begin(), strCommand.end(), strCommand.begin(), ::tolower);
 	  seService.strServiceName = strCommand;
 	  
-	  ServiceEvent seResult = this->deployServiceEvent(seService, false);
+	  ServiceEvent seResult = this->deployServiceEvent(seService, true);
 	  
 	  this->waitForAssuranceToken(evAlterContext.cdDesignator->stringValue("_assurance_token"));
 	  
