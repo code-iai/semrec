@@ -130,8 +130,6 @@ namespace beliefstate {
       std::map<std::string, double> relativeFailuresForNode(Property* prNode, int nLevel, CKeyValuePair* ckvpFeatures);
       std::list<Property*> parametersForTreeNode(Property* prNode);
       
-      std::map<std::string, double> evaluateDecisionTree(std::string strClass, int nLevel, CKeyValuePair* ckvpFeatures);
-      
       bool loadDecisionTree(std::string strPath);
       Property* evaluateDecisionTree(CKeyValuePair* ckvpFeatures);
     };

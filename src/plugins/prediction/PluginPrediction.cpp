@@ -658,127 +658,22 @@ namespace beliefstate {
       return lstEmpty;
     }
     
-    std::map<std::string, double> PLUGIN_CLASS::evaluateDecisionTree(std::string strClass, int nLevel, CKeyValuePair* ckvpFeatures) {
-      std::map<std::string, double> mapRelFail;
-      
-      this->info("Evaluate decision tree for class '" + strClass + "' on level '" + this->str(nLevel) + "'.");
-      
-      bool bNavX = (ckvpFeatures->childForKey("nav-x") != NULL);
-      bool bNavY = (ckvpFeatures->childForKey("nav-y") != NULL);
-      bool bDistance = (ckvpFeatures->childForKey("distance") != NULL);
-      
-      double dNavX = 0.0f;
-      if(bNavX) {
-	dNavX = ckvpFeatures->floatValue("nav-x");
-      }
-      
-      double dNavY = 0.0f;
-      if(bNavY) {
-	dNavY = ckvpFeatures->floatValue("nav-y");
-      }
-
-      double dDistance = 0.0f;
-      if(bDistance) {
-	dDistance = ckvpFeatures->floatValue("distance");
-      }
-      
-      std::cout << dNavX << ", " << dNavY << ", " << dDistance << std::endl;
-      
-      if(nLevel == 9) {
-	if(bNavX && bNavY) {
-	  if(dNavY <= 3) {
-	    if(dNavX <= 2 || dNavX > 8) {
-	      mapRelFail["LocationNotReached"] = 0.981;
-	    }
-	  } else {
-	    if(dNavY > 8.9) {
-	      if(dNavX <= 1.9 || dNavX > 8) {
-		mapRelFail["LocationNotReached"] = 0.981;
-	      }
-	    }
-	  }
-	}
-      } else if(nLevel == 10) {
-	if(bDistance) {
-	  if(dDistance > 4.9679) {
-	    mapRelFail["ObjectNotFound"] = 0.999;
-	  }
-	}
-      }
-      
-      return mapRelFail;
-    }
-    
     std::map<std::string, double> PLUGIN_CLASS::relativeFailuresForNode(Property* prNode, int nLevel, CKeyValuePair* ckvpFeatures) {
       std::map<std::string, double> mapRelFail;
       
       if(prNode) {
-	std::string strClass = prNode->key();
+	ckvpFeatures->setValue("Level", nLevel);
+	ckvpFeatures->setValue("Task", prNode->key());
+	Property* prResult = this->evaluateDecisionTree(ckvpFeatures);
 	
-	mapRelFail = this->evaluateDecisionTree(strClass, nLevel, ckvpFeatures);
+	if(prResult) {
+	  // TODO(winkler): The confidence in the calculated failure
+	  // is not always 1.0f (although mostly it is very close to
+	  // it). This information is coming from Weka as well and
+	  // should be contained in the decision tree model.
+	  mapRelFail[prResult->getString()] = 1.0f;
+	}
       }
-      
-      // 	bool bNavX = prParameters->namedSubProperty("NAVIGATE-TO-X");
-      // 	bool bNavY = prParameters->namedSubProperty("NAVIGATE-TO-Y");
-      // 	bool bObjDist = prParameters->namedSubProperty("OBJ-DIST");
-	
-      // 	double dNavX = (bNavX ? prParameters->namedSubProperty("NAVIGATE-TO-X")->getDouble() : 0);
-      // 	double dNavY = (bNavY ? prParameters->namedSubProperty("NAVIGATE-TO-Y")->getDouble() : 0);
-      // 	double dObjDist = (bObjDist ? prParameters->namedSubProperty("OBJ-DIST")->getDouble() : 0);
-	
-      // 	if(bNavY && dNavY <= 5) { // nav y <= 5
-      // 	  if(strTaskContext == "MODEL-PLAN") {
-      // 	    // Success
-      // 	  } else if(strTaskContext == "WITH-FAILURE-HANDLING") {
-      // 	    if(bNavX && dNavX > 7) { // nav x > 7
-      // 	      mapRelFail["LOCATION-NOT-REACHED-FAILURE"] = 1.0f;
-      // 	    }
-      // 	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-MODEL-PLAN") {
-      // 	    // Success
-      // 	  } else if(strTaskContext == "WITH-DESIGNATORS") {
-      // 	    // Success
-      // 	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-PERFORM-PLAN-TASKS") {
-      // 	    // Success
-      // 	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-GO-TO") {
-      // 	    // Success
-      // 	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-GRASP") {
-      // 	    if(bObjDist && dObjDist <= 3) {
-      // 	      // Success
-      // 	    } else {
-      // 	      if(bObjDist) {
-      // 		mapRelFail["MANIPULATION-FAILURE"] = 1.0f;
-      // 	      }
-      // 	    }
-      // 	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-FIND-OBJ") {
-      // 	    if(bObjDist && dObjDist <= 4.47214) {
-      // 	      // Success
-      // 	    } else {
-      // 	      if(bObjDist) {
-      // 		mapRelFail["OBJECT-NOT-FOUND"] = 1.0f;
-      // 	      }
-      // 	    }
-      // 	  }
-      // 	} else { // nav y > 5
-      // 	  if(strTaskContext == "MODEL-PLAN") {
-      // 	    // Success
-      // 	  } else if(strTaskContext == "WITH-FAILURE-HANDLING") {
-      // 	    if(bNavY) {
-      // 	      mapRelFail["LOCATION-NOT-REACHED-FAILURE"] = 1.0f;
-      // 	    }
-      // 	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-MODEL-PLAN") {
-      // 	    // Success
-      // 	  } else if(strTaskContext == "WITH-DESIGNATORS") {
-      // 	    // Success
-      // 	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-PERFORM-PLAN-TASKS") {
-      // 	    // Success
-      // 	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-GO-TO") {
-      // 	    // Success
-      // 	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-GRASP") {
-      // 	    // Success
-      // 	  } else if(strTaskContext == "REPLACEABLE-FUNCTION-FIND-OBJ") {
-      // 	    // Success
-      // 	  }
-      // 	}
       
       return mapRelFail;
     }
