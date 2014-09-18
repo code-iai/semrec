@@ -117,9 +117,6 @@ namespace beliefstate {
       bool descend(Node* ndDescend);
       bool ascend(Node* ndAscend);
       
-      void mapNodeFailuresParameters();
-      void mapTimeStamps();
-      
       bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
       PredictionResult evaluatePredictionRequest(Property* prActive, CKeyValuePair* ckvpFeatures, CKeyValuePair* ckvpRequested);
       

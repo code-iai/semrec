@@ -146,6 +146,9 @@ namespace beliefstate {
 		this->info("Load task tree model: '" + strPath + "'");
 		
 		if(this->load(strPath)) {
+		  this->info("Finished loading task tree model.");
+		  m_bModelLoaded = true;
+		} else {
 		  this->fail("Failed to load task tree model.");
 		}
 	      } else {
@@ -166,6 +169,9 @@ namespace beliefstate {
 	      }
 	    }
 	  }
+	  
+	  ServiceEvent seResponse = eventInResponseTo(seEvent);
+	  this->deployServiceEvent(seResponse);
 	}
       }
       
@@ -194,7 +200,7 @@ namespace beliefstate {
 	if(evEvent.lstNodes.size() > 0) {
 	  Node* ndNode = evEvent.lstNodes.front();
 	  
-	  this->info("Prediction context is now node '" + ndNode->title() + "', of class '" + m_expOwl->owlClassForNode(ndNode, true) + "'.");
+	  this->info("Prediction context is now node '" + ndNode->title() + "'.");//, of class '" + m_expOwl->owlClassForNode(ndNode, true) + "'.");
 	  m_ndActive = ndNode;
 	} else {
 	  this->info("Prediction context is now top-level (so not predicting).");
@@ -252,11 +258,7 @@ namespace beliefstate {
 	  this->info("Okay, descending to 'Toplevel'.");
 	  this->descend("Toplevel");
 	  
-	  // this->info("Optimizing: Mapping node failures and parameters");
-	  // this->mapNodeFailuresParameters();
-	  // this->info("Optimizing: Timestamps");
-	  // this->mapTimeStamps();
-	  // this->info("Optimized");
+	  bReturn = true;
 	} else {
 	  this->fail("Failed to load model '" + strFile + "', unable to parse.");
 	}
@@ -271,7 +273,8 @@ namespace beliefstate {
     }
     
     bool PLUGIN_CLASS::descend(Node* ndDescend) {
-      return this->descend(m_expOwl->owlClassForNode(ndDescend, true));
+      return this->descend(ndDescend->title());
+      //return this->descend(m_expOwl->owlClassForNode(ndDescend, true));
     }
     
     bool PLUGIN_CLASS::descend(std::string strClass, bool bForceClass) {
@@ -359,7 +362,7 @@ namespace beliefstate {
     bool PLUGIN_CLASS::ascend(Node* ndAscend) {
       bool bResult = false;
       
-      std::string strClass = m_expOwl->owlClassForNode(ndAscend, true);
+      std::string strClass = ndAscend->title();//m_expOwl->owlClassForNode(ndAscend, true);
       
       m_mtxStackProtect.lock();
       if(m_lstPredictionStack.size() > 0) {
@@ -408,79 +411,6 @@ namespace beliefstate {
       m_mtxStackProtect.unlock();
       
       return bResult;
-    }
-    
-    void PLUGIN_CLASS::mapNodeFailuresParameters() {
-      // Property* prToplevel = NULL;
-      // std::list< pair<Property*, int> > lstLinearModel;
-      
-      // m_mapNodeFailures.clear();
-      // m_mapNodeParameters.clear();
-      
-      // if(m_jsnModel->rootProperty()->namedSubProperty("tree")->subProperties().size() > 0) {
-      // 	prToplevel = m_jsnModel->rootProperty()->namedSubProperty("tree")->subProperties().front();
-      // }
-      
-      // if(prToplevel) {
-      // 	lstLinearModel = this->linearizeTree(prToplevel, 0);
-      // }
-      
-      // int nNodes = 0;
-      // int nFailures = 0;
-      // int nParameters = 0;
-      
-      // for(pair<Property*, int> prNode : lstLinearModel) {
-      // 	nNodes++;
-      // 	std::list<std::string> lstNames;
-	
-      // 	for(Property* prName : prNode.first->namedSubProperty("names")->subProperties()) {
-      // 	  lstNames.push_back(prName->getString());
-      // 	}
-	
-      // 	std::list<Property*> lstFailures;
-      // 	std::list<Property*> lstParameters;
-      // 	for(Property* prFailureSet : m_jsnModel->rootProperty()->namedSubProperty("failures")->subProperties()) {
-      // 	  for(Property* prFailure : prFailureSet->namedSubProperty("failures")->subProperties()) {
-      // 	    if(find(lstNames.begin(), lstNames.end(), prFailure->namedSubProperty("emitter")->getString()) != lstNames.end()) {
-      // 	      // The emitter name is on our node's 'names' list
-      // 	      nFailures++;
-      // 	      lstFailures.push_back(prFailure);
-      // 	    }
-      // 	  }
-	  
-      // 	  for(Property* prParameters : prFailureSet->namedSubProperty("parameters")->subProperties()) {
-      // 	    for(string strName : lstNames) {
-      // 	      if(prParameters->key() == strName) {
-      // 		nParameters++;
-      // 		lstParameters.push_back(prParameters->namedSubProperty(strName));
-      // 	      }
-      // 	    }
-      // 	  }
-      // 	}
-	
-      // 	m_mapNodeFailures[prNode.first] = lstFailures;
-      // 	m_mapNodeParameters[prNode.first] = lstParameters;
-      // }
-      
-      // std::stringstream sts;
-      // sts << "Mapped " << nFailures << " failures and " << nParameters << " parameter sets on " << nNodes << " nodes.";
-      // this->info(sts.str());
-    }
-    
-    void PLUGIN_CLASS::mapTimeStamps() {
-      // Property* prTimestamps = NULL;
-      // m_mapTimeStamps.clear();
-      
-      // if(m_jsnModel->rootProperty()->namedSubProperty("timestamps")->subProperties().size() > 0) {
-      // 	prTimestamps = m_jsnModel->rootProperty()->namedSubProperty("timestamps");
-      // }
-      
-      // if(prTimestamps) {
-      // 	for(Property* prTimestamp : prTimestamps->subProperties()) {
-      // 	  m_mapTimeStamps[prTimestamp->key()] = make_pair(prTimestamp->namedSubProperty("start")->getInteger(),
-      // 							  prTimestamp->namedSubProperty("end")->getInteger());
-      // 	}
-      // }
     }
     
     PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::evaluatePredictionRequest(Property* prActive, CKeyValuePair* ckvpFeatures, CKeyValuePair* ckvpRequested) {
@@ -664,6 +594,29 @@ namespace beliefstate {
       if(prNode) {
 	ckvpFeatures->setValue("Level", nLevel);
 	ckvpFeatures->setValue("Task", prNode->key());
+	
+	// Find TAGNAME if this is a tag
+	std::string strTagName = "";
+	
+	CKeyValuePair* ckvpDesignators = m_ndActive->metaInformation()->childForKey("designators");
+	if(ckvpDesignators) {
+	  for(CKeyValuePair* ckvpDesignator : ckvpDesignators->children()) {
+	    CKeyValuePair* ckvpDescription = ckvpDesignator->childForKey("description");
+	    
+	    if(ckvpDescription) {
+	      strTagName = ckvpDescription->stringValue("tagname");
+	      
+	      if(strTagName != "") {
+		break;
+	      }
+	    }
+	  }
+	}
+	
+	if(strTagName != "") {
+	  ckvpFeatures->setValue("TAGNAME", strTagName);
+	}
+	
 	Property* prResult = this->evaluateDecisionTree(ckvpFeatures);
 	
 	if(prResult) {
