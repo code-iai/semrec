@@ -207,8 +207,7 @@ namespace beliefstate {
   
   std::string CExporterOwl::generateOwlImports(std::string strNamespace) {
     std::string strDot = "";
-    
-    std::string strImportNamespace = "knowrob.owl";
+    std::string strImportNamespace = "package://knowrob_common/owl/knowrob.owl";
     
     strDot += "    <owl:Ontology rdf:about=\"" + strNamespace + "\">\n";
     strDot += "        <owl:imports rdf:resource=\"" + strImportNamespace + "\"/>\n";
