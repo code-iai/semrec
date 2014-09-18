@@ -452,9 +452,8 @@ namespace beliefstate {
 		strDefClassNamespace = "&" + strNamespace + ";";
 	      }
 	      
-	      std::stringstream sts;
-	      sts << ndCurrent->uniqueID() << "_" << strDefClass << "_" << unIndex;
-	      strDot += "        <" + strDefProperty + " rdf:resource=\"" + strDefClassNamespace + sts.str() +"\"/>\n";
+	      std::string strObjectID = strDefClass + "_" + ckvpObject->stringValue("__id");
+	      strDot += "        <" + strDefProperty + " rdf:resource=\"" + strDefClassNamespace + strObjectID +"\"/>\n";
 	    }
 	  }
 	  
@@ -681,13 +680,16 @@ namespace beliefstate {
 	      strDefClassNamespace = "&" + strNamespace + ";";
 	    }
 	    
-	    std::stringstream sts;
-	    sts << ndCurrent->uniqueID() << "_" << strDefClass << "_" << unIndex;
+	    std::string strObjectID = strDefClass + "_" + ckvpObject->stringValue("__id");
 	    
-	    strDot += "    <owl:namedIndividual rdf:about=\"" + strDefClassNamespace + sts.str() + "\">\n";
-	    strDot += "        <knowrob:designator rdf:resource=\"&" + strNamespace + ";" + strDesignatorID + "\"/>\n";
-	    strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
-	    strDot += "    </owl:namedIndividual>\n\n";
+	    if(find(m_lstExportedObjectIndividuals.begin(), m_lstExportedObjectIndividuals.end(), strObjectID) == m_lstExportedObjectIndividuals.end()) {
+	      strDot += "    <owl:namedIndividual rdf:about=\"" + strDefClassNamespace + strObjectID + "\">\n";
+	      strDot += "        <knowrob:designator rdf:resource=\"&" + strNamespace + ";" + strDesignatorID + "\"/>\n";
+	      strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
+	      strDot += "    </owl:namedIndividual>\n\n";
+	      
+	      m_lstExportedObjectIndividuals.push_back(strObjectID);
+	    }
 	  }
 	}
 	
@@ -986,6 +988,7 @@ namespace beliefstate {
   
   bool CExporterOwl::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
     m_lstAnnotatedParameters.clear();
+    m_lstExportedObjectIndividuals.clear();
     
     m_nThrowAndCatchFailureCounter = 0;
     

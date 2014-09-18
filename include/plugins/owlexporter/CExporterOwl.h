@@ -64,6 +64,7 @@ namespace beliefstate {
     std::string m_strDefaultAnnotation;
     std::map<std::string, std::string> m_mapMetaData;
     std::list<std::string> m_lstAnnotatedParameters;
+    std::list<std::string> m_lstExportedObjectIndividuals;
     int m_nThrowAndCatchFailureCounter;
     
     void addEntity(std::string strNickname, std::string strNamespace);
