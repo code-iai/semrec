@@ -66,6 +66,7 @@
 #include <Property.h>
 #include <JSON.h>
 #include <Node.h>
+#include <plugins/prediction/DecisionTree.h>
 
 
 namespace beliefstate {
@@ -84,7 +85,7 @@ namespace beliefstate {
       } PredictionResult;
       
       JSON* m_jsnModel;
-      JSON* m_jsnDecisionTree;
+      DecisionTree* m_dtDecisionTree;
       std::list<PredictionTrack> m_lstPredictionStack;
       CExporterOwl* m_expOwl;
       bool m_bInsidePredictionModel;
@@ -132,10 +133,7 @@ namespace beliefstate {
       std::map<std::string, double> evaluateDecisionTree(std::string strClass, int nLevel, CKeyValuePair* ckvpFeatures);
       
       bool loadDecisionTree(std::string strPath);
-      Property* evaluateDecisionTree(Property* prTree, CKeyValuePair* ckvpFeatures);
-      
-      void missingFeature(std::string strOperator, std::string strFeatureName);
-      void missingOperand(std::string strOperator);
+      Property* evaluateDecisionTree(CKeyValuePair* ckvpFeatures);
     };
   }
   

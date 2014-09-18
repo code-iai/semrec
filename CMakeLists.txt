@@ -29,6 +29,7 @@ add_library(bs_plugin_prediction SHARED
   src/GlobalFunctions.cpp
   src/Plugin.cpp
   src/plugins/prediction/PluginPrediction.cpp
+  src/plugins/prediction/DecisionTree.cpp
   src/plugins/owlexporter/CExporterOwl.cpp
   src/CExporter.cpp
   src/CExporterFileoutput.cpp
