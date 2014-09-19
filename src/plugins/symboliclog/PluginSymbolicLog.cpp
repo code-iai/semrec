@@ -169,10 +169,10 @@ namespace beliefstate {
 	int nID = (int)evEvent.cdDesignator->floatValue("_id");
 	
 	int nSuccess = (int)evEvent.cdDesignator->floatValue("_success");
-	Node *ndCurrent = this->activeNode();
+	Node* ndCurrent = this->relativeActiveNode(evEvent);
 	
 	if(ndCurrent) {
-	  if(ndCurrent->id() == nID) {
+	  if(ndCurrent->id() == nID || evEvent.cdDesignator->childForKey("_relative_context_id")) {
 	    std::stringstream sts;
 	    sts << "Received stop context designator for ID " << nID << " (success: " << (nSuccess ? "yes" : "no") << ")";
 	    this->info(sts.str());
@@ -263,7 +263,7 @@ namespace beliefstate {
 	    } else {
 	      // Didn't find the prematurely ended node in this branch
 	      stringstream sts;
-	      sts << "The apparently prematurely ended node " << nID << " was not found. This is probably a problem.";
+	      sts << "The apparently prematurely ended node " << nID << " was not found.";
 	      this->warn(sts.str());
 	    }
 	  }
