@@ -295,6 +295,8 @@ namespace beliefstate {
 	    evAlterContext.strEventName = "catch-failure";
 	  } else if(strCommand == "rethrow-failure") {
 	    evAlterContext.strEventName = "rethrow-failure";
+	  } else if(strCommand == "register-owl-namespace") {
+	    evAlterContext.strEventName = "register-owl-namespace";
 	  } else {
 	    this->warn("Unknown command when altering context: '" + strCommand + "'");
 	  }

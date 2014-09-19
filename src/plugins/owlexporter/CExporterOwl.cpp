@@ -167,8 +167,16 @@ namespace beliefstate {
     this->addEntity("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
     this->addEntity("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
     this->addEntity(strNamespaceID, strNamespace + "#");
+    
+    for(pair<std::string, std::string> prEntity : m_mapRegisteredOWLNamespaces) {
+      this->addEntity(prEntity.first, prEntity.second);
+    }
   }
-
+  
+  void CExporterOwl::setRegisteredOWLNamespaces(std::map<std::string, std::string> mapRegisteredOWLNamespaces) {
+    m_mapRegisteredOWLNamespaces = mapRegisteredOWLNamespaces;
+  }
+  
   void CExporterOwl::addEntity(std::string strNickname, std::string strNamespace) {
     m_lstEntities.push_back(make_pair(strNickname, strNamespace));
   }

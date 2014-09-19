@@ -65,6 +65,7 @@ namespace beliefstate {
     std::map<std::string, std::string> m_mapMetaData;
     std::list<std::string> m_lstAnnotatedParameters;
     std::list<std::string> m_lstExportedObjectIndividuals;
+    std::map<std::string, std::string> m_mapRegisteredOWLNamespaces;
     int m_nThrowAndCatchFailureCounter;
     
     void addEntity(std::string strNickname, std::string strNamespace);
@@ -108,6 +109,8 @@ namespace beliefstate {
     
     std::string failureClassForCondition(std::string strCondition);
     std::string resolveDesignatorAnnotationTagName(std::string strAnnotation);
+    
+    void setRegisteredOWLNamespaces(std::map<std::string, std::string> mapRegisteredOWLNamespaces);
   };
 }
 

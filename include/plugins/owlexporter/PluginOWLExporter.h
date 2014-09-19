@@ -67,6 +67,7 @@ namespace beliefstate {
     class PLUGIN_CLASS : public Plugin {
     private:
       std::map<std::string, std::string> m_mapMetaData;
+      std::map<std::string, std::string> m_mapRegisteredOWLNamespaces;
       
     public:
       PLUGIN_CLASS();

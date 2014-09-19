@@ -56,6 +56,7 @@ namespace beliefstate {
       this->setSubscribedToEvent("export-planlog", true);
       this->setSubscribedToEvent("experiment-start", true);
       this->setSubscribedToEvent("experiment-shutdown", true);
+      this->setSubscribedToEvent("register-owl-namespace", true);
       
       return resInit;
     }
@@ -95,6 +96,8 @@ namespace beliefstate {
 	evSendOwlExporterVersion.cdDesignator->setValue("field", "owl-exporter-version");
 	evSendOwlExporterVersion.cdDesignator->setValue("value", this->pluginVersion());
 	
+	m_mapRegisteredOWLNamespaces.clear();
+	
 	this->deployEvent(evSendOwlExporterVersion);
 	
 	m_mapMetaData["time-start"] = this->getTimeStampStr();
@@ -108,6 +111,18 @@ namespace beliefstate {
 	  if(strField != "") {
 	    this->info("Set meta data field '" + strField + "' to '" + strValue + "'");
 	    m_mapMetaData[strField] = strValue;
+	  }
+	}
+      } else if(evEvent.strEventName == "register-owl-namespace") {
+	if(evEvent.cdDesignator) {
+	  std::string strShortcut = evEvent.cdDesignator->stringValue("shortcut");
+	  std::string strIRI = evEvent.cdDesignator->stringValue("iri");
+	  
+	  if(strIRI != "" && strShortcut != "") {
+	    m_mapRegisteredOWLNamespaces[strShortcut] = strIRI;
+	    this->info("Registered OWL namespace: '" + strShortcut + "' = '" + strIRI + "'");
+	  } else {
+	    this->warn("Did not register OWL namespace. Insufficient information: '" + strShortcut + "' = '" + strIRI + "'");
 	  }
 	}
       }
@@ -170,6 +185,7 @@ namespace beliefstate {
 		  
 		  ConfigSettings cfgsetCurrent = configSettings();
 		  expOwl->setOutputFilename(cfgsetCurrent.strExperimentDirectory + seServiceEvent.cdDesignator->stringValue("filename"));
+		  expOwl->setRegisteredOWLNamespaces(m_mapRegisteredOWLNamespaces);
 		  
 		  this->info("Exporting OWL file to '" + expOwl->outputFilename() + "'", true);
 		  
