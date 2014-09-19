@@ -75,6 +75,7 @@ namespace beliefstate {
       std::list< std::pair<std::string, std::string> > m_lstDesignatorEquationTimes;
       std::pair<std::string, Node*> m_prLastFailure;
       std::map<std::string, Node*> m_mapFailureCatchers;
+      std::map<int, Node*> m_mapNodeIDs;
       
     public:
       PLUGIN_CLASS();
@@ -88,7 +89,7 @@ namespace beliefstate {
       virtual void consumeEvent(Event evEvent);
       virtual Event consumeServiceEvent(ServiceEvent seServiceEvent);
       
-      Node* addNode(std::string strName, int nContextID);
+      Node* addNode(std::string strName, int nContextID, Node* ndParent = NULL);
       void setNodeAsActive(Node* ndActive);
       Node* activeNode();
       
@@ -98,11 +99,14 @@ namespace beliefstate {
       std::string generateRandomIdentifier(std::string strPrefix, unsigned int unLength);
       std::string equateDesignators(std::string strMAChild, CDesignator* desigChild, std::string strMAParent, CDesignator* desigParent);
       
-      bool ensureDesignatorPublished(std::list<CKeyValuePair*> lstDescription, std::string strMemoryAddress, std::string strType, std::string strAnnotation = "", bool bAdd = false);
+      bool ensureDesignatorPublished(std::list<CKeyValuePair*> lstDescription, std::string strMemoryAddress, std::string strType, std::string strAnnotation = "", bool bAdd = false, Node* ndRelative = NULL);
       void setNestedDesignatorUniqueIDs(CKeyValuePair* ckvpParent);
       
       CDesignator* makeDesignator(enum DesignatorType edtType, list<CKeyValuePair*> lstDescription);
       CDesignator* makeDesignator(std::string strType, list<CKeyValuePair*> lstDescription);
+      
+      Node* nodeByID(int nID);
+      Node* relativeActiveNode(Event evEvent);
     };
   }
   

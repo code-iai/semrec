@@ -135,8 +135,8 @@ namespace beliefstate {
       if(evEvent.strEventName == "begin-context") {
 	std::string strName = evEvent.cdDesignator->stringValue("_name");
 	
-	Node* ndFormerParent = this->activeNode();
-	Node* ndNew = this->addNode(strName, evEvent.nContextID);
+	Node* ndFormerParent = this->relativeActiveNode(evEvent);
+	Node* ndNew = this->addNode(strName, evEvent.nContextID, ndFormerParent);
 	ndNew->setDescription(evEvent.cdDesignator->description());
 	
 	std::string strTimeStart = this->getTimeStampStr();
@@ -161,12 +161,10 @@ namespace beliefstate {
 	evSymbolicBeginCtx.lstNodes.push_back(ndNew);
 	this->deployEvent(evSymbolicBeginCtx);
 	
-	if(ndFormerParent) {
-	  Event evSymbolicSetSubcontext = defaultEvent("symbolic-set-subcontext");
-	  evSymbolicSetSubcontext.lstNodes.push_back(ndFormerParent);
-	  evSymbolicSetSubcontext.lstNodes.push_back(ndNew);
-	  this->deployEvent(evSymbolicSetSubcontext);
-	}
+	Event evSymbolicSetSubcontext = defaultEvent("symbolic-set-subcontext");
+	evSymbolicSetSubcontext.lstNodes.push_back(ndFormerParent);
+	evSymbolicSetSubcontext.lstNodes.push_back(ndNew);
+	this->deployEvent(evSymbolicSetSubcontext);
       } else if(evEvent.strEventName == "end-context") {
 	int nID = (int)evEvent.cdDesignator->floatValue("_id");
 	
@@ -269,8 +267,6 @@ namespace beliefstate {
 	      this->warn(sts.str());
 	    }
 	  }
-	  
-	  m_lstNodeStack.pop_back();
 	} else {
 	  stringstream sts;
 	  sts << "Received stop node designator for ID " << nID << " while in top-level.";
@@ -284,21 +280,25 @@ namespace beliefstate {
 	    
 	    if(strFilepath != "") {
 	      string strTimeImage = this->getTimeStampStr();
-	      this->activeNode()->addImage(strTopic, strFilepath, strTimeImage);
 	      
-	      stringstream sts;
-	      sts << this->activeNode()->id();
-	      this->info("Added image to active node (id " + sts.str() + "): '" + strFilepath + "'");
+	      Node* ndSubject = this->relativeActiveNode(evEvent);
+	      if(ndSubject) {
+		ndSubject->addImage(strTopic, strFilepath, strTimeImage);
 	      
-	      Event evSymbolicAddImage = defaultEvent("symbolic-add-image");
-	      evSymbolicAddImage.lstNodes.push_back(this->activeNode());
-	      evSymbolicAddImage.cdDesignator = new CDesignator();
-	      evSymbolicAddImage.cdDesignator->setType(ACTION);
-	      evSymbolicAddImage.cdDesignator->setValue("origin", strTopic);
-	      evSymbolicAddImage.cdDesignator->setValue("filename", strFilepath);
-	      evSymbolicAddImage.cdDesignator->setValue("time-capture", strTimeImage);
-	      evSymbolicAddImage.nOpenRequestID = evEvent.nOpenRequestID;
-	      this->deployEvent(evSymbolicAddImage);
+		this->info("Added image to active node (id " + this->str(ndSubject->id()) + "): '" + strFilepath + "'");
+	      
+		Event evSymbolicAddImage = defaultEvent("symbolic-add-image");
+		evSymbolicAddImage.lstNodes.push_back(ndSubject);
+		evSymbolicAddImage.cdDesignator = new CDesignator();
+		evSymbolicAddImage.cdDesignator->setType(ACTION);
+		evSymbolicAddImage.cdDesignator->setValue("origin", strTopic);
+		evSymbolicAddImage.cdDesignator->setValue("filename", strFilepath);
+		evSymbolicAddImage.cdDesignator->setValue("time-capture", strTimeImage);
+		evSymbolicAddImage.nOpenRequestID = evEvent.nOpenRequestID;
+		this->deployEvent(evSymbolicAddImage);
+	      } else {
+		this->fail("Cannot add image: Given relative parent node (ID = " + this->str((int)evEvent.cdDesignator->floatValue("_relative_context_id")) + ") does not exist. This is a problem.");
+	      }
 	    } else {
 	      this->warn("No filename given. Will not add unnamed image to active node. The designator was:");
 	      evEvent.cdDesignator->printDesignator();
@@ -309,39 +309,37 @@ namespace beliefstate {
 	}
       } else if(evEvent.strEventName == "add-failure") {
 	if(evEvent.cdDesignator) {
-	  Node* ndActive = this->activeNode();
+	  Node* ndSubject = this->relativeActiveNode(evEvent);
 	  
-	  if(ndActive) {
+	  if(ndSubject) {
 	    // Adding a failure to a node also means to set its success state to 'false'.
 	    string strCondition = evEvent.cdDesignator->stringValue("condition");
 	    string strTimeFail = this->getTimeStampStr();
 	    
-	    string strFailureID = ndActive->addFailure(strCondition, strTimeFail);
+	    string strFailureID = ndSubject->addFailure(strCondition, strTimeFail);
 	    this->replaceStringInPlace(strFailureID, "-", "_");
 	    
-	    m_prLastFailure = make_pair(strFailureID, ndActive);
-	    ndActive->setSuccess(false);
+	    m_prLastFailure = make_pair(strFailureID, ndSubject);
+	    ndSubject->setSuccess(false);
 	    
-	    stringstream sts;
-	    sts << ndActive->id();
-	    this->info("Added failure '" + m_prLastFailure.first + "' to active node (id " + sts.str() + "): '" + strCondition.c_str() + "'");
+	    this->info("Added failure '" + m_prLastFailure.first + "' to active node (id " + this->str(ndSubject->id()) + "): '" + strCondition.c_str() + "'");
 	    
 	    Event evSymbAddFailure = defaultEvent("symbolic-add-failure");
-	    evSymbAddFailure.lstNodes.push_back(ndActive);
+	    evSymbAddFailure.lstNodes.push_back(ndSubject);
 	    evSymbAddFailure.cdDesignator = new CDesignator();
 	    evSymbAddFailure.cdDesignator->setType(ACTION);
 	    evSymbAddFailure.cdDesignator->setValue("condition", strCondition);
 	    evSymbAddFailure.cdDesignator->setValue("time-fail", strTimeFail);
 	    this->deployEvent(evSymbAddFailure);
 	  } else {
-	    this->warn("No node context available. Cannot add failure while on top-level.");
+	    this->warn("No node context available. Cannot add failure while on top-level (this can also mean that the targetted relative node ID does not exist).");
 	  }
 	}
       } else if(evEvent.strEventName == "catch-failure") {
 	if(evEvent.cdDesignator) {
-	  Node* ndActive = this->activeNode();
+	  Node* ndSubject = this->relativeActiveNode(evEvent);
 	  
-	  if(ndActive) {
+	  if(ndSubject) {
 	    if(m_prLastFailure.first != "") {
 	      string strID = evEvent.cdDesignator->stringValue("context-id");
 	      
@@ -349,7 +347,7 @@ namespace beliefstate {
 		int nID;
 		sscanf(strID.c_str(), "%d", &nID);
 		
-		Node* ndRelative = ndActive->relativeWithID(nID);
+		Node* ndRelative = ndSubject->relativeWithID(nID);
 		if(ndRelative) {
 		  ndRelative->catchFailure(m_prLastFailure.first, m_prLastFailure.second, this->getTimeStampStr());
 		  
@@ -388,7 +386,9 @@ namespace beliefstate {
 	}
       } else if(evEvent.strEventName == "add-designator") {
 	if(evEvent.cdDesignator) {
-	  if(this->activeNode()) {
+	  Node* ndSubject = this->relativeActiveNode(evEvent);
+	  
+	  if(ndSubject) {
 	    string strType = evEvent.cdDesignator->stringValue("type");
 	    string strAnnotation = evEvent.cdDesignator->stringValue("annotation");
 	    string strMemAddr = evEvent.cdDesignator->stringValue("memory-address");
@@ -396,7 +396,7 @@ namespace beliefstate {
 	    CKeyValuePair* ckvpDesc = evEvent.cdDesignator->childForKey("description");
 	    
 	    list<CKeyValuePair*> lstDescription = ckvpDesc->children();
-	    this->ensureDesignatorPublished(lstDescription, strMemAddr, strType, strAnnotation, true);
+	    this->ensureDesignatorPublished(lstDescription, strMemAddr, strType, strAnnotation, true, this->relativeActiveNode(evEvent));
 	  } else {
 	    this->warn("No node context available. Cannot add designator while on top-level.");
 	  }
@@ -407,16 +407,18 @@ namespace beliefstate {
 	  string strMemAddrParent = evEvent.cdDesignator->stringValue("memory-address-parent");
 	  
 	  if(strMemAddrChild != "" && strMemAddrParent != "") {
-	    if(this->activeNode()) {
+	    Node* ndSubject = this->relativeActiveNode(evEvent);
+	    
+	    if(ndSubject) {
 	      // Check if child designator exists
 	      CKeyValuePair *ckvpDescChild = evEvent.cdDesignator->childForKey("description-child");
-	      if(this->ensureDesignatorPublished(ckvpDescChild->children(), strMemAddrParent, evEvent.cdDesignator->stringValue("type-child"))) {
+	      if(this->ensureDesignatorPublished(ckvpDescChild->children(), strMemAddrParent, evEvent.cdDesignator->stringValue("type-child"), "", false, this->relativeActiveNode(evEvent))) {
 		this->info("Added non-existant child-designator during 'equate'");
 	      }
 	      
 	      // Check if parent designator exists
 	      CKeyValuePair *ckvpDescParent = evEvent.cdDesignator->childForKey("description-parent");
-	      if(this->ensureDesignatorPublished(ckvpDescParent->children(), strMemAddrParent, evEvent.cdDesignator->stringValue("type-parent"))) {
+	      if(this->ensureDesignatorPublished(ckvpDescParent->children(), strMemAddrParent, evEvent.cdDesignator->stringValue("type-parent"), "", false, this->relativeActiveNode(evEvent))) {
 		this->warn("Added non-existant parent-designator during 'equate'");
 	      }
 	      
@@ -449,7 +451,9 @@ namespace beliefstate {
 	  CKeyValuePair* ckvpDesc = evEvent.cdDesignator->childForKey("description");
 	  
 	  if(ckvpDesc) {
-	    if(this->activeNode()) {
+	    Node* ndSubject = this->relativeActiveNode(evEvent);
+	    
+	    if(ndSubject) {
 	      string strType = evEvent.cdDesignator->stringValue("type");
 	      string strMemAddr = evEvent.cdDesignator->stringValue("memory-address");
 	      
@@ -477,7 +481,7 @@ namespace beliefstate {
 		// Second, symbolically add it to the current event
 		Event evAddedDesignator = defaultEvent("symbolic-add-designator");
 		evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
-		evAddedDesignator.lstNodes.push_back(this->activeNode());
+		evAddedDesignator.lstNodes.push_back(ndSubject);
 		evAddedDesignator.strAnnotation = evEvent.cdDesignator->stringValue("annotation");
 		
 		this->deployEvent(evAddedDesignator);
@@ -497,11 +501,8 @@ namespace beliefstate {
 		ckvpDesc->setValue(std::string("_property"), evEvent.cdDesignator->stringValue("property"));
 	      }
 	      
-	      this->activeNode()->addObject(ckvpDesc->children());
-	      
-	      stringstream sts;
-	      sts << this->activeNode()->id();
-	      this->info("Added object (" + strUniqueID + ") to active node (id " + sts.str() + ").");
+	      ndSubject->addObject(ckvpDesc->children());
+	      this->info("Added object (" + strUniqueID + ") to active node (id " + this->str(ndSubject->id()) + ").");
 	      
 	      // Signal symbolic addition of object
 	      Event evSymAddObj = defaultEvent("symbolic-add-object");
@@ -537,7 +538,7 @@ namespace beliefstate {
       } else if(evEvent.strEventName == "start-new-experiment") {
 	this->info("Clearing symbolic log for new experiment.");
 	
-	m_lstNodeStack.clear();
+	m_mapNodeIDs.clear();
 	
 	for(Node* ndNode : m_lstNodes) {
 	  delete ndNode;
@@ -561,26 +562,38 @@ namespace beliefstate {
       }
     }
     
-    Node* PLUGIN_CLASS::addNode(string strName, int nContextID) {
-      Node *ndNew = new Node(strName);
+    Node* PLUGIN_CLASS::addNode(string strName, int nContextID, Node* ndParent) {
+      Node* ndNew = new Node(strName);
       ndNew->setID(nContextID);
       
-      if(m_ndActive == NULL) {
+      m_mapNodeIDs[nContextID] = ndNew;
+      
+      if(ndParent == NULL) {
+	// No parent mode was manually set. Use the currently active
+	// one.
+	ndParent = m_ndActive;
+      }
+      
+      bool bSetAsActive = (ndParent == m_ndActive);
+      
+      if(ndParent == NULL) {
 	// Add a new top-level node
 	m_lstNodes.push_back(ndNew);
 	
 	this->info("Adding new top-level context with ID " + this->str(nContextID));
       } else {
 	// Add it as a subnode to the current contextual node
-	m_ndActive->addSubnode(ndNew);
+	ndParent->addSubnode(ndNew);
 	
-	this->info("Adding new sub context with ID " + this->str(nContextID) + " (current depth: " + this->str((int)m_lstNodeStack.size()) + ")");
+	this->info("Adding new sub context with ID " + this->str(nContextID));
       }
       
-      this->info("The new context's name is '" + strName + "'");
-      this->setNodeAsActive(ndNew);
-      
-      m_lstNodeStack.push_back(ndNew);
+      if(bSetAsActive) {
+	this->setNodeAsActive(ndNew);
+	this->info("The new context's name is '" + strName + "' (now active)");
+      } else {
+	this->info("The new context's name is '" + strName + "'");
+      }
       
       return ndNew;
     }
@@ -600,9 +613,7 @@ namespace beliefstate {
       
       if(m_ndActive) {
 	if(!bSame) {
-	  stringstream sts;
-	  sts << m_ndActive->id();
-	  this->info("Setting context ID " + sts.str() + " as active context");	  
+	  this->info("Setting context ID " + this->str(m_ndActive->id()) + " as active context");	  
 	}
 	
 	// This activates the given node
@@ -703,23 +714,25 @@ namespace beliefstate {
       return strTimeStart;
     }
     
-    bool PLUGIN_CLASS::ensureDesignatorPublished(list<CKeyValuePair*> lstDescription, string strMemoryAddress, string strType, string strAnnotation, bool bAdd) {
+    bool PLUGIN_CLASS::ensureDesignatorPublished(list<CKeyValuePair*> lstDescription, string strMemoryAddress, string strType, string strAnnotation, bool bAdd, Node* ndRelative) {
       bool bDesigExists = (this->getDesignatorID(strMemoryAddress) != "");
+      
+      if(ndRelative == NULL) {
+	ndRelative = this->activeNode();
+      }
       
       CDesignator* desigCurrent = this->makeDesignator(strType, lstDescription);
       std::string strUniqueID = this->getUniqueDesignatorID(strMemoryAddress, desigCurrent);
       delete desigCurrent;
       
       if(bAdd) {
-	this->activeNode()->addDesignator(strType, lstDescription, strUniqueID, strAnnotation);
+	ndRelative->addDesignator(strType, lstDescription, strUniqueID, strAnnotation);
 	
-	std::stringstream sts;
-	sts << this->activeNode()->id();
-	this->info("Added '" + strType + "' designator (addr=" + strMemoryAddress + ") to active context (id " + sts.str() + "): '" + strUniqueID + "', annotation: '" + strAnnotation + "'");
+	this->info("Added '" + strType + "' designator (addr=" + strMemoryAddress + ") to context (id " + this->str(ndRelative->id()) + "): '" + strUniqueID + "', annotation: '" + strAnnotation + "'");
       }
       
       if(!bDesigExists) {
-	CDesignator* cdTemp = new CDesignator((strType == "ACTION" ? ACTION : (strType == "OBJECT" ? OBJECT : LOCATION)), lstDescription);
+	CDesignator* cdTemp = this->makeDesignator(strType, lstDescription);
 	cdTemp->setValue("_id", strUniqueID);
 	
 	if(strAnnotation != "") {
@@ -737,7 +750,7 @@ namespace beliefstate {
 	Event evAddedDesignator = defaultEvent("symbolic-add-designator");
 	evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
 	evAddedDesignator.strAnnotation = strAnnotation;
-	evAddedDesignator.lstNodes.push_back(this->activeNode());
+	evAddedDesignator.lstNodes.push_back(ndRelative);
 	
 	this->deployEvent(evAddedDesignator);
 	
@@ -796,6 +809,26 @@ namespace beliefstate {
       }
       
       return this->makeDesignator(edtType, lstDescription);
+    }
+    
+    Node* PLUGIN_CLASS::nodeByID(int nID) {
+      if(m_mapNodeIDs.find(nID) != m_mapNodeIDs.end()) {
+	return m_mapNodeIDs[nID];
+      }
+      
+      return NULL;
+    }
+    
+    Node* PLUGIN_CLASS::relativeActiveNode(Event evEvent) {
+      Node* ndSubject = this->activeNode();
+      
+      if(evEvent.cdDesignator) {
+	if(evEvent.cdDesignator->childForKey("_relative_context_id")) {
+	  ndSubject = this->nodeByID(evEvent.cdDesignator->floatValue("_relative_context_id"));
+	}
+      }
+      
+      return ndSubject;
     }
   }
   
