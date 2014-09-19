@@ -224,16 +224,29 @@ namespace beliefstate {
       
       unsigned int unIndex = 0;
       for(CKeyValuePair* ckvpChild : lstChildren) {
-	std::stringstream sts;
-	sts << ndObjects->uniqueID() << "_object_" << unIndex;
+	std::string strDefClass = ckvpChild->stringValue("_class");
+	std::string strDefProperty = ckvpChild->stringValue("_property");
+	
+	if(strDefClass == "") {
+	  strDefClass = "object";
+	}
+	
+	if(strDefProperty == "") {
+	  strDefProperty = "knowrob:objectActedOn";
+	}
+	
+	std::string strObjectID = strDefClass + "_" + ckvpChild->stringValue("__id");
+	
+	// std::stringstream sts;
+	// sts << ndObjects->uniqueID() << "_object_" << unIndex;
 	
 	std::string strParameters = this->generateDotStringForDescription(ckvpChild->children());
-	std::string strTitle = "Some Object";
+	std::string strTitle = strObjectID;
 	std::string strLabel = "{" + this->dotEscapeString(strTitle) + strParameters + "}";
 	
-	strDot += "  " + sts.str() + " [shape=Mrecord, label=\"" + strLabel + "\"];\n";
-	strDot += "  edge [color=\"black\", label=\"associated object\"];\n";
-	strDot += "  " + sts.str() + " -> " + ndObjects->uniqueID() + ";\n";
+	strDot += "  " + strObjectID + " [shape=Mrecord, label=\"" + strLabel + "\"];\n";
+	strDot += "  edge [color=\"black\", label=\"" + strDefProperty + "\"];\n";
+	strDot += "  " + strObjectID + " -> " + ndObjects->uniqueID() + ";\n";
       }
     }
     
