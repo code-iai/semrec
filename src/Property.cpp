@@ -49,7 +49,7 @@ namespace beliefstate {
     this->setKey(strKey);
   }
   
-  Property::Property(Property* prTemplate) {
+  Property::Property(Property* prTemplate, bool bDeepCopy) {
     // Copy constructor
     this->set(prTemplate->type());
     this->setKey(prTemplate->key());
@@ -73,8 +73,10 @@ namespace beliefstate {
       
     case Object:
     case Array: {
-      for(Property* prSubProperty : prTemplate->subProperties()) {
-        this->addSubProperty(new Property(prSubProperty));
+      if(bDeepCopy) {
+	for(Property* prSubProperty : prTemplate->subProperties()) {
+	  this->addSubProperty(new Property(prSubProperty));
+	}
       }
     } break;
     }
@@ -159,7 +161,7 @@ namespace beliefstate {
     
     switch(this->type()) {
     case String:
-      std::cout << this->getString() << std::endl;
+      std::cout << "\"" << this->getString() << "\"" << std::endl;
       break;
       
     case Integer:

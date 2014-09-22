@@ -98,246 +98,157 @@ namespace beliefstate {
     return prReturn;
   }
   
+  bool DecisionTree::relationSatisfied(Property* prRelation, CKeyValuePair* ckvpFeatures) {
+    // This is a relation, evaluate it
+    bool bResult = false;
+    Property* prOperator = NULL;
+    Property* prVariable = NULL;
+    Property* prValue = NULL;
+    
+    std::string strOperator = prRelation->key();
+    prVariable = prRelation->namedSubProperty("variable");
+    prValue = prRelation->namedSubProperty("value");
+
+    if(strOperator != "" && prVariable && prValue) {
+      if(ckvpFeatures->childForKey(prVariable->getString())) {
+	if(strOperator == "=") { // Operator: "="
+	  switch(prValue->type()) {
+	  case Property::String: {
+	    std::string strFeature = ckvpFeatures->stringValue(prVariable->getString());
+	    bResult = (strFeature == prValue->getString());
+	  } break;
+	    
+	  case Property::Integer: {
+	    int nFeature = (int)ckvpFeatures->floatValue(prVariable->getString());
+	    bResult = (nFeature == prValue->getInteger());
+	  } break;
+	    
+	  case Property::Double: {
+	    float fFeature = ckvpFeatures->floatValue(prVariable->getString());
+	    bResult = (fFeature == (float)prValue->getDouble());
+	  } break;
+	    
+	  case Property::Boolean: {
+	    bool bFeature = (ckvpFeatures->floatValue(prVariable->getString()) != 0.0);
+	    bResult = (bFeature == prValue->getBoolean());
+	  } break;
+	    
+	  default: {
+	    this->warn("Unknown property value type, not evaluating.");
+	  } break;
+	  }
+	} else if(strOperator == "<") { // Operator: "<"
+	  switch(prValue->type()) {
+	  case Property::Integer: {
+	    int nFeature = (int)ckvpFeatures->floatValue(prVariable->getString());
+	    bResult = (nFeature < prValue->getInteger());
+	  } break;
+	    
+	  case Property::Double: {
+	    float fFeature = ckvpFeatures->floatValue(prVariable->getString());
+	    bResult = (fFeature < (float)prValue->getDouble());
+	  } break;
+	    
+	  default: {
+	    this->warn("Unknown property value type, not evaluating.");
+	  } break;
+	  }
+	} else if(strOperator == "<=") { // Operator: "<="
+	  switch(prValue->type()) {
+	  case Property::Integer: {
+	    int nFeature = (int)ckvpFeatures->floatValue(prVariable->getString());
+	    bResult = (nFeature <= prValue->getInteger());
+	  } break;
+	  
+	  case Property::Double: {
+	    float fFeature = ckvpFeatures->floatValue(prVariable->getString());
+	    bResult = (fFeature <= (float)prValue->getDouble());
+	  } break;
+	  
+	  default: {
+	    this->warn("Unknown property value type, not evaluating.");
+	  } break;
+	  }
+	} else if(strOperator == ">") { // Operator: ">"
+	  switch(prValue->type()) {
+	  case Property::Integer: {
+	    int nFeature = (int)ckvpFeatures->floatValue(prVariable->getString());
+	    bResult = (nFeature > prValue->getInteger());
+	  } break;
+	  
+	  case Property::Double: {
+	    float fFeature = ckvpFeatures->floatValue(prVariable->getString());
+	    bResult = (fFeature > (float)prValue->getDouble());
+	  } break;
+	  
+	  default: {
+	    this->warn("Unknown property value type, not evaluating.");
+	  } break;
+	  }
+	} else if(strOperator == ">=") { // Operator: ">="
+	  switch(prValue->type()) {
+	  case Property::Integer: {
+	    int nFeature = (int)ckvpFeatures->floatValue(prVariable->getString());
+	    bResult = (nFeature >= prValue->getInteger());
+	  } break;
+	  
+	  case Property::Double: {
+	    float fFeature = ckvpFeatures->floatValue(prVariable->getString());
+	    bResult = (fFeature >= (float)prValue->getDouble());
+	  } break;
+	  
+	  default: {
+	    this->warn("Unknown property value type, not evaluating.");
+	  } break;
+	  }
+	} else if(strOperator == "!=") { // Operator: "!="
+	  switch(prValue->type()) {
+	  case Property::String: {
+	    std::string strFeature = ckvpFeatures->stringValue(prVariable->getString());
+	    bResult = (strFeature != prValue->getString());
+	  } break;
+	  
+	  case Property::Integer: {
+	    int nFeature = (int)ckvpFeatures->floatValue(prVariable->getString());
+	    bResult = (nFeature != prValue->getInteger());
+	  } break;
+	  
+	  case Property::Double: {
+	    float fFeature = ckvpFeatures->floatValue(prVariable->getString());
+	    bResult = (fFeature != (float)prValue->getDouble());
+	  } break;
+	  
+	  case Property::Boolean: {
+	    bool bFeature = (ckvpFeatures->floatValue(prVariable->getString()) != 0.0);
+	    bResult = (bFeature != prValue->getBoolean());
+	  } break;
+	  
+	  default: {
+	    this->warn("Unknown property value type, not evaluating.");
+	  } break;
+	}
+	} else {
+	  this->warn("Unknown operator: '" + strOperator + "'");
+	}
+      } else {
+	this->missingFeature(strOperator, prVariable->getString());
+      }
+    } else {
+      this->warn("Missing operator, variable, or value.");
+    }
+    
+    return bResult;
+  }
+  
   Property* DecisionTree::evaluate(Property* prTree, CKeyValuePair* ckvpFeatures) {
     Property* prResult = NULL;
     
     if(prTree && ckvpFeatures) {
       Property* prAction = prTree->namedSubProperty("relation");
-	
+      
       if(prAction) {
-	// This is a relation, evaluate it
-	bool bResult = false;
-	Property* prOperator = NULL;
-	Property* prVariable = NULL;
-	Property* prValue = NULL;
-	  
-	// Operator: "="
-	if((prOperator = prAction->namedSubProperty("=")) != NULL) {
-	  prVariable = prOperator->namedSubProperty("variable");
-	  prValue = prOperator->namedSubProperty("value");
-	    
-	  if(prVariable && prValue) {
-	    // Check for equality: "="
-	    if(ckvpFeatures->childForKey(prVariable->getString())) {
-	      switch(prValue->type()) {
-	      case Property::String: {
-		std::string strFeature = ckvpFeatures->stringValue(prVariable->getString());
-		bResult = (strFeature == prValue->getString());
-		std::cout << "Checking " << prVariable->getString() << " (= " << strFeature << ") == " << prValue->getString() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      case Property::Integer: {
-		int nFeature = (int)ckvpFeatures->floatValue(prVariable->getString());
-		bResult = (nFeature == prValue->getInteger());
-		std::cout << "Checking " << prVariable->getString() << " (= " << nFeature << ") == " << prValue->getInteger() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      case Property::Double: {
-		float fFeature = ckvpFeatures->floatValue(prVariable->getString());
-		bResult = (fFeature == (float)prValue->getDouble());
-		  
-		std::cout << "Checking " << prVariable->getString() << " (= " << fFeature << ") == " << (float)prValue->getDouble() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      case Property::Boolean: {
-		bool bFeature = (ckvpFeatures->floatValue(prVariable->getString()) != 0.0);
-		bResult = (bFeature == prValue->getBoolean());
-		std::cout << "Checking " << prVariable->getString() << " (= " << bFeature << ") == " << prValue->getBoolean() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      default: {
-		this->warn("Unknown property value type, not evaluating.");
-	      } break;
-	      }
-	    } else {
-	      this->missingFeature("=", prVariable->getString());
-	    }
-	  } else {
-	    this->missingOperand("=");
-	  }
-	} else if((prOperator = prAction->namedSubProperty("<")) != NULL) {
-	  // Operator: "<"
-	  prVariable = prOperator->namedSubProperty("variable");
-	  prValue = prOperator->namedSubProperty("value");
-	    
-	  if(prOperator) {
-	    if(prVariable && prValue) {
-	      if(ckvpFeatures->childForKey(prVariable->getString())) {
-		// Check for less than: "<"
-		switch(prValue->type()) {
-		case Property::Integer: {
-		  int nFeature = (int)ckvpFeatures->floatValue(prVariable->getString());
-		  bResult = (nFeature < prValue->getInteger());
-		  std::cout << "Checking " << prVariable->getString() << " (= " << nFeature << ") < " << prValue->getInteger() << " : "
-			    << (bResult ? "True" : "False") << std::endl;
-		} break;
-		    
-		case Property::Double: {
-		  float fFeature = ckvpFeatures->floatValue(prVariable->getString());
-		  bResult = (fFeature < (float)prValue->getDouble());
-		  std::cout << "Checking " << prVariable->getString() << " (= " << fFeature << ") < " << (float)prValue->getDouble() << " : "
-			    << (bResult ? "True" : "False") << std::endl;
-		} break;
-		    
-		default: {
-		  this->warn("Unknown property value type, not evaluating.");
-		} break;
-		}
-	      } else {
-		this->missingFeature("<", prVariable->getString());
-	      }
-	    } else {
-	      this->missingOperand("<");
-	    }
-	  }
-	} else if((prOperator = prAction->namedSubProperty("<=")) != NULL) {
-	  prVariable = prOperator->namedSubProperty("variable");
-	  prValue = prOperator->namedSubProperty("value");
-	    
-	  if(prVariable && prValue) {
-	    if(ckvpFeatures->childForKey(prVariable->getString())) {
-	      // Check for equality: "<="
-	      switch(prValue->type()) {
-	      case Property::Integer: {
-		int nFeature = (int)ckvpFeatures->floatValue(prVariable->getString());
-		bResult = (nFeature <= prValue->getInteger());
-		std::cout << "Checking " << prVariable->getString() << " (= " << nFeature << ") <= " << prValue->getInteger() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      case Property::Double: {
-		float fFeature = ckvpFeatures->floatValue(prVariable->getString());
-		bResult = (fFeature <= (float)prValue->getDouble());
-		std::cout << "Checking " << prVariable->getString() << " (= " << fFeature << ") <= " << (float)prValue->getDouble() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      default: {
-		this->warn("Unknown property value type, not evaluating.");
-	      } break;
-	      }
-	    } else {
-	      this->missingFeature("<=", prVariable->getString());
-	    }
-	  } else {
-	    this->missingOperand("<=");
-	  }
-	} else if((prOperator = prAction->namedSubProperty(">")) != NULL) {
-	  prVariable = prOperator->namedSubProperty("variable");
-	  prValue = prOperator->namedSubProperty("value");
-	    
-	  if(prVariable && prValue) {
-	    if(ckvpFeatures->childForKey(prVariable->getString())) {
-	      // Check for equality: ">"
-	      switch(prValue->type()) {
-	      case Property::Integer: {
-		int nFeature = (int)ckvpFeatures->floatValue(prVariable->getString());
-		bResult = (nFeature > prValue->getInteger());
-		std::cout << "Checking " << prVariable->getString() << " (= " << nFeature << ") > " << prValue->getInteger() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      case Property::Double: {
-		float fFeature = ckvpFeatures->floatValue(prVariable->getString());
-		bResult = (fFeature > (float)prValue->getDouble());
-		std::cout << "Checking " << prVariable->getString() << " (= " << fFeature << ") > " << (float)prValue->getDouble() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      default: {
-		this->warn("Unknown property value type, not evaluating.");
-	      } break;
-	      }
-	    } else {
-	      this->missingFeature(">", prVariable->getString());
-	    }
-	  } else {
-	    this->missingOperand(">");
-	  }
-	} else if((prOperator = prAction->namedSubProperty(">=")) != NULL) {
-	  prVariable = prOperator->namedSubProperty("variable");
-	  prValue = prOperator->namedSubProperty("value");
-	    
-	  if(prVariable && prValue) {
-	    if(ckvpFeatures->childForKey(prVariable->getString())) {
-	      // Check for equality: ">="
-	      switch(prValue->type()) {
-	      case Property::Integer: {
-		int nFeature = (int)ckvpFeatures->floatValue(prVariable->getString());
-		bResult = (nFeature >= prValue->getInteger());
-		std::cout << "Checking " << prVariable->getString() << " (= " << nFeature << ") >= " << prValue->getInteger() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      case Property::Double: {
-		float fFeature = ckvpFeatures->floatValue(prVariable->getString());
-		bResult = (fFeature >= (float)prValue->getDouble());
-		std::cout << "Checking " << prVariable->getString() << " (= " << fFeature << ") >= " << (float)prValue->getDouble() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      default: {
-		this->warn("Unknown property value type, not evaluating.");
-	      } break;
-	      }
-	    } else {
-	      this->missingFeature(">=", prVariable->getString());
-	    }
-	  } else {
-	    this->missingOperand(">=");
-	  }
-	} else if((prOperator = prAction->namedSubProperty("!=")) != NULL) {
-	  prVariable = prOperator->namedSubProperty("variable");
-	  prValue = prOperator->namedSubProperty("value");
-	    
-	  if(prVariable && prValue) {
-	    if(ckvpFeatures->childForKey(prVariable->getString())) {
-	      // Check for inequality: "!="
-	      switch(prValue->type()) {
-	      case Property::String: {
-		std::string strFeature = ckvpFeatures->stringValue(prVariable->getString());
-		bResult = (strFeature != prValue->getString());
-		std::cout << "Checking " << prVariable->getString() << " (= " << strFeature << ") != " << prValue->getString() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      case Property::Integer: {
-		int nFeature = (int)ckvpFeatures->floatValue(prVariable->getString());
-		bResult = (nFeature != prValue->getInteger());
-		std::cout << "Checking " << prVariable->getString() << " (= " << nFeature << ") != " << prValue->getInteger() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      case Property::Double: {
-		float fFeature = ckvpFeatures->floatValue(prVariable->getString());
-		bResult = (fFeature != (float)prValue->getDouble());
-		std::cout << "Checking " << prVariable->getString() << " (= " << fFeature << ") != " << (float)prValue->getDouble() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      case Property::Boolean: {
-		bool bFeature = (ckvpFeatures->floatValue(prVariable->getString()) != 0.0);
-		bResult = (bFeature != prValue->getBoolean());
-		std::cout << "Checking " << prVariable->getString() << " (= " << bFeature << ") != " << prValue->getBoolean() << " : "
-			  << (bResult ? "True" : "False") << std::endl;
-	      } break;
-		  
-	      default: {
-		this->warn("Unknown property value type, not evaluating.");
-	      } break;
-	      }
-	    } else {
-	      this->missingFeature("!=", prVariable->getString());
-	    }
-	  } else {
-	    this->missingOperand("!=");
-	  }
-	}
-	  
+	bool bResult = this->relationSatisfied(prAction->subProperties().front(), ckvpFeatures);
+	
 	prResult = prTree->namedSubProperty((bResult ? "true" : "false"));
 	if(prResult) {
 	  list<Property*> lstSubActions = prResult->subProperties();
@@ -353,8 +264,6 @@ namespace beliefstate {
       } else if((prAction = prTree->namedSubProperty("result")) != NULL) {
 	// This is a leaf (i.e. result), return it
 	prResult = prAction;
-	std::cout << "Returning result:" << std::endl;
-	prResult->print();
       } else if(prTree->type() == Property::Array) {
 	for(Property* prSubAction : prTree->subProperties()) {
 	  prResult = this->evaluate(prSubAction, ckvpFeatures);
@@ -376,47 +285,114 @@ namespace beliefstate {
   std::vector<CKeyValuePair*> DecisionTree::invert(Property* prTargetResult, CKeyValuePair* ckvpFeatures) {
     std::vector<CKeyValuePair*> vecSolutions;
     
-    // TODO(winkler): Implement the actual solver here. The result
-    // needs to be a list of variable sets that consist of features
-    // that need to be changed in order to get to the target result
-    // property. Prior features are given in ckvpFeatures, which act
-    // as a base for solving. Solutions need to be sorted by the
-    // length of their solution path/amount of variables to change, in
-    // an ascending manner.
-    
-    this->fail("Inverting decision trees is not implemented yet. You supplied the following information:");
-    
-    if(prTargetResult) {
-      this->fail("Target Result:");
-      prTargetResult->print();
-    }
-    
-    if(ckvpFeatures) {
-      std::string strFeatures = "";
-      
-      for(CKeyValuePair* ckvpFeature : ckvpFeatures->children()) {
-	if(strFeatures != "") {
-	  strFeatures += ", ";
-	}
-	
-	strFeatures += ckvpFeature->key();
-      }
-      
-      this->fail("Features: " + strFeatures);
-    }
-    
-    //m_jsnDecisionTree->rootProperty()->print();
-    
-    // First, find all branches with the targetted result
+    // First, find all branches with the target result.
     std::vector<Property*> vecSolutionsTemp = this->findBranchesWithResult(prTargetResult);
+    std::vector< std::vector<Property*> > vecSolutionsStraightened = this->straightenResultBranches(vecSolutionsTemp);
     for(Property* prSolution : vecSolutionsTemp) {
-      std::cout << "Solution:" << std::endl;
-      prSolution->print();
-      
       delete prSolution;
     }
     
+    // Second, filter out any relations that are already satisfied via
+    // ckvpFeatures.
+    std::vector< std::vector<Property*> > vecSols;
+    
+    for(std::vector<Property*> vecSolution : vecSolutionsStraightened) {
+      std::vector<Property*> vecSolutionNew;
+      
+      for(std::vector<Property*>::iterator itSolutionStep = vecSolution.begin();
+	  itSolutionStep != vecSolution.end();
+	  ++itSolutionStep) {
+	if(!this->relationSatisfied(*itSolutionStep, ckvpFeatures)) {
+	  vecSolutionNew.push_back(*itSolutionStep);
+	} else {
+	  delete *itSolutionStep;
+	}
+      }
+      
+      vecSols.push_back(vecSolutionNew);
+    }
+    
+    for(std::vector<Property*> vecSolution : vecSols) {
+      if(vecSolution.size() > 0) {
+	CKeyValuePair* ckvpSolution = new CKeyValuePair("solution", LIST);
+      
+	for(Property* prSolutionStep : vecSolution) {
+	  CKeyValuePair* ckvpStep = new CKeyValuePair("step", LIST);
+	  ckvpSolution->addChild(ckvpStep);
+	
+	  ckvpStep->setValue("relation", prSolutionStep->key());
+	
+	  std::list<std::string> lstCopyFields;
+	  lstCopyFields.push_back("variable");
+	  lstCopyFields.push_back("value");
+	
+	  for(std::string strFieldName : lstCopyFields) {
+	    Property* prField = prSolutionStep->namedSubProperty(strFieldName);
+	  
+	    switch(prField->type()) {
+	    case Property::String:
+	      ckvpStep->setValue(strFieldName, prField->getString());
+	      break;
+
+	    case Property::Integer:
+	      ckvpStep->setValue(strFieldName, prField->getInteger());
+	      break;
+
+	    case Property::Double:
+	      ckvpStep->setValue(strFieldName, prField->getDouble());
+	      break;
+
+	    case Property::Boolean:
+	      ckvpStep->setValue(strFieldName, prField->getBoolean());
+	      break;
+	    
+	    default:
+	      this->warn("Unknown property type.");
+	      break;
+	    }
+	  }
+	
+	  delete prSolutionStep;
+	}
+      
+	vecSolutions.push_back(ckvpSolution);
+      }
+    }
+    
     return vecSolutions;
+  }
+  
+  std::vector< std::vector<Property*> > DecisionTree::straightenResultBranches(std::vector<Property*> vecSolutionBranches) {
+    std::vector< std::vector<Property*> > vecSolutionsStraightened;
+    
+    for(Property* prSolutionBranch : vecSolutionBranches) {
+      vecSolutionsStraightened.push_back(this->straightenResultBranch(prSolutionBranch));
+    }
+    
+    return vecSolutionsStraightened;
+  }
+  
+  std::vector<Property*> DecisionTree::straightenResultBranch(Property* prSolutionBranch) {
+    std::vector<Property*> vecStraightened;
+    
+    // We're only interested in relations, as we already know the
+    // target result.
+    if(prSolutionBranch->key() == "relation") {
+      if(prSolutionBranch->subProperties().size() == 1) {
+	vecStraightened.push_back(new Property(prSolutionBranch->subProperties().front())); // Copy
+      }
+    }
+    
+    for(Property* prSub : prSolutionBranch->subProperties()) {
+      std::vector<Property*> vecSubStraightened = this->straightenResultBranch(prSub);
+      
+      for(Property* prSubStraightened : vecSubStraightened) {
+	vecStraightened.push_back(new Property(prSubStraightened));
+	delete prSubStraightened; // Got copied
+      }
+    }
+    
+    return vecStraightened;
   }
   
   std::vector<Property*> DecisionTree::findBranchesWithResult(Property* prTargetResult, Property* prStart) {
@@ -437,7 +413,6 @@ namespace beliefstate {
       if(prResult->getString() == prTargetResult->getString()) {
 	// Yes, this is indeed the result we're looking for. Add a
 	// copy to the solutions and terminate.
-	this->info("Found a valid solution.");
 	vecSolutions.push_back(new Property(prStart));
       } else {
 	// No, this was not the result we were looking for. Silently
@@ -459,14 +434,15 @@ namespace beliefstate {
 	  
 	  // Process them here.
 	  for(Property* prSubSolution : vecSubSolutions) {
-	    Property* prSolutionBranch = new Property("", Property::Object);
+ 	    Property* prSolutionBranch = new Property("", Property::Object);
 	    
 	    if(prRelation) {
 	      prSolutionBranch->addSubProperty(new Property(prRelation));
 	    }
 	    
 	    prSolutionBranch->addSubProperty(new Property(prSubSolution));
-	      
+	    delete prSubSolution; // Not used anymore, got deep-copied
+	    
 	    vecSolutions.push_back(prSolutionBranch);
 	  }
 	}

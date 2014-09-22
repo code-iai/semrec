@@ -72,9 +72,12 @@ namespace beliefstate {
     
     bool load(std::string strFile);
     
+    bool relationSatisfied(Property* prRelation, CKeyValuePair* ckvpFeatures);
     Property* evaluate(CKeyValuePair* ckvpFeatures);
     vector<CKeyValuePair*> invert(Property* prTargetResult, CKeyValuePair* ckvpFeatures);
     std::vector<Property*> findBranchesWithResult(Property* prTargetResult, Property* prStart = NULL);
+    std::vector< std::vector<Property*> > straightenResultBranches(std::vector<Property*> vecSolutionBranches);
+    std::vector<Property*> straightenResultBranch(Property* prSolutionBranch);
   };
 }
 

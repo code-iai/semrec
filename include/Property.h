@@ -69,7 +69,7 @@ namespace beliefstate {
   protected:
   public:
     Property(std::string strKey = "", PropertyType ptType = String);
-    Property(Property* prTemplate);
+    Property(Property* prTemplate, bool bDeepCopy = true);
     ~Property();
     
     void setKey(std::string strKey);

@@ -195,7 +195,9 @@ namespace beliefstate {
 	      
 	      for(int nI = 0; nI < vecSolutions.size(); nI++) {
 		CKeyValuePair* ckvpSolution = vecSolutions.at(nI);
-		ckvpSolutions->addChild("solution_" + this->str(nI), ckvpSolution);
+		
+		ckvpSolution->setKey("solution_" + this->str(nI));
+		ckvpSolutions->addChild(ckvpSolution);
 	      }
 	      
 	      this->deployServiceEvent(seResponse);
