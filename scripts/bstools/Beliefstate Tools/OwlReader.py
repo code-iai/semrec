@@ -1,4 +1,7 @@
 from xml.dom.minidom import parse, parseString
+import pickle
+import os, sys
+import time
 
 
 class OwlIndividual:
@@ -23,7 +26,17 @@ class OwlIndividual:
                 arrAttributeValues.append(strAttributeValue)
 
         return arrAttributeValues
-
+    
+    def tagNodeValues(self, strTagName):
+        arrNodeValues = []
+        domTags = self.domIndividual.getElementsByTagName(strTagName)
+        
+        for domTag in domTags:
+            strNodeValue = domTag.firstChild.nodeValue
+            arrNodeValues.append(strNodeValue)
+        
+        return arrNodeValues
+    
     def type(self, bSplitNamespace = True):
         arrTypes = self.tagAttributeValues("rdf:type", "rdf:resource")
         if len(arrTypes) > 0:
@@ -33,7 +46,57 @@ class OwlIndividual:
                 return strType.split("#")[1]
             else:
                 return strType
-
+    
+    def annotatedParameterTypes(self):
+        return self.tagNodeValues("knowrob:annotatedParameterType")
+    
+    def annotatedParameters(self, bSingularParameters = False):
+        arrParams = {}
+        params = self.annotatedParameterTypes()
+        
+        for param in params:
+            if bSingularParameters: 
+                arrParams[param] = self.annotatedParameterValue(param)
+            else:
+                arrParams[param] = self.annotatedParameterValues(param)
+        
+        return arrParams
+    
+    def subActions(self):
+        subs = self.tagAttributeValues("knowrob:subAction", "rdf:resource")
+        arrSubs = []
+        for sub in subs:
+            arrSubs.append(sub.split("#")[1])
+        
+        return arrSub
+    
+    def annotatedParameterValues(self, strParam):
+        return self.tagNodeValues("knowrob:" + strParam)
+    
+    def annotatedParameterValue(self, strParam):
+        values = self.annotatedParameterValues(strParam)
+        
+        if len(values) > 0:
+            return values[0]
+        
+        return None
+    
+    def taskContext(self):
+        tnv = self.tagNodeValues("knowrob:taskContext")
+        
+        if tnv:
+            return tnv[0]
+        
+        return None
+    
+    def failures(self):
+        failures_pre = self.tagAttributeValues("knowrob:eventFailure", "rdf:resource")
+        arrFailures = []
+        for failure in failures_pre:
+            arrFailures.append(failure.split("#")[1])
+        
+        return arrFailures
+    
     def timeSpan(self):
         timeStart = self.tagAttributeValues("knowrob:startTime", "rdf:resource")
         timeEnd = self.tagAttributeValues("knowrob:endTime", "rdf:resource")
@@ -66,33 +129,42 @@ class OwlIndividual:
 class OwlReader:
     def __init__(self):
         pass
-
+    
     def loadOwl(self, strFile):
         return self.crawlOwl(parse(strFile))
-
+    
     def crawlOwl(self, domOwl):
         arrIndividuals = domOwl.getElementsByTagName("owl:namedIndividual")
 
         arrOwlTaskTreeIndividuals = {}
         arrOwlDesignatorIndividuals = {}
         arrOwlAuxIndividuals = {}
+        owlAnnotation = None
+        owlMetaData = None
+        
         for domIndividual in arrIndividuals:
             owlIndividual = OwlIndividual(domIndividual)
-
+            
             if owlIndividual.type() == "CRAMDesignator":
                 arrOwlDesignatorIndividuals[owlIndividual.name()] = owlIndividual
             elif owlIndividual.type() == "CameraImage" or owlIndividual.type() == "HumanScaleObject":
                 arrOwlAuxIndividuals[owlIndividual.name()] = owlIndividual
+            elif owlIndividual.type() == "AnnotationInformation":
+                owlAnnotation = owlIndividual
+            elif owlIndividual.type() == "ExperimentMetaData":
+                owlMetaData = owlIndividual
             else:
                 arrOwlTaskTreeIndividuals[owlIndividual.name()] = owlIndividual
-
-        dicTaskTree = self.createTaskTree(arrOwlTaskTreeIndividuals)
-
-        return {"task-tree": dicTaskTree,
+        
+        #dicTaskTree = self.createTaskTree(arrOwlTaskTreeIndividuals)
+        
+        return {#"task-tree": dicTaskTree,
                 "task-tree-individuals": arrOwlTaskTreeIndividuals,
                 "designator-individuals": arrOwlDesignatorIndividuals,
-                "aux-individuals": arrOwlAuxIndividuals}
-
+                "aux-individuals": arrOwlAuxIndividuals,
+                "annotation": owlAnnotation,
+                "metadata": owlMetaData}
+    
     def createTaskTree(self, arrOwlTaskTreeIndividuals):
         arrToplevelIndividuals = {}
 
