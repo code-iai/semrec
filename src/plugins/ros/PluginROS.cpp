@@ -256,10 +256,12 @@ namespace beliefstate {
 	  if(seResult.cdDesignator) {
 	    res.response.designators.push_back(seResult.cdDesignator->serializeToMessage());
 	    
-	    if(!seResult.bPreserve) {
+	    if(seResult.bPreserve) {
 	      delete seResult.cdDesignator;
 	    }
 	  }
+	  
+	  delete seService.cdDesignator;
 	} else if(evAlterContext.cdDesignator->stringValue("_type") == "alter") {
 	  this->info("When altering context, received " + this->getDesignatorTypeString(evAlterContext.cdDesignator) + " designator");
 	  
@@ -295,8 +297,6 @@ namespace beliefstate {
 	    evAlterContext.strEventName = "catch-failure";
 	  } else if(strCommand == "rethrow-failure") {
 	    evAlterContext.strEventName = "rethrow-failure";
-	  } else if(strCommand == "register-owl-namespace") {
-	    evAlterContext.strEventName = "register-owl-namespace";
 	  } else {
 	    this->warn("Unknown command when altering context: '" + strCommand + "'");
 	  }
