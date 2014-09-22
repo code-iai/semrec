@@ -412,6 +412,8 @@ namespace beliefstate {
     for(Property* prSolution : vecSolutionsTemp) {
       std::cout << "Solution:" << std::endl;
       prSolution->print();
+      
+      delete prSolution;
     }
     
     return vecSolutions;
@@ -445,6 +447,9 @@ namespace beliefstate {
       // This is not a leaf node. We need to recurse from here, and
       // interprete the returned results appropriately.
       
+      // Preserve for later.
+      Property* prRelation = prStart->namedSubProperty("relation");
+      
       // Try all branches except `relation', as that is (similar to
       // `result') reserved.
       for(Property* prBranch : prStart->subProperties()) {
@@ -453,6 +458,17 @@ namespace beliefstate {
 	  std::vector<Property*> vecSubSolutions = this->findBranchesWithResult(prTargetResult, prBranch);
 	  
 	  // Process them here.
+	  for(Property* prSubSolution : vecSubSolutions) {
+	    Property* prSolutionBranch = new Property("", Property::Object);
+	    
+	    if(prRelation) {
+	      prSolutionBranch->addSubProperty(new Property(prRelation));
+	    }
+	    
+	    prSolutionBranch->addSubProperty(new Property(prSubSolution));
+	      
+	    vecSolutions.push_back(prSolutionBranch);
+	  }
 	}
       }
     }
