@@ -80,6 +80,7 @@ namespace beliefstate {
       
       this->setOffersService("predict", true);
       this->setOffersService("load-model", true);
+      this->setOffersService("invert-decision-tree", true);
       
       // Prepare the JSON prediction model parsers
       m_jsnModel = new JSON();
@@ -172,6 +173,36 @@ namespace beliefstate {
 	  
 	  ServiceEvent seResponse = eventInResponseTo(seEvent);
 	  this->deployServiceEvent(seResponse);
+	} else if(seEvent.strServiceName == "invert-decision-tree") {
+	  if(seEvent.cdDesignator) {
+	    std::string strTargetResult = seEvent.cdDesignator->stringValue("target-result");
+	    
+	    if(strTargetResult != "") {
+	      CKeyValuePair* ckvpFeatures = seEvent.cdDesignator->childForKey("features");
+	      
+	      Property* prTargetResult = new Property();
+	      prTargetResult->set(strTargetResult);
+	      
+	      vector<CKeyValuePair*> vecSolutions = m_dtDecisionTree->invert(prTargetResult, ckvpFeatures);
+	      delete prTargetResult;
+	      
+	      ServiceEvent seResponse = eventInResponseTo(seEvent);
+	      seResponse.bPreserve = true;
+	      seResponse.cdDesignator = new CDesignator();
+	      seResponse.cdDesignator->setType(ACTION);
+	      
+	      CKeyValuePair* ckvpSolutions = seResponse.cdDesignator->addChild("solutions");
+	      
+	      for(int nI = 0; nI < vecSolutions.size(); nI++) {
+		CKeyValuePair* ckvpSolution = vecSolutions.at(nI);
+		ckvpSolutions->addChild("solution_" + this->str(nI), ckvpSolution);
+	      }
+	      
+	      this->deployServiceEvent(seResponse);
+	    } else {
+	      this->warn("Cannot invert decision tree model without target result.");
+	    }
+	  }
 	}
       }
       

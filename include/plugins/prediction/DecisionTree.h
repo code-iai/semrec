@@ -73,6 +73,8 @@ namespace beliefstate {
     bool load(std::string strFile);
     
     Property* evaluate(CKeyValuePair* ckvpFeatures);
+    vector<CKeyValuePair*> invert(Property* prTargetResult, CKeyValuePair* ckvpFeatures);
+    std::vector<Property*> findBranchesWithResult(Property* prTargetResult, Property* prStart = NULL);
   };
 }
 

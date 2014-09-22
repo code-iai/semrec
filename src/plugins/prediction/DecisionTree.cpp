@@ -100,7 +100,7 @@ namespace beliefstate {
   
   Property* DecisionTree::evaluate(Property* prTree, CKeyValuePair* ckvpFeatures) {
     Property* prResult = NULL;
-      
+    
     if(prTree && ckvpFeatures) {
       Property* prAction = prTree->namedSubProperty("relation");
 	
@@ -373,11 +373,98 @@ namespace beliefstate {
     return prResult;
   }
   
+  std::vector<CKeyValuePair*> DecisionTree::invert(Property* prTargetResult, CKeyValuePair* ckvpFeatures) {
+    std::vector<CKeyValuePair*> vecSolutions;
+    
+    // TODO(winkler): Implement the actual solver here. The result
+    // needs to be a list of variable sets that consist of features
+    // that need to be changed in order to get to the target result
+    // property. Prior features are given in ckvpFeatures, which act
+    // as a base for solving. Solutions need to be sorted by the
+    // length of their solution path/amount of variables to change, in
+    // an ascending manner.
+    
+    this->fail("Inverting decision trees is not implemented yet. You supplied the following information:");
+    
+    if(prTargetResult) {
+      this->fail("Target Result:");
+      prTargetResult->print();
+    }
+    
+    if(ckvpFeatures) {
+      std::string strFeatures = "";
+      
+      for(CKeyValuePair* ckvpFeature : ckvpFeatures->children()) {
+	if(strFeatures != "") {
+	  strFeatures += ", ";
+	}
+	
+	strFeatures += ckvpFeature->key();
+      }
+      
+      this->fail("Features: " + strFeatures);
+    }
+    
+    //m_jsnDecisionTree->rootProperty()->print();
+    
+    // First, find all branches with the targetted result
+    std::vector<Property*> vecSolutionsTemp = this->findBranchesWithResult(prTargetResult);
+    for(Property* prSolution : vecSolutionsTemp) {
+      std::cout << "Solution:" << std::endl;
+      prSolution->print();
+    }
+    
+    return vecSolutions;
+  }
+  
+  std::vector<Property*> DecisionTree::findBranchesWithResult(Property* prTargetResult, Property* prStart) {
+    std::vector<Property*> vecSolutions;
+    
+    if(!prStart) {
+      prStart = m_jsnDecisionTree->rootProperty();
+    }
+    
+    Property* prResult = prStart->namedSubProperty("result");
+    if(prResult) {
+      // This is the result leaf, we're at our destination. Check its
+      // value vs. prTargetResult.
+      
+      // TODO(winkler): Extend so that not only string results can be
+      // used (i.e. check for the type of both `Property's and compare
+      // them accordingly.
+      if(prResult->getString() == prTargetResult->getString()) {
+	// Yes, this is indeed the result we're looking for. Add a
+	// copy to the solutions and terminate.
+	this->info("Found a valid solution.");
+	vecSolutions.push_back(new Property(prStart));
+      } else {
+	// No, this was not the result we were looking for. Silently
+	// terminate and return nothing.
+      }
+    } else {
+      // This is not a leaf node. We need to recurse from here, and
+      // interprete the returned results appropriately.
+      
+      // Try all branches except `relation', as that is (similar to
+      // `result') reserved.
+      for(Property* prBranch : prStart->subProperties()) {
+	if(prBranch->key() != "relation") {
+	  // Yes, this is a trieable branch.
+	  std::vector<Property*> vecSubSolutions = this->findBranchesWithResult(prTargetResult, prBranch);
+	  
+	  // Process them here.
+	}
+      }
+    }
+    
+    return vecSolutions;
+  }
+  
   void DecisionTree::missingFeature(std::string strOperator, std::string strFeatureName) {
-    this->warn("Decision Tree: Missing '" + strFeatureName + "' from feature space while evaluating operator '" + strOperator + "'.");
+    this->warn("Decision Tree: '" + strFeatureName + "' missing from feature space while evaluating operator '" + strOperator + "'.");
   }
   
   void DecisionTree::missingOperand(std::string strOperator) {
-    this->warn("Decision Tree: Missing operand while evaluating operator '" + strOperator + "'.");
+    this->warn("Decision Tree: Operand missing while evaluating operator '" + strOperator + "'.");
   }
 }
