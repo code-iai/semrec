@@ -49,6 +49,37 @@ namespace beliefstate {
     this->setKey(strKey);
   }
   
+  Property::Property(Property* prTemplate) {
+    // Copy constructor
+    this->set(prTemplate->type());
+    this->setKey(prTemplate->key());
+    
+    switch(prTemplate->type()) {
+    case String: {
+      this->set(prTemplate->getString());
+    } break;
+      
+    case Integer: {
+      this->set(prTemplate->getInteger());
+    } break;
+      
+    case Double: {
+      this->set(prTemplate->getDouble());
+    } break;
+      
+    case Boolean: {
+      this->set(prTemplate->getBoolean());
+    } break;
+      
+    case Object:
+    case Array: {
+      for(Property* prSubProperty : prTemplate->subProperties()) {
+        this->addSubProperty(new Property(prSubProperty));
+      }
+    } break;
+    }
+  }
+  
   Property::~Property() {
     for(Property* prDelete : m_lstSubProperties) {
       delete prDelete;

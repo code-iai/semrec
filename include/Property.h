@@ -69,6 +69,7 @@ namespace beliefstate {
   protected:
   public:
     Property(std::string strKey = "", PropertyType ptType = String);
+    Property(Property* prTemplate);
     ~Property();
     
     void setKey(std::string strKey);
