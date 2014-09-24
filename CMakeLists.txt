@@ -3,6 +3,8 @@ project(beliefstate)
 
 find_package(catkin REQUIRED COMPONENTS roscpp roslib designator_integration designator_integration_msgs sensor_msgs cv_bridge roslib interactive_markers visualization_msgs)
 
+add_subdirectory(3rdparty)
+
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O2 -pg")
 endif()
@@ -15,10 +17,12 @@ catkin_package(
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  include)
+  include
+  3rdparty)
 
 add_library(bs_base_plugins)
 set_target_properties(bs_base_plugins PROPERTIES LINKER_LANGUAGE C)
+
 
 target_link_libraries(bs_base_plugins
   ${catkin_LIBRARIES}
@@ -36,6 +40,9 @@ add_library(bs_plugin_prediction SHARED
   src/Node.cpp
   src/JSON.cpp
   src/Property.cpp)
+
+add_dependencies(bs_plugin_prediction
+  git-clone-json-c)
 
 add_library(bs_plugin_ros SHARED
   src/GlobalFunctions.cpp
@@ -126,7 +133,7 @@ target_link_libraries(bs_plugin_ros
 
 target_link_libraries(bs_plugin_prediction
   bs_base_plugins
-  json
+  ${PROJECT_SOURCE_DIR}/3rdparty/json-c/.libs/libjson-c.so
 )
 
 target_link_libraries(bs_plugin_gazebo

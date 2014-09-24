@@ -64,8 +64,32 @@ namespace beliefstate {
     m_prRootProperty = new Property("root", Property::Object);
     
     if(strMimeType == "application/json") {
-      json_object* jobj = json_tokener_parse(strJSON.c_str());
-      this->parse(jobj, m_prRootProperty);
+      struct json_tokener* tok;
+      struct json_object* jobj;
+      enum json_tokener_error jteError;
+      
+      tok = json_tokener_new_ex(1000);
+      
+      if(!tok) {
+	std::cerr << "Couldn't initialize json_tokener." << std::endl;
+      } else {
+	jobj = json_tokener_parse_ex(tok, strJSON.c_str(), strJSON.length());
+	jteError = tok->err;
+	
+	if(jteError == json_tokener_success) {
+	  if(jobj != NULL) {
+	    this->parse(jobj, m_prRootProperty);
+	  } else {
+	    std::cerr << "Failed to parse JSON: " << json_tokener_error_desc(jteError) << std::endl;
+	  }
+	  
+	  jobj = NULL;
+	} else {
+	  std::cerr << "Failed to parse JSON: " << json_tokener_error_desc(jteError) << std::endl;
+	}
+	
+	json_tokener_free(tok);
+      }
     } else {
       this->parseXML(strJSON);
     }
@@ -117,6 +141,10 @@ namespace beliefstate {
 	
         this->parse(val, prChild);
       }
+    } break;
+      
+    case json_type_null: {
+      std::cout << "Null?" << std::endl;
     } break;
       
     default:

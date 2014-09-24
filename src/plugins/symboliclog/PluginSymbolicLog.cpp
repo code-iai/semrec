@@ -374,7 +374,7 @@ namespace beliefstate {
 	    if(m_mapFailureCatchers[m_prLastFailure.first]) {
 	      m_mapFailureCatchers[m_prLastFailure.first]->removeCaughtFailure(m_prLastFailure.first);
 	      m_mapFailureCatchers[m_prLastFailure.first] = NULL;
-		
+	      
 	      string strID = evEvent.cdDesignator->stringValue("context-id");
 	      this->info("Context (ID = " + strID + ") rethrew failure '" + m_prLastFailure.first + "'");
 	    } else {

@@ -46,8 +46,8 @@
 #include <iostream>
 #include <sstream>
 
-// LibJSON
-#include <json/json.h>
+// LibJSON-C
+#include <json-c/json.h>
 
 // Private
 #include <Property.h>
