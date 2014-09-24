@@ -10,10 +10,3 @@ add_custom_command(
   COMMAND ${PROJECT_SOURCE_DIR}/3rdparty/clone-git.sh https://github.com/json-c/json-c.git ${PROJECT_SOURCE_DIR}/3rdparty/json-c
   COMMAND ${PROJECT_SOURCE_DIR}/3rdparty/build-json-c.sh ${PROJECT_SOURCE_DIR}/3rdparty/json-c
 )
-
-
-# add_custom_command(... ...
-#                    COMMAND "cd json-c"
-# 		   COMMAND "sh autogen.sh"
-# 		   COMMAND "./configure"
-# 		   COMMAND "make")
