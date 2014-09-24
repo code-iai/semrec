@@ -411,13 +411,14 @@ namespace beliefstate {
 	    
 	    if(ndSubject) {
 	      // Check if child designator exists
-	      CKeyValuePair *ckvpDescChild = evEvent.cdDesignator->childForKey("description-child");
+	      CKeyValuePair* ckvpDescChild = evEvent.cdDesignator->childForKey("description-child");
+	      
 	      if(this->ensureDesignatorPublished(ckvpDescChild->children(), strMemAddrParent, evEvent.cdDesignator->stringValue("type-child"), "", false, this->relativeActiveNode(evEvent))) {
 		this->info("Added non-existant child-designator during 'equate'");
 	      }
 	      
 	      // Check if parent designator exists
-	      CKeyValuePair *ckvpDescParent = evEvent.cdDesignator->childForKey("description-parent");
+	      CKeyValuePair* ckvpDescParent = evEvent.cdDesignator->childForKey("description-parent");
 	      if(this->ensureDesignatorPublished(ckvpDescParent->children(), strMemAddrParent, evEvent.cdDesignator->stringValue("type-parent"), "", false, this->relativeActiveNode(evEvent))) {
 		this->warn("Added non-existant parent-designator during 'equate'");
 	      }
@@ -716,39 +717,41 @@ namespace beliefstate {
     
     bool PLUGIN_CLASS::ensureDesignatorPublished(list<CKeyValuePair*> lstDescription, string strMemoryAddress, string strType, string strAnnotation, bool bAdd, Node* ndRelative) {
       bool bDesigExists = (this->getDesignatorID(strMemoryAddress) != "");
+      bool bReturn = false;
+      bool bDeleteMe = true;
       
       if(ndRelative == NULL) {
 	ndRelative = this->activeNode();
       }
       
       CDesignator* desigCurrent = this->makeDesignator(strType, lstDescription);
+      desigCurrent->setValue("_time_created", this->getTimeStampStr());
+      
       std::string strUniqueID = this->getUniqueDesignatorID(strMemoryAddress, desigCurrent);
-      delete desigCurrent;
       
       if(bAdd) {
-	ndRelative->addDesignator(strType, lstDescription, strUniqueID, strAnnotation);
+	ndRelative->addDesignator(strType, desigCurrent->children(), strUniqueID, strAnnotation);
 	
 	this->info("Added '" + strType + "' designator (addr=" + strMemoryAddress + ") to context (id " + this->str(ndRelative->id()) + "): '" + strUniqueID + "', annotation: '" + strAnnotation + "'");
       }
       
       if(!bDesigExists) {
-	CDesignator* cdTemp = this->makeDesignator(strType, lstDescription);
-	cdTemp->setValue("_id", strUniqueID);
+	desigCurrent->setValue("_id", strUniqueID);
 	
 	if(strAnnotation != "") {
-	  cdTemp->setValue("_annotation", strAnnotation);
+	  desigCurrent->setValue("_annotation", strAnnotation);
 	}
 	
 	// First, symbolically create the designator
 	Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
-	evLoggedDesignator.cdDesignator = cdTemp;
+	evLoggedDesignator.cdDesignator = new CDesignator(desigCurrent);
 	evLoggedDesignator.strAnnotation = strAnnotation;
 	
 	this->deployEvent(evLoggedDesignator);
 	
 	// Second, symbolically add it to the current event
 	Event evAddedDesignator = defaultEvent("symbolic-add-designator");
-	evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
+	evAddedDesignator.cdDesignator = new CDesignator(desigCurrent);
 	evAddedDesignator.strAnnotation = strAnnotation;
 	evAddedDesignator.lstNodes.push_back(ndRelative);
 	
@@ -757,12 +760,16 @@ namespace beliefstate {
 	// Thirdly, recurse through possibly nested designators,
 	// looking for a ''_designator_memory_address'' field being
 	// set.
-	this->setNestedDesignatorUniqueIDs(cdTemp);
+	this->setNestedDesignatorUniqueIDs(desigCurrent);
 	
-	return true;
+	bReturn = true;
       }
       
-      return false;
+      if(bDeleteMe) {
+	delete desigCurrent;
+      }
+      
+      return bReturn;
     }
     
     void PLUGIN_CLASS::setNestedDesignatorUniqueIDs(CKeyValuePair* ckvpParent) {

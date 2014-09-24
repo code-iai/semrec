@@ -308,6 +308,15 @@ namespace beliefstate {
 	  lstTimepointsSubnodes.push_back(prPair.second);
 	}
 	
+	// Gather designator creation timepoints
+	for(pair<std::string, CKeyValuePair*> prDesig : m_mapDesignators) {
+	  if(prDesig.second) {
+	    if(prDesig.second->childForKey("description")) {
+	      lstTimepointsSubnodes.push_back(prDesig.second->childForKey("description")->stringValue("_time_created"));
+	    }
+	  }
+	}
+	
 	// Unify all timepoints
 	for(std::string strTimepointSubnode : lstTimepointsSubnodes) {
 	  bool bExists = false;
@@ -361,6 +370,8 @@ namespace beliefstate {
   
   std::string CExporterOwl::generateEventIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace) {
     std::string strDot = "";
+    
+    m_mapDesignators.clear();
     
     Node* ndLastDisplayed = NULL;
     for(std::list<Node*>::iterator itNode = lstNodes.begin();
@@ -515,7 +526,7 @@ namespace beliefstate {
 	  }
 	  
 	  // Designator references here.
-	  CKeyValuePair *ckvpDesignators = ndCurrent->metaInformation()->childForKey("designators");
+	  CKeyValuePair* ckvpDesignators = ndCurrent->metaInformation()->childForKey("designators");
 	  
 	  if(ckvpDesignators) {
 	    std::list<CKeyValuePair*> lstDesignators = ckvpDesignators->children();
@@ -524,6 +535,8 @@ namespace beliefstate {
 	    for(CKeyValuePair* ckvpDesignator : lstDesignators) {
 	      std::string strAnnotation = ckvpDesignator->stringValue("annotation");
 	      std::string strDesigID = ckvpDesignator->stringValue("id");
+	      
+	      m_mapDesignators[strDesigID] = ckvpDesignator;
 	      
 	      if(strAnnotation == "parameter-annotation") { // Special treatment for parameter annotations
 		CKeyValuePair* ckvpChildren = ckvpDesignator->childForKey("description");
@@ -756,6 +769,7 @@ namespace beliefstate {
   
   std::string CExporterOwl::generateImageIndividuals(std::string strNamespace) {
     std::string strDot = "    <!-- Image Individuals -->\n\n";
+    
     strDot += this->generateImageIndividualsForNodes(this->nodes(), strNamespace);
     
     return strDot;
@@ -766,9 +780,18 @@ namespace beliefstate {
     
     std::list<std::string> lstDesigIDs = this->designatorIDs();
     
+    for(pair<std::string, CKeyValuePair*> prDesig : m_mapDesignators) {
+      prDesig.second->printPair(0); std::cout << std::endl;
+    }
+    
     for(std::string strID : lstDesigIDs) {
       strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + strID + "\">\n";
       strDot += "        <rdf:type rdf:resource=\"&knowrob;CRAMDesignator\"/>\n";
+      
+      if(m_mapDesignators.find(strID) != m_mapDesignators.end()) {
+	std::string strTimeCreated = m_mapDesignators[strID]->childForKey("description")->stringValue("_time_created");
+	strDot += "        <knowrob:creationTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strTimeCreated + "\"/>\n";
+      }
       
       std::list<std::string> lstSuccessorIDs = this->successorDesignatorsForID(strID);
       for(std::string strID2 : lstSuccessorIDs) {
@@ -780,10 +803,39 @@ namespace beliefstate {
 	strDot += "        <knowrob:equationTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strEquationTime + "\"/>\n";
       }
       
+      // NOTE(winkler): This is an index designator (i.e. `first in
+      // chain') when a) there are successors, and b) it does not have
+      // an equation time.
+      if(lstSuccessorIDs.size() > 0 && strEquationTime == "") {
+	strDot += "\n        <!-- This is an index designator -->\n";
+	
+	std::list<std::string> lstAllSuccessors = this->collectAllSuccessorDesignatorIDs(strID);
+	for(std::string strSuccessor : lstAllSuccessors) {
+	  strDot += "        <knowrob:equatedDesignator rdf:resource=\"&" + strNamespace + ";" + strSuccessor + "\"/>\n";
+	}
+      }
+      
       strDot += "    </owl:namedIndividual>\n\n";
     }
     
     return strDot;
+  }
+  
+  std::list<std::string> CExporterOwl::collectAllSuccessorDesignatorIDs(std::string strDesigID) {
+    std::list<std::string> lstReturn;
+    std::list<std::string> lstSuccessors = this->successorDesignatorsForID(strDesigID);
+    
+    for(std::string strSuccessor : lstSuccessors) {
+      std::list<std::string> lstSubSuccessors = this->collectAllSuccessorDesignatorIDs(strSuccessor);
+      
+      for(std::string strSubSuccessor : lstSubSuccessors) {
+	lstReturn.push_back(strSubSuccessor);
+      }
+      
+      lstReturn.push_back(strSuccessor);
+    }
+    
+    return lstReturn;
   }
   
   std::string CExporterOwl::generateFailureIndividuals(std::string strNamespace) {
@@ -1066,7 +1118,7 @@ namespace beliefstate {
     strOwl += "</rdf:RDF>\n";
     
     if(m_nThrowAndCatchFailureCounter != 0) {
-      this->warn("Throw/Catch failure counter is != 0: " + this->str(m_nThrowAndCatchFailureCounter));
+      this->warn("Throw/Catch failure counter is != 0: '" + this->str(m_nThrowAndCatchFailureCounter) + "'");
     }
     
     return strOwl;

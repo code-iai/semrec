@@ -66,6 +66,7 @@ namespace beliefstate {
     std::list<std::string> m_lstAnnotatedParameters;
     std::list<std::string> m_lstExportedObjectIndividuals;
     std::map<std::string, std::string> m_mapRegisteredOWLNamespaces;
+    std::map<std::string, CKeyValuePair*> m_mapDesignators;
     int m_nThrowAndCatchFailureCounter;
     
     void addEntity(std::string strNickname, std::string strNamespace);
@@ -93,6 +94,7 @@ namespace beliefstate {
     std::string generateImageIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace);
     std::string generateImageIndividuals(std::string strNamespace);
     std::string generateDesignatorIndividuals(std::string strNamespace);
+    std::list<std::string> collectAllSuccessorDesignatorIDs(std::string strDesigID);
     std::string generateFailureIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace);
     std::string generateFailureIndividuals(std::string strNamespace);
     std::string generateTimepointIndividuals(std::string strNamespace);
