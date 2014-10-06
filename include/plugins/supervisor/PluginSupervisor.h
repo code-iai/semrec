@@ -62,6 +62,7 @@ namespace beliefstate {
     class PLUGIN_CLASS : public Plugin {
     private:
       bool m_bFirstExperiment;
+      bool m_bCreateKnowRobSymlink;
       
     public:
       PLUGIN_CLASS();

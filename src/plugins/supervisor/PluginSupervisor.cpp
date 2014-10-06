@@ -44,6 +44,8 @@ namespace beliefstate {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_bFirstExperiment = true;
+      m_bCreateKnowRobSymlink = false;
+      
       this->setPluginVersion("0.6");
     }
     
@@ -218,13 +220,17 @@ namespace beliefstate {
 	}
 	
 	CDesignator* cdConfig = this->getIndividualConfig();
-	std::string strKnowRobOwl = cdConfig->stringValue("knowrob-symlink-path");
+	m_bCreateKnowRobSymlink = cdConfig->floatValue("create-knowrob-symlink") != 0.0f;
 	
-	if(strKnowRobOwl != "") {
-	  if(symlink(strKnowRobOwl.c_str(), string(strNewName + "knowrob.owl").c_str()) == 0) {
-	    this->info("Created KnowRob OWL symlink to: '" + strKnowRobOwl + "'");
-	  } else {
-	    this->fail("Unable to set KnowRob OWL symlink!");
+	if(m_bCreateKnowRobSymlink) {
+	  std::string strKnowRobOwl = cdConfig->stringValue("knowrob-symlink-path");
+	
+	  if(strKnowRobOwl != "") {
+	    if(symlink(strKnowRobOwl.c_str(), string(strNewName + "knowrob.owl").c_str()) == 0) {
+	      this->info("Created KnowRob OWL symlink to: '" + strKnowRobOwl + "'");
+	    } else {
+	      this->fail("Unable to set KnowRob OWL symlink!");
+	    }
 	  }
 	}
 	
