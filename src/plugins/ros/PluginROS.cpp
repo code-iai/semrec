@@ -298,7 +298,8 @@ namespace beliefstate {
 	  } else if(strCommand == "rethrow-failure") {
 	    evAlterContext.strEventName = "rethrow-failure";
 	  } else {
-	    this->warn("Unknown command when altering context: '" + strCommand + "'");
+	    this->info("Forwarding alter command: '" + strCommand + "'");
+	    evAlterContext.strEventName = strCommand;
 	  }
 	  
 	  this->waitForAssuranceToken(evAlterContext.cdDesignator->stringValue("_assurance_token"));
