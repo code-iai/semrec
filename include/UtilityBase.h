@@ -45,6 +45,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <chrono>
 
 // Private
 #include <Types.h>
@@ -57,6 +58,7 @@ namespace beliefstate {
     static bool m_bRedirectOutput;
     std::string m_strMessagePrefixLabel;
     bool m_bOnlyDisplayImportant;
+    int m_nTimeFloatingPointPrecision;
     
   public:
     UtilityBase();
@@ -86,18 +88,19 @@ namespace beliefstate {
       Replaces 'search' by 'replace' in string 'subject'.
       
       \param subject The string to search in
-      
       \param search The string to search for
-      
       \param replace The string to use as a replacement */
     void replaceStringInPlace(string& subject, const std::string& search, const std::string& replace);
     
     int getTimeStamp();
+    double getTimeStampPrecise();
     std::string getTimeStampStr();
     
     std::string str(float fValue);
     std::string str(double dValue);
     std::string str(int nValue);
+    
+    void setTimeFloatingPointPrecision(int nPrecision);
   };
 }
 
