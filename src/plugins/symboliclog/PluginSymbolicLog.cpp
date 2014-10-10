@@ -85,6 +85,11 @@ namespace beliefstate {
       this->setOffersService("symbolic-plan-tree", true);
       this->setOffersService("symbolic-plan-context", true);
       
+      CDesignator* cdConfig = this->getIndividualConfig();
+      std::string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
+      
+      this->setTimeFloatingPointPrecision((int)cdConfig->floatValue("time-precision"));
+      
       return resInit;
     }
     
