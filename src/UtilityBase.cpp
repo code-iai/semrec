@@ -142,26 +142,24 @@ namespace beliefstate {
     
     return dPreciseSeconds;
   }
+
+  std::string UtilityBase::getTimeStampStr(double dTime) {
+    char cTimeBuffer[256];
+    string strFormat = "%30." + this->str(m_nTimeFloatingPointPrecision) + "f";
+      
+    sprintf(cTimeBuffer, strFormat.c_str(), dTime);
+      
+    std::string strTime = cTimeBuffer;
+    std::stringstream stsTrimmer;
+    stsTrimmer << strTime;
+    strTime.clear();
+    stsTrimmer >> strTime;
+      
+    return strTime;
+  }
   
   std::string UtilityBase::getTimeStampStr() {
-    if(m_nTimeFloatingPointPrecision == 0) {
-      // Default case, only `int' timing information.
-      return this->str(this->getTimeStamp());
-    } else {
-      // Precision case, wants floating point time.
-      char cTimeBuffer[256];
-      string strFormat = "%30." + this->str(m_nTimeFloatingPointPrecision) + "f";
-      
-      sprintf(cTimeBuffer, strFormat.c_str(), this->getTimeStampPrecise());
-      
-      std::string strTime = cTimeBuffer;
-      std::stringstream stsTrimmer;
-      stsTrimmer << strTime;
-      strTime.clear();
-      stsTrimmer >> strTime;
-      
-      return strTime;
-    }
+    return this->getTimeStampStr(this->getTimeStampPrecise());
   }
   
   std::string UtilityBase::str(float fValue) {

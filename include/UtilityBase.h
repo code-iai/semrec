@@ -95,6 +95,7 @@ namespace beliefstate {
     int getTimeStamp();
     double getTimeStampPrecise();
     std::string getTimeStampStr();
+    std::string getTimeStampStr(double dTime);
     
     std::string str(float fValue);
     std::string str(double dValue);
