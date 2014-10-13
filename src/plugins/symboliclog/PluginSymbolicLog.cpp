@@ -85,6 +85,11 @@ namespace beliefstate {
       this->setOffersService("symbolic-plan-tree", true);
       this->setOffersService("symbolic-plan-context", true);
       
+      CDesignator* cdConfig = this->getIndividualConfig();
+      std::string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
+      
+      this->setTimeFloatingPointPrecision((int)cdConfig->floatValue("time-precision"));
+      
       return resInit;
     }
     
@@ -141,7 +146,7 @@ namespace beliefstate {
 	
 	std::string strTimeStart = this->getTimeStampStr();
 	if(evEvent.cdDesignator->childForKey("_time-start")) {
-	  strTimeStart = this->str((int)evEvent.cdDesignator->floatValue("_time-start"));
+	  strTimeStart = this->getTimeStampStr(evEvent.cdDesignator->floatValue("_time-start"));
 	}
 	
 	ndNew->metaInformation()->setValue(std::string("time-start"), strTimeStart);
@@ -188,7 +193,7 @@ namespace beliefstate {
 	    
 	    std::string strTimeEnd = this->getTimeStampStr();
 	    if(evEvent.cdDesignator->childForKey("_time-end")) {
-	      strTimeEnd = this->str((int)evEvent.cdDesignator->floatValue("_time-end"));
+	      strTimeEnd = this->getTimeStampStr(evEvent.cdDesignator->floatValue("_time-end"));
 	    }
 	    ndCurrent->metaInformation()->setValue(std::string("time-end"), strTimeEnd);
 	    

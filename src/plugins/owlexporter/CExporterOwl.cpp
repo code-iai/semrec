@@ -780,10 +780,6 @@ namespace beliefstate {
     
     std::list<std::string> lstDesigIDs = this->designatorIDs();
     
-    for(pair<std::string, CKeyValuePair*> prDesig : m_mapDesignators) {
-      prDesig.second->printPair(0); std::cout << std::endl;
-    }
-    
     for(std::string strID : lstDesigIDs) {
       strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + strID + "\">\n";
       strDot += "        <rdf:type rdf:resource=\"&knowrob;CRAMDesignator\"/>\n";

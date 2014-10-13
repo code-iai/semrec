@@ -48,6 +48,7 @@ namespace beliefstate {
     m_strMessagePrefixLabel = "";
     m_bRedirectOutput = false;
     m_bOnlyDisplayImportant = false;
+    m_nTimeFloatingPointPrecision = 0;
   }
   
   UtilityBase::~UtilityBase() {
@@ -131,9 +132,34 @@ namespace beliefstate {
   int UtilityBase::getTimeStamp() {
     return std::time(0);
   }
+
+  double UtilityBase::getTimeStampPrecise() {
+    double dPreciseSeconds;
+    
+    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
+    
+    dPreciseSeconds = ms.count() / 1000.0;
+    
+    return dPreciseSeconds;
+  }
+
+  std::string UtilityBase::getTimeStampStr(double dTime) {
+    char cTimeBuffer[256];
+    string strFormat = "%30." + this->str(m_nTimeFloatingPointPrecision) + "f";
+      
+    sprintf(cTimeBuffer, strFormat.c_str(), dTime);
+      
+    std::string strTime = cTimeBuffer;
+    std::stringstream stsTrimmer;
+    stsTrimmer << strTime;
+    strTime.clear();
+    stsTrimmer >> strTime;
+      
+    return strTime;
+  }
   
   std::string UtilityBase::getTimeStampStr() {
-    return this->str(this->getTimeStamp());
+    return this->getTimeStampStr(this->getTimeStampPrecise());
   }
   
   std::string UtilityBase::str(float fValue) {
@@ -169,5 +195,9 @@ namespace beliefstate {
   
   bool UtilityBase::onlyDisplayImportant() {
     return m_bOnlyDisplayImportant;
+  }
+  
+  void UtilityBase::setTimeFloatingPointPrecision(int nPrecision) {
+    m_nTimeFloatingPointPrecision = nPrecision;
   }
 }
