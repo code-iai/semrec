@@ -114,7 +114,9 @@ with open("training_data.arff", "wb") as f:
     
     for param in model["parameters"]:
         if param == "TAGNAME":
-            f.write("@attribute " + param + " {PICK, PERCEIVE, NAVIGATE, GRASP, PLACE}\n")
+            f.write("@attribute " + param + " {PICK, PERCEIVE, NAVIGATE, GRASP, PLACE, TEST-FIND-OBJECT}\n")
+        elif param == "OBJ-TYPE":
+            f.write("@attribute " + param + " {PANCAKEMIX, SPATULA, MUESLI, DINNERPLATE, KETCHUP}\n")
         else:
             f.write("@attribute " + param + " NUMERIC\n")
 

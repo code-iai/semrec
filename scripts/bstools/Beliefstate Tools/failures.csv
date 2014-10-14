@@ -1,0 +1,11 @@
+Runs, Failures w/o Prediction, Failures w Prediction
+2, 4, 0
+4, 9, 0
+6, 16, 2
+8, 22, 1
+10, 32, 0
+12, 34, 0
+14, 25, 0
+16, 50, 0
+18, 63, 0
+20, 47, 3
