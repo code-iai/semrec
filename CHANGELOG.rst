@@ -2,6 +2,218 @@
 Changelog for package beliefstate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Differentiate between mono and bgr
+* Also allowed manually asserted times to produce floating point individuals
+* Added gmon.out to .gitignore
+* Changed the default list of plugins to load and added symobliclog time precision
+* Added config option to the `symboliclog' plugin for floating point timepoints
+  The `symboliclog' plugin now features an individual configuration option `time-precision' that controls with which floating point precision time strings are generated. If the value is left out or set to zero, no floating point precision is generated (i.e. timepoints are integers). If a number is given, that many decimals are used for precision.
+* Removed debug output
+* Added support for optional floating point precision into time string generation
+* Fixed a build bug that would trigger pulling of 3rdparty code every time
+  Even if the code shouldn't be rebuilt (i.e. when the `built_flat' file is present), the repository for 3rdparty/json-c code would still be updated. This isn't happening anymore now.
+* Merge branch 'master' of github.com:fairlight1337/beliefstate
+* Allow alter context command forwarding
+* Add boolean flag to decide whether to set symlinks for knowrob owl files or not
+* Added information on designators: Creation time and index designators
+  `Index designators' are designators that are the head of a chain of created designators, and include at least one successor in the chain. Also, they are not a successor of another designator. All designators now have the `creationTime' field, which denotes the time they were issued for the first time.
+* Got rid of commented-out code
+* Added automatic checkout of current json-c lib, and using it in JSON class
+* Added model generation logic files
+* Updated OWL reader python class
+* Finished decision tree inversion algorithms and query interface
+  Given a set of features, the prediction plugin can now produce solutions describing which features need to be changed (and how) to get to a target result.
+* Separation of branches by target result is working nicely.
+* Further enhanced decision tree inversion, although its not complete yet
+* Fixed memory leak
+* Added copy constructor for Property class
+* Allow registration of custom namespaces for OWL file export
+* Properly handle ended contexts that are not active
+* Adapted the .dot exporter plugin so that it can handle objects in multiple nodes
+* Equipped symbolic log plugin with capabilities for concurrent timeline logging
+* Make sure internal service events called from the ROS feeder plugin are waited for
+* Removed unused functions
+* Readjusted the knowrob namespace to the correct one
+* Corrected KnowRob import IRI
+* Object references to the same object now have the same object individual
+  When objects are annotated to multiple contexts, the object IDs of these annotations are the same now. Also, no extra object individual (with unique ID) per object/context pair is created. This makes reasoning about what happened to a single object much easier and makes the resulting .owl files much more readable.
+* Properly integrated usage of the new DecisionTree class into PluginPrediction
+  The loaded decision tree models are now transparently used while predicting the outcome of a task, and the resulting relative failure occurrence (e.g. the DTree's result) is correctly fed into the prediction algorithm.
+* Moved decision tree mechanism into its own class file and adapted predict plugin
+  Since the decision tree mechanism is now a pretty general functionality, it was moved into its own class file (accompanied by a clean interface) such that it can be reused again easily. The prediction plugin uses this class for loading and evaluating decision tree models.
+* Fixed compilation issue, eased informational output of missing features/operands
+* Big update on decision trees: Loading and evaluating them works
+  Decision trees created by algorithms such as Weka's J48 can now be loaded nicely into the prediction plugin (after they were converted into a suitable JSON format, see https://gist.github.com/fairlight1337/5366de28a6ae9316715d). Given a set of (dynamic) feature variables, the trees can be evaluated and can return any given leaf class value produced.
+* Fixed a wrongly set `wait' flag that would deadlock the system
+* Completely removed ROS dependency from prediction plugin and moved model loading mechanisms into new service event infrastructure
+* Added support for tags
+* Big fix: Adjusted idle time values, solved inconsistencies
+  The idle time values were holding the system up where it was supposed to handle messages very quickly. On a conceptual level, this should not be a problem, but apparently ROS service requests get mixed up in their ordering when many of them are waiting for a ROS service to become available.
+  This effect was messing up log files, resulting in broken trees and unusable data. Putting the values down to reasonably small values (still > 0) solves that issue AND keeps CPU load below 100% on all cores. Formerly, all CPU cores would go to 100% load. Now, this only happens for one of them while the logging system is under full steam.
+* Added stack of nodes to make current stack depth easier to track
+* Adjusted the knowrob OWL namespace to the new one
+* Save JPG files rather than PNGs (reason: size)
+* Fixe some issues with response events, and reset sequence numbers
+* Properly register resetSequenceNumbers() function for global use
+* Refactored prediction mechanism so that it actually works with the new models
+* Also removed CMakeLists.txt references to C50
+* Removed obsolete C50 implementation files
+* Refactored how information is handled in the prediction plugin
+* Safety checks
+* Removed now-obsolete comment
+* Greatly enhanced synchonization mechanisms for asynchronous messages between plugins
+* Consider alter-node requests as service requests if the appropriate type flag ist set
+* Greatly enhanced action synchronization through asynchronously running plugins
+  Plugins can now effectively call each other's services __without__ using another cycle. Since all plugins run asynchronously, their can operate independently from each other.
+  Also, replaced the prediction plugin's `predict' service by a more central and generic `/service' ROS service that allows to call arbitrary plugin services and receive the results.
+* Enhanced the prediction model handling and de-/ascension
+  The prediction model structure was changed and enhanced with several bits of data. The new structure is now being used by the prediction plugin for ascension and descension to track the active state.
+* Reintroduced the global input lock for ROS service callbacks
+  To ensure that no race conditions happen, a global access mutex to all data structures accessed from ROS service callbacks is now in place. Service callbacks can now only be active one at a time, of any type (begin, alter, end context).
+* Added throw/catch failure counter for OWL export
+  When the counter is != 0 after finishing an export, the number of failure throws didn't match the number of catches. This is a serious problem in semantics and will break the resulting output, so a warning in displayed in that case. If the warning isn't shown, everything is quietly assumed to be alright.
+* Added ability to optionally set object properties (class, namespace, property)
+* Fixed a wrongly assigned 'NamedIndividual' to 'namedIndividual'
+  Under certain configurations, this would break reasoning as the named individuals don't all show up together. This is fixed now.
+* Several additions for controlling CPU time hogging for different components
+  The main cycle, the ROS spinner, and the PluginInstance class were using all CPU cores at 100% if possible. This fix should resolve that issue.
+* Added profiling options to CMakeLists.txt
+* Added explicit `taskSuccess' property to node individuals
+* Properly add timestamps to .dot output nodes
+* Hide internal values from .dot output
+* Make sure the config value is only deleted once
+* Fixed minor typo in fixed ExperimentMetaData individual name
+* Compatibility fix for newer gcc compilers
+* Additional to everything else, note down what parameter types were annotated per node
+* Two enhancements: Don't annotate unsupported parameters, and note their types
+  Custom parameter annotations in event individuals have certain types that are supported. These consist of strings and numbers at the moment. Unsupported types would up to now result in an empty annotation. This is fixed now, a warning is displayed, but no empty annotation is created in the resulting .owl file.
+  Second, an `AnnotationInformation' individual is created now. All parameter types annotated throughout the whole experiment are denoted here, allowing easy comprehension of what to pay attention to when processing custom parameters.
+* Pay attention to optionally set custom class names and namespaces when exporting
+* Pay attention to optional start and end timestamps for beginning and ending contexts
+* Updated .gitignore
+* Updated config.cfg file
+* More source code documentation
+* Finally fixed loading config files from other default locations
+* Removed Doxyfile file from .gitignore to be able to check it in
+* Documented more type entitie
+* Removed obsolete experiment-knowledge plugin
+* Added Doxyfile
+* Updated part of the code documentation
+* Fixed designator ID specialization
+  The mechanism for specializing designator IDs didn't actually set new type strings for the node name. Now, it does.
+* Added first designator id specializers by designator type
+* Added ability to decide on designator identifiers in unique ids
+* Add message upon completing initialization
+  This signals that initialization is over and logging can begin.
+* Clear root nodes in the symbolic log when the experiment starts
+* Refactored root node export to support multiple trees in one log
+  The ExperimentMetaData individual can now hold multiple subAction properties in case multiple task trees are present in the same log.
+* Include root node in meta data, unique meta data individual, version bump
+  The meta data individual now has its own unique ID. This makes sense when multiple experiments get loaded (first, to not have clashes between experiment meta data individuals, and second, to distinguish experiments better).
+  Also, the meta data now includes an own `knowrob:subAction' property that names the top-most parent node. This makes identification of the overall parent very easy, as opposed to scanning all individuals for being a subAction of any other node (which can get very time-consuming).
+  Plus, version numbers were adjusted where appropriate.
+* Made LogAnalyzer output more meaningful
+* Corrected a left-over plugin name replacement by PLUGIN_CLASS
+* Changed output of log analyzer to a more detailed version, incorporating new features
+* Print one-time notification when first log context was started
+  When suppressing messages (besides important ones), it's difficult to tell whether logging is actually active or not. Print one `important' message when the first context was begun to signal that logging is active.
+* Version string bump
+* Added more source code documentation for the main `beliefstate` class
+* Introduced feature to suppress all unnecessary text output during logging
+  The "only-display-important" config option now suppresses text output globally. This can be overridden by plugins for individual messages, and is overridden by the core altogether.
+* Added explicit interface for finding objects
+* Output readily calculated information about experiment statistics
+  Prototyping new experiment analysis methods.
+* Bugfix for OWL meta data export
+* Implemented writing experiment meta data to exported OWL files
+* Removed typo that invalidates the semantics descriptor file
+* Added support for explicit belief state updates
+* Added custom .gitignore for bstools
+* Added explicit support for motion planning and execution processes
+* Added explicit interface for object identity resolution events
+* Fixed a few bugs, added output for time categories
+* Finished first version of python bstools for analyzing logged memories
+  The toolkit analyzes the generated log-OWL-files and creates two kinds of information: A proper task tree with all timing information for all children, plus a disc-like figure from that, and a sorted list on which tasks take how long.
+* Added support for `type navigate` designator specialization, and fixed a bug
+  A nasty bug was inserting `std::string` RDF classes in the XSD namespace. This resulted from copying `string` to `std::string` in complete files. Now, that should be fixed.
+* Fixed a nasty bug that would prevent logging from continuing after taking images
+  An open request ID was preventing the logging system from going on after it took an image and saved it to the current node. This commit fixes this.
+* Fourth and last batch of major code overhaul
+  Removed all `using namespace ...` instances to make the code less namespace-pollutant (and less polluted). All `for` loops were replaced by their respective `simpler` versions where applicable (so iterators are only used explicitly when `erase` was actually used on lists).
+  Nicified lots of smaller code bits as well, making the overall code more readable.
+* Greatly simplified algorithmic code of the OWL exporter class
+* Third batch of major code cleanup
+* Second batch of namespace wiping, code nicification, and general cleanup
+* First batch of code cleanup, nicification, namespace wiping
+  Removing all `using namespace ...` directives to make the code
+  a) more compatible
+  b) less polutant
+  Also, replaced `for` loops with the correct versions when iterating over std STL containers, and removed old, unused (or commented-out) code pieces.
+* Added action designator performance specializers
+* Added functionality for properly loading timestamps of tasks, and optimize them
+* Only predict when a model was loaded
+  The prediction plugin would return errors when trying to predict without a model present. This fix circumvents this and ignores all prediction requests when no model is present, returning SUCCESS on all occasions (i.e. no failures).
+* Added ArbitraryMappingsHolder intermediate class
+  The class will hold arbitrary static configuration data, to be saved in arbitrary mapping files. These are configurable through the main config.cfg file per plugin. Also, cleaned up the linking mechanism to make linking new components easier and clearer.
+* Made symboliclog depend on imagecapturer
+  Right now, the system would block if an image is to be captured when no imagecapturer is loaded. This fixes that for now.
+* Clean up
+* Cleanup
+* Got prediction running properly, based on fixed decision tree
+  The fixed decision tree generated from training data (actually extracted from the very log files used here) properly predicts the upcoming plan errors based on active parameters provided. Plans now can predict the outcome of an action and reparameterize, until the prediction yields successful results.
+  The next step is to integrate the decision tree gneration into the prediction plugin itself.
+* Commented out unnecessary definition
+* Added a great deal of failure handling details to the symoblic log plugin
+  Failure handling (and rethrowing, in particular) was making serious problems during logging. This should, however, now be solved. Problems arose when failure handling nodes that previously were able to handle a failure tried to hand up the failure to a higher instance. The emitter/catcher mapping was then totally messed up, as the respective information was not updated accordingly.
+* Fixed issues in a `switch` statement (missing `break`s)
+* Removed unused parameter
+* Greatly enhanced prediction performance by pre-computation when loading model
+  The nodes/failures mappings (that are pretty much static throughout an experiment run) were calculated every time a prediction was triggered. With large trees, this can take up to several minutes. This is done in one step now when a new model is being loaded and is saved in a map for all future predictions, reducing the prediction time down to at most half a second.
+* Allow event notifications for nodes that have been set active
+* Set up new experiment space when the `start-new-experiment` event arises
+  The symbolic log didn't pay attention to the `start-new-experiment` event up to now, but is now clearing and initializing all of its internal data to be ready for a new experiment instance.
+* Added version of 3rdparty C5.0 algorithm for decision tree support
+* Cleaned up and fixed a few tree linearization issues
+  All probabilities are now generated correctly, plus the success rate. There still was an issue with long trees that weren't linearized correctly - and this is now solved.
+* Slightly changed how knowrob tags are exported for annotated parameters
+* Finally made predictions based on the actual probabilistic model work
+  The joint probabilities of all nodes within a prediction branch are taken into account, and the respective failure rates vs. success rates are returned to the calling plan instance.
+* Introduced support for manual parameter annotations
+  Nodes can now be manually annotated with custom parameters. These can be used for e.g. the current distance between the robot and an object in question, the goal location to navigate to, ...
+* Fixed prediction; found out why values weren't correct
+  The sub-branch predictions were multiplied with the wrong success rate, always resulting in wrong probabilities. Also, the compiler seems to be invariant betwen interators of type map<string, int> and map<string, float>. So making mistakes here isn't noticed, and can result in loss in information. This is why the success rate never changed from 1.0.
+* Predictions are happening, but something is not yet right with the values
+  The prediction tree is correctly being walked, but the collection mechanism for failures and their individual probabilities still yield weird (not so say _wrong_) values.
+* Failure deduction from node names in, prediction split up into branches.
+  Still to do: walk through sub-branches when predicting.
+* Added missing BSD headers
+* Further refined prediction tree walking, and prepared actual prediction mechanism
+* Ascending and descending the prediction tree works perfectly now
+  Even stack protected. There were problems involving weird states in which the prediction stack can get when the executed plans involve (race-condition-prone) parallel execution code, but by introducing a wildcard class `*`, this can be gotten over with.
+* Send symbolic-end-context event to all plugins for prematurely ended nodes
+* Greatly enhanced prediction module, cleaned up, Owl classes in
+  Ascent and descent inside the prediction tree/stack now works nicely. All classes inside the prediction track now refer to the correct Owl classes from the plan logs (and prediction models, thereafter).
+* Prepared walking (ascending and descending) the prediction tree
+  All consumable events are connected, and the mechanisms for accessing the prediction tree and stack are in place. Now, only accessing the proper ontology classes is missing (converting pure CRAM task names into ontology entries).
+* Added JSON and `Property` support for bs_plugin_prediction
+  JSON-based prediction models are now properly loaded from .json files and represented as `Property` data structures.
+* Prepared everything for model loading and prediction.
+  The actual format for prediction models must still be decided, but all
+  services for loading and the actual prediction are set up.
+* Extended skeleton files, filled service callbacks with more life
+* Equipped prediction plugin with services
+* Added skeleton files for prediction plugin to beliefstate
+* More fixes to linking
+  Apparently, the designator_integration/DesignatorIntegration link should
+  not be done manually, but is handled by catkin completely. Removed the
+  manually added references.
+* Fixed linking errors
+* Moved the ''findPrefixPath'' function from BeliefstateROS to Beliefstate
+  The function is not ROS specific, so it goes into the superclass where it might be useful to other functionality as well.
+* Contributors: Jan Winkler
+
 0.6.1 (2014-05-16)
 ------------------
 * Annotate nested designators with their respective IDs, and publish them
