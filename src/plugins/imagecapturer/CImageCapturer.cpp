@@ -95,7 +95,7 @@ namespace beliefstate {
       // NOTE(winkler): Is spinning actually necessary here? There is
       // another thread maintained by the ''ros'' plugin that does
       // continuous spinning. Check if this mechanism works without an
-      // epxlicit ''spinOnce'' here. This could be a reason for images
+      // explicit ''spinOnce'' here. This could be a reason for images
       // not appearing on the publishing topic.
       
       ros::spinOnce();
@@ -111,7 +111,11 @@ namespace beliefstate {
       cv_bridge::CvImagePtr cv_ptr;
       
       try {
-	cv_ptr = cv_bridge::toCvCopy(m_imgReceived, sensor_msgs::image_encodings::BGR8);
+	if(sensor_msgs::image_encodings::isColor(m_imgReceived.encoding)) {
+	  cv_ptr = cv_bridge::toCvCopy(m_imgReceived, sensor_msgs::image_encodings::BGR8);
+	} else {
+	  cv_ptr = cv_bridge::toCvCopy(m_imgReceived, sensor_msgs::image_encodings::MONO8);
+	}
 	
 	cv::Mat imgMat = cv_ptr->image;
 	std::string strUseFilename = "";
