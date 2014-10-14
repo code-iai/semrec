@@ -2,8 +2,8 @@
 Changelog for package beliefstate
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.6.2 (2014-10-14)
+------------------
 * Differentiate between mono and bgr
 * Also allowed manually asserted times to produce floating point individuals
 * Added gmon.out to .gitignore
