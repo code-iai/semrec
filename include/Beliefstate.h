@@ -54,6 +54,7 @@
 #include <Types.h>
 #include <PluginSystem.h>
 #include <UtilityBase.h>
+#include <Config.h>
 
 
 /*! \brief Main beliefstate system class

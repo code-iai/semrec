@@ -48,7 +48,7 @@ namespace beliefstate {
     m_argv = argv;
     m_bTerminalWindowResize = false;
     m_bCommandLineOutput = true;
-    m_strVersion = "0.7 iai";
+    m_strVersion = BS_VERSION_STRING;
     
     this->setRedirectOutput(false);
     
