@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(beliefstate)
 
-find_package(catkin REQUIRED COMPONENTS roscpp roslib designator_integration designator_integration_msgs sensor_msgs cv_bridge roslib interactive_markers visualization_msgs)
+find_package(catkin REQUIRED COMPONENTS roscpp roslib rospack designator_integration designator_integration_msgs sensor_msgs cv_bridge roslib interactive_markers visualization_msgs)
 
 add_subdirectory(3rdparty)
 
