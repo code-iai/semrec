@@ -308,6 +308,12 @@ namespace beliefstate {
     return resCycle;
   }
   
+  void PluginSystem::addPluginSearchPaths(std::list<std::string> lstPaths) {
+    for(std::string strPath : lstPaths) {
+      this->addPluginSearchPath(strPath);
+    }
+  }
+  
   void PluginSystem::addPluginSearchPath(std::string strPath) {
     // Make sure it is in there only once.
     m_lstPluginSearchPaths.remove(strPath);
