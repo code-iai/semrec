@@ -81,6 +81,7 @@ namespace beliefstate {
     int spreadServiceEvent(ServiceEvent seServiceEvent);
     Result cycle();
     
+    void addPluginSearchPaths(std::list<std::string> lstPaths);
     void addPluginSearchPath(std::string strPath);
     
     PluginInstance* pluginInstanceByID(int nID);

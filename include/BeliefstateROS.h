@@ -41,8 +41,12 @@
 #define __BELIEFSTATE_ROS_H__
 
 
+// System
+#include <mutex>
+
 // ROS
 #include <ros/package.h>
+#include <rospack/rospack.h>
 
 // Private
 #include <Beliefstate.h>
@@ -51,11 +55,14 @@
 namespace beliefstate {
   class BeliefstateROS : public Beliefstate {
   private:
+    std::mutex m_mtxRospackLock;
+    rospack::Rospack m_rstRospack;
+    
   public:
     BeliefstateROS(int argc, char** argv);
     ~BeliefstateROS();
     
-    virtual std::string findTokenReplacement(std::string strToken);
+    virtual std::list<std::string> findTokenReplacements(std::string strToken);
     
     /*! \brief Returns the current ROS workspace directory
       
@@ -79,7 +86,11 @@ namespace beliefstate {
       printed. The configuration file allows for manual override of
       this in case the workspace directory cannot be detected
       properly. */
-    virtual std::string workspaceDirectory();
+    virtual std::list<std::string> workspaceDirectories();
+    
+    std::string getROSPackagePath(std::string strPackageName, bool bQuiet = true);
+    std::string rospackCommand(std::string strCmd, bool bQuiet = true);
+    void crawlROS(bool bForce = false);
   };
 }
 

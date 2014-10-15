@@ -95,7 +95,7 @@ namespace beliefstate {
       the configuration file, its value is stored here. This value,
       if not empty, takes precedence over the dynamically resolved
       return value of workspaceDirectory(). */
-    std::string m_strWorkspaceDirectory;
+    std::list<std::string> m_lstWorkspaceDirectories;
     /*! \brief Mutex that controls whether terminal window resizes are
       currently being processed.
       
@@ -253,7 +253,7 @@ namespace beliefstate {
     
     void setBaseDataDirectory(std::string strBaseDataDirectory);
     std::string baseDataDirectory();
-    std::string resolveDirectoryTokens(std::string strPath);
+    std::list<std::string> resolveDirectoryTokens(std::string strPath);
     
     /*! \brief Returns the current set workspace directory
       
@@ -262,7 +262,7 @@ namespace beliefstate {
       $WORKSPACE. In this function, the directory manually set in the
       config.cfg file is returned, or an empty string if it is not set
       there. */
-    virtual std::string workspaceDirectory();
+    virtual std::list<std::string> workspaceDirectories();
     
     /*! \brief Returns the current user's home directory
       
@@ -270,10 +270,10 @@ namespace beliefstate {
       '${HOME}'. */
     std::string homeDirectory();
     
-    virtual std::string findTokenReplacement(std::string strToken);
+    virtual std::list<std::string> findTokenReplacements(std::string strToken);
     bool handleUnhandledEvent(Event evEvent);
     
-    std::string findPrefixPath(std::string strPathList, std::string strMatchingSuffix, std::string strDelimiter = ":");
+    std::list<std::string> findPrefixPaths(std::string strPathList, std::string strMatchingSuffix, std::string strDelimiter = ":");
   };
 }
 

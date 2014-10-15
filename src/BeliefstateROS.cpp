@@ -42,69 +42,91 @@
 
 namespace beliefstate {
   BeliefstateROS::BeliefstateROS(int argc, char** argv) : Beliefstate(argc, argv) {
+    this->crawlROS();
+    
     m_lstConfigFileLocations.push_back(ros::package::getPath("beliefstate"));
   }
   
   BeliefstateROS::~BeliefstateROS() {
   }
   
-  std::string BeliefstateROS::findTokenReplacement(std::string strToken) {
-    std::string strReplacement = "";
+  std::list<std::string> BeliefstateROS::findTokenReplacements(std::string strToken) {
+    std::list<std::string> lstReplacements = this->Beliefstate::findTokenReplacements(strToken);
     
     if(strToken.size() > 8) {
       if(strToken.substr(0, 8) == "PACKAGE ") {
 	std::string strPackage = strToken.substr(8);
-	  
-	strReplacement = ros::package::getPath(strPackage);
+	std::string strPackageResolved = this->getROSPackagePath(strPackage);
+	
+	if(strPackageResolved != "") {
+	  lstReplacements.push_back(strPackageResolved);
+	}
       } else if(strToken == "WORKSPACE") {
-	strReplacement = this->workspaceDirectory();
-      }
-    }
-    
-    if(strReplacement == "") {
-      strReplacement = this->Beliefstate::findTokenReplacement(strToken);
-    }
-    
-    return strReplacement;
-  }
-  
-  std::string BeliefstateROS::workspaceDirectory() {
-    std::string strWorkspaceReplacement = this->Beliefstate::workspaceDirectory();
-    
-    if(strWorkspaceReplacement == "") {
-      const char* cROSWorkspace = getenv("ROS_WORKSPACE");
-      const char* cCMAKEPrefixPath = getenv("CMAKE_PREFIX_PATH");
-      const char* cROSPackagePath = getenv("ROS_PACKAGE_PATH");
-      
-      std::string strROSWorkspace = "";
-      std::string strCMAKEPrefixPath = "";
-      std::string strROSPackagePath = "";
-      
-      if(cROSWorkspace) {
-	strROSWorkspace = cROSWorkspace;
-      }
-      
-      if(cCMAKEPrefixPath) {
-	strCMAKEPrefixPath = cCMAKEPrefixPath;
-      }
-      
-      if(cROSPackagePath) {
-	strROSPackagePath = cROSPackagePath;
-      }
-      
-      // ROS_WORKSPACE takes precedence over CMAKE_PREFIX_PATH
-      if(strROSWorkspace != "") {
-	strWorkspaceReplacement = strROSWorkspace;
-      } else {
-	// CMAKE_PREFIX_PATH takes precedence over ROS_PACKAGE_PATH
-	if(strCMAKEPrefixPath != "") {
-	  strWorkspaceReplacement = this->findPrefixPath(strCMAKEPrefixPath, "/devel");
-	} else {
-	  strWorkspaceReplacement = this->findPrefixPath(strROSPackagePath, "/src");
+	for(std::string strWorkspaceDirectory : this->workspaceDirectories()) {
+	  lstReplacements.push_back(strWorkspaceDirectory);
 	}
       }
     }
     
-    return strWorkspaceReplacement;
+    return lstReplacements;
+  }
+  
+  std::string BeliefstateROS::getROSPackagePath(std::string strPackageName, bool bQuiet) {
+    std::string strPath = "";
+    m_rstRospack.setQuiet(bQuiet);
+    m_rstRospack.find(strPackageName, strPath);
+    
+    // Scrape any newlines out of it
+    for(size_t szNewline = strPath.find('\n'); szNewline != std::string::npos; szNewline = strPath.find('\n')) {
+      strPath.erase(szNewline, 1);
+    }
+    
+    return strPath;
+  }
+  
+  void BeliefstateROS::crawlROS(bool bForce) {
+    std::vector<std::string> vecSearchPaths;
+    m_rstRospack.getSearchPathFromEnv(vecSearchPaths);
+    
+    m_rstRospack.crawl(vecSearchPaths, bForce);
+  }
+  
+  std::list<std::string> BeliefstateROS::workspaceDirectories() {
+    std::list<std::string> lstWorkspaceDirectories = this->Beliefstate::workspaceDirectories();
+    
+    const char* cROSWorkspace = getenv("ROS_WORKSPACE");
+    const char* cCMAKEPrefixPath = getenv("CMAKE_PREFIX_PATH");
+    const char* cROSPackagePath = getenv("ROS_PACKAGE_PATH");
+    
+    if(cROSWorkspace) {
+      lstWorkspaceDirectories.push_back(string(cROSWorkspace));
+    }
+    
+    std::vector<std::string> vecSearchPaths;
+    m_rstRospack.getSearchPathFromEnv(vecSearchPaths);
+    
+    for(std::string strPath : vecSearchPaths) {
+      bool bWasAdded = false;
+      
+      if(strPath.length() >= 6) {
+	if(strPath.substr(strPath.length() - 6) == "/devel") {
+	  lstWorkspaceDirectories.push_back(strPath.substr(0, strPath.length() - 6));
+	  bWasAdded = true;
+	}
+      }
+      
+      if(strPath.length() >= 4) {
+	if(strPath.substr(strPath.length() - 4) == "/src") {
+	  lstWorkspaceDirectories.push_back(strPath.substr(0, strPath.length() - 4));
+	  bWasAdded = true;
+	}
+      }
+      
+      if(!bWasAdded) {
+	lstWorkspaceDirectories.push_back(strPath);
+      }
+    }
+    
+    return lstWorkspaceDirectories;
   }
 }

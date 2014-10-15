@@ -46,7 +46,6 @@ namespace beliefstate {
     m_bRun = true;
     m_argc = argc;
     m_argv = argv;
-    m_strWorkspaceDirectory = "";
     m_bTerminalWindowResize = false;
     m_bCommandLineOutput = true;
     m_strVersion = "0.7 iai";
@@ -56,7 +55,7 @@ namespace beliefstate {
     this->setMessagePrefixLabel("core");
     
     m_lstConfigFileLocations.push_back(""); // Current directory
-    m_lstConfigFileLocations.push_back(this->resolveDirectoryTokens("${HOME}/.beliefstate/")); // Home directory
+    m_lstConfigFileLocations.merge(this->resolveDirectoryTokens("${HOME}/.beliefstate/")); // Home directory
   }
   
   Beliefstate::~Beliefstate() {
@@ -129,7 +128,7 @@ namespace beliefstate {
     }
     
     // Additional checks to make the user aware of potential problems
-    if(this->workspaceDirectory() == "") {
+    if(this->workspaceDirectories().size() == 0) {
       this->warn("The workspace directory could not be resolved. This might cause problems, especially when trying to load plugins. Please ensure that your environment is set up properly. If everything seems alright, consider to override the workspace-dependent paths in a custom file (i.e. ~/.beliefstate/config.cfg).");
     }
     
@@ -167,9 +166,18 @@ namespace beliefstate {
 	
 	if(cfgConfig.exists("miscellaneous")) {
 	  libconfig::Setting &sMiscellaneous = cfgConfig.lookup("miscellaneous");
+	  
+	  if(cfgConfig.exists("miscellaneous.workspace-directories")) {
+	    libconfig::Setting &sWSDirs = cfgConfig.lookup("miscellaneous.workspace-directories");
+	    
+	    for(int nI = 0; nI < sWSDirs.getLength(); nI++) {
+	      std::string strWSDir = sWSDirs[nI];
+	      m_lstWorkspaceDirectories.merge(this->resolveDirectoryTokens(strWSDir));
+	    }
+	  }
+	  
 	  sMiscellaneous.lookupValue("display-unhandled-events", bDisplayUnhandledEvents);
 	  sMiscellaneous.lookupValue("display-unhandled-service-events", bDisplayUnhandledServiceEvents);
-	  sMiscellaneous.lookupValue("workspace-directory", m_strWorkspaceDirectory);
 	  sMiscellaneous.lookupValue("command-line-output", m_bCommandLineOutput);
 	  sMiscellaneous.lookupValue("only-display-important-messages", m_bOnlyDisplayImportant);
 	  
@@ -188,7 +196,12 @@ namespace beliefstate {
 	if(cfgConfig.exists("persistent-data-storage")) {
 	  libconfig::Setting &sPersistentDataStorage = cfgConfig.lookup("persistent-data-storage");
 	  sPersistentDataStorage.lookupValue("base-data-directory", strBaseDataDirectory);
-	  strBaseDataDirectory = this->resolveDirectoryTokens(strBaseDataDirectory);
+	  
+	  // NOTE(winkler): This selects the first (and mostly only)
+	  // solution for the base data directory. If this produces
+	  // multiple solutions, we have to reconsider what to do
+	  // here.
+	  strBaseDataDirectory = this->resolveDirectoryTokens(strBaseDataDirectory).front();
 	  
 	  sPersistentDataStorage.lookupValue("use-mongodb", bUseMongoDB);
 	  
@@ -242,7 +255,7 @@ namespace beliefstate {
 	if(strSymlinkName == "" || strExperimentNameMask == "" || (strExperimentNameMask.find("%d") == string::npos && strExperimentNameMask.find("%s") == string::npos) || strBaseDataDirectory == "") {
 	  if(strBaseDataDirectory == "") {
 	    this->warn("The base data directory path is empty.");
-	    strBaseDataDirectory = this->resolveDirectoryTokens("${HOME}/bs_experimental_data");
+	    strBaseDataDirectory = this->resolveDirectoryTokens("${HOME}/bs_experimental_data").front();
 	    this->warn("Defaulting to: '" + strBaseDataDirectory + "'");
 	  }
 	  
@@ -292,8 +305,8 @@ namespace beliefstate {
 	    for(int nI = 0; nI < sPluginsPaths.getLength(); nI++) {
 	      std::string strPath = sPluginsPaths[nI];
 	      
-	      strPath = this->resolveDirectoryTokens(strPath);
-	      m_psPlugins->addPluginSearchPath(strPath);
+	      std::list<std::string> lstPaths = this->resolveDirectoryTokens(strPath);
+	      m_psPlugins->addPluginSearchPaths(lstPaths);
 	      
 	      bSearchPathsSet = true;
 	    }
@@ -332,10 +345,19 @@ namespace beliefstate {
 	if(bSearchPathsSet == false) {
 	  this->warn("You didn't specify any search paths. This will prevent the system");
 	  this->warn("from finding any plugins. A default will be assumed.");
-	  std::string strSP = this->resolveDirectoryTokens("$WORKSPACE/lib/");
-	  this->warn("Defaulting to: '" + strSP + "'");
+	  std::list<std::string> lstPaths = this->resolveDirectoryTokens("$WORKSPACE/lib/");
+	  std::string strPaths = "";
+	  for(std::string strPath : lstPaths) {
+	    if(strPaths != "") {
+	      strPaths += ", ";
+	    }
+	    
+	    strPaths += strPath;
+	  }
 	  
-	  m_psPlugins->addPluginSearchPath(strSP);
+	  this->warn("Defaulting to: '" + strPaths + "'");
+	  
+	  m_psPlugins->addPluginSearchPaths(lstPaths);
 	}
 	
 	if(vecPluginOutputColors.size() == 0) {
@@ -401,7 +423,13 @@ namespace beliefstate {
 	  switch(sBranch[nI].getType()) {
 	  case libconfig::Setting::TypeString: {
 	    std::string strContent = sBranch[nI];
-	    strContent = this->resolveDirectoryTokens(strContent);
+	    // NOTE(winkler): Using the first generated path
+	    // here. Additional considerations might be necessary -
+	    // and maybe it is wiser to allow the individually
+	    // configured plugins access to all solutions instead of
+	    // just the first. This will require some refactoring in
+	    // the code of the respective plugins as well, though.
+	    strContent = this->resolveDirectoryTokens(strContent).front();
 	    ckvpInto->setValue(sts.str(), strContent);
 	  } break;
 	    
@@ -432,7 +460,7 @@ namespace beliefstate {
 	  case libconfig::Setting::TypeString: {
 	    std::string strContent;
 	    sBranch.lookupValue(strConfigDetailName, strContent);
-	    strContent = this->resolveDirectoryTokens(strContent);
+	    strContent = this->resolveDirectoryTokens(strContent).front();
 	    ckvpInto->setValue(strConfigDetailName, strContent);
 	  } break;
 		      
@@ -708,8 +736,8 @@ namespace beliefstate {
     return cfgsetCurrent.strBaseDataDirectory;
   }
   
-  std::string Beliefstate::workspaceDirectory() {
-    return m_strWorkspaceDirectory;
+  std::list<std::string> Beliefstate::workspaceDirectories() {
+    return m_lstWorkspaceDirectories;
   }
   
   std::string Beliefstate::homeDirectory() {
@@ -723,7 +751,7 @@ namespace beliefstate {
     return strHome;
   }
   
-  std::string Beliefstate::resolveDirectoryTokens(std::string strSubject) {
+  std::list<std::string> Beliefstate::resolveDirectoryTokens(std::string strSubject) {
     // First, make list of things to replace
     std::list< std::pair<std::string, bool> > lstTokens;
     
@@ -769,30 +797,43 @@ namespace beliefstate {
       pos += offset;
     }
     
+    std::list<std::string> lstResolved;
+    
     for(pair<string, bool> prToken : lstTokens) {
       std::string strToken = prToken.first;
       bool bInBrackets = prToken.second;
       std::string strToReplace = (bInBrackets ? "${" + strToken + "}" : "$" + strToken);
-      std::string strReplacement = this->findTokenReplacement(strToken);
+      std::list<std::string> lstReplacements = this->findTokenReplacements(strToken);
       
-      if(strReplacement == "") {
-	this->warn("Failed to resolve directory token '" + strToken + "', asserting value \"\".");
+      if(lstReplacements.size() == 0) {
+	this->warn("Failed to resolve token '" + strToken + "', asserting empty string.");
+	
+	lstResolved.push_back("");
+      } else {
+	for(std::string strReplacement : lstReplacements) {
+	  std::string strSubjectTemp = strSubject;
+	  this->replaceStringInPlace(strSubjectTemp, strToReplace, strReplacement);
+	  
+	  lstResolved.push_back(strSubjectTemp);
+	}
       }
-      
-      this->replaceStringInPlace(strSubject, strToReplace, strReplacement);
     }
     
-    return strSubject;
+    if(lstResolved.size() == 0) {
+      lstResolved.push_back(strSubject);
+    }
+    
+    return lstResolved;
   }
   
-  std::string Beliefstate::findTokenReplacement(std::string strToken) {
-    std::string strReplacement = "";
+  std::list<std::string> Beliefstate::findTokenReplacements(std::string strToken) {
+    std::list<std::string> lstReplacements;
     
     if(strToken == "HOME") {
-      strReplacement = this->homeDirectory();
+      lstReplacements.push_back(this->homeDirectory());
     }
     
-    return strReplacement;
+    return lstReplacements;
   }
   
   bool Beliefstate::handleUnhandledEvent(Event evEvent) {
@@ -811,30 +852,32 @@ namespace beliefstate {
     return false;
   }
   
-  std::string Beliefstate::findPrefixPath(std::string strPathList, std::string strMatchingSuffix, std::string strDelimiter) {
-    std::string strPathReturn = "";
-    size_t szLastPos = 0;
-    size_t szCurrentPos = 0;
+  std::list<std::string> Beliefstate::findPrefixPaths(std::string strPathList, std::string strMatchingSuffix, std::string strDelimiter) {
+    std::list<std::string> lstPathsReturn;
     
-    if(strPathList != "") {
-      while(szLastPos != string::npos) {
-	szCurrentPos = strPathList.find(strDelimiter, szLastPos + strDelimiter.length());
-	
-	if(szCurrentPos != string::npos) {
-	  std::string strPath = strPathList.substr(szLastPos + (szLastPos != 0 ? strDelimiter.length() : 0), szCurrentPos - (szLastPos + (szLastPos == 0 ? 0 : strDelimiter.length())));
-	  
-	  if(strPath.length() >= strMatchingSuffix.length()) {
-	    if(strPath.substr(strPath.length() - strMatchingSuffix.length()) == strMatchingSuffix) {
-	      strPathReturn = this->stripPostfix(strPath, strMatchingSuffix);
-	      break;
-	    }
-	  }
+    while(strPathList.length() > 0) {
+      size_t szDelimiterPos = strPathList.find(strDelimiter);
+      std::string strCheckPart = "";
+      
+      if(szDelimiterPos != string::npos) {
+	strCheckPart = strPathList.substr(0, szDelimiterPos);
+      } else {
+	strCheckPart = strPathList;
+      }
+      
+      if(strCheckPart.length() >= strMatchingSuffix.length()) {
+	if(strCheckPart.substr(strCheckPart.length() - strMatchingSuffix.length()) == strMatchingSuffix) {
+	  lstPathsReturn.push_back(strCheckPart.substr(0, strCheckPart.length() - strMatchingSuffix.length()));
 	}
-	
-	szLastPos = szCurrentPos;
+      }
+      
+      if(szDelimiterPos != string::npos) {
+	strPathList = strPathList.substr(strCheckPart.length() + 1);
+      } else {
+	strPathList = "";
       }
     }
     
-    return strPathReturn;
+    return lstPathsReturn;
   }
 }
