@@ -5,8 +5,14 @@ find_package(catkin REQUIRED COMPONENTS roscpp roslib designator_integration des
 
 add_subdirectory(3rdparty)
 
+set(COMPILE_DEBUG 0)
+
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O2 -pg")
+  if(COMPILE_DEBUG)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -pg")
+  else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O2")
+  endif()
 endif()
 
 catkin_package(
