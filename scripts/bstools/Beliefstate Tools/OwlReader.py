@@ -88,6 +88,14 @@ class OwlIndividual:
             return tnv[0]
         
         return None
+
+    def goalContext(self):
+        tnv = self.tagNodeValues("knowrob:goalContext")
+        
+        if tnv:
+            return tnv[0]
+        
+        return None
     
     def failures(self):
         failures_pre = self.tagAttributeValues("knowrob:eventFailure", "rdf:resource")
