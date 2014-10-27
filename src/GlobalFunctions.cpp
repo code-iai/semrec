@@ -113,10 +113,8 @@ namespace beliefstate {
   }
   
   bool contextIDTaken(int nID) {
-    for(list<int>::iterator itID = g_lstContextIDs.begin();
-	itID != g_lstContextIDs.end();
-	itID++) {
-      if(*itID == nID) {
+    for(int nIDtemp : g_lstContextIDs) {
+      if(nIDtemp == nID) {
 	return true;
       }
     }
@@ -141,10 +139,8 @@ namespace beliefstate {
   }
   
   bool pluginIDTaken(int nID) {
-    for(list<int>::iterator itID = g_lstPluginIDs.begin();
-	itID != g_lstPluginIDs.end();
-	itID++) {
-      if(*itID == nID) {
+    for(int nIDtemp : g_lstPluginIDs) {
+      if(nIDtemp == nID) {
 	return true;
       }
     }
