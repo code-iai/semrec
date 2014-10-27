@@ -118,7 +118,6 @@ namespace beliefstate {
       ServiceEvent deployServiceEvent(ServiceEvent seDeploy, bool bWaitForEvent = false);
       
       std::string pluginIdentifierString(bool bBold);
-      void unimplemented(std::string strMessage);
       
       int openNewRequestID();
       bool isRequestIDOpen(int nID);

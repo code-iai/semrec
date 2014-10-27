@@ -73,12 +73,7 @@ namespace beliefstate {
     void Plugin::setPluginID(int nID) {
       m_nID = nID;
       
-      std::stringstream sts;
-      sts << this->pluginName();
-      sts << "/";
-      sts << this->pluginID();
-      
-      this->setMessagePrefixLabel(sts.str());
+      this->setMessagePrefixLabel(this->pluginName() + "/" + this->str(this->pluginID()));
     }
     
     int Plugin::pluginID() {
@@ -240,17 +235,8 @@ namespace beliefstate {
     }
     
     std::string Plugin::pluginIdentifierString(bool bBold) {
-      std::stringstream sts;
-      sts << colorSpecifierForID(this->pluginID(), bBold);
-      sts << "[" << this->pluginName() << "/";
-      sts << this->pluginID();
-      sts << "]";
-      
-      return sts.str();
-    }
-    
-    void Plugin::unimplemented(std::string strMessage) {
-      std::cout << this->pluginIdentifierString(false) << " NOT IMPLEMENTED: " << strMessage << normalColorSpecifier() << std::endl;
+      return colorSpecifierForID(this->pluginID(), bBold) +
+	"[" + this->pluginName() + "/" + this->str(this->pluginID()) + "]";
     }
     
     int Plugin::openNewRequestID() {
