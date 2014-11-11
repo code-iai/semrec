@@ -125,9 +125,6 @@ add_executable(beliefstate
   src/Beliefstate.cpp
   src/BeliefstateROS.cpp)
 
-add_dependencies(bs_plugin_ros designator_integration_generate_messages_cpp)
-add_dependencies(beliefstate designator_integration_generate_messages_cpp)
-
 target_link_libraries(beliefstate
   bs_base_plugins
   dl
