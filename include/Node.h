@@ -45,7 +45,10 @@
 #include <string>
 
 // Other
-#include <designators/CKeyValuePair.h>
+#include <designators/KeyValuePair.h>
+
+
+using namespace designator_integration;
 
 
 namespace beliefstate {
@@ -80,7 +83,7 @@ namespace beliefstate {
      This description is information set by the external system that
      triggers logging mechanisms. This is custom data and its fields
      can be set via the designator interface. */
-    std::list<CKeyValuePair*> m_lstDescription;
+    std::list<KeyValuePair*> m_lstDescription;
     /*! \brief List of this node's sub-nodes */
     std::list<Node*> m_lstSubnodes;
     /*! \brief This nide's meta information
@@ -88,7 +91,7 @@ namespace beliefstate {
      This meta-information includes when a node context was started
      and ended (timestamps), what its success value was, and similar
      meta-information. This is automatically set by the system. */
-    CKeyValuePair* m_ckvpMetaInformation;
+    KeyValuePair* m_ckvpMetaInformation;
     
     /*! \brief List of failures caught by this node, and their emitters
       
@@ -118,7 +121,7 @@ namespace beliefstate {
     Node(std::string strTitle);
     /*! \brief Constructur for generating a node given an existing
         description */
-    Node(std::list<CKeyValuePair*> lstDescription);
+    Node(std::list<KeyValuePair*> lstDescription);
     /*! \brief Destructor, cleaning up the internal node data */
     ~Node();
     
@@ -128,11 +131,11 @@ namespace beliefstate {
       lstDescription.
       
       \param lstDescription The description to replace the current one with */
-    void setDescription(std::list<CKeyValuePair*> lstDescription);
+    void setDescription(std::list<KeyValuePair*> lstDescription);
     /*! \brief Returns the node's current description
       
       \return List of key/value-pairs denoting the node's current description fields. */
-    std::list<CKeyValuePair*> description();
+    std::list<KeyValuePair*> description();
     
     /*! \brief Set this node's title
       
@@ -179,20 +182,20 @@ namespace beliefstate {
     
     bool includesUniqueID(std::string strUniqueID);
     
-    CKeyValuePair* metaInformation();
+    KeyValuePair* metaInformation();
     
     void setPrematurelyEnded(bool bPrematurelyEnded);
     bool prematurelyEnded();
     
-    CKeyValuePair* addDescriptionListItem(std::string strDomain, std::string strPrefix);
+    KeyValuePair* addDescriptionListItem(std::string strDomain, std::string strPrefix);
     std::string addImage(std::string strOrigin, std::string strFilename, std::string strTimestamp);
-    std::string addObject(std::list<CKeyValuePair*> lstDescription);
+    std::string addObject(std::list<KeyValuePair*> lstDescription);
     std::string addFailure(std::string strCondition, std::string strTimestamp);
     std::string catchFailure(std::string strFailureID, Node* ndEmitter, std::string strTimestamp);
     void removeCaughtFailure(std::string strFailureID);
     Node* emitterForCaughtFailure(std::string strFailureID, std::string strEmitterID, std::string strTimestamp);
     bool hasFailures();
-    void addDesignator(std::string strType, std::list<CKeyValuePair*> lstDescription, std::string strUniqueID, std::string strAnnotation = "");
+    void addDesignator(std::string strType, std::list<KeyValuePair*> lstDescription, std::string strUniqueID, std::string strAnnotation = "");
     
     void setSuccess(bool bSuccess);
     bool success();

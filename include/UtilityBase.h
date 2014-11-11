@@ -90,7 +90,7 @@ namespace beliefstate {
       \param subject The string to search in
       \param search The string to search for
       \param replace The string to use as a replacement */
-    void replaceStringInPlace(string& subject, const std::string& search, const std::string& replace);
+    void replaceStringInPlace(std::string& subject, const std::string& search, const std::string& replace);
     
     int getTimeStamp();
     double getTimeStampPrecise();

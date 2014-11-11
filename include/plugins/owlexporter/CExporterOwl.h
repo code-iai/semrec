@@ -66,7 +66,7 @@ namespace beliefstate {
     std::list<std::string> m_lstAnnotatedParameters;
     std::list<std::string> m_lstExportedObjectIndividuals;
     std::map<std::string, std::string> m_mapRegisteredOWLNamespaces;
-    std::map<std::string, CKeyValuePair*> m_mapDesignators;
+    std::map<std::string, KeyValuePair*> m_mapDesignators;
     int m_nThrowAndCatchFailureCounter;
     
     void addEntity(std::string strNickname, std::string strNamespace);
@@ -102,10 +102,10 @@ namespace beliefstate {
     std::string generateParameterAnnotationInformation(std::string strNamespace);
     
     std::string owlClassForNode(Node *ndNode, bool bClassOnly = false, bool bPrologSyntax = false);
-    std::string owlClassForObject(CKeyValuePair *ckvpObject);  
+    std::string owlClassForObject(KeyValuePair *ckvpObject);  
     virtual std::string nodeIDPrefix(Node* ndInQuestion, std::string strProposition);
     
-    virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);
+    virtual bool runExporter(KeyValuePair* ckvpConfigurationOverlay);
     std::string owlEscapeString(std::string strValue);
     std::string generateOwlStringForNodes(std::list<Node*> lstNodes, std::string strNamespaceID, std::string strNamespace);
     

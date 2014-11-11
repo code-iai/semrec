@@ -46,7 +46,7 @@ namespace beliefstate {
       this->addDependency("imagecapturer");
       this->setPluginVersion("0.93");
       
-      m_prLastFailure = make_pair("", (Node*)NULL);
+      m_prLastFailure = std::make_pair("", (Node*)NULL);
       
       // Random seed
       srand(time(NULL));
@@ -85,7 +85,7 @@ namespace beliefstate {
       this->setOffersService("symbolic-plan-tree", true);
       this->setOffersService("symbolic-plan-context", true);
       
-      CDesignator* cdConfig = this->getIndividualConfig();
+      Designator* cdConfig = this->getIndividualConfig();
       std::string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
       
       this->setTimeFloatingPointPrecision((int)cdConfig->floatValue("time-precision"));
@@ -260,31 +260,31 @@ namespace beliefstate {
 	    
 	    if(ndEndedPrematurely) {
 	      // Found the prematurely ended node in this branch
-	      stringstream sts;
+	      std::stringstream sts;
 	      sts << "Marking node " << nID << " as prematurely ended.";
 	      this->info(sts.str());
 	      
 	      ndEndedPrematurely->setPrematurelyEnded(true);
 	    } else {
 	      // Didn't find the prematurely ended node in this branch
-	      stringstream sts;
+	      std::stringstream sts;
 	      sts << "The apparently prematurely ended node " << nID << " was not found.";
 	      this->warn(sts.str());
 	    }
 	  }
 	} else {
-	  stringstream sts;
+	  std::stringstream sts;
 	  sts << "Received stop node designator for ID " << nID << " while in top-level.";
 	  this->warn(sts.str());
 	}
       } else if(evEvent.strEventName == "add-image-from-file") {
 	if(evEvent.cdDesignator) {
 	  if(this->activeNode()) {
-	    string strFilepath = evEvent.cdDesignator->stringValue("filename");
-	    string strTopic = evEvent.cdDesignator->stringValue("origin");
+	    std::string strFilepath = evEvent.cdDesignator->stringValue("filename");
+	    std::string strTopic = evEvent.cdDesignator->stringValue("origin");
 	    
 	    if(strFilepath != "") {
-	      string strTimeImage = this->getTimeStampStr();
+	      std::string strTimeImage = this->getTimeStampStr();
 	      
 	      Node* ndSubject = this->relativeActiveNode(evEvent);
 	      if(ndSubject) {
@@ -294,8 +294,8 @@ namespace beliefstate {
 	      
 		Event evSymbolicAddImage = defaultEvent("symbolic-add-image");
 		evSymbolicAddImage.lstNodes.push_back(ndSubject);
-		evSymbolicAddImage.cdDesignator = new CDesignator();
-		evSymbolicAddImage.cdDesignator->setType(ACTION);
+		evSymbolicAddImage.cdDesignator = new Designator();
+		evSymbolicAddImage.cdDesignator->setType(Designator::DesignatorType::ACTION);
 		evSymbolicAddImage.cdDesignator->setValue("origin", strTopic);
 		evSymbolicAddImage.cdDesignator->setValue("filename", strFilepath);
 		evSymbolicAddImage.cdDesignator->setValue("time-capture", strTimeImage);
@@ -318,21 +318,21 @@ namespace beliefstate {
 	  
 	  if(ndSubject) {
 	    // Adding a failure to a node also means to set its success state to 'false'.
-	    string strCondition = evEvent.cdDesignator->stringValue("condition");
-	    string strTimeFail = this->getTimeStampStr();
+	    std::string strCondition = evEvent.cdDesignator->stringValue("condition");
+	    std::string strTimeFail = this->getTimeStampStr();
 	    
-	    string strFailureID = ndSubject->addFailure(strCondition, strTimeFail);
+	    std::string strFailureID = ndSubject->addFailure(strCondition, strTimeFail);
 	    this->replaceStringInPlace(strFailureID, "-", "_");
 	    
-	    m_prLastFailure = make_pair(strFailureID, ndSubject);
+	    m_prLastFailure = std::make_pair(strFailureID, ndSubject);
 	    ndSubject->setSuccess(false);
 	    
 	    this->info("Added failure '" + m_prLastFailure.first + "' to active node (id " + this->str(ndSubject->id()) + "): '" + strCondition.c_str() + "'");
 	    
 	    Event evSymbAddFailure = defaultEvent("symbolic-add-failure");
 	    evSymbAddFailure.lstNodes.push_back(ndSubject);
-	    evSymbAddFailure.cdDesignator = new CDesignator();
-	    evSymbAddFailure.cdDesignator->setType(ACTION);
+	    evSymbAddFailure.cdDesignator = new Designator();
+	    evSymbAddFailure.cdDesignator->setType(Designator::DesignatorType::ACTION);
 	    evSymbAddFailure.cdDesignator->setValue("condition", strCondition);
 	    evSymbAddFailure.cdDesignator->setValue("time-fail", strTimeFail);
 	    this->deployEvent(evSymbAddFailure);
@@ -346,7 +346,7 @@ namespace beliefstate {
 	  
 	  if(ndSubject) {
 	    if(m_prLastFailure.first != "") {
-	      string strID = evEvent.cdDesignator->stringValue("context-id");
+	      std::string strID = evEvent.cdDesignator->stringValue("context-id");
 	      
 	      if(strID != "") {
 		int nID;
@@ -380,7 +380,7 @@ namespace beliefstate {
 	      m_mapFailureCatchers[m_prLastFailure.first]->removeCaughtFailure(m_prLastFailure.first);
 	      m_mapFailureCatchers[m_prLastFailure.first] = NULL;
 	      
-	      string strID = evEvent.cdDesignator->stringValue("context-id");
+	      std::string strID = evEvent.cdDesignator->stringValue("context-id");
 	      this->info("Context (ID = " + strID + ") rethrew failure '" + m_prLastFailure.first + "'");
 	    } else {
 	      this->warn("Apparently caught failure '" + m_prLastFailure.first + "' is not in failure catchers map.");
@@ -394,13 +394,13 @@ namespace beliefstate {
 	  Node* ndSubject = this->relativeActiveNode(evEvent);
 	  
 	  if(ndSubject) {
-	    string strType = evEvent.cdDesignator->stringValue("type");
-	    string strAnnotation = evEvent.cdDesignator->stringValue("annotation");
-	    string strMemAddr = evEvent.cdDesignator->stringValue("memory-address");
+	    std::string strType = evEvent.cdDesignator->stringValue("type");
+	    std::string strAnnotation = evEvent.cdDesignator->stringValue("annotation");
+	    std::string strMemAddr = evEvent.cdDesignator->stringValue("memory-address");
 	    
-	    CKeyValuePair* ckvpDesc = evEvent.cdDesignator->childForKey("description");
+	    KeyValuePair* ckvpDesc = evEvent.cdDesignator->childForKey("description");
 	    
-	    list<CKeyValuePair*> lstDescription = ckvpDesc->children();
+	    std::list<KeyValuePair*> lstDescription = ckvpDesc->children();
 	    this->ensureDesignatorPublished(lstDescription, strMemAddr, strType, strAnnotation, true, this->relativeActiveNode(evEvent));
 	  } else {
 	    this->warn("No node context available. Cannot add designator while on top-level.");
@@ -408,42 +408,42 @@ namespace beliefstate {
 	}
       } else if(evEvent.strEventName == "equate-designators") {
 	if(evEvent.cdDesignator) {
-	  string strMemAddrChild = evEvent.cdDesignator->stringValue("memory-address-child");
-	  string strMemAddrParent = evEvent.cdDesignator->stringValue("memory-address-parent");
+	  std::string strMemAddrChild = evEvent.cdDesignator->stringValue("memory-address-child");
+	  std::string strMemAddrParent = evEvent.cdDesignator->stringValue("memory-address-parent");
 	  
 	  if(strMemAddrChild != "" && strMemAddrParent != "") {
 	    Node* ndSubject = this->relativeActiveNode(evEvent);
 	    
 	    if(ndSubject) {
 	      // Check if child designator exists
-	      CKeyValuePair* ckvpDescChild = evEvent.cdDesignator->childForKey("description-child");
+	      KeyValuePair* ckvpDescChild = evEvent.cdDesignator->childForKey("description-child");
 	      
 	      if(this->ensureDesignatorPublished(ckvpDescChild->children(), strMemAddrParent, evEvent.cdDesignator->stringValue("type-child"), "", false, this->relativeActiveNode(evEvent))) {
 		this->info("Added non-existant child-designator during 'equate'");
 	      }
 	      
 	      // Check if parent designator exists
-	      CKeyValuePair* ckvpDescParent = evEvent.cdDesignator->childForKey("description-parent");
+	      KeyValuePair* ckvpDescParent = evEvent.cdDesignator->childForKey("description-parent");
 	      if(this->ensureDesignatorPublished(ckvpDescParent->children(), strMemAddrParent, evEvent.cdDesignator->stringValue("type-parent"), "", false, this->relativeActiveNode(evEvent))) {
 		this->warn("Added non-existant parent-designator during 'equate'");
 	      }
 	      
-	      CDesignator* desigChild = this->makeDesignator(evEvent.cdDesignator->stringValue("type-child"), ckvpDescChild->children());
-	      CDesignator* desigParent = this->makeDesignator(evEvent.cdDesignator->stringValue("type-parent"), ckvpDescParent->children());
+	      Designator* desigChild = this->makeDesignator(evEvent.cdDesignator->stringValue("type-child"), ckvpDescChild->children());
+	      Designator* desigParent = this->makeDesignator(evEvent.cdDesignator->stringValue("type-parent"), ckvpDescParent->children());
 	      
-	      string strEquationTime = this->equateDesignators(strMemAddrChild, desigChild, strMemAddrParent, desigParent);
+	      std::string strEquationTime = this->equateDesignators(strMemAddrChild, desigChild, strMemAddrParent, desigParent);
 	      
 	      delete desigChild;
 	      delete desigParent;
 	      
-	      string strUniqueIDParent = this->getDesignatorID(strMemAddrParent);
-	      string strUniqueIDChild = this->getDesignatorID(strMemAddrChild);
+	      std::string strUniqueIDParent = this->getDesignatorID(strMemAddrParent);
+	      std::string strUniqueIDChild = this->getDesignatorID(strMemAddrChild);
 	      
 	      this->info("Equated designators " + strUniqueIDChild + " (successor) and " + strUniqueIDParent + " (parent).");
 	      
 	      Event evEquateDesigs = defaultEvent("symbolic-equate-designators");
-	      evEquateDesigs.cdDesignator = new CDesignator();
-	      evEquateDesigs.cdDesignator->setType(ACTION);
+	      evEquateDesigs.cdDesignator = new Designator();
+	      evEquateDesigs.cdDesignator->setType(Designator::DesignatorType::ACTION);
 	      evEquateDesigs.cdDesignator->setValue("parent-id", strUniqueIDParent);
 	      evEquateDesigs.cdDesignator->setValue("child-id", strUniqueIDChild);
 	      evEquateDesigs.cdDesignator->setValue("equation-time", strEquationTime);
@@ -454,28 +454,28 @@ namespace beliefstate {
 	}
       } else if(evEvent.strEventName == "add-object") {
 	if(evEvent.cdDesignator) {
-	  CKeyValuePair* ckvpDesc = evEvent.cdDesignator->childForKey("description");
+	  KeyValuePair* ckvpDesc = evEvent.cdDesignator->childForKey("description");
 	  
 	  if(ckvpDesc) {
 	    Node* ndSubject = this->relativeActiveNode(evEvent);
 	    
 	    if(ndSubject) {
-	      string strType = evEvent.cdDesignator->stringValue("type");
-	      string strMemAddr = evEvent.cdDesignator->stringValue("memory-address");
+	      std::string strType = evEvent.cdDesignator->stringValue("type");
+	      std::string strMemAddr = evEvent.cdDesignator->stringValue("memory-address");
 	      
 	      bool bDesigExists = (this->getDesignatorID(strMemAddr) != "");
 	      
-	      CDesignator* desigCurrent = this->makeDesignator(strType, ckvpDesc->children());
-	      string strUniqueID = this->getUniqueDesignatorID(strMemAddr, desigCurrent);
+	      Designator* desigCurrent = this->makeDesignator(strType, ckvpDesc->children());
+	      std::string strUniqueID = this->getUniqueDesignatorID(strMemAddr, desigCurrent);
 	      delete desigCurrent;
 	      
 	      if(!bDesigExists) { // Object does not yet exist. Add it symbolically.
 		this->info("Adding non-existant object-designator to current context");
 		
-		CKeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description");
-		list<CKeyValuePair*> lstDescription = ckvpDesc->children();
+		KeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description");
+		std::list<KeyValuePair*> lstDescription = ckvpDesc->children();
 		
-		CDesignator* cdTemp = new CDesignator(OBJECT, lstDescription);
+		Designator* cdTemp = new Designator(Designator::DesignatorType::OBJECT, lstDescription);
 		cdTemp->setValue("_id", strUniqueID);
 		
 		// First, symbolically create the designator
@@ -486,7 +486,7 @@ namespace beliefstate {
 		
 		// Second, symbolically add it to the current event
 		Event evAddedDesignator = defaultEvent("symbolic-add-designator");
-		evAddedDesignator.cdDesignator = new CDesignator(cdTemp);
+		evAddedDesignator.cdDesignator = new Designator(cdTemp);
 		evAddedDesignator.lstNodes.push_back(ndSubject);
 		evAddedDesignator.strAnnotation = evEvent.cdDesignator->stringValue("annotation");
 		
@@ -512,7 +512,7 @@ namespace beliefstate {
 	      
 	      // Signal symbolic addition of object
 	      Event evSymAddObj = defaultEvent("symbolic-add-object");
-	      evSymAddObj.cdDesignator = new CDesignator(OBJECT, ckvpDesc);
+	      evSymAddObj.cdDesignator = new Designator(Designator::DesignatorType::OBJECT, ckvpDesc);
 	      
 	      // TODO(winkler): Okay, this is pretty hacky. Right now,
 	      // the CRAM system does not send object names. That
@@ -521,17 +521,17 @@ namespace beliefstate {
 	      evSymAddObj.cdDesignator->setValue("name", "object0");//strUniqueID);
 	      
 	      if(evSymAddObj.cdDesignator->childForKey("pose") != NULL) {
-		if(evSymAddObj.cdDesignator->childForKey("pose")->type() == POSESTAMPED) {
+		if(evSymAddObj.cdDesignator->childForKey("pose")->type() == KeyValuePair::ValueType::POSESTAMPED) {
 		  evSymAddObj.cdDesignator->setValue("pose-stamped", evSymAddObj.cdDesignator->poseStampedValue("pose"));
-		} else if(evSymAddObj.cdDesignator->childForKey("pose")->type() == POSE) {
+		} else if(evSymAddObj.cdDesignator->childForKey("pose")->type() == KeyValuePair::ValueType::POSE) {
 		  evSymAddObj.cdDesignator->setValue("pose", evSymAddObj.cdDesignator->poseStampedValue("pose"));
 		}
 	      }
 	      
-	      string strObjName = evSymAddObj.cdDesignator->stringValue("name");
+	      std::string strObjName = evSymAddObj.cdDesignator->stringValue("name");
 	      
-	      CKeyValuePair* ckvpMenu = evSymAddObj.cdDesignator->addChild("menu");
-	      CKeyValuePair* ckvpMenuPickObject = ckvpMenu->addChild("PICK-OBJECT");
+	      KeyValuePair* ckvpMenu = evSymAddObj.cdDesignator->addChild("menu");
+	      KeyValuePair* ckvpMenuPickObject = ckvpMenu->addChild("PICK-OBJECT");
 	      ckvpMenuPickObject->setValue("label", "Pick up object " + strObjName);
 	      ckvpMenuPickObject->setValue("parameter", strObjName);
 	      
@@ -558,7 +558,7 @@ namespace beliefstate {
 	m_lstDesignatorEquations.clear();
 	m_lstDesignatorEquationTimes.clear();
 	
-	m_prLastFailure = make_pair("", (Node*)NULL);
+	m_prLastFailure = std::make_pair("", (Node*)NULL);
 	
 	srand(time(NULL));
 	
@@ -568,7 +568,7 @@ namespace beliefstate {
       }
     }
     
-    Node* PLUGIN_CLASS::addNode(string strName, int nContextID, Node* ndParent) {
+    Node* PLUGIN_CLASS::addNode(std::string strName, int nContextID, Node* ndParent) {
       Node* ndNew = new Node(strName);
       ndNew->setID(nContextID);
       
@@ -642,7 +642,7 @@ namespace beliefstate {
     std::string PLUGIN_CLASS::getDesignatorID(std::string strMemoryAddress) {
       std::string strID = "";
       
-      for(pair<string, string> prPair : m_lstDesignatorIDs) {
+      for(std::pair<std::string, std::string> prPair : m_lstDesignatorIDs) {
 	if(prPair.first == strMemoryAddress) {
 	  strID = prPair.second;
 	  break;
@@ -652,21 +652,21 @@ namespace beliefstate {
       return strID;
     }
     
-    std::string PLUGIN_CLASS::getDesignatorIDType(CDesignator* desigCurrent) {
+    std::string PLUGIN_CLASS::getDesignatorIDType(Designator* desigCurrent) {
       // Specialize the designator ID type here. For now, just
       // distinguish between action, object, and location designators.
       std::string strType = "designator";
       
       switch(desigCurrent->type()) {
-      case ACTION:
+      case Designator::DesignatorType::ACTION:
 	strType = "action";
 	break;
 	
-      case OBJECT:
+      case Designator::DesignatorType::OBJECT:
 	strType = "object";
 	break;
 	
-      case LOCATION:
+      case Designator::DesignatorType::LOCATION:
 	strType = "location";
 	break;
 	
@@ -677,19 +677,19 @@ namespace beliefstate {
       return strType;
     }
     
-    std::string PLUGIN_CLASS::getUniqueDesignatorID(string strMemoryAddress, CDesignator* desigCurrent) {
-      string strID = this->getDesignatorID(strMemoryAddress);
+    std::string PLUGIN_CLASS::getUniqueDesignatorID(std::string strMemoryAddress, Designator* desigCurrent) {
+      std::string strID = this->getDesignatorID(strMemoryAddress);
       
       if(strID == "") {
 	strID = this->generateRandomIdentifier(this->getDesignatorIDType(desigCurrent) + "_", 14);
-	m_lstDesignatorIDs.push_back(make_pair(strMemoryAddress, strID));
+	m_lstDesignatorIDs.push_back(std::make_pair(strMemoryAddress, strID));
       }
       
       return strID;
     }
     
-    string PLUGIN_CLASS::generateRandomIdentifier(string strPrefix, unsigned int unLength) {
-      stringstream sts;
+    std::string PLUGIN_CLASS::generateRandomIdentifier(std::string strPrefix, unsigned int unLength) {
+      std::stringstream sts;
       sts << strPrefix;
       
       for(unsigned int unI = 0; unI < unLength; unI++) {
@@ -708,19 +708,19 @@ namespace beliefstate {
       return sts.str();
     }
     
-    string PLUGIN_CLASS::equateDesignators(std::string strMAChild, CDesignator* desigChild, std::string strMAParent, CDesignator* desigParent) {
-      string strIDChild = this->getUniqueDesignatorID(strMAChild, desigChild);
-      string strIDParent = this->getUniqueDesignatorID(strMAParent, desigParent);
+    std::string PLUGIN_CLASS::equateDesignators(std::string strMAChild, Designator* desigChild, std::string strMAParent, Designator* desigParent) {
+      std::string strIDChild = this->getUniqueDesignatorID(strMAChild, desigChild);
+      std::string strIDParent = this->getUniqueDesignatorID(strMAParent, desigParent);
       
-      string strTimeStart = this->getTimeStampStr();
+      std::string strTimeStart = this->getTimeStampStr();
       
-      m_lstDesignatorEquations.push_back(make_pair(strIDParent, strIDChild));
-      m_lstDesignatorEquationTimes.push_back(make_pair(strIDChild, strTimeStart));
+      m_lstDesignatorEquations.push_back(std::make_pair(strIDParent, strIDChild));
+      m_lstDesignatorEquationTimes.push_back(std::make_pair(strIDChild, strTimeStart));
       
       return strTimeStart;
     }
     
-    bool PLUGIN_CLASS::ensureDesignatorPublished(list<CKeyValuePair*> lstDescription, string strMemoryAddress, string strType, string strAnnotation, bool bAdd, Node* ndRelative) {
+    bool PLUGIN_CLASS::ensureDesignatorPublished(std::list<KeyValuePair*> lstDescription, std::string strMemoryAddress, std::string strType, std::string strAnnotation, bool bAdd, Node* ndRelative) {
       bool bDesigExists = (this->getDesignatorID(strMemoryAddress) != "");
       bool bReturn = false;
       bool bDeleteMe = true;
@@ -729,7 +729,7 @@ namespace beliefstate {
 	ndRelative = this->activeNode();
       }
       
-      CDesignator* desigCurrent = this->makeDesignator(strType, lstDescription);
+      Designator* desigCurrent = this->makeDesignator(strType, lstDescription);
       desigCurrent->setValue("_time_created", this->getTimeStampStr());
       
       std::string strUniqueID = this->getUniqueDesignatorID(strMemoryAddress, desigCurrent);
@@ -749,14 +749,14 @@ namespace beliefstate {
 	
 	// First, symbolically create the designator
 	Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
-	evLoggedDesignator.cdDesignator = new CDesignator(desigCurrent);
+	evLoggedDesignator.cdDesignator = new Designator(desigCurrent);
 	evLoggedDesignator.strAnnotation = strAnnotation;
 	
 	this->deployEvent(evLoggedDesignator);
 	
 	// Second, symbolically add it to the current event
 	Event evAddedDesignator = defaultEvent("symbolic-add-designator");
-	evAddedDesignator.cdDesignator = new CDesignator(desigCurrent);
+	evAddedDesignator.cdDesignator = new Designator(desigCurrent);
 	evAddedDesignator.strAnnotation = strAnnotation;
 	evAddedDesignator.lstNodes.push_back(ndRelative);
 	
@@ -777,47 +777,47 @@ namespace beliefstate {
       return bReturn;
     }
     
-    void PLUGIN_CLASS::setNestedDesignatorUniqueIDs(CKeyValuePair* ckvpParent) {
+    void PLUGIN_CLASS::setNestedDesignatorUniqueIDs(KeyValuePair* ckvpParent) {
       bool bIsDesignator = false;
-      string strMemAddr = "";
+      std::string strMemAddr = "";
       
       if(ckvpParent->childForKey("_designator_memory_address")) {
 	strMemAddr = ckvpParent->childForKey("_designator_memory_address")->stringValue();
-	CDesignator* desigCurrent = this->makeDesignator("", ckvpParent->children());
-	string strID = this->getUniqueDesignatorID(strMemAddr, desigCurrent);
+	Designator* desigCurrent = this->makeDesignator("", ckvpParent->children());
+	std::string strID = this->getUniqueDesignatorID(strMemAddr, desigCurrent);
 	delete desigCurrent;
 	
 	ckvpParent->setValue("_id", strID);
 	bIsDesignator = true;
       }
       
-      list<CKeyValuePair*> lstChildren = ckvpParent->children();
+      std::list<KeyValuePair*> lstChildren = ckvpParent->children();
       
-      for(CKeyValuePair* ckvpChild : lstChildren) {
+      for(KeyValuePair* ckvpChild : lstChildren) {
 	this->setNestedDesignatorUniqueIDs(ckvpChild);
       }
       
       if(bIsDesignator) {
-	string strTypePre = ckvpParent->stringValue("_designator_type");
-	string strType = (strTypePre == "" ? "OBJECT" : strTypePre);
+	std::string strTypePre = ckvpParent->stringValue("_designator_type");
+	std::string strType = (strTypePre == "" ? "OBJECT" : strTypePre);
 	
 	this->ensureDesignatorPublished(ckvpParent->children(), strMemAddr, strType);
       }
     }
     
-    CDesignator* PLUGIN_CLASS::makeDesignator(enum DesignatorType edtType, list<CKeyValuePair*> lstDescription) {
-      return new CDesignator(edtType, lstDescription);
+    Designator* PLUGIN_CLASS::makeDesignator(Designator::DesignatorType edtType, std::list<KeyValuePair*> lstDescription) {
+      return new Designator(edtType, lstDescription);
     }
     
-    CDesignator* PLUGIN_CLASS::makeDesignator(std::string strType, list<CKeyValuePair*> lstDescription) {
-      enum DesignatorType edtType = UNKNOWN;
+    Designator* PLUGIN_CLASS::makeDesignator(std::string strType, std::list<KeyValuePair*> lstDescription) {
+      Designator::DesignatorType edtType = Designator::DesignatorType::UNKNOWN;
       
       if(strType == "ACTION") {
-	edtType = ACTION;
+	edtType = Designator::DesignatorType::ACTION;
       } else if(strType == "OBJECT") {
-	edtType = OBJECT;
+	edtType = Designator::DesignatorType::OBJECT;
       } else if(strType == "LOCATION") {
-	edtType = LOCATION;
+	edtType = Designator::DesignatorType::LOCATION;
       }
       
       return this->makeDesignator(edtType, lstDescription);

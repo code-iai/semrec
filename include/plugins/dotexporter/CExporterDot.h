@@ -55,11 +55,11 @@ namespace beliefstate {
     CExporterDot();
     ~CExporterDot();
     
-    virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);
+    virtual bool runExporter(KeyValuePair* ckvpConfigurationOverlay);
     std::string generateDotStringForNodes(std::list<Node*> lstNodes, std::string strParentID);
     std::string generateDotImagesStringForNode(Node* ndImages);
     std::string generateDotObjectsStringForNode(Node* ndObjects);
-    std::string generateDotStringForDescription(std::list<CKeyValuePair*> lstDescription, int nTimeStart = -1, int nTimeEnd = -1);
+    std::string generateDotStringForDescription(std::list<KeyValuePair*> lstDescription, int nTimeStart = -1, int nTimeEnd = -1);
     std::string dotEscapeString(std::string strValue);
   };
 }

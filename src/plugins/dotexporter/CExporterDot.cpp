@@ -47,7 +47,7 @@ namespace beliefstate {
   CExporterDot::~CExporterDot() {
   }
   
-  bool CExporterDot::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
+  bool CExporterDot::runExporter(KeyValuePair* ckvpConfigurationOverlay) {
     this->renewUniqueIDs();
     int nMaxDetailLevel = this->configuration()->floatValue("max-detail-level");
     
@@ -69,7 +69,7 @@ namespace beliefstate {
     return false;
   }
   
-  string CExporterDot::generateDotStringForDescription(std::list<CKeyValuePair*> lstDescription, int nTimeStart, int nTimeEnd) {
+  std::string CExporterDot::generateDotStringForDescription(std::list<KeyValuePair*> lstDescription, int nTimeStart, int nTimeEnd) {
     std::string strDot = "";
     
     if(nTimeStart > -1) {
@@ -80,16 +80,16 @@ namespace beliefstate {
       strDot += "|{time-end | " + this->str(nTimeEnd) + "}";
     }
     
-    for(CKeyValuePair* ckvpCurrent : lstDescription) {
+    for(KeyValuePair* ckvpCurrent : lstDescription) {
       if(ckvpCurrent->key().at(0) != '_') {
 	std::string strValue = "?";
 	bool bEscape = true;
 	
-	if(ckvpCurrent->type() == STRING) {
+	if(ckvpCurrent->type() == KeyValuePair::ValueType::STRING) {
 	  strValue = ckvpCurrent->stringValue();
-	} else if(ckvpCurrent->type() == FLOAT) {
+	} else if(ckvpCurrent->type() == KeyValuePair::ValueType::FLOAT) {
 	  strValue = this->str(ckvpCurrent->floatValue());
-	} else if(ckvpCurrent->type() == POSE) {
+	} else if(ckvpCurrent->type() == KeyValuePair::ValueType::POSE) {
 	  bEscape = false;
 	  geometry_msgs::Pose psPose = ckvpCurrent->poseValue();
 	  std::stringstream stsPS;
@@ -103,7 +103,7 @@ namespace beliefstate {
 		<< "|{w | " << psPose.orientation.w << "}}}}";
 	
 	  strValue = stsPS.str();
-	} else if(ckvpCurrent->type() == POSESTAMPED) {
+	} else if(ckvpCurrent->type() == KeyValuePair::ValueType::POSESTAMPED) {
 	  bEscape = false;
 	  geometry_msgs::PoseStamped psPoseStamped = ckvpCurrent->poseStampedValue();
 	  std::stringstream stsPS;
@@ -192,13 +192,13 @@ namespace beliefstate {
   std::string CExporterDot::generateDotImagesStringForNode(Node *ndImages) {
     std::string strDot = "";
     
-    CKeyValuePair *ckvpImages = ndImages->metaInformation()->childForKey("images");
+    KeyValuePair *ckvpImages = ndImages->metaInformation()->childForKey("images");
     
     if(ckvpImages) {
-      list<CKeyValuePair*> lstChildren = ckvpImages->children();
+      std::list<KeyValuePair*> lstChildren = ckvpImages->children();
       
       unsigned int unIndex = 0;
-      for(CKeyValuePair* ckvpChild : lstChildren) {
+      for(KeyValuePair* ckvpChild : lstChildren) {
 	std::string strOrigin = ckvpChild->stringValue("origin");
 	std::string strFilename = ckvpChild->stringValue("filename");
 	
@@ -217,13 +217,13 @@ namespace beliefstate {
   std::string CExporterDot::generateDotObjectsStringForNode(Node *ndObjects) {
     std::string strDot = "";
     
-    CKeyValuePair *ckvpObjects = ndObjects->metaInformation()->childForKey("objects");
+    KeyValuePair *ckvpObjects = ndObjects->metaInformation()->childForKey("objects");
     
     if(ckvpObjects) {
-      std::list<CKeyValuePair*> lstChildren = ckvpObjects->children();
+      std::list<KeyValuePair*> lstChildren = ckvpObjects->children();
       
       unsigned int unIndex = 0;
-      for(CKeyValuePair* ckvpChild : lstChildren) {
+      for(KeyValuePair* ckvpChild : lstChildren) {
 	std::string strDefClass = ckvpChild->stringValue("_class");
 	std::string strDefProperty = ckvpChild->stringValue("_property");
 	
@@ -253,7 +253,7 @@ namespace beliefstate {
     return strDot;
   }
 
-  string CExporterDot::dotEscapeString(std::string strValue) {
+  std::string CExporterDot::dotEscapeString(std::string strValue) {
     strValue = this->replaceString(strValue, "\n", "\\n");
     strValue = this->replaceString(strValue, "{", "\\{");
     strValue = this->replaceString(strValue, "}", "\\}");

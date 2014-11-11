@@ -51,7 +51,7 @@
 
 namespace beliefstate {
   // File system specific functions
-  void deleteDirectory(string strPath, bool bEvenIfNonEmpty = true);
+  void deleteDirectory(std::string strPath, bool bEvenIfNonEmpty = true);
   
   // Context specific functions
   int createContextID();
@@ -75,19 +75,19 @@ namespace beliefstate {
   void freePluginID(int nID);
   
   // Output specific functions
-  string colorSpecifierForID(int nID, bool bBold = false);
-  string normalColorSpecifier();
+  std::string colorSpecifierForID(int nID, bool bBold = false);
+  std::string normalColorSpecifier();
   
   // Global config settings specific functions
   ConfigSettings configSettings();
   void setConfigSettings(ConfigSettings cfgsetSettings);
   
   // Per-Plugin configuration space accessor function
-  CDesignator* getPluginConfig(string strPluginName);
+  Designator* getPluginConfig(std::string strPluginName);
   
   void queueMessage(StatusMessage msgQueue);
-  StatusMessage queueMessage(string strColorCode, bool bBold, string strPrefix, string strMessage);
-  list<StatusMessage> queuedMessages();
+  StatusMessage queueMessage(std::string strColorCode, bool bBold, std::string strPrefix, std::string strMessage);
+  std::list<StatusMessage> queuedMessages();
   
   int nextSequenceNumber();
   void resetSequenceNumbers();

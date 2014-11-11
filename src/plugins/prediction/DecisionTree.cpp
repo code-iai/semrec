@@ -72,8 +72,8 @@ namespace beliefstate {
       std::ifstream ifFile(strFile.c_str());
       
       if(ifFile.good()) {
-	std::string strJSON((istreambuf_iterator<char>(ifFile)),
-			    (istreambuf_iterator<char>()));
+	std::string strJSON((std::istreambuf_iterator<char>(ifFile)),
+			    (std::istreambuf_iterator<char>()));
 	
 	m_jsnDecisionTree->parse(strJSON);
 	
@@ -86,7 +86,7 @@ namespace beliefstate {
     return bReturn;
   }
   
-  Property* DecisionTree::evaluate(CKeyValuePair* ckvpFeatures) {
+  Property* DecisionTree::evaluate(KeyValuePair* ckvpFeatures) {
     Property* prReturn = NULL;
     
     if(m_jsnDecisionTree) {
@@ -98,7 +98,7 @@ namespace beliefstate {
     return prReturn;
   }
   
-  bool DecisionTree::relationSatisfied(Property* prRelation, CKeyValuePair* ckvpFeatures) {
+  bool DecisionTree::relationSatisfied(Property* prRelation, KeyValuePair* ckvpFeatures) {
     // This is a relation, evaluate it
     bool bResult = false;
     Property* prOperator = NULL;
@@ -240,7 +240,7 @@ namespace beliefstate {
     return bResult;
   }
   
-  Property* DecisionTree::evaluate(Property* prTree, CKeyValuePair* ckvpFeatures) {
+  Property* DecisionTree::evaluate(Property* prTree, KeyValuePair* ckvpFeatures) {
     Property* prResult = NULL;
     
     if(prTree && ckvpFeatures) {
@@ -251,7 +251,7 @@ namespace beliefstate {
 	
 	prResult = prTree->namedSubProperty((bResult ? "true" : "false"));
 	if(prResult) {
-	  list<Property*> lstSubActions = prResult->subProperties();
+	  std::list<Property*> lstSubActions = prResult->subProperties();
 	    
 	  for(Property* prSubAction : lstSubActions) {
 	    prResult = this->evaluate(prSubAction, ckvpFeatures);
@@ -282,8 +282,8 @@ namespace beliefstate {
     return prResult;
   }
   
-  std::vector<CKeyValuePair*> DecisionTree::invert(Property* prTargetResult, CKeyValuePair* ckvpFeatures) {
-    std::vector<CKeyValuePair*> vecSolutions;
+  std::vector<KeyValuePair*> DecisionTree::invert(Property* prTargetResult, KeyValuePair* ckvpFeatures) {
+    std::vector<KeyValuePair*> vecSolutions;
     
     // First, find all branches with the target result.
     std::vector<Property*> vecSolutionsTemp = this->findBranchesWithResult(prTargetResult);
@@ -314,14 +314,14 @@ namespace beliefstate {
     
     for(std::vector<Property*> vecSolution : vecSols) {
       if(vecSolution.size() > 0) {
-	CKeyValuePair* ckvpSolution = new CKeyValuePair("solution", LIST);
+	KeyValuePair* ckvpSolution = new KeyValuePair("solution", KeyValuePair::ValueType::LIST);
       
 	for(Property* prSolutionStep : vecSolution) {
-	  CKeyValuePair* ckvpStep = new CKeyValuePair("step", LIST);
+	  KeyValuePair* ckvpStep = new KeyValuePair("step", KeyValuePair::ValueType::LIST);
 	  ckvpSolution->addChild(ckvpStep);
-	
+	  
 	  ckvpStep->setValue("relation", prSolutionStep->key());
-	
+	  
 	  std::list<std::string> lstCopyFields;
 	  lstCopyFields.push_back("variable");
 	  lstCopyFields.push_back("value");

@@ -69,7 +69,7 @@ namespace beliefstate {
     Result PLUGIN_CLASS::init(int argc, char** argv) {
       Result resInit = defaultResult();
       
-      CDesignator* cdConfig = this->getIndividualConfig();
+      Designator* cdConfig = this->getIndividualConfig();
       
       this->setSubscribedToEvent("symbolic-create-designator", true);
       this->setSubscribedToEvent("interactive-callback", true);
@@ -194,7 +194,7 @@ namespace beliefstate {
       
       // TODO(winkler): Maybe use this designator instance for the
       // events below, to not deserialize it twice.
-      CDesignator* cdDesig = new CDesignator(req.request.designator);
+      Designator* cdDesig = new Designator(req.request.designator);
       std::string strCBType = cdDesig->stringValue("_cb_type");
       delete cdDesig;
       
@@ -203,7 +203,7 @@ namespace beliefstate {
       if(strCBType == "begin") {
 	Event evBeginContext = defaultEvent("begin-context");
 	evBeginContext.nContextID = createContextID();
-	evBeginContext.cdDesignator = new CDesignator(req.request.designator);
+	evBeginContext.cdDesignator = new Designator(req.request.designator);
 	
 	std::stringstream sts;
 	sts << evBeginContext.nContextID;
@@ -211,9 +211,9 @@ namespace beliefstate {
 	this->info("Beginning context (ID = " + sts.str() + "): '" + evBeginContext.cdDesignator->stringValue("_name") + "'");
 	this->deployEvent(evBeginContext);
 	
-	CDesignator *desigResponse = new CDesignator();
-	desigResponse->setType(ACTION);
-	desigResponse->setValue(string("_id"), evBeginContext.nContextID);
+	Designator *desigResponse = new Designator();
+	desigResponse->setType(Designator::DesignatorType::ACTION);
+	desigResponse->setValue(std::string("_id"), evBeginContext.nContextID);
 	
 	res.response.designators.push_back(desigResponse->serializeToMessage());
 	delete desigResponse;
@@ -224,7 +224,7 @@ namespace beliefstate {
 	}
       } else if(strCBType == "end") {
 	Event evEndContext = defaultEvent("end-context");
-	evEndContext.cdDesignator = new CDesignator(req.request.designator);
+	evEndContext.cdDesignator = new Designator(req.request.designator);
 	
 	int nContextID = (int)evEndContext.cdDesignator->floatValue("_id");
 	std::stringstream sts;
@@ -236,7 +236,7 @@ namespace beliefstate {
 	freeContextID(nContextID);
       } else if(strCBType == "alter") {
 	Event evAlterContext = defaultEvent();
-	evAlterContext.cdDesignator = new CDesignator(req.request.designator);
+	evAlterContext.cdDesignator = new Designator(req.request.designator);
 	
 	if(evAlterContext.cdDesignator->stringValue("_type") == "service") {
 	  ServiceEvent seService = defaultServiceEvent();
@@ -357,19 +357,19 @@ namespace beliefstate {
       return evReturn;
     }
     
-    string PLUGIN_CLASS::getDesignatorTypeString(CDesignator* desigDesignator) {
+    std::string PLUGIN_CLASS::getDesignatorTypeString(Designator* desigDesignator) {
       std::string strDesigType = "UNKNOWN";
       
       switch(desigDesignator->type()) {
-      case ACTION:
+      case Designator::DesignatorType::ACTION:
 	strDesigType = "ACTION";
 	break;
 	
-      case OBJECT:
+      case Designator::DesignatorType::OBJECT:
 	strDesigType = "OBJECT";
 	break;
 	
-      case LOCATION:
+      case Designator::DesignatorType::LOCATION:
 	strDesigType = "LOCATION";
 	break;
 	

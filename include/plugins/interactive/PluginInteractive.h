@@ -54,7 +54,7 @@
 #include <interactive_markers/menu_handler.h>
 
 // Designators
-#include <designators/CDesignator.h>
+#include <designators/Designator.h>
 #include <designator_integration_msgs/DesignatorCommunication.h>
 
 // Private
@@ -69,7 +69,7 @@ namespace beliefstate {
     class PLUGIN_CLASS : public Plugin {
     private:
       interactive_markers::InteractiveMarkerServer* m_imsServer;
-      list<InteractiveObject*> m_lstInteractiveObjects;
+      std::list<InteractiveObject*> m_lstInteractiveObjects;
       
     public:
       PLUGIN_CLASS();

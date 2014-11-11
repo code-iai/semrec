@@ -47,7 +47,7 @@
 #include <fstream>
 
 // Other
-#include <designators/CKeyValuePair.h>
+#include <designators/KeyValuePair.h>
 
 // Private
 #include <Node.h>
@@ -62,18 +62,18 @@ namespace beliefstate {
     std::list< std::pair<std::string, std::string> > m_lstDesignatorIDs;
     std::list< std::pair<std::string, std::string> > m_lstDesignatorEquations;
   
-    CKeyValuePair* m_ckvpConfiguration;
+    KeyValuePair* m_ckvpConfiguration;
   
     void renewUniqueIDsForNode(Node *ndRenew);
   
   protected:
-    std::list< std::pair<string, string> > m_lstDesignatorEquationTimes;
+    std::list< std::pair<std::string, std::string> > m_lstDesignatorEquationTimes;
   
   public:
     CExporter();
     virtual ~CExporter();
     
-    CKeyValuePair* configuration();
+    KeyValuePair* configuration();
     
     void addNode(Node* ndAdd);
     std::list<Node*> nodes();
@@ -83,7 +83,7 @@ namespace beliefstate {
     
     void clearNodes();
     
-    virtual bool runExporter(CKeyValuePair* ckvpConfigurationOverlay);
+    virtual bool runExporter(KeyValuePair* ckvpConfigurationOverlay);
     
     std::string generateRandomIdentifier(std::string strPrefix, unsigned int unLength);
     std::string generateUniqueID(std::string strPrefix, unsigned int unLength);

@@ -192,7 +192,7 @@ namespace beliefstate {
       \param sBranch The libconfig Setting which denotes the current
       configuration group for the current plugin.
       
-      \param ckvpInto The CKeyValuePair instance into which the loaded
+      \param ckvpInto The KeyValuePair instance into which the loaded
       configuration branch should be parsed.
       
       \param strConfigPath The current path in the nested
@@ -204,7 +204,7 @@ namespace beliefstate {
     
       \return Boolean that signals whether loading of the individjal
       plugin configuration branch succeeded or failed. */
-    bool loadIndividualPluginConfigurationBranch(libconfig::Setting &sBranch, CKeyValuePair* ckvpInto, std::string strConfigPath = "", bool bIgnorePluginField = false);
+    bool loadIndividualPluginConfigurationBranch(libconfig::Setting &sBranch, KeyValuePair* ckvpInto, std::string strConfigPath = "", bool bIgnorePluginField = false);
     
     /*! \brief Spreads incoming system events to all subscribing plugins.
       

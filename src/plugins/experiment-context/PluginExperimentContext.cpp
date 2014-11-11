@@ -94,8 +94,8 @@ namespace beliefstate {
 	transform(strFormat.begin(), strFormat.end(), strFormat.begin(), ::tolower);
 	
 	if(strFormat == "meta") {
-	  CDesignator* cdMeta = new CDesignator();
-	  cdMeta->setType(ACTION);
+	  Designator* cdMeta = new Designator();
+	  cdMeta->setType(Designator::DesignatorType::ACTION);
 	  
 	  this->info("Experiment Context Plugin exporting meta-data");
 	  
@@ -104,9 +104,9 @@ namespace beliefstate {
 	  }
 	  
 	  ConfigSettings cfgsetCurrent = configSettings();
-	  string strMetaFile = cfgsetCurrent.strExperimentDirectory + "metadata.xml";
+	  std::string strMetaFile = cfgsetCurrent.strExperimentDirectory + "metadata.xml";
 	  
-	  string strMetaXML = "";
+	  std::string strMetaXML = "";
 	  strMetaXML += "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\n";
 	  strMetaXML += "<meta-data>\n";
 	  for(std::pair<std::string, std::string> prEntry : m_mapValues) {

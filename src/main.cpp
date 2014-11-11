@@ -45,6 +45,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <string>
 
 // Private
 #include <BeliefstateROS.h>
@@ -59,7 +60,7 @@ Handler hdlrOldSIGWINCH = SIG_IGN;
 beliefstate::BeliefstateROS* g_bsBeliefstate;
 
 
-void printHelp(string strExecutableName) {
+void printHelp(std::string strExecutableName) {
   std::cout << "Beliefstate System (version " + g_bsBeliefstate->version() + ") by Jan Winkler <winkler@cs.uni-bremen.de>" << std::endl;
   std::cout << "Licensed under BSD. https://www.github.com/fairlight1337/beliefstate" << std::endl << std::endl;
   std::cout << "Usage: " << strExecutableName << " [options]" << std::endl << std::endl;
@@ -107,11 +108,11 @@ int main(int argc, char** argv) {
   while((nC = getopt_long(argc, argv, "c:h", long_options, &option_index)) != -1) {
     switch(nC) {
     case 'c': {
-      strConfigFile = string(optarg);
+      strConfigFile = std::string(optarg);
     } break;
       
     case 'h': {
-      printHelp(string(argv[0]));
+      printHelp(std::string(argv[0]));
       bQuit = true;
     } break;
       

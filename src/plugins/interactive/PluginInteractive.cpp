@@ -132,14 +132,14 @@ namespace beliefstate {
       Result resCycle = defaultResult();
       
       for(InteractiveObject* ioCurrent : m_lstInteractiveObjects) {
-	list<InteractiveObjectCallbackResult> lstCBResults = ioCurrent->callbackResults();
+	std::list<InteractiveObjectCallbackResult> lstCBResults = ioCurrent->callbackResults();
 	
 	for(InteractiveObjectCallbackResult iocrResult : lstCBResults) {
 	  this->info("Interactive callback for object '" + iocrResult.strObject + "': '" + iocrResult.strCommand + "', '" + iocrResult.strParameter + "'");
 	  
 	  Event evCallback = defaultEvent("interactive-callback");
-	  evCallback.cdDesignator = new CDesignator();
-	  evCallback.cdDesignator->setType(ACTION);
+	  evCallback.cdDesignator = new Designator();
+	  evCallback.cdDesignator->setType(Designator::DesignatorType::ACTION);
 	  evCallback.cdDesignator->setValue("object", iocrResult.strObject);
 	  evCallback.cdDesignator->setValue("command", iocrResult.strCommand);
 	  evCallback.cdDesignator->setValue("parameter", iocrResult.strParameter);
@@ -196,11 +196,11 @@ namespace beliefstate {
 	    if(evEvent.cdDesignator->childForKey("menu") != NULL) {
 	      ioNew->clearMenuEntries();
 	      
-	      CKeyValuePair* ckvpMenu = evEvent.cdDesignator->childForKey("menu");
+	      KeyValuePair* ckvpMenu = evEvent.cdDesignator->childForKey("menu");
 	      std::list<std::string> lstMenuKeys = ckvpMenu->keys();
 	      
-	      for(string strKey : lstMenuKeys) {
-		CKeyValuePair* ckvpMenuEntry = ckvpMenu->childForKey(strKey);
+	      for(std::string strKey : lstMenuKeys) {
+		KeyValuePair* ckvpMenuEntry = ckvpMenu->childForKey(strKey);
 		std::string strLabel = ckvpMenuEntry->stringValue("label");
 		std::string strParameter = ckvpMenuEntry->stringValue("parameter");
 		
@@ -248,11 +248,11 @@ namespace beliefstate {
 	    if(ioNew) {
 	      ioNew->clearMenuEntries();
 	      
-	      CKeyValuePair* ckvpMenu = evEvent.cdDesignator->childForKey("menu");
+	      KeyValuePair* ckvpMenu = evEvent.cdDesignator->childForKey("menu");
 	      std::list<std::string> lstMenuKeys = ckvpMenu->keys();
 	      
-	      for(string strKey : lstMenuKeys) {
-		CKeyValuePair* ckvpMenuEntry = ckvpMenu->childForKey(strKey);
+	      for(std::string strKey : lstMenuKeys) {
+		KeyValuePair* ckvpMenuEntry = ckvpMenu->childForKey(strKey);
 		std::string strLabel = ckvpMenuEntry->stringValue("label");
 		std::string strParameter = ckvpMenuEntry->stringValue("parameter");
 		

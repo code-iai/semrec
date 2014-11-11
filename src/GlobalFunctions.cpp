@@ -45,7 +45,7 @@ namespace beliefstate {
   static std::list<int> g_lstPluginIDs;
   static ConfigSettings g_cfgsetSettings;
   static std::mutex g_mtxGlobalSettings;
-  static std::map<std::string, CDesignator*> g_mapPluginSettings;
+  static std::map<std::string, Designator*> g_mapPluginSettings;
   static std::mutex g_mtxStatusMessages;
   static std::list<StatusMessage> g_lstStatusMessages;
   static int g_nHighestSequenceNumber = 0;
@@ -92,7 +92,7 @@ namespace beliefstate {
     return ::remove(path);
   }
   
-  void deleteDirectory(string strPath, bool bEvenIfNonEmpty) {
+  void deleteDirectory(std::string strPath, bool bEvenIfNonEmpty) {
     if(bEvenIfNonEmpty) {
       ::nftw(strPath.c_str(), rmfile, 64, FTW_DEPTH | FTW_PHYS);
     } else {
@@ -162,7 +162,7 @@ namespace beliefstate {
     return resDefault;
   }
   
-  ServiceEvent defaultServiceEvent(string strServiceName) {
+  ServiceEvent defaultServiceEvent(std::string strServiceName) {
     ServiceEvent seDefault;
     seDefault.strServiceName = strServiceName;
     seDefault.siServiceIdentifier = SI_REQUEST;
@@ -189,7 +189,7 @@ namespace beliefstate {
     m_mtxSequenceNumberLock.unlock();
   }
   
-  Event defaultEvent(string strEventName) {
+  Event defaultEvent(std::string strEventName) {
     Event evDefault;
     evDefault.strEventName = strEventName;
     evDefault.cdDesignator = NULL;
@@ -226,7 +226,7 @@ namespace beliefstate {
     return seDefault;
   }
   
-  string colorSpecifierForID(int nID, bool bBold) {
+  std::string colorSpecifierForID(int nID, bool bBold) {
     ConfigSettings cfgSet = configSettings();
     int nLength = cfgSet.vecPluginOutputColors.size();
     int nUseIndex = (nID + 3) % nLength;
@@ -234,7 +234,7 @@ namespace beliefstate {
     return cfgSet.vecPluginOutputColors[nUseIndex];
   }
   
-  string normalColorSpecifier() {
+  std::string normalColorSpecifier() {
     return "\033[0m";
   }
   
@@ -252,14 +252,14 @@ namespace beliefstate {
     g_mtxGlobalSettings.unlock();
   }
   
-  CDesignator* getPluginConfig(string strPluginName) {
-    CDesignator* cdReturn = NULL;
-    map<string, CDesignator*>::iterator itPlugin = g_mapPluginSettings.find(strPluginName);
+  Designator* getPluginConfig(std::string strPluginName) {
+    Designator* cdReturn = NULL;
+    std::map<std::string, Designator*>::iterator itPlugin = g_mapPluginSettings.find(strPluginName);
     
     if(itPlugin != g_mapPluginSettings.end()) {
       cdReturn = (*itPlugin).second;
     } else {
-      cdReturn = new CDesignator();
+      cdReturn = new Designator();
       g_mapPluginSettings[strPluginName] = cdReturn;
     }
     
@@ -272,7 +272,7 @@ namespace beliefstate {
     g_mtxStatusMessages.unlock();
   }
   
-  StatusMessage queueMessage(string strColorCode, bool bBold, string strPrefix, string strMessage) {
+  StatusMessage queueMessage(std::string strColorCode, bool bBold, std::string strPrefix, std::string strMessage) {
     StatusMessage msgQueue;
     msgQueue.strColorCode = strColorCode;
     msgQueue.bBold = bBold;
@@ -284,9 +284,9 @@ namespace beliefstate {
     return msgQueue;
   }
   
-  list<StatusMessage> queuedMessages() {
+  std::list<StatusMessage> queuedMessages() {
     g_mtxStatusMessages.lock();
-    list<StatusMessage> lstMessages;
+    std::list<StatusMessage> lstMessages;
     
     if(g_lstStatusMessages.size() > 0) {
       lstMessages = g_lstStatusMessages;

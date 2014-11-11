@@ -78,7 +78,7 @@ namespace beliefstate {
 		  for(int nJ = 0; nJ < sFrom.getLength(); nJ++) {
 		    std::string strFrom = sFrom[nJ];
 		    
-		    m_lstFailureMapping.push_back(make_pair(strFrom, strTo));
+		    m_lstFailureMapping.push_back(std::make_pair(strFrom, strTo));
 		  }
 		}
 	      } else {
@@ -134,7 +134,7 @@ namespace beliefstate {
 	      sPurpose.lookupValue("to", strTo);
 	      
 	      if(strFrom != "" && strTo != "") {
-		m_lstAnnotationPurposeMapping.push_back(make_pair(strFrom, strTo));
+		m_lstAnnotationPurposeMapping.push_back(std::make_pair(strFrom, strTo));
 	      } else {
 		this->warn("Invalid annotation purpose mapping: '" + strFrom + "' -> '" + strTo + "'. Discarding.");
 	      }
@@ -168,7 +168,7 @@ namespace beliefstate {
     this->addEntity("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
     this->addEntity(strNamespaceID, strNamespace + "#");
     
-    for(pair<std::string, std::string> prEntity : m_mapRegisteredOWLNamespaces) {
+    for(std::pair<std::string, std::string> prEntity : m_mapRegisteredOWLNamespaces) {
       this->addEntity(prEntity.first, prEntity.second);
     }
   }
@@ -178,7 +178,7 @@ namespace beliefstate {
   }
   
   void CExporterOwl::addEntity(std::string strNickname, std::string strNamespace) {
-    m_lstEntities.push_back(make_pair(strNickname, strNamespace));
+    m_lstEntities.push_back(std::make_pair(strNickname, strNamespace));
   }
 
   std::string CExporterOwl::generateDocTypeBlock() {
@@ -280,25 +280,25 @@ namespace beliefstate {
 	lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-end"));
 	
 	// Gather failure timepoints
-	CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
+	KeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
 	
 	if(ckvpFailures) {
-	  std::list<CKeyValuePair*> lstFailures = ckvpFailures->children();
+	  std::list<KeyValuePair*> lstFailures = ckvpFailures->children();
 	  
 	  unsigned int unIndex = 0;
-	  for(CKeyValuePair* ckvpFailure : lstFailures) {
+	  for(KeyValuePair* ckvpFailure : lstFailures) {
 	    lstTimepointsSubnodes.push_back(ckvpFailure->stringValue("time-fail"));
 	  }
 	}
 	
 	// Gather image timepoints
-	CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
+	KeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
 	
 	if(ckvpImages) {
-	  std::list<CKeyValuePair*> lstImages = ckvpImages->children();
+	  std::list<KeyValuePair*> lstImages = ckvpImages->children();
 	  
 	  unsigned int unIndex = 0;
-	  for(CKeyValuePair* ckvpImage : lstImages) {
+	  for(KeyValuePair* ckvpImage : lstImages) {
 	    lstTimepointsSubnodes.push_back(ckvpImage->stringValue("time-capture"));
 	  }
 	}
@@ -309,7 +309,7 @@ namespace beliefstate {
 	}
 	
 	// Gather designator creation timepoints
-	for(pair<std::string, CKeyValuePair*> prDesig : m_mapDesignators) {
+	for(std::pair<std::string, KeyValuePair*> prDesig : m_mapDesignators) {
 	  if(prDesig.second) {
 	    if(prDesig.second->childForKey("description")) {
 	      lstTimepointsSubnodes.push_back(prDesig.second->childForKey("description")->stringValue("_time_created"));
@@ -400,15 +400,15 @@ namespace beliefstate {
 	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
 	  strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
 	  strDot += "        <knowrob:taskContext rdf:datatype=\"&xsd;string\">" + ndCurrent->title() + "</knowrob:taskContext>\n";
-	  strDot += "        <knowrob:taskSuccess rdf:datatype=\"&xsd;boolean\">" + (ndCurrent->success() ? string("true") : string("false")) + "</knowrob:taskSuccess>\n";
+	  strDot += "        <knowrob:taskSuccess rdf:datatype=\"&xsd;boolean\">" + (ndCurrent->success() ? std::string("true") : std::string("false")) + "</knowrob:taskSuccess>\n";
 	  strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-start") + "\"/>\n";
 	  strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-end") + "\"/>\n";
 	  
 	  if(ndCurrent->title() == "GOAL-ACHIEVE") {
-	    std::list<CKeyValuePair*> lstDescription = ndCurrent->description();
+	    std::list<KeyValuePair*> lstDescription = ndCurrent->description();
 	    std::string strPattern = "";
 	    
-	    for(CKeyValuePair* ckvpNow : lstDescription) {
+	    for(KeyValuePair* ckvpNow : lstDescription) {
 	      if(ckvpNow->key() == "PATTERN") {
 		strPattern = ckvpNow->stringValue();
 		break;
@@ -443,13 +443,13 @@ namespace beliefstate {
 	  }
 	  
 	  // Object references here.
-	  CKeyValuePair* ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
+	  KeyValuePair* ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
 	  
 	  if(ckvpObjects) {
-	    std::list<CKeyValuePair*> lstObjects = ckvpObjects->children();
+	    std::list<KeyValuePair*> lstObjects = ckvpObjects->children();
 	    
 	    unsigned int unIndex = 0;
-	    for(CKeyValuePair* ckvpObject : lstObjects) {
+	    for(KeyValuePair* ckvpObject : lstObjects) {
 	      std::string strDefClass = ckvpObject->stringValue("_class");
 	      std::string strDefClassNamespace = ckvpObject->stringValue("_classnamespace");
 	      std::string strDefProperty = ckvpObject->stringValue("_property");
@@ -476,13 +476,13 @@ namespace beliefstate {
 	  }
 	  
 	  // Image references here.
-	  CKeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
+	  KeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
 	  
 	  if(ckvpImages) {
-	    std::list<CKeyValuePair*> lstImages = ckvpImages->children();
+	    std::list<KeyValuePair*> lstImages = ckvpImages->children();
 	    
 	    unsigned int unIndex = 0;
-	    for(CKeyValuePair* ckvpImage : lstImages) {
+	    for(KeyValuePair* ckvpImage : lstImages) {
 	      std::stringstream sts;
 	      sts << ndCurrent->uniqueID() << "_image_" << unIndex;
 	      
@@ -491,13 +491,13 @@ namespace beliefstate {
 	  }
 	  
 	  // Failure references here.
-	  CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
+	  KeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
 	  
 	  if(ckvpFailures) {
-	    std::list<CKeyValuePair*> lstFailures = ckvpFailures->children();
+	    std::list<KeyValuePair*> lstFailures = ckvpFailures->children();
 	    
 	    unsigned int unIndex = 0;
-	    for(CKeyValuePair* ckvpFailure : lstFailures) {
+	    for(KeyValuePair* ckvpFailure : lstFailures) {
 	      std::stringstream sts;
 	      sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
 	      strDot += "        <knowrob:eventFailure rdf:resource=\"&" + strNamespace + ";" + sts.str() + "\"/>\n";
@@ -506,13 +506,13 @@ namespace beliefstate {
 	  }
 	  
 	  // Caught failure here.
-	  CKeyValuePair *ckvpCaughtFailures = ndCurrent->metaInformation()->childForKey("caught_failures");
+	  KeyValuePair *ckvpCaughtFailures = ndCurrent->metaInformation()->childForKey("caught_failures");
 	  
 	  if(ckvpCaughtFailures) {
-	    std::list<CKeyValuePair*> lstCaughtFailures = ckvpCaughtFailures->children();
+	    std::list<KeyValuePair*> lstCaughtFailures = ckvpCaughtFailures->children();
 	    
 	    unsigned int unIndex = 0;
-	    for(CKeyValuePair* ckvpCaughtFailure : lstCaughtFailures) {
+	    for(KeyValuePair* ckvpCaughtFailure : lstCaughtFailures) {
 	      Node* ndFailureEmitter = ndCurrent->emitterForCaughtFailure(ckvpCaughtFailure->stringValue("failure-id"), ckvpCaughtFailure->stringValue("emitter-id"), ckvpCaughtFailure->stringValue("time-catch"));
 	      
 	      if(ndFailureEmitter) {
@@ -526,33 +526,33 @@ namespace beliefstate {
 	  }
 	  
 	  // Designator references here.
-	  CKeyValuePair* ckvpDesignators = ndCurrent->metaInformation()->childForKey("designators");
+	  KeyValuePair* ckvpDesignators = ndCurrent->metaInformation()->childForKey("designators");
 	  
 	  if(ckvpDesignators) {
-	    std::list<CKeyValuePair*> lstDesignators = ckvpDesignators->children();
+	    std::list<KeyValuePair*> lstDesignators = ckvpDesignators->children();
 	    
 	    unsigned int unIndex = 0;
-	    for(CKeyValuePair* ckvpDesignator : lstDesignators) {
+	    for(KeyValuePair* ckvpDesignator : lstDesignators) {
 	      std::string strAnnotation = ckvpDesignator->stringValue("annotation");
 	      std::string strDesigID = ckvpDesignator->stringValue("id");
 	      
 	      m_mapDesignators[strDesigID] = ckvpDesignator;
 	      
 	      if(strAnnotation == "parameter-annotation") { // Special treatment for parameter annotations
-		CKeyValuePair* ckvpChildren = ckvpDesignator->childForKey("description");
+		KeyValuePair* ckvpChildren = ckvpDesignator->childForKey("description");
 		
 		if(ckvpChildren) {
-		  for(CKeyValuePair* ckvpChild : ckvpChildren->children()) {
+		  for(KeyValuePair* ckvpChild : ckvpChildren->children()) {
 		    std::string strKey = ckvpChild->key();
 		    std::stringstream sts;
 		    bool bSupportedType = true;
 		    
 		    switch(ckvpChild->type()) {
-		    case FLOAT:
+		    case KeyValuePair::ValueType::FLOAT:
 		      sts << ckvpChild->floatValue();
 		      break;
 		      
-		    case STRING:
+		    case KeyValuePair::ValueType::STRING:
 		      sts << ckvpChild->stringValue();
 		      break;
 		      
@@ -614,7 +614,7 @@ namespace beliefstate {
     return strDot;
   }
   
-  std::string CExporterOwl::owlClassForObject(CKeyValuePair *ckvpObject) {
+  std::string CExporterOwl::owlClassForObject(KeyValuePair *ckvpObject) {
     return "&knowrob;HumanScaleObject";
   }
   
@@ -636,13 +636,13 @@ namespace beliefstate {
     
     for(Node* ndCurrent : lstNodes) {
       if(ndCurrent) {
-	CKeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
+	KeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
 	
 	if(ckvpFailures) {
-	  std::list<CKeyValuePair*> lstFailures = ckvpFailures->children();
+	  std::list<KeyValuePair*> lstFailures = ckvpFailures->children();
 	  
 	  unsigned int unIndex = 0;
-	  for(CKeyValuePair* ckvpFailure : lstFailures) {
+	  for(KeyValuePair* ckvpFailure : lstFailures) {
 	    std::stringstream sts;
 	    sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
 	    
@@ -673,13 +673,13 @@ namespace beliefstate {
     
     for(Node* ndCurrent : lstNodes) {
       if(ndCurrent) {
-	CKeyValuePair* ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
+	KeyValuePair* ckvpObjects = ndCurrent->metaInformation()->childForKey("objects");
 	
 	if(ckvpObjects) {
-	  std::list<CKeyValuePair*> lstObjects = ckvpObjects->children();
+	  std::list<KeyValuePair*> lstObjects = ckvpObjects->children();
 	  
 	  unsigned int unIndex = 0;
-	  for(CKeyValuePair* ckvpObject : lstObjects) {
+	  for(KeyValuePair* ckvpObject : lstObjects) {
 	    std::string strDesignatorID = ckvpObject->stringValue("__id");
 	    
 	    std::string strDefClass = ckvpObject->stringValue("_class");
@@ -734,13 +734,13 @@ namespace beliefstate {
     
     for(Node* ndCurrent : lstNodes) {
       if(ndCurrent) {
-	CKeyValuePair* ckvpImages = ndCurrent->metaInformation()->childForKey("images");
+	KeyValuePair* ckvpImages = ndCurrent->metaInformation()->childForKey("images");
 	
 	if(ckvpImages) {
-	  std::list<CKeyValuePair*> lstImages = ckvpImages->children();
+	  std::list<KeyValuePair*> lstImages = ckvpImages->children();
 	  
 	  unsigned int unIndex = 0;
-	  for(CKeyValuePair* ckvpImage : lstImages) {
+	  for(KeyValuePair* ckvpImage : lstImages) {
 	    std::stringstream sts;
 	    sts << ndCurrent->uniqueID() << "_image_" << unIndex;
 	    
@@ -964,10 +964,10 @@ namespace beliefstate {
       std::string strPerformer = strName.substr(8);
       
       if(strPerformer == "ACTION-DESIGNATOR") {
-	CKeyValuePair* ckvpDescription = NULL;
-	std::list<CKeyValuePair*> lstDesc = ndNode->description();
+	KeyValuePair* ckvpDescription = NULL;
+	std::list<KeyValuePair*> lstDesc = ndNode->description();
 	
-	for(CKeyValuePair* ckvpCurrent : lstDesc) {
+	for(KeyValuePair* ckvpCurrent : lstDesc) {
 	  if(ckvpCurrent->key() == "DESCRIPTION") {
 	    ckvpDescription = ckvpCurrent;
 	    break;
@@ -1041,7 +1041,7 @@ namespace beliefstate {
     return (bClassOnly ? "" : strPrefix) + (bPrologSyntax ? "'" + strClass + "'" : strClass);
   }
   
-  bool CExporterOwl::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
+  bool CExporterOwl::runExporter(KeyValuePair* ckvpConfigurationOverlay) {
     m_lstAnnotatedParameters.clear();
     m_lstExportedObjectIndividuals.clear();
     

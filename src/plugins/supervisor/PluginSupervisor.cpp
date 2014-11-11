@@ -71,15 +71,15 @@ namespace beliefstate {
       // files (even if this is the desired output) would result in
       // a deleted directory. Shouldn't come up at the moment,
       // though.
-      CDesignator* cdIndivConfig = this->getIndividualConfig();
+      Designator* cdIndivConfig = this->getIndividualConfig();
       ConfigSettings cfgsetCurrent = configSettings();
       
-      CKeyValuePair* ckvpExtensions = cdIndivConfig->childForKey("experiment-validation-extensions");
+      KeyValuePair* ckvpExtensions = cdIndivConfig->childForKey("experiment-validation-extensions");
       
-      std::list<CKeyValuePair*> lstChildren = ckvpExtensions->children();
+      std::list<KeyValuePair*> lstChildren = ckvpExtensions->children();
       std::list<std::string> lstExtensions;
       
-      for(CKeyValuePair* ckvpChild : lstChildren) {
+      for(KeyValuePair* ckvpChild : lstChildren) {
 	lstExtensions.push_back(ckvpChild->stringValue());
       }
       
@@ -176,7 +176,7 @@ namespace beliefstate {
 	std::string strNewName;
 	std::string strNewExp;
 	
-	if(cfgsetCurrent.strExperimentNameMask.find("%d") != string::npos) {
+	if(cfgsetCurrent.strExperimentNameMask.find("%d") != std::string::npos) {
 	  int nIndex = 0;
 	  bool bExists;
 	  
@@ -189,7 +189,7 @@ namespace beliefstate {
 	    int nReturnStat = stat(strNewName.c_str(), &sb);
 	    bExists = (nReturnStat == 0);
 	  } while(bExists);
-	} else if(cfgsetCurrent.strExperimentNameMask.find("%s") != string::npos) {
+	} else if(cfgsetCurrent.strExperimentNameMask.find("%s") != std::string::npos) {
 	  std::locale::global(std::locale("en_US.utf8"));
 	  std::time_t t = std::time(NULL);
 	  char cName2[cfgsetCurrent.strExperimentNameMask.size() + 80];
@@ -205,8 +205,8 @@ namespace beliefstate {
 	setConfigSettings(cfgsetCurrent);
 	
 	Event evSetExpNameMeta = defaultEvent("set-experiment-meta-data");
-	evSetExpNameMeta.cdDesignator = new CDesignator();
-	evSetExpNameMeta.cdDesignator->setType(ACTION);
+	evSetExpNameMeta.cdDesignator = new Designator();
+	evSetExpNameMeta.cdDesignator->setType(Designator::DesignatorType::ACTION);
 	evSetExpNameMeta.cdDesignator->setValue("field", "experiment-name");
 	evSetExpNameMeta.cdDesignator->setValue("value", strNewExp);
 	this->deployEvent(evSetExpNameMeta);
@@ -219,14 +219,14 @@ namespace beliefstate {
 	  this->fail("Unable to set current experiment symlink!");
 	}
 	
-	CDesignator* cdConfig = this->getIndividualConfig();
+	Designator* cdConfig = this->getIndividualConfig();
 	m_bCreateKnowRobSymlink = cdConfig->floatValue("create-knowrob-symlink") != 0.0f;
 	
 	if(m_bCreateKnowRobSymlink) {
 	  std::string strKnowRobOwl = cdConfig->stringValue("knowrob-symlink-path");
 	
 	  if(strKnowRobOwl != "") {
-	    if(symlink(strKnowRobOwl.c_str(), string(strNewName + "knowrob.owl").c_str()) == 0) {
+	    if(symlink(strKnowRobOwl.c_str(), std::string(strNewName + "knowrob.owl").c_str()) == 0) {
 	      this->info("Created KnowRob OWL symlink to: '" + strKnowRobOwl + "'");
 	    } else {
 	      this->fail("Unable to set KnowRob OWL symlink!");

@@ -45,7 +45,7 @@ namespace beliefstate {
   }
   
   ArbitraryMappingsHolder::~ArbitraryMappingsHolder() {
-    for(CKeyValuePair* ckvpMapping : m_lstArbitraryMappings) {
+    for(KeyValuePair* ckvpMapping : m_lstArbitraryMappings) {
       delete ckvpMapping;
     }
     
@@ -92,7 +92,7 @@ namespace beliefstate {
     return false;
   }
   
-  std::list<CKeyValuePair*> ArbitraryMappingsHolder::arbitraryMappings() {
+  std::list<KeyValuePair*> ArbitraryMappingsHolder::arbitraryMappings() {
     return m_lstArbitraryMappings;
   }
 }

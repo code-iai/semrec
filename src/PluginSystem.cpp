@@ -70,7 +70,7 @@ namespace beliefstate {
     m_lstLoadedPlugins.clear();
   }
   
-  string PluginSystem::pluginNameFromPath(string strPath) {
+  std::string PluginSystem::pluginNameFromPath(std::string strPath) {
     // Remove path
     const size_t last_slash_idx = strPath.find_last_of("\\/");
     if(std::string::npos != last_slash_idx) {
@@ -141,8 +141,8 @@ namespace beliefstate {
       resLoad.bSuccess = true;
     } else {
       if(!this->pluginFailedToLoadBefore(strFilepath)) {
-	for(string strSP : lstSearchPaths) {
-	  string strSearchFilepath = strSP + (strSP[strSP.size() - 1] != '/' && strFilepath[0] != '/' && strSP.size() > 0 ? "/" : "") + strFilepath;
+	for(std::string strSP : lstSearchPaths) {
+	  std::string strSearchFilepath = strSP + (strSP[strSP.size() - 1] != '/' && strFilepath[0] != '/' && strSP.size() > 0 ? "/" : "") + strFilepath;
 	  
 	  icLoad = new PluginInstance();
 	  resLoad = icLoad->loadPluginLibrary(strSearchFilepath);
@@ -157,7 +157,7 @@ namespace beliefstate {
 	      
 	      // Check and meet dependencies
 	      std::list<std::string> lstDeps = icLoad->dependencies();
-	      for(string strDep : lstDeps) {
+	      for(std::string strDep : lstDeps) {
 		if(this->pluginLoaded(strDep) == false) {
 		  Result resLoadDep = this->loadPluginLibrary(strPrefix + strDep + strSuffix);
 		  
@@ -238,7 +238,7 @@ namespace beliefstate {
   }
   
   int PluginSystem::spreadServiceEvent(ServiceEvent seServiceEvent) {
-    list<Event> lstResultEvents;
+    std::list<Event> lstResultEvents;
     int nReceivers = 0;
     
     for(PluginInstance* piPlugin : m_lstLoadedPlugins) {

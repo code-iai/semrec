@@ -75,7 +75,7 @@ namespace beliefstate {
 	
 	if(strFormat == "dot") {
 	  ServiceEvent seGetPlanTree = defaultServiceEvent("symbolic-plan-tree");
-	  seGetPlanTree.cdDesignator = new CDesignator(evEvent.cdDesignator);
+	  seGetPlanTree.cdDesignator = new Designator(evEvent.cdDesignator);
 	  this->deployServiceEvent(seGetPlanTree);
 	}
       }
@@ -97,9 +97,9 @@ namespace beliefstate {
 		this->info("DOTExporter Plugin received plan log data. Exporting symbolic log.");
 		
 		CExporterDot* expDot = new CExporterDot();
-		expDot->configuration()->setValue(string("display-successes"), (int)seServiceEvent.cdDesignator->floatValue("show-successes"));
-		expDot->configuration()->setValue(string("display-failures"), (int)seServiceEvent.cdDesignator->floatValue("show-fails"));
-		expDot->configuration()->setValue(string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));
+		expDot->configuration()->setValue(std::string("display-successes"), (int)seServiceEvent.cdDesignator->floatValue("show-successes"));
+		expDot->configuration()->setValue(std::string("display-failures"), (int)seServiceEvent.cdDesignator->floatValue("show-fails"));
+		expDot->configuration()->setValue(std::string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));
 		
 		this->info("Using max detail level of " + this->str((int)expDot->configuration()->floatValue("max-detail-level")) + ".");
 		

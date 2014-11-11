@@ -123,7 +123,7 @@ namespace beliefstate {
   void UtilityBase::replaceStringInPlace(std::string& subject, const std::string& search, const std::string& replace) {
     size_t pos = 0;
     
-    while((pos = subject.find(search, pos)) != string::npos) {
+    while((pos = subject.find(search, pos)) != std::string::npos) {
       subject.replace(pos, search.length(), replace);
       pos += replace.length();
     }
@@ -145,7 +145,7 @@ namespace beliefstate {
 
   std::string UtilityBase::getTimeStampStr(double dTime) {
     char cTimeBuffer[256];
-    string strFormat = "%30." + this->str(m_nTimeFloatingPointPrecision) + "f";
+    std::string strFormat = "%30." + this->str(m_nTimeFloatingPointPrecision) + "f";
       
     sprintf(cTimeBuffer, strFormat.c_str(), dTime);
       

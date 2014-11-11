@@ -97,8 +97,8 @@ namespace beliefstate {
 	      this->info("Wrote image from topic '" + strTopic + "' to file '" + strFilepath + "'");
 	      
 	      Event evImage = eventInResponseTo(evEvent, "add-image-from-file");
-	      evImage.cdDesignator = new CDesignator();
-	      evImage.cdDesignator->setType(ACTION);
+	      evImage.cdDesignator = new Designator();
+	      evImage.cdDesignator->setType(Designator::DesignatorType::ACTION);
 	      evImage.cdDesignator->setValue("origin", strTopic);
 	      // NOTE(winkler): We just use the filename here, not the
 	      // global filepath. This is due to the fact that all

@@ -52,7 +52,7 @@
 #include <ros/ros.h>
 
 // Designators
-#include <designators/CDesignator.h>
+#include <designators/Designator.h>
 #include <designator_integration_msgs/DesignatorCommunication.h>
 
 // Private

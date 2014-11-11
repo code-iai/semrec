@@ -99,7 +99,7 @@ namespace beliefstate {
     const char* cROSPackagePath = getenv("ROS_PACKAGE_PATH");
     
     if(cROSWorkspace) {
-      lstWorkspaceDirectories.push_back(string(cROSWorkspace));
+      lstWorkspaceDirectories.push_back(std::string(cROSWorkspace));
     }
     
     std::vector<std::string> vecSearchPaths;

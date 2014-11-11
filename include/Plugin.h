@@ -54,6 +54,9 @@
 #include <ArbitraryMappingsHolder.h>
 
 
+using namespace designator_integration;
+
+
 namespace beliefstate {
   namespace plugins {
     class Plugin : public ArbitraryMappingsHolder {
@@ -69,7 +72,7 @@ namespace beliefstate {
     protected:
       std::list<Event> m_lstEvents;
       std::mutex m_mtxEventsStore;
-      std::list<string> m_lstSubscribedEventNames;
+      std::list<std::string> m_lstSubscribedEventNames;
       std::list<ServiceEvent> m_lstServiceEvents;
       std::mutex m_mtxServiceEventsStore;
       std::list<std::string> m_lstOfferedServices;
@@ -93,7 +96,7 @@ namespace beliefstate {
       virtual Result cycle();
       Result cycleResults();
       
-      CDesignator* getIndividualConfig();
+      Designator* getIndividualConfig();
       
       void setDevelopmentPlugin(bool bDevelopmentPlugin);
       bool developmentPlugin();

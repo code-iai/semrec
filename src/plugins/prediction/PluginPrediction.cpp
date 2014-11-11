@@ -109,11 +109,11 @@ namespace beliefstate {
       if(seEvent.siServiceIdentifier == SI_REQUEST) {
 	if(seEvent.strServiceName == "predict") {
 	  ServiceEvent seResponse = eventInResponseTo(seEvent);
-	  CDesignator* cdRequest = seEvent.cdDesignator;
+	  Designator* cdRequest = seEvent.cdDesignator;
 	  
 	  seResponse.bPreserve = true;
-	  CDesignator* cdResponse = new CDesignator();
-	  cdResponse->setType(ACTION);
+	  Designator* cdResponse = new Designator();
+	  cdResponse->setType(Designator::DesignatorType::ACTION);
 	  
 	  bool bSuccess = false;
 	  if(m_bModelLoaded) {
@@ -137,7 +137,7 @@ namespace beliefstate {
 	  seResponse.cdDesignator = cdResponse;
 	  this->deployServiceEvent(seResponse);
 	} else if(seEvent.strServiceName == "load-model") {
-	  CDesignator* cdRequest = seEvent.cdDesignator;
+	  Designator* cdRequest = seEvent.cdDesignator;
 	  
 	  if(cdRequest) {
 	    if(cdRequest->stringValue("type") == "task-tree") {
@@ -178,23 +178,23 @@ namespace beliefstate {
 	    std::string strTargetResult = seEvent.cdDesignator->stringValue("target-result");
 	    
 	    if(strTargetResult != "") {
-	      CKeyValuePair* ckvpFeatures = seEvent.cdDesignator->childForKey("features");
+	      KeyValuePair* ckvpFeatures = seEvent.cdDesignator->childForKey("features");
 	      
 	      Property* prTargetResult = new Property();
 	      prTargetResult->set(strTargetResult);
 	      
-	      vector<CKeyValuePair*> vecSolutions = m_dtDecisionTree->invert(prTargetResult, ckvpFeatures);
+	      std::vector<KeyValuePair*> vecSolutions = m_dtDecisionTree->invert(prTargetResult, ckvpFeatures);
 	      delete prTargetResult;
 	      
 	      ServiceEvent seResponse = eventInResponseTo(seEvent);
 	      seResponse.bPreserve = true;
-	      seResponse.cdDesignator = new CDesignator();
-	      seResponse.cdDesignator->setType(ACTION);
+	      seResponse.cdDesignator = new Designator();
+	      seResponse.cdDesignator->setType(Designator::DesignatorType::ACTION);
 	      
-	      CKeyValuePair* ckvpSolutions = seResponse.cdDesignator->addChild("solutions");
+	      KeyValuePair* ckvpSolutions = seResponse.cdDesignator->addChild("solutions");
 	      
 	      for(int nI = 0; nI < vecSolutions.size(); nI++) {
-		CKeyValuePair* ckvpSolution = vecSolutions.at(nI);
+		KeyValuePair* ckvpSolution = vecSolutions.at(nI);
 		
 		ckvpSolution->setKey("solution_" + this->str(nI));
 		ckvpSolutions->addChild(ckvpSolution);
@@ -245,9 +245,9 @@ namespace beliefstate {
     bool PLUGIN_CLASS::serviceCallbackLoad(designator_integration_msgs::DesignatorCommunication::Request &req, designator_integration_msgs::DesignatorCommunication::Response &res) {
       bool bSuccess = false;
       
-      CDesignator* desigRequest = new CDesignator(req.request.designator);
-      CDesignator* desigResponse = new CDesignator();
-      desigResponse->setType(ACTION);
+      Designator* desigRequest = new Designator(req.request.designator);
+      Designator* desigResponse = new Designator();
+      desigResponse->setType(Designator::DesignatorType::ACTION);
       
       if(desigRequest->stringValue("load") == "model") {
         this->info("Received Model Load Request.");
@@ -274,12 +274,12 @@ namespace beliefstate {
       return bSuccess;
     }
     
-    bool PLUGIN_CLASS::load(string strFile) {
+    bool PLUGIN_CLASS::load(std::string strFile) {
       bool bReturn = false;
       
       std::ifstream ifFile(strFile.c_str());
       if(ifFile.good()) {
-	std::string strJSON((istreambuf_iterator<char>(ifFile)), (istreambuf_iterator<char>()));
+	std::string strJSON((std::istreambuf_iterator<char>(ifFile)), (std::istreambuf_iterator<char>()));
 	
 	m_jsnModel->parse(strJSON);
 	
@@ -446,23 +446,23 @@ namespace beliefstate {
       return bResult;
     }
     
-    PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::evaluatePredictionRequest(Property* prActive, CKeyValuePair* ckvpFeatures, CKeyValuePair* ckvpRequested) {
+    PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::evaluatePredictionRequest(Property* prActive, KeyValuePair* ckvpFeatures, KeyValuePair* ckvpRequested) {
       PredictionResult presResult;
       
       // Here, the actual prediction takes place.
       std::map<std::string, double> mapEffectiveFailureRates;
       
       // Automatic tree walking
-      std::list< pair<Property*, int> > lstLinearTree = this->linearizeTree(prActive, m_lstPredictionStack.size());
-      std::list< pair<Property*, int> > lstRunTree;
+      std::list< std::pair<Property*, int> > lstLinearTree = this->linearizeTree(prActive, m_lstPredictionStack.size());
+      std::list< std::pair<Property*, int> > lstRunTree;
       double dLeftOverSuccess = 1.0f;
       
-      for(pair<Property*, int> prCurrent : lstLinearTree) {
+      for(std::pair<Property*, int> prCurrent : lstLinearTree) {
 	lstRunTree.push_back(prCurrent);
 	
 	presResult = this->probability(lstRunTree, ckvpFeatures, ckvpRequested);
 	
-	for(pair<std::string, double> prFailure : presResult.mapFailureProbabilities) {
+	for(std::pair<std::string, double> prFailure : presResult.mapFailureProbabilities) {
 	  if(mapEffectiveFailureRates.find(prFailure.first) == mapEffectiveFailureRates.end()) {
 	    mapEffectiveFailureRates[prFailure.first] = 0.0f;
 	  }
@@ -482,7 +482,7 @@ namespace beliefstate {
       return presResult;
     }
     
-    bool PLUGIN_CLASS::predict(CDesignator* cdRequest, CDesignator* cdResponse) {
+    bool PLUGIN_CLASS::predict(Designator* cdRequest, Designator* cdResponse) {
       bool bResult = false;
       
       m_mtxStackProtect.lock();
@@ -496,8 +496,8 @@ namespace beliefstate {
 	    PredictionTrack ptCurrent = m_lstPredictionStack.back();
 	    this->info("Predicting for class: '" + ptCurrent.strClass + "' at level " + this->str((int)m_lstPredictionStack.size()));
 	    
-	    CKeyValuePair* ckvpActiveFeatures = cdRequest->childForKey("active-features");
-	    CKeyValuePair* ckvpRequestedFeatures = cdRequest->childForKey("requested-features");
+	    KeyValuePair* ckvpActiveFeatures = cdRequest->childForKey("active-features");
+	    KeyValuePair* ckvpRequestedFeatures = cdRequest->childForKey("requested-features");
 	    
 	    if(ckvpActiveFeatures) {
 	      std::string strActiveFeatures = "";
@@ -533,14 +533,14 @@ namespace beliefstate {
 	    
 	    // Prepare the results for returning them.
 	    // Failure probabilities
-	    CKeyValuePair* ckvpFailureProbabilities = cdResponse->addChild("failures");
-	    for(pair<std::string, double> prFailure : presResult.mapFailureProbabilities) {
+	    KeyValuePair* ckvpFailureProbabilities = cdResponse->addChild("failures");
+	    for(std::pair<std::string, double> prFailure : presResult.mapFailureProbabilities) {
 	      ckvpFailureProbabilities->setValue(prFailure.first, prFailure.second);
 	    }
 	    
 	    // Requested feature values
-	    CKeyValuePair* ckvpRequestedFeatureValues = cdResponse->addChild("requested");
-	    for(pair<std::string, Property*> prReq : presResult.mapRequestedFeatureValues) {
+	    KeyValuePair* ckvpRequestedFeatureValues = cdResponse->addChild("requested");
+	    for(std::pair<std::string, Property*> prReq : presResult.mapRequestedFeatureValues) {
 	      ckvpRequestedFeatureValues->addChild(prReq.first, prReq.second);
 	    }
 	    
@@ -563,18 +563,18 @@ namespace beliefstate {
       return bResult;
     }
     
-    std::list< pair<Property*, int> > PLUGIN_CLASS::linearizeTree(Property* prTop, int nLevel) {
-      std::list< pair<Property*, int> > lstProps;
-      lstProps.push_back(make_pair(prTop, nLevel));
+    std::list< std::pair<Property*, int> > PLUGIN_CLASS::linearizeTree(Property* prTop, int nLevel) {
+      std::list< std::pair<Property*, int> > lstProps;
+      lstProps.push_back(std::make_pair(prTop, nLevel));
       
       Property* prSubs = prTop->namedSubProperty("subTypes");
       
       if(prSubs) {
 	for(Property* prSub : prSubs->subProperties()) {
-	  std::list< pair<Property*, int> > lstSubProps = this->linearizeTree(prSub, nLevel + 1);
+	  std::list< std::pair<Property*, int> > lstSubProps = this->linearizeTree(prSub, nLevel + 1);
 	  
-	  for(pair<Property*, int> prSubSub : lstSubProps) {
-	    lstProps.push_back(make_pair(prSubSub.first, prSubSub.second));
+	  for(std::pair<Property*, int> prSubSub : lstSubProps) {
+	    lstProps.push_back(std::make_pair(prSubSub.first, prSubSub.second));
 	  }
 	}
       }
@@ -621,7 +621,7 @@ namespace beliefstate {
       return lstEmpty;
     }
     
-    std::map<std::string, double> PLUGIN_CLASS::relativeFailuresForNode(Property* prNode, int nLevel, CKeyValuePair* ckvpFeatures) {
+    std::map<std::string, double> PLUGIN_CLASS::relativeFailuresForNode(Property* prNode, int nLevel, KeyValuePair* ckvpFeatures) {
       std::map<std::string, double> mapRelFail;
       
       if(prNode) {
@@ -631,10 +631,10 @@ namespace beliefstate {
 	// Find TAGNAME if this is a tag
 	std::string strTagName = "";
 	
-	CKeyValuePair* ckvpDesignators = m_ndActive->metaInformation()->childForKey("designators");
+	KeyValuePair* ckvpDesignators = m_ndActive->metaInformation()->childForKey("designators");
 	if(ckvpDesignators) {
-	  for(CKeyValuePair* ckvpDesignator : ckvpDesignators->children()) {
-	    CKeyValuePair* ckvpDescription = ckvpDesignator->childForKey("description");
+	  for(KeyValuePair* ckvpDesignator : ckvpDesignators->children()) {
+	    KeyValuePair* ckvpDescription = ckvpDesignator->childForKey("description");
 	    
 	    if(ckvpDescription) {
 	      strTagName = ckvpDescription->stringValue("tagname");
@@ -664,7 +664,7 @@ namespace beliefstate {
       return mapRelFail;
     }
     
-    PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::probability(std::list< pair<Property*, int> > lstSequence, CKeyValuePair* ckvpFeatures, CKeyValuePair* ckvpRequested) {
+    PLUGIN_CLASS::PredictionResult PLUGIN_CLASS::probability(std::list< std::pair<Property*, int> > lstSequence, KeyValuePair* ckvpFeatures, KeyValuePair* ckvpRequested) {
       PredictionResult presResult;
       
       // TODO(winkler): Right now, the requested features
@@ -684,7 +684,7 @@ namespace beliefstate {
 	std::map<std::string, double> mapSubFailures;
 	if(dLocalSuccess > 0.0f) { // Recursion only makes sense if we can actually reach the sub-node.
 	  // Prepare list for recursion
-	  std::list< pair<Property*, int> > lstAllButLast = lstSequence;
+	  std::list< std::pair<Property*, int> > lstAllButLast = lstSequence;
 	  lstAllButLast.pop_back();
 	  
 	  // Recurse
@@ -702,7 +702,7 @@ namespace beliefstate {
 	double dLocalSuccessDelta = 0.0f;
 	
 	// Add the failures from CHILD node
-	for(pair<std::string, double> prFailure : mapSubFailures) {
+	for(std::pair<std::string, double> prFailure : mapSubFailures) {
 	  presResult.mapFailureProbabilities[prFailure.first] = prFailure.second * dLocalSuccess;
 	  dLocalSuccessDelta += presResult.mapFailureProbabilities[prFailure.first];
 	}
@@ -721,7 +721,7 @@ namespace beliefstate {
       return m_dtDecisionTree->load(strPath);
     }
     
-    Property* PLUGIN_CLASS::evaluateDecisionTree(CKeyValuePair* ckvpFeatures) {
+    Property* PLUGIN_CLASS::evaluateDecisionTree(KeyValuePair* ckvpFeatures) {
       return m_dtDecisionTree->evaluate(ckvpFeatures);
     }
   }

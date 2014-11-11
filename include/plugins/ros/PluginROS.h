@@ -59,7 +59,7 @@
 #include <ros/callback_queue.h>
 
 // Designators
-#include <designators/CDesignator.h>
+#include <designators/Designator.h>
 #include <designator_integration_msgs/DesignatorCommunication.h>
 
 // Private
@@ -109,7 +109,7 @@ namespace beliefstate {
       virtual void consumeEvent(Event evEvent);
       virtual Event consumeServiceEvent(ServiceEvent seServiceEvent);
       
-      std::string getDesignatorTypeString(CDesignator* desigDesignator);
+      std::string getDesignatorTypeString(Designator* desigDesignator);
       
       void waitForAssuranceToken(std::string strToken);
     };

@@ -84,14 +84,14 @@ namespace beliefstate {
 	    }
 	    
 	    ServiceEvent seGetPlanTree = defaultServiceEvent("symbolic-plan-tree");
-	    seGetPlanTree.cdDesignator = new CDesignator(evEvent.cdDesignator);
+	    seGetPlanTree.cdDesignator = new Designator(evEvent.cdDesignator);
 	    this->deployServiceEvent(seGetPlanTree);
 	  }
 	}
       } else if(evEvent.strEventName == "experiment-start") {
 	Event evSendOwlExporterVersion = defaultEvent("set-experiment-meta-data");
-	evSendOwlExporterVersion.cdDesignator = new CDesignator();
-	evSendOwlExporterVersion.cdDesignator->setType(ACTION);
+	evSendOwlExporterVersion.cdDesignator = new Designator();
+	evSendOwlExporterVersion.cdDesignator->setType(Designator::DesignatorType::ACTION);
 	
 	evSendOwlExporterVersion.cdDesignator->setValue("field", "owl-exporter-version");
 	evSendOwlExporterVersion.cdDesignator->setValue("value", this->pluginVersion());
@@ -146,7 +146,7 @@ namespace beliefstate {
 		CExporterOwl* expOwl = new CExporterOwl();
 		expOwl->setMetaData(m_mapMetaData);
 		
-		CDesignator* cdConfig = this->getIndividualConfig();
+		Designator* cdConfig = this->getIndividualConfig();
 		std::string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
 		
 		if(strSemanticsDescriptorFile != "") {
@@ -159,9 +159,9 @@ namespace beliefstate {
 		  this->warn("No semantics descriptor file was specified.");
 		}
 		
-		expOwl->configuration()->setValue(string("display-successes"), (int)seServiceEvent.cdDesignator->floatValue("show-successes"));
-		expOwl->configuration()->setValue(string("display-failures"), (int)seServiceEvent.cdDesignator->floatValue("show-fails"));
-		expOwl->configuration()->setValue(string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));
+		expOwl->configuration()->setValue(std::string("display-successes"), (int)seServiceEvent.cdDesignator->floatValue("show-successes"));
+		expOwl->configuration()->setValue(std::string("display-failures"), (int)seServiceEvent.cdDesignator->floatValue("show-fails"));
+		expOwl->configuration()->setValue(std::string("max-detail-level"), (int)seServiceEvent.cdDesignator->floatValue("max-detail-level"));
 		
 		expOwl->setRootNodes(evCar.lstRootNodes);
 		

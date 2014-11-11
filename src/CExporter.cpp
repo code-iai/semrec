@@ -42,7 +42,7 @@
 
 namespace beliefstate {
   CExporter::CExporter() {
-    m_ckvpConfiguration = new CKeyValuePair();
+    m_ckvpConfiguration = new KeyValuePair();
   }
 
   CExporter::~CExporter() {
@@ -77,7 +77,7 @@ namespace beliefstate {
     return m_lstRootNodes;
   }
   
-  list<Node*> CExporter::nodes() {
+  std::list<Node*> CExporter::nodes() {
     return m_lstNodes;
   }
 
@@ -89,7 +89,7 @@ namespace beliefstate {
     m_lstNodes.clear();
   }
   
-  CKeyValuePair* CExporter::configuration() {
+  KeyValuePair* CExporter::configuration() {
     return m_ckvpConfiguration;
   }
   
@@ -121,7 +121,7 @@ namespace beliefstate {
     }
   }
   
-  bool CExporter::runExporter(CKeyValuePair* ckvpConfigurationOverlay) {
+  bool CExporter::runExporter(KeyValuePair* ckvpConfigurationOverlay) {
     // NOTE(winkler): This is a dummy, superclass exporter. It does not
     // actually export anything. Subclass it to get *actual*
     // functionality.
@@ -174,7 +174,7 @@ namespace beliefstate {
     size_t found;
     
     found = strOriginal.find(strReplaceWhat);
-    while(found != string::npos) {
+    while(found != std::string::npos) {
       strOriginal.replace(found, strReplaceWhat.length(), strReplaceBy);
       found = strOriginal.find(strReplaceWhat, found + strReplaceBy.length());
     };
@@ -250,7 +250,7 @@ namespace beliefstate {
   }
   
   std::string CExporter::equationTimeForSuccessorID(std::string strID) {
-    string strReturn = "";
+    std::string strReturn = "";
     
     for(std::pair<std::string, std::string> prPair : m_lstDesignatorEquationTimes) {
       if(prPair.first == strID) {

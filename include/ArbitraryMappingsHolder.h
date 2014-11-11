@@ -51,7 +51,7 @@
 #include <libconfig.h++>
 
 // Designator Integration
-#include <designators/CDesignator.h>
+#include <designators/Designator.h>
 
 // Private
 #include <Types.h>
@@ -62,7 +62,7 @@
 namespace beliefstate {
   class ArbitraryMappingsHolder : public UtilityBase {
   private:
-    std::list<CKeyValuePair*> m_lstArbitraryMappings;
+    std::list<KeyValuePair*> m_lstArbitraryMappings;
     
   protected:
   public:
@@ -71,7 +71,7 @@ namespace beliefstate {
     
     void parseBranch(libconfig::Setting& sBranch);
     bool loadArbitraryMappingsFile(std::string strFilepath);
-    std::list<CKeyValuePair*> arbitraryMappings();
+    std::list<KeyValuePair*> arbitraryMappings();
   };
 }
 

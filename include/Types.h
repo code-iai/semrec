@@ -44,12 +44,15 @@
 // System
 #include <string>
 #include <list>
-#include <designators/CDesignator.h>
+#include <designators/Designator.h>
 #include <vector>
 #include <map>
 
 // Private
 #include <Node.h>
+
+
+using namespace designator_integration;
 
 
 namespace beliefstate {
@@ -131,7 +134,7 @@ namespace beliefstate {
       
       Designators can hold arbitrary information for an event and helps
       receiving components to process them. */
-    CDesignator* cdDesignator;
+    Designator* cdDesignator;
     std::string strSupplementary;
     /*! \brief Optional extra annotation for this event */
     std::string strAnnotation;
@@ -158,7 +161,7 @@ namespace beliefstate {
     int nServiceEventID;
     bool bPreserve;
     int nRequesterID;
-    CDesignator* cdDesignator;
+    Designator* cdDesignator;
     std::list<Event> lstResultEvents;
     int nSequenceNumber;
   } ServiceEvent;

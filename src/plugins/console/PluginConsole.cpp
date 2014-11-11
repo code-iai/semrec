@@ -113,12 +113,12 @@ namespace beliefstate {
       
       box(m_winMain, 0, 0);
       
-      int nLogWidth = max(4, m_nScreenWidth - 2);
-      int nLogHeight = max(1, m_nScreenHeight - 2);
+      int nLogWidth = std::max(4, m_nScreenWidth - 2);
+      int nLogHeight = std::max(1, m_nScreenHeight - 2);
       
       int nLinesUsed = 0;
       int nReverseIndex = 0;
-      for(list<StatusMessage>::reverse_iterator itSMr = m_lstStatusMessages.rbegin();
+      for(std::list<StatusMessage>::reverse_iterator itSMr = m_lstStatusMessages.rbegin();
 	  itSMr != m_lstStatusMessages.rend(); itSMr++) {
 	StatusMessage msgStatus = *itSMr;
 	std::string strStatus = "[ " + msgStatus.strPrefix + " ] " + msgStatus.strMessage;

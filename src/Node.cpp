@@ -50,7 +50,7 @@ namespace beliefstate {
     this->setTitle(strTitle);
   }
   
-  Node::Node(std::list<CKeyValuePair*> lstDescription) {
+  Node::Node(std::list<KeyValuePair*> lstDescription) {
     this->init();
     this->setPrematurelyEnded(false);
     this->setDescription(lstDescription);
@@ -63,19 +63,19 @@ namespace beliefstate {
   
   void Node::init() {
     m_strTitle = "";
-    m_ckvpMetaInformation = new CKeyValuePair();
+    m_ckvpMetaInformation = new KeyValuePair();
     m_ndParent = NULL;
     m_nID = 0;
   }
   
-  void Node::setDescription(std::list<CKeyValuePair*> lstDescription) {
-    for(CKeyValuePair* ckvpPair : lstDescription) {
+  void Node::setDescription(std::list<KeyValuePair*> lstDescription) {
+    for(KeyValuePair* ckvpPair : lstDescription) {
       m_lstDescription.push_back(ckvpPair->copy());
     }
   }
 
   void Node::clearDescription() {
-    for(CKeyValuePair* ckvpPair : m_lstDescription) {
+    for(KeyValuePair* ckvpPair : m_lstDescription) {
       delete ckvpPair;
     }
     
@@ -90,7 +90,7 @@ namespace beliefstate {
     m_lstSubnodes.clear();
   }
   
-  std::list<CKeyValuePair*> Node::description() {
+  std::list<KeyValuePair*> Node::description() {
     return m_lstDescription;
   }
   
@@ -136,7 +136,7 @@ namespace beliefstate {
     return bReturnvalue;
   }
   
-  CKeyValuePair* Node::metaInformation() {
+  KeyValuePair* Node::metaInformation() {
     return m_ckvpMetaInformation;
   }
   
@@ -152,7 +152,7 @@ namespace beliefstate {
     int nHighestID = m_nID;
     
     for(Node* ndCurrent : m_lstSubnodes) {
-      nHighestID = max(nHighestID, ndCurrent->highestID());
+      nHighestID = std::max(nHighestID, ndCurrent->highestID());
     }
     
     return nHighestID;
@@ -179,15 +179,15 @@ namespace beliefstate {
   }
   
   void Node::setPrematurelyEnded(bool bPrematurelyEnded) {
-    this->metaInformation()->setValue(string("prematurely-ended"), (bPrematurelyEnded ? 1 : 0));
+    this->metaInformation()->setValue(std::string("prematurely-ended"), (bPrematurelyEnded ? 1 : 0));
   }
   
   bool Node::prematurelyEnded() {
     return (this->metaInformation()->floatValue("prematurely-ended") == 0 ? false : true);
   }
   
-  CKeyValuePair* Node::addDescriptionListItem(std::string strDomain, std::string strPrefix) {
-    CKeyValuePair* ckvpList = this->metaInformation()->addChild(strDomain);
+  KeyValuePair* Node::addDescriptionListItem(std::string strDomain, std::string strPrefix) {
+    KeyValuePair* ckvpList = this->metaInformation()->addChild(strDomain);
     
     std::stringstream sts;
     sts << strPrefix << "-";
@@ -197,19 +197,19 @@ namespace beliefstate {
   }
   
   std::string Node::addImage(std::string strOrigin, std::string strFilename, std::string strTimestamp) {
-    CKeyValuePair* ckvpImage = this->addDescriptionListItem("images", "image");
+    KeyValuePair* ckvpImage = this->addDescriptionListItem("images", "image");
     
-    ckvpImage->setValue(string("origin"), strOrigin);
-    ckvpImage->setValue(string("filename"), strFilename);
-    ckvpImage->setValue(string("time-capture"), strTimestamp);
+    ckvpImage->setValue(std::string("origin"), strOrigin);
+    ckvpImage->setValue(std::string("filename"), strFilename);
+    ckvpImage->setValue(std::string("time-capture"), strTimestamp);
     
     return ckvpImage->key();
   }
   
-  std::string Node::addObject(std::list<CKeyValuePair*> lstDescription) {
-    CKeyValuePair* ckvpObject = this->addDescriptionListItem("objects", "object");
+  std::string Node::addObject(std::list<KeyValuePair*> lstDescription) {
+    KeyValuePair* ckvpObject = this->addDescriptionListItem("objects", "object");
     
-    for(CKeyValuePair* ckvpPair : lstDescription) {
+    for(KeyValuePair* ckvpPair : lstDescription) {
       ckvpObject->addChild(ckvpPair->copy());
     }
     
@@ -217,10 +217,10 @@ namespace beliefstate {
   }
   
   std::string Node::addFailure(std::string strCondition, std::string strTimestamp) {
-    CKeyValuePair* ckvpFailure = this->addDescriptionListItem("failures", "failure");
+    KeyValuePair* ckvpFailure = this->addDescriptionListItem("failures", "failure");
     
-    ckvpFailure->setValue(string("condition"), strCondition);
-    ckvpFailure->setValue(string("time-fail"), strTimestamp);
+    ckvpFailure->setValue(std::string("condition"), strCondition);
+    ckvpFailure->setValue(std::string("time-fail"), strTimestamp);
     
     return ckvpFailure->key();
   }
@@ -229,22 +229,22 @@ namespace beliefstate {
     std::stringstream sts;
     sts << ndEmitter;
     
-    CKeyValuePair* ckvpFailure = this->addDescriptionListItem("caught_failures", "caught_failure");
+    KeyValuePair* ckvpFailure = this->addDescriptionListItem("caught_failures", "caught_failure");
     
-    ckvpFailure->setValue(string("failure-id"), strFailureID);
-    ckvpFailure->setValue(string("time-catch"), strTimestamp);
-    ckvpFailure->setValue(string("emitter-id"), sts.str());
+    ckvpFailure->setValue(std::string("failure-id"), strFailureID);
+    ckvpFailure->setValue(std::string("time-catch"), strTimestamp);
+    ckvpFailure->setValue(std::string("emitter-id"), sts.str());
     
-    m_lstCaughtFailures.push_back(make_pair(strFailureID, ndEmitter));
+    m_lstCaughtFailures.push_back(std::make_pair(strFailureID, ndEmitter));
     
     return ckvpFailure->key();
   }
   
   void Node::removeCaughtFailure(std::string strFailureID) {
-    for(std::list< pair<std::string, Node*> >::iterator itPr = m_lstCaughtFailures.begin();
+    for(std::list< std::pair<std::string, Node*> >::iterator itPr = m_lstCaughtFailures.begin();
 	itPr != m_lstCaughtFailures.end();
 	itPr++) {
-      pair<std::string, Node*> prCurrent = *itPr;
+      std::pair<std::string, Node*> prCurrent = *itPr;
       
       if(prCurrent.first == strFailureID) {
 	m_lstCaughtFailures.erase(itPr);
@@ -252,9 +252,9 @@ namespace beliefstate {
       }
     }
     
-    CKeyValuePair* ckvpCaughtFailures = this->metaInformation()->childForKey("caught_failures");
+    KeyValuePair* ckvpCaughtFailures = this->metaInformation()->childForKey("caught_failures");
     if(ckvpCaughtFailures) {
-      for(CKeyValuePair* ckvpCaughtFailure : ckvpCaughtFailures->children()) {
+      for(KeyValuePair* ckvpCaughtFailure : ckvpCaughtFailures->children()) {
 	std::string strCurrentFailureID = ckvpCaughtFailure->stringValue("failure-id");
 	
 	if(strCurrentFailureID == strFailureID) {
@@ -266,7 +266,7 @@ namespace beliefstate {
   }
   
   Node* Node::emitterForCaughtFailure(std::string strFailureID, std::string strEmitterID, std::string strTimestamp) {
-    for(pair<std::string, Node*> prCurrent : m_lstCaughtFailures) {
+    for(std::pair<std::string, Node*> prCurrent : m_lstCaughtFailures) {
       std::stringstream sts;
       sts << prCurrent.second;
       
@@ -279,7 +279,7 @@ namespace beliefstate {
   }
   
   bool Node::hasFailures() {
-    CKeyValuePair* ckvpList = this->metaInformation()->childForKey("failures");
+    KeyValuePair* ckvpList = this->metaInformation()->childForKey("failures");
     
     if(ckvpList) {
       return (ckvpList->children().size() > 0);
@@ -288,25 +288,25 @@ namespace beliefstate {
     return false;
   }
   
-  void Node::addDesignator(std::string strType, std::list<CKeyValuePair*> lstDescription, std::string strUniqueID, std::string strAnnotation) {
-    CKeyValuePair* ckvpDesignator = this->addDescriptionListItem("designators", "designator");
+  void Node::addDesignator(std::string strType, std::list<KeyValuePair*> lstDescription, std::string strUniqueID, std::string strAnnotation) {
+    KeyValuePair* ckvpDesignator = this->addDescriptionListItem("designators", "designator");
     
-    ckvpDesignator->setValue(string("type"), strType);
-    ckvpDesignator->setValue(string("id"), strUniqueID);
-    ckvpDesignator->setValue(string("annotation"), strAnnotation);
+    ckvpDesignator->setValue(std::string("type"), strType);
+    ckvpDesignator->setValue(std::string("id"), strUniqueID);
+    ckvpDesignator->setValue(std::string("annotation"), strAnnotation);
     
-    CKeyValuePair* ckvpDescription = ckvpDesignator->addChild("description");
-    for(CKeyValuePair* ckvpChild : lstDescription) {
+    KeyValuePair* ckvpDescription = ckvpDesignator->addChild("description");
+    for(KeyValuePair* ckvpChild : lstDescription) {
       ckvpDescription->addChild(ckvpChild);
     }
   }
   
   void Node::setSuccess(bool bSuccess) {
-    this->metaInformation()->setValue(string("success", (bSuccess ? 1 : 0)));
+    this->metaInformation()->setValue(std::string("success", (bSuccess ? 1 : 0)));
   }
   
   bool Node::success() {
-    return (this->metaInformation()->floatValue(string("success")) == 1 ? true : false);
+    return (this->metaInformation()->floatValue(std::string("success")) == 1 ? true : false);
   }
   
   Node* Node::previousNode() {

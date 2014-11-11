@@ -46,7 +46,7 @@
 #include <list>
 
 // Designators
-#include <designators/CKeyValuePair.h>
+#include <designators/KeyValuePair.h>
 
 // Private
 #include <Property.h>
@@ -60,7 +60,7 @@ namespace beliefstate {
     JSON* m_jsnDecisionTree;
     
   protected:
-    Property* evaluate(Property* prTree, CKeyValuePair* ckvpFeatures);
+    Property* evaluate(Property* prTree, KeyValuePair* ckvpFeatures);
     void init(std::string strMessagePrefix = "", std::string strFile = "");
     void missingFeature(std::string strOperator, std::string strFeatureName);
     void missingOperand(std::string strOperator);
@@ -72,9 +72,9 @@ namespace beliefstate {
     
     bool load(std::string strFile);
     
-    bool relationSatisfied(Property* prRelation, CKeyValuePair* ckvpFeatures);
-    Property* evaluate(CKeyValuePair* ckvpFeatures);
-    vector<CKeyValuePair*> invert(Property* prTargetResult, CKeyValuePair* ckvpFeatures);
+    bool relationSatisfied(Property* prRelation, KeyValuePair* ckvpFeatures);
+    Property* evaluate(KeyValuePair* ckvpFeatures);
+    std::vector<KeyValuePair*> invert(Property* prTargetResult, KeyValuePair* ckvpFeatures);
     std::vector<Property*> findBranchesWithResult(Property* prTargetResult, Property* prStart = NULL);
     std::vector< std::vector<Property*> > straightenResultBranches(std::vector<Property*> vecSolutionBranches);
     std::vector<Property*> straightenResultBranch(Property* prSolutionBranch);

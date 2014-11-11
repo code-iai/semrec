@@ -58,7 +58,7 @@ namespace beliefstate {
       freePluginID(m_nID);
     }
     
-    CDesignator* Plugin::getIndividualConfig() {
+    Designator* Plugin::getIndividualConfig() {
       return getPluginConfig(this->pluginName());
     }
     
@@ -104,7 +104,7 @@ namespace beliefstate {
     }
     
     bool Plugin::subscribedToEvent(std::string strEventName) {
-      for(string strCurrentName : m_lstSubscribedEventNames) {
+      for(std::string strCurrentName : m_lstSubscribedEventNames) {
 	if(strCurrentName == strEventName) {
 	  return true;
 	}
@@ -126,7 +126,7 @@ namespace beliefstate {
     }
     
     bool Plugin::offersService(std::string strServiceName) {
-      for(string strCurrentName : m_lstOfferedServices) {
+      for(std::string strCurrentName : m_lstOfferedServices) {
 	if(strCurrentName == strServiceName) {
 	  return true;
 	}
@@ -153,7 +153,7 @@ namespace beliefstate {
     }
     
     bool Plugin::dependsOn(std::string strPluginName) {
-      for(string strDepName : m_lstDependencies) {
+      for(std::string strDepName : m_lstDependencies) {
 	if(strDepName == strPluginName) {
 	  return true;
 	}
@@ -298,7 +298,7 @@ namespace beliefstate {
       while(bGoon && this->running()) {
 	m_mtxReceivedServiceEventResponses.lock();
 	
-	for(list<ServiceEvent>::iterator itSE = m_lstReceivedServiceEventResponses.begin();
+	for(std::list<ServiceEvent>::iterator itSE = m_lstReceivedServiceEventResponses.begin();
 	    itSE != m_lstReceivedServiceEventResponses.end(); itSE++) {
 	  if(((*itSE).nServiceEventID == seWait.nServiceEventID) && (*itSE).siServiceIdentifier == SI_RESPONSE) {
 	    bGoon = false;

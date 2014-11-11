@@ -52,7 +52,7 @@
 #include <ros/ros.h>
 
 // Designators
-#include <designators/CDesignator.h>
+#include <designators/Designator.h>
 #include <designator_integration_msgs/DesignatorCommunication.h>
 
 // Private
@@ -94,16 +94,16 @@ namespace beliefstate {
       Node* activeNode();
       
       std::string getDesignatorID(std::string strMemoryAddress);
-      std::string getDesignatorIDType(CDesignator* desigCurrent);
-      std::string getUniqueDesignatorID(std::string strMemoryAddress, CDesignator* desigCurrent);
+      std::string getDesignatorIDType(Designator* desigCurrent);
+      std::string getUniqueDesignatorID(std::string strMemoryAddress, Designator* desigCurrent);
       std::string generateRandomIdentifier(std::string strPrefix, unsigned int unLength);
-      std::string equateDesignators(std::string strMAChild, CDesignator* desigChild, std::string strMAParent, CDesignator* desigParent);
+      std::string equateDesignators(std::string strMAChild, Designator* desigChild, std::string strMAParent, Designator* desigParent);
       
-      bool ensureDesignatorPublished(std::list<CKeyValuePair*> lstDescription, std::string strMemoryAddress, std::string strType, std::string strAnnotation = "", bool bAdd = false, Node* ndRelative = NULL);
-      void setNestedDesignatorUniqueIDs(CKeyValuePair* ckvpParent);
+      bool ensureDesignatorPublished(std::list<KeyValuePair*> lstDescription, std::string strMemoryAddress, std::string strType, std::string strAnnotation = "", bool bAdd = false, Node* ndRelative = NULL);
+      void setNestedDesignatorUniqueIDs(KeyValuePair* ckvpParent);
       
-      CDesignator* makeDesignator(enum DesignatorType edtType, list<CKeyValuePair*> lstDescription);
-      CDesignator* makeDesignator(std::string strType, list<CKeyValuePair*> lstDescription);
+      Designator* makeDesignator(Designator::DesignatorType edtType, std::list<KeyValuePair*> lstDescription);
+      Designator* makeDesignator(std::string strType, std::list<KeyValuePair*> lstDescription);
       
       Node* nodeByID(int nID);
       Node* relativeActiveNode(Event evEvent);

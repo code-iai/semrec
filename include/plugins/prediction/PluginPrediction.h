@@ -53,7 +53,7 @@
 #include <sstream>
 
 // Designators
-#include <designators/CDesignator.h>
+#include <designators/Designator.h>
 #include <designator_integration_msgs/DesignatorCommunication.h>
 
 // OWL Exporter for ontology
@@ -117,18 +117,18 @@ namespace beliefstate {
       bool descend(Node* ndDescend);
       bool ascend(Node* ndAscend);
       
-      bool predict(CDesignator* desigRequest, CDesignator* desigResponse);
-      PredictionResult evaluatePredictionRequest(Property* prActive, CKeyValuePair* ckvpFeatures, CKeyValuePair* ckvpRequested);
+      bool predict(Designator* desigRequest, Designator* desigResponse);
+      PredictionResult evaluatePredictionRequest(Property* prActive, KeyValuePair* ckvpFeatures, KeyValuePair* ckvpRequested);
       
-      std::list< pair<Property*, int> > linearizeTree(Property* prTop, int nLevel);
-      PredictionResult probability(std::list< pair<Property*, int> > lstSequence, CKeyValuePair* ckvpFeatures, CKeyValuePair* ckvpRequested);
+      std::list< std::pair<Property*, int> > linearizeTree(Property* prTop, int nLevel);
+      PredictionResult probability(std::list< std::pair<Property*, int> > lstSequence, KeyValuePair* ckvpFeatures, KeyValuePair* ckvpRequested);
       std::map<std::string, double> relativeFailureOccurrences(std::list<Property*> lstFailures, int nTracks);
       std::list<Property*> failuresForTreeNode(Property* prNode);
-      std::map<std::string, double> relativeFailuresForNode(Property* prNode, int nLevel, CKeyValuePair* ckvpFeatures);
+      std::map<std::string, double> relativeFailuresForNode(Property* prNode, int nLevel, KeyValuePair* ckvpFeatures);
       std::list<Property*> parametersForTreeNode(Property* prNode);
       
       bool loadDecisionTree(std::string strPath);
-      Property* evaluateDecisionTree(CKeyValuePair* ckvpFeatures);
+      Property* evaluateDecisionTree(KeyValuePair* ckvpFeatures);
     };
   }
   

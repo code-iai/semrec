@@ -107,7 +107,7 @@ namespace beliefstate {
       
       // Set the settings concerning MongoDB, and experiment name mask
       // for each plugin here (through PluginSystem).
-      for(string strPluginName : m_lstPluginsToLoad) {
+      for(std::string strPluginName : m_lstPluginsToLoad) {
 	Result rsResult = m_psPlugins->loadPluginLibrary(strPluginName, true);
 	
 	if(!rsResult.bSuccess) {
@@ -252,7 +252,7 @@ namespace beliefstate {
 	  return false;
 	}
 	
-	if(strSymlinkName == "" || strExperimentNameMask == "" || (strExperimentNameMask.find("%d") == string::npos && strExperimentNameMask.find("%s") == string::npos) || strBaseDataDirectory == "") {
+	if(strSymlinkName == "" || strExperimentNameMask == "" || (strExperimentNameMask.find("%d") == std::string::npos && strExperimentNameMask.find("%s") == std::string::npos) || strBaseDataDirectory == "") {
 	  if(strBaseDataDirectory == "") {
 	    this->warn("The base data directory path is empty.");
 	    strBaseDataDirectory = this->resolveDirectoryTokens("${HOME}/bs_experimental_data").front();
@@ -269,7 +269,7 @@ namespace beliefstate {
 	    this->warn("The experiment name mask is empty.");
 	    strExperimentNameMask = "exp-%d";
 	    this->warn("Defaulting to: '" + strExperimentNameMask + "'");
-	  } else if(strExperimentNameMask.find("%d") == string::npos && strExperimentNameMask.find("%s") == string::npos) {
+	  } else if(strExperimentNameMask.find("%d") == std::string::npos && strExperimentNameMask.find("%s") == std::string::npos) {
 	    this->warn("The experiment name mask does not include the '\%d' or '\%s' escape sequence.");
 	    this->warn("It is currently: '" + strExperimentNameMask + "'");
 	    this->warn("This will cause your experiments to be overwritten. Be careful.");
@@ -329,7 +329,7 @@ namespace beliefstate {
 	      
 	      if(sPluginsIndividualConfigurations[nI].lookupValue("plugin", strPluginName)) {
 		this->info("Loading per-plugin configuration for plugin '" + strPluginName + "'");
-		CDesignator* cdConfig = getPluginConfig(strPluginName);
+		Designator* cdConfig = getPluginConfig(strPluginName);
 		
 		if(this->loadIndividualPluginConfigurationBranch(sPluginsIndividualConfigurations[nI], cdConfig, "", true) == false) {
 		  this->warn("Failed to load configuration for plugin '" + strPluginName + "'.");
@@ -372,8 +372,8 @@ namespace beliefstate {
 	  vecPluginOutputColors.push_back("37");
 	  
 	  std::string strColors = "";
-	  for(string strC : vecPluginOutputColors) {
-	    strColors += (strColors != "" ? ", " : "") + string("\033[0;") + strC + "m" + strC + "\033[0m";
+	  for(std::string strC : vecPluginOutputColors) {
+	    strColors += (strColors != "" ? ", " : "") + std::string("\033[0;") + strC + "m" + strC + "\033[0m";
 	  }
 	  
 	  this->warn("Defaulting to: " + strColors);
@@ -410,7 +410,7 @@ namespace beliefstate {
     return false;
   }
   
-  bool Beliefstate::loadIndividualPluginConfigurationBranch(libconfig::Setting &sBranch, CKeyValuePair* ckvpInto, std::string strConfigPath, bool bIgnorePluginField) {
+  bool Beliefstate::loadIndividualPluginConfigurationBranch(libconfig::Setting &sBranch, KeyValuePair* ckvpInto, std::string strConfigPath, bool bIgnorePluginField) {
     for(int nJ = 0; nJ < sBranch.getLength(); nJ++) {
       if(sBranch.getType() != libconfig::Setting::TypeGroup) {
 	for(int nI = 0; nI < sBranch.getLength(); nI++) {
@@ -418,7 +418,7 @@ namespace beliefstate {
 	  sts << nI;
 	  
 	  this->info(" - " + strConfigPath + (strConfigPath == "" ? "" : "/") + sts.str());
-	  CKeyValuePair* ckvpChild = ckvpInto->addChild(sts.str());
+	  KeyValuePair* ckvpChild = ckvpInto->addChild(sts.str());
 	  
 	  switch(sBranch[nI].getType()) {
 	  case libconfig::Setting::TypeString: {
@@ -484,7 +484,7 @@ namespace beliefstate {
 	  } break;
 	  
 	  case libconfig::Setting::TypeGroup: {
-	    CKeyValuePair* ckvpChild = ckvpInto->addChild(strConfigDetailName);
+	    KeyValuePair* ckvpChild = ckvpInto->addChild(strConfigDetailName);
 	    libconfig::Setting& sBranchChild = sBranch[strConfigDetailName];
 	    
 	    if(this->loadIndividualPluginConfigurationBranch(sBranchChild, ckvpChild, strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName) == false) {
@@ -493,7 +493,7 @@ namespace beliefstate {
 	  } break;
 	    
 	  case libconfig::Setting::TypeArray: {
-	    CKeyValuePair* ckvpChild = ckvpInto->addChild(strConfigDetailName);
+	    KeyValuePair* ckvpChild = ckvpInto->addChild(strConfigDetailName);
 	    libconfig::Setting& sBranchChild = sBranch[strConfigDetailName];
 	    
 	    if(this->loadIndividualPluginConfigurationBranch(sBranchChild, ckvpChild, strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName) == false) {
@@ -627,7 +627,7 @@ namespace beliefstate {
 	  // Spread the respective (Service)Event
 	  bool bWasSpread = false;
 	  
-	  for(list<Event>::iterator itEvent = resCycle.lstEvents.begin();
+	  for(std::list<Event>::iterator itEvent = resCycle.lstEvents.begin();
 	      itEvent != resCycle.lstEvents.end(); itEvent++) {
 	    Event evEvent = *itEvent;
 	    
@@ -650,7 +650,7 @@ namespace beliefstate {
 	  }
 	  
 	  if(!bWasSpread) {
-	    for(list<ServiceEvent>::iterator itEvent = resCycle.lstServiceEvents.begin();
+	    for(std::list<ServiceEvent>::iterator itEvent = resCycle.lstServiceEvents.begin();
 		itEvent != resCycle.lstServiceEvents.end(); itEvent++) {
 	      ServiceEvent seEvent = *itEvent;
 	      
@@ -756,7 +756,7 @@ namespace beliefstate {
     std::list< std::pair<std::string, bool> > lstTokens;
     
     size_t pos = 0;
-    while((pos = strSubject.find("$", pos)) != string::npos) {
+    while((pos = strSubject.find("$", pos)) != std::string::npos) {
       size_t offset = 1;
       
       if(pos < strSubject.size() - 1) {
@@ -768,7 +768,7 @@ namespace beliefstate {
 	    offset++;
 	    size_t pos_endbracket = strSubject.find("}", pos + 1);
 	    
-	    if(pos_endbracket != string::npos) {
+	    if(pos_endbracket != std::string::npos) {
 	      strToken = strSubject.substr(pos + 2, pos_endbracket - (pos + 2));
 	      offset += 1 + pos_endbracket - (pos + 2);
 	      bInBrackets = true;
@@ -777,7 +777,7 @@ namespace beliefstate {
 	    }
 	  } else {
 	    size_t pos_space_or_end = strSubject.find_first_of(" /.~_-\\$", pos + 1);
-	    if(pos_space_or_end == string::npos) {
+	    if(pos_space_or_end == std::string::npos) {
 	      // The rest of the string is part of the token
 	      strToken = strSubject.substr(pos + 1);
 	      offset += pos + 1;
@@ -789,7 +789,7 @@ namespace beliefstate {
 	  }
 	  
 	  if(strToken != "") {
-	    lstTokens.push_back(make_pair(strToken, bInBrackets));
+	    lstTokens.push_back(std::make_pair(strToken, bInBrackets));
 	  }
 	}
       }
@@ -799,7 +799,7 @@ namespace beliefstate {
     
     std::list<std::string> lstResolved;
     
-    for(pair<string, bool> prToken : lstTokens) {
+    for(std::pair<std::string, bool> prToken : lstTokens) {
       std::string strToken = prToken.first;
       bool bInBrackets = prToken.second;
       std::string strToReplace = (bInBrackets ? "${" + strToken + "}" : "$" + strToken);
@@ -859,7 +859,7 @@ namespace beliefstate {
       size_t szDelimiterPos = strPathList.find(strDelimiter);
       std::string strCheckPart = "";
       
-      if(szDelimiterPos != string::npos) {
+      if(szDelimiterPos != std::string::npos) {
 	strCheckPart = strPathList.substr(0, szDelimiterPos);
       } else {
 	strCheckPart = strPathList;
@@ -871,7 +871,7 @@ namespace beliefstate {
 	}
       }
       
-      if(szDelimiterPos != string::npos) {
+      if(szDelimiterPos != std::string::npos) {
 	strPathList = strPathList.substr(strCheckPart.length() + 1);
       } else {
 	strPathList = "";
