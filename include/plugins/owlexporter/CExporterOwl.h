@@ -76,7 +76,7 @@ namespace beliefstate {
     ~CExporterOwl();
     
     std::list<std::string> gatherClassesForNodes(std::list<Node*> lstNodes);
-    std::list<std::string> gatherTimepointsForNodes(std::list<Node*> lstNodes);
+    std::list<std::string> gatherTimepointsForNodes(std::list<Node*> lstNodes, std::list<Node*> lstTrace);
     void setMetaData(std::map<std::string, std::string> mapMetaData);
     
     bool loadSemanticsDescriptorFile(std::string strFilepath);

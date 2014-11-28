@@ -19,7 +19,7 @@ class DataExtractor:
             if owlIndiv.type() == "AnnotationInformation":
                 annot = owlIndiv
                 if annot and meta: break
-            elif owlIndiv.type() == "ExperimentMetaData":
+            elif owlIndiv.type() == "RobotExperiment":
                 meta = owlIndiv
                 if annot and meta: break
         

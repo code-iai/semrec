@@ -159,7 +159,7 @@ class OwlReader:
                 arrOwlAuxIndividuals[owlIndividual.name()] = owlIndividual
             elif owlIndividual.type() == "AnnotationInformation":
                 owlAnnotation = owlIndividual
-            elif owlIndividual.type() == "ExperimentMetaData":
+            elif owlIndividual.type() == "RobotExperiment":
                 owlMetaData = owlIndividual
             else:
                 arrOwlTaskTreeIndividuals[owlIndividual.name()] = owlIndividual

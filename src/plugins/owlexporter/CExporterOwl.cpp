@@ -269,67 +269,73 @@ namespace beliefstate {
     return lstClasses;
   }
   
-  std::list<std::string> CExporterOwl::gatherTimepointsForNodes(std::list<Node*> lstNodes) {
+  std::list<std::string> CExporterOwl::gatherTimepointsForNodes(std::list<Node*> lstNodes, std::list<Node*> lstTrace) {
     std::list<std::string> lstTimepoints;
     
     for(Node* ndCurrent : lstNodes) {
       if(ndCurrent) {
-	// Gather node timepoints
-	std::list<std::string> lstTimepointsSubnodes = this->gatherTimepointsForNodes(ndCurrent->subnodes());
-	lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-start"));
-	lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-end"));
-	
-	// Gather failure timepoints
-	KeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
-	
-	if(ckvpFailures) {
-	  std::list<KeyValuePair*> lstFailures = ckvpFailures->children();
+	if(std::find(lstTrace.begin(), lstTrace.end(), ndCurrent) == lstTrace.end()) {
+	  // Gather node timepoints
+	  std::list<Node*> lstSubTrace = lstTrace;
+	  lstSubTrace.push_back(ndCurrent);
 	  
-	  unsigned int unIndex = 0;
-	  for(KeyValuePair* ckvpFailure : lstFailures) {
-	    lstTimepointsSubnodes.push_back(ckvpFailure->stringValue("time-fail"));
-	  }
-	}
+	  std::list<std::string> lstTimepointsSubnodes = this->gatherTimepointsForNodes(ndCurrent->subnodes(), lstSubTrace);
+	  lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-start"));
+	  lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-end"));
 	
-	// Gather image timepoints
-	KeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
+	  // Gather failure timepoints
+	  KeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
 	
-	if(ckvpImages) {
-	  std::list<KeyValuePair*> lstImages = ckvpImages->children();
+	  if(ckvpFailures) {
+	    std::list<KeyValuePair*> lstFailures = ckvpFailures->children();
 	  
-	  unsigned int unIndex = 0;
-	  for(KeyValuePair* ckvpImage : lstImages) {
-	    lstTimepointsSubnodes.push_back(ckvpImage->stringValue("time-capture"));
-	  }
-	}
-	
-	// Gather designator equation timepoints
-	for(std::pair<std::string, std::string> prPair : m_lstDesignatorEquationTimes) {
-	  lstTimepointsSubnodes.push_back(prPair.second);
-	}
-	
-	// Gather designator creation timepoints
-	for(std::pair<std::string, KeyValuePair*> prDesig : m_mapDesignators) {
-	  if(prDesig.second) {
-	    if(prDesig.second->childForKey("description")) {
-	      lstTimepointsSubnodes.push_back(prDesig.second->childForKey("description")->stringValue("_time_created"));
+	    unsigned int unIndex = 0;
+	    for(KeyValuePair* ckvpFailure : lstFailures) {
+	      lstTimepointsSubnodes.push_back(ckvpFailure->stringValue("time-fail"));
 	    }
 	  }
-	}
 	
-	// Unify all timepoints
-	for(std::string strTimepointSubnode : lstTimepointsSubnodes) {
-	  bool bExists = false;
+	  // Gather image timepoints
+	  KeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
+	
+	  if(ckvpImages) {
+	    std::list<KeyValuePair*> lstImages = ckvpImages->children();
 	  
-	  for(std::string strTimepointNode : lstTimepoints) {
-	    if(strTimepointSubnode == strTimepointNode) {
-	      bExists = true;
-	      break;
+	    unsigned int unIndex = 0;
+	    for(KeyValuePair* ckvpImage : lstImages) {
+	      lstTimepointsSubnodes.push_back(ckvpImage->stringValue("time-capture"));
 	    }
 	  }
+	
+	  // Gather designator equation timepoints
+	  for(std::pair<std::string, std::string> prPair : m_lstDesignatorEquationTimes) {
+	    lstTimepointsSubnodes.push_back(prPair.second);
+	  }
+	
+	  // Gather designator creation timepoints
+	  for(std::pair<std::string, KeyValuePair*> prDesig : m_mapDesignators) {
+	    if(prDesig.second) {
+	      if(prDesig.second->childForKey("description")) {
+		lstTimepointsSubnodes.push_back(prDesig.second->childForKey("description")->stringValue("_time_created"));
+	      }
+	    }
+	  }
+	
+	  // Unify all timepoints
+	  this->info("Unifying " + this->str((int)lstTimepointsSubnodes.size()) + " timepoint(s)");
+	  for(std::string strTimepointSubnode : lstTimepointsSubnodes) {
+	    bool bExists = false;
 	  
-	  if(!bExists) {
-	    lstTimepoints.push_back(strTimepointSubnode);
+	    for(std::string strTimepointNode : lstTimepoints) {
+	      if(strTimepointSubnode == strTimepointNode) {
+		bExists = true;
+		break;
+	      }
+	    }
+	  
+	    if(!bExists) {
+	      lstTimepoints.push_back(strTimepointSubnode);
+	    }
 	  }
 	}
       } else {
@@ -844,7 +850,9 @@ namespace beliefstate {
   std::string CExporterOwl::generateTimepointIndividuals(std::string strNamespace) {
     std::string strDot = "    <!-- Timepoint Individuals -->\n\n";
     
-    std::list<std::string> lstTimepoints = this->gatherTimepointsForNodes(this->nodes());
+    std::list<Node*> lstTrace;
+    std::list<std::string> lstTimepoints = this->gatherTimepointsForNodes(this->nodes(), lstTrace);
+    
     for(std::string strTimepoint : lstTimepoints) {
       strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";timepoint_" + strTimepoint + "\">\n";
       strDot += "        <rdf:type rdf:resource=\"&knowrob;TimePoint\"/>\n";
@@ -856,10 +864,10 @@ namespace beliefstate {
   
   std::string CExporterOwl::generateMetaDataIndividual(std::string strNamespace) {
     std::string strDot = "    <!-- Meta Data Individual -->\n\n";
-    std::string strUniqueName = this->generateUniqueID("ExperimentMetaData_", 8);
+    std::string strUniqueName = this->generateUniqueID("RobotExperiment_", 8);
     
     strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + strUniqueName + "\">\n";
-    strDot += "        <rdf:type rdf:resource=\"&knowrob;ExperimentMetaData\"/>\n";
+    strDot += "        <rdf:type rdf:resource=\"&knowrob;RobotExperiment\"/>\n";
     
     std::list<Node*> lstRootNodes = this->rootNodes();
     for(Node* ndRoot : lstRootNodes) {
@@ -918,7 +926,7 @@ namespace beliefstate {
       // Is this right? Or is there a more fitting type for that?
       strClass = "WithDesignators";
     } else if(strName == "TAG") {
-      strClass = "Tag";
+      strClass = "CRAMPlanTag";
     } else if(strName.substr(0, 5) == "GOAL-") {
       // This is a goal definition.
       std::string strGoal = strName.substr(5);
