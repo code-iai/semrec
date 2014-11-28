@@ -1057,7 +1057,7 @@ namespace beliefstate {
       // non-necessity of such a long namespace.
       // this->generateRandomIdentifier("namespace_", 8);
       std::string strNamespaceID = "log";
-      std::string strNamespace = "http://ias.cs.tum.edu/kb/cram_log.owl";// + strNamespaceID;
+      std::string strNamespace = "http://knowrob.org/kb/cram_log.owl";// + strNamespaceID;
       
       // Prepare content
       this->info(" - Preparing content");
