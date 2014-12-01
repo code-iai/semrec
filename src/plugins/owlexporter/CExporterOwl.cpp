@@ -338,7 +338,15 @@ namespace beliefstate {
 	  }
 	
 	  // Unify all timepoints
-	  this->info("Unifying " + this->str((int)lstTimepointsSubnodes.size()) + " timepoint(s)");
+	  //this->info("Unifying " + this->str((int)lstTimepointsSubnodes.size()) + " timepoint(s)");
+	  
+	  // TODO(winkler): The unification of timepoints is happening
+	  // in every recursive step right now. This is not necessary,
+	  // as only the final list of all gathered timepoints needs
+	  // to be unified after everything else has
+	  // finished. Unifying them in every step takes *huge*
+	  // amounts of time when having a lot of nodes/contexts. This
+	  // needs to be refactored ASAP.
 	  for(std::string strTimepointSubnode : lstTimepointsSubnodes) {
 	    bool bExists = false;
 	  
