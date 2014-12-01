@@ -86,6 +86,13 @@ namespace beliefstate {
 	      }
 	    }
 	  }
+	  
+	  if(sConditionMappings.exists("default-condition-mapping")) {
+	    sConditionMappings.lookupValue("default-condition-mapping", m_strDefaultConditionMapping);
+	  } else {
+	    this->warn("No default condition mapping set. Assuming empty string.");
+	    m_strDefaultConditionMapping = "";
+	  }
 	}
 	
 	m_lstDefinedProperties.clear();
@@ -625,7 +632,7 @@ namespace beliefstate {
   }
   
   std::string CExporterOwl::failureClassForCondition(std::string strCondition) {
-    std::string strFailureClass = "CRAMFailure";
+    std::string strFailureClass = m_strDefaultConditionMapping;
     
     for(std::pair<std::string, std::string> prCurrent : m_lstFailureMapping) {
       if(strCondition == prCurrent.first) {

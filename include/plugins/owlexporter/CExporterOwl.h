@@ -58,6 +58,7 @@ namespace beliefstate {
   private:
     std::list< std::pair<std::string, std::string> > m_lstEntities;
     std::list< std::pair<std::string, std::string> > m_lstFailureMapping;
+    std::string m_strDefaultConditionMapping;
     std::list<std::string> m_lstDefinedProperties;
     std::list< std::pair<std::string, std::string> > m_lstAnnotationPurposeMapping;
     std::string m_strPropertyNamespace;
