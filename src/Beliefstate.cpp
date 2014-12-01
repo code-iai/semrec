@@ -48,6 +48,7 @@ namespace beliefstate {
     m_argv = argv;
     m_bTerminalWindowResize = false;
     m_bCommandLineOutput = true;
+    m_bDisplayConfigurationDetails = true;
     m_strVersion = BS_VERSION_STRING;
     
     this->setRedirectOutput(false);
@@ -180,6 +181,7 @@ namespace beliefstate {
 	  sMiscellaneous.lookupValue("display-unhandled-service-events", bDisplayUnhandledServiceEvents);
 	  sMiscellaneous.lookupValue("command-line-output", m_bCommandLineOutput);
 	  sMiscellaneous.lookupValue("only-display-important-messages", m_bOnlyDisplayImportant);
+	  sMiscellaneous.lookupValue("display-configuration-details", m_bDisplayConfigurationDetails);
 	  
 	  if(!m_bCommandLineOutput) {
 	    this->setRedirectOutput(true);
@@ -328,7 +330,10 @@ namespace beliefstate {
 	      std::string strPluginName;
 	      
 	      if(sPluginsIndividualConfigurations[nI].lookupValue("plugin", strPluginName)) {
-		this->info("Loading per-plugin configuration for plugin '" + strPluginName + "'");
+		if(m_bDisplayConfigurationDetails) {
+		  this->info("Loading per-plugin configuration for plugin '" + strPluginName + "'");
+		}
+		
 		Designator* cdConfig = getPluginConfig(strPluginName);
 		
 		if(this->loadIndividualPluginConfigurationBranch(sPluginsIndividualConfigurations[nI], cdConfig, "", true) == false) {
@@ -417,7 +422,10 @@ namespace beliefstate {
 	  std::stringstream sts;
 	  sts << nI;
 	  
-	  this->info(" - " + strConfigPath + (strConfigPath == "" ? "" : "/") + sts.str());
+	  if(m_bDisplayConfigurationDetails) {
+	    this->info(" - " + strConfigPath + (strConfigPath == "" ? "" : "/") + sts.str());
+	  }
+	  
 	  KeyValuePair* ckvpChild = ckvpInto->addChild(sts.str());
 	  
 	  switch(sBranch[nI].getType()) {
@@ -454,7 +462,9 @@ namespace beliefstate {
 	std::string strConfigDetailName = sBranch[nJ].getName();
 	
 	if(strConfigDetailName != "plugin" || !bIgnorePluginField) {
-	  this->info(" - " + strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName);
+	  if(m_bDisplayConfigurationDetails) {
+	    this->info(" - " + strConfigPath + (strConfigPath == "" ? "" : "/") + strConfigDetailName);
+	  }
 	  
 	  switch(sBranch[strConfigDetailName].getType()) {
 	  case libconfig::Setting::TypeString: {

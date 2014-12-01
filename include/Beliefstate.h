@@ -118,6 +118,7 @@ namespace beliefstate {
     /*! \brief Variable holding the current version of the belief state
       system core software. */
     std::string m_strVersion;
+    bool m_bDisplayConfigurationDetails;
     
   protected:
     std::list<std::string> m_lstConfigFileLocations;
