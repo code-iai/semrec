@@ -119,6 +119,15 @@ namespace beliefstate {
 	    }
 	  }
 	  
+	  m_strDefaultDesignatorClass = "";
+	  if(sStructure.exists("default-designator-class")) {
+	    sStructure.lookupValue("default-designator-class", m_strDefaultDesignatorClass);
+	  }
+	  
+	  if(m_strDefaultDesignatorClass == "") {
+	    this->warn("You didn't specify the 'structure/default-designator-class' parameter in the semantics descriptor file. Your default designators will have no OWL class, resulting in an invalid OWL file. Is this intended?");
+	  }
+	  
 	  m_strDefaultAnnotation = "";
 	  if(sStructure.exists("default-annotation-purpose")) {
 	    sStructure.lookupValue("default-annotation-purpose", m_strDefaultAnnotation);
@@ -795,7 +804,7 @@ namespace beliefstate {
     
     for(std::string strID : lstDesigIDs) {
       strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + strID + "\">\n";
-      strDot += "        <rdf:type rdf:resource=\"&knowrob;CRAMDesignator\"/>\n";
+      strDot += "        <rdf:type rdf:resource=\"&knowrob;" + m_strDefaultDesignatorClass + "\"/>\n";
       
       if(m_mapDesignators.find(strID) != m_mapDesignators.end()) {
 	std::string strTimeCreated = m_mapDesignators[strID]->childForKey("description")->stringValue("_time_created");
