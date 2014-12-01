@@ -61,7 +61,7 @@ beliefstate::BeliefstateROS* g_bsBeliefstate;
 
 
 void printHelp(std::string strExecutableName) {
-  std::cout << "Beliefstate System (version " + g_bsBeliefstate->version() + ") by Jan Winkler <winkler@cs.uni-bremen.de>" << std::endl;
+  std::cout << "Beliefstate System (version \033[1;37m" + g_bsBeliefstate->version() + "\033[0;37m) by Jan Winkler <winkler@cs.uni-bremen.de>" << std::endl;
   std::cout << "Licensed under BSD. https://www.github.com/fairlight1337/beliefstate" << std::endl << std::endl;
   std::cout << "Usage: " << strExecutableName << " [options]" << std::endl << std::endl;
   
@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
   }
   
   if(bQuit == false) {
-    g_bsBeliefstate->info("Starting beliefstate system (version " + g_bsBeliefstate->version() + ").");
+    g_bsBeliefstate->info("Starting beliefstate system (version \033[1;37m" + g_bsBeliefstate->version() + "\033[0;37m).");
     
     beliefstate::Result resInit = g_bsBeliefstate->init(strConfigFile);
     
