@@ -60,6 +60,8 @@ namespace beliefstate {
       this->setSubscribedToEvent("export-planlog", true);
       this->setSubscribedToEvent("experiment-start", true);
       this->setSubscribedToEvent("experiment-shutdown", true);
+      this->setSubscribedToEvent("update-absolute-experiment-start-time", true);
+      this->setSubscribedToEvent("update-absolute-experiment-end-time", true);
       
       ros::NodeHandle nh;
       m_pubMetadata = nh.advertise<designator_integration_msgs::Designator>("/logged_metadata", 1);
@@ -124,9 +126,23 @@ namespace beliefstate {
 	  this->info("Successfully exported meta-data to '" + strMetaFile + "'");
 	}
       } else if(evEvent.strEventName == "experiment-start") {
-	m_mapValues["time-start"] = this->getTimeStampStr();
+	//m_mapValues["time-start"] = this->getTimeStampStr();
       } else if(evEvent.strEventName == "experiment-shutdown") {
-	m_mapValues["time-end"] = this->getTimeStampStr();
+	//m_mapValues["time-end"] = this->getTimeStampStr();
+      } else if(evEvent.strEventName == "update-absolute-experiment-start-time") {
+	if(evEvent.lstNodes.size() > 0) {
+	  // Only the first node counts, as the first node represents
+	  // the earliest time.
+	  if(m_mapValues.find("time-start") == m_mapValues.end()) {
+	    m_mapValues["time-start"] = evEvent.lstNodes.front()->metaInformation()->stringValue("time-start");
+	  }
+	}
+      } else if(evEvent.strEventName == "update-absolute-experiment-end-time") {
+	if(evEvent.lstNodes.size() > 0) {
+	  // Every end time overwrites any already existing value, as
+	  // it always happens after.
+	  m_mapValues["time-end"] = evEvent.lstNodes.front()->metaInformation()->stringValue("time-end");
+	}
       }
     }
   }

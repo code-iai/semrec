@@ -57,6 +57,8 @@ namespace beliefstate {
       this->setSubscribedToEvent("experiment-start", true);
       this->setSubscribedToEvent("experiment-shutdown", true);
       this->setSubscribedToEvent("register-owl-namespace", true);
+      this->setSubscribedToEvent("update-absolute-experiment-start-time", true);
+      this->setSubscribedToEvent("update-absolute-experiment-end-time", true);
       
       return resInit;
     }
@@ -123,6 +125,45 @@ namespace beliefstate {
 	    this->info("Registered OWL namespace: '" + strShortcut + "' = '" + strIRI + "'");
 	  } else {
 	    this->warn("Did not register OWL namespace. Insufficient information: '" + strShortcut + "' = '" + strIRI + "'");
+	  }
+	}
+      } else if(evEvent.strEventName == "update-absolute-experiment-start-time") {
+	if(evEvent.lstNodes.size() > 0) {
+	  if(m_mapMetaData.find("time-start") == m_mapMetaData.end()) {
+	    // First entry
+	    m_mapMetaData["time-start"] = evEvent.lstNodes.front()->metaInformation()->stringValue("time-start");
+	  } else {
+	    // Update if necessary
+	    std::string strOld = m_mapMetaData["time-start"];
+	    std::string strNew = evEvent.lstNodes.front()->metaInformation()->stringValue("time-start");
+	    
+	    float fOld, fNew;
+	    sscanf(strOld.c_str(), "%f", &fOld);
+	    sscanf(strNew.c_str(), "%f", &fNew);
+	    
+	    if(fNew < fOld) {
+	      m_mapMetaData["time-start"] = strNew;
+	    }
+	  }
+	}
+      } else if(evEvent.strEventName == "update-absolute-experiment-end-time") {
+	if(evEvent.lstNodes.size() > 0) {
+	  // Every end time overwrites any already existing value, as
+	  // it always happens after.
+	  if(m_mapMetaData.find("time-end") == m_mapMetaData.end()) {
+	    m_mapMetaData["time-end"] = evEvent.lstNodes.front()->metaInformation()->stringValue("time-end");
+	  } else {
+	    // Update if necessary
+	    std::string strOld = m_mapMetaData["time-end"];
+	    std::string strNew = evEvent.lstNodes.front()->metaInformation()->stringValue("time-end");
+	    
+	    float fOld, fNew;
+	    sscanf(strOld.c_str(), "%f", &fOld);
+	    sscanf(strNew.c_str(), "%f", &fNew);
+	    
+	    if(fNew > fOld) {
+	      m_mapMetaData["time-end"] = strNew;
+	    }
 	  }
 	}
       }

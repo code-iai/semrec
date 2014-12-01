@@ -162,6 +162,10 @@ namespace beliefstate {
 	int nDetailLevel = (int)evEvent.cdDesignator->floatValue("_detail-level");
 	ndNew->metaInformation()->setValue(std::string("detail-level"), nDetailLevel);
 	
+	Event evUpdateExperimentTime = defaultEvent("update-absolute-experiment-start-time");
+	evUpdateExperimentTime.lstNodes.push_back(ndNew);
+	this->deployEvent(evUpdateExperimentTime);
+	
 	Event evSymbolicBeginCtx = defaultEvent("symbolic-begin-context");
 	evSymbolicBeginCtx.lstNodes.push_back(ndNew);
 	this->deployEvent(evSymbolicBeginCtx);
@@ -231,9 +235,18 @@ namespace beliefstate {
 	      this->setNodeAsActive(ndParent);
 	    }
 	    
+	    Event evUpdateExperimentTime;
 	    if(ndParentLastValid) {
 	      ndParentLastValid->ensureProperty("time-end", strTimeEnd);
+	      
+	      evUpdateExperimentTime = defaultEvent("update-absolute-experiment-end-time");
+	      evUpdateExperimentTime.lstNodes.push_back(ndParentLastValid);
+	      this->deployEvent(evUpdateExperimentTime);
 	    }
+	    
+	    evUpdateExperimentTime = defaultEvent("update-absolute-experiment-end-time");
+	    evUpdateExperimentTime.lstNodes.push_back(ndCurrent);
+	    this->deployEvent(evUpdateExperimentTime);
 	    
 	    Event evSymbolicEndCtx = defaultEvent("symbolic-end-context");
 	    evSymbolicEndCtx.lstNodes.push_back(ndCurrent);
@@ -249,6 +262,10 @@ namespace beliefstate {
 	    
 	    while(ndSearchTemp) {
 	      ndSearchTemp->ensureProperty("time-end", strTimeEnd);
+	      
+	      Event evUpdateExperimentTime = defaultEvent("update-absolute-experiment-end-time");
+	      evUpdateExperimentTime.lstNodes.push_back(ndSearchTemp);
+	      this->deployEvent(evUpdateExperimentTime);
 	      
 	      if(ndSearchTemp->id() == nID) {
 		ndEndedPrematurely = ndSearchTemp;
