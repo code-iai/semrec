@@ -11,92 +11,117 @@ class LogAnalyzer:
 
     def analyzeLog(self, strPath):
         log = self.rdrLog.loadLog(strPath)
-        data = log.getOwlData()["task-tree"]
+        #data = log.getOwlData()["task-tree"]
         tti = log.getOwlData()["task-tree-individuals"]
 
         #with open("data.pkl", "wb") as f:
         #    pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
         #    data = pickle.load(f)
 
-        data = self.correctTime(data)
+        #data = self.correctTime(data)
 
-        imgTaskPie = Image(Geometry(700, 700), Color("white"))
+        #imgTaskPie = Image(Geometry(700, 700), Color("white"))
 
-        imgTaskPie.strokeColor("#000000")
-        imgTaskPie.strokeWidth(2.5)
-        imgTaskPie.fillColor("transparent")
+        #imgTaskPie.strokeColor("#000000")
+        #imgTaskPie.strokeWidth(2.5)
+        #imgTaskPie.fillColor("transparent")
 
-        self.drawTaskPie(imgTaskPie, data, -1, -1, 5)
-        imgTaskPie.write("out.png")
+        #self.drawTaskPie(imgTaskPie, data, -1, -1, 5)
+        #imgTaskPie.write("out.png")
 
-        toTasks = self.timelyOrderedTasks(data)
+        # toTasks = self.timelyOrderedTasks(data)
 
+        # dicClassTimes = {}
+        # for dicTask in toTasks:
+        #     owlTask = tti[dicTask["name"]]
+        #     strType = owlTask.type()
+
+        #     if not strType in dicClassTimes:
+        #         dicClassTimes[strType] = int(dicTask["time"])
+        #     else:
+        #         dicClassTimes[strType] += int(dicTask["time"])
+        
+        # nEarliestTS = -1
+        # nLatestTS = -1
+        
+        # for dicTask in tti:#toTasks:
+        #     owlTask = tti[dicTask]
+        #     TS = owlTask.timeSpan()
+            
+        #     if TS:
+        #         if nEarliestTS == -1 or float(TS[0]) < nEarliestTS:
+        #             nEarliestTS = float(TS[0])
+        #         if nLatestTS == -1 or float(TS[1]) > nLatestTS:
+        #             nLatestTS = float(TS[1])
+        
+        # nOverallTime = nLatestTS - nEarliestTS
+        
+        fEarliest = -1
+        fLatest = -1
+        
         dicClassTimes = {}
-        for dicTask in toTasks:
-            owlTask = tti[dicTask["name"]]
-            strType = owlTask.type()
-
-            if not strType in dicClassTimes:
-                dicClassTimes[strType] = int(dicTask["time"])
-            else:
-                dicClassTimes[strType] += int(dicTask["time"])
-        
-        nEarliestTS = -1
-        nLatestTS = -1
-        
-        for dicTask in toTasks:
-            owlTask = tti[dicTask["name"]]
+        for strTask in tti:
+            owlTask = tti[strTask]
             TS = owlTask.timeSpan()
             
             if TS:
-                if nEarliestTS == -1 or int(TS[0]) < nEarliestTS:
-                    nEarliestTS = int(TS[0])
-                if nLatestTS == -1 or int(TS[1]) > nLatestTS:
-                    nLatestTS = int(TS[1])
-        
-        nOverallTime = nLatestTS - nEarliestTS
-        
-        with open("classtimes.pkl", "wb") as f:
-            pickle.dump(dicClassTimes, f, pickle.HIGHEST_PROTOCOL)
+                if owlTask.type() in dicClassTimes:
+                    dicClassTimes[owlTask.type()] += (float(TS[1]) - float(TS[0]))
+                else:
+                    dicClassTimes[owlTask.type()] = (float(TS[1]) - float(TS[0]))
+                
+                if float(TS[0]) < fEarliest or fEarliest == -1:
+                    fEarliest = float(TS[0])
 
-        print "Longest Task: ", toTasks[len(toTasks) - 1]
-
-        for strItem in dicClassTimes:
-            print strItem, dicClassTimes[strItem]
+                if float(TS[1]) > fLatest or fLatest == -1:
+                    fLatest = float(TS[1])
         
-        print ""
-        if not "MotionPlanning" in dicClassTimes:
-            print "Picking Up Objects: " + str(dicClassTimes["PickingUpAnObject"])
-            print "Placing Objects: " + str(dicClassTimes["PuttingDownAnObject"])
-            print "Path Planning + Motion Execution: " + str(dicClassTimes["ArmMovement"])
-            print "Navigation: " + str(dicClassTimes["BaseMovement"])
-            print "Head Movement: " + str(dicClassTimes["HeadMovement"])
-            print "Perception Queries: " + str(dicClassTimes["UIMAPerception"])
-            print "Object Identity Resolution + Belief State Updates: " + str(dicClassTimes["PerceivingObjects"] - dicClassTimes["UIMAPerception"])
-        else:
-            print "--- General ---"
-            print "Overall                    : " + str(nOverallTime)
-            print "--- High Level ---"
-            print "Picking Up Objects         : " + str(dicClassTimes["PickingUpAnObject"] +
-                                                        dicClassTimes["CarryingAnObject"] +
-                                                        dicClassTimes["LiftingAnObject"])
-            print "Placing Objects            : " + str(dicClassTimes["PuttingDownAnObject"])
-            print "Finding Objects            : " + str(dicClassTimes["FindingObjects"])
-            print "Other Activities           : " + str(nOverallTime -
-                                                        (dicClassTimes["PickingUpAnObject"] +
-                                                         dicClassTimes["CarryingAnObject"] +
-                                                         dicClassTimes["LiftingAnObject"] +
-                                                         dicClassTimes["PuttingDownAnObject"] +
-                                                         dicClassTimes["FindingObjects"] -
-                                                         dicClassTimes["UIMAPerception"]))
-            print "--- Low Level ---"
-            print "Path Planning              : " + str(dicClassTimes["MotionPlanning"])
-            print "Motion Execution           : " + str(dicClassTimes["MotionExecution"])
-            print "Navigation                 : " + str(dicClassTimes["BaseMovement"])
-            print "Head Movement              : " + str(dicClassTimes["HeadMovement"])
-            print "Perception Queries         : " + str(dicClassTimes["UIMAPerception"])
-            print "Object Identity Resolution : " + str(dicClassTimes["ObjectIdentityResolution"])
-            print "Belief State Updates       : " + str(dicClassTimes["BeliefStateUpdate"])
+        print "Time =", (fLatest - fEarliest)
+        
+        #with open("classtimes.pkl", "wb") as f:
+        #    pickle.dump(dicClassTimes, f, pickle.HIGHEST_PROTOCOL)
+
+        #print "Longest Task: ", toTasks[len(toTasks) - 1]
+
+        #for strItem in dicClassTimes:
+            #print strItem, dicClassTimes[strItem]
+        
+        for strClass in dicClassTimes:
+            print strClass, " = ", dicClassTimes[strClass]
+        
+        #print ""
+        # if not "MotionPlanning" in dicClassTimes:
+        #     print "Picking Up Objects: " + str(dicClassTimes["PickingUpAnObject"])
+        #     print "Placing Objects: " + str(dicClassTimes["PuttingDownAnObject"])
+        #     print "Path Planning + Motion Execution: " + str(dicClassTimes["ArmMovement"])
+        #     print "Navigation: " + str(dicClassTimes["BaseMovement"])
+        #     print "Head Movement: " + str(dicClassTimes["HeadMovement"])
+        #     print "Perception Queries: " + str(dicClassTimes["UIMAPerception"])
+        #     print "Object Identity Resolution + Belief State Updates: " + str(dicClassTimes["PerceivingObjects"] - dicClassTimes["UIMAPerception"])
+        # else:
+        #     # print "--- General ---"
+        #     # print "Overall                    : " + str(nOverallTime)
+        #     print "--- High Level ---"
+        #     print "Picking Up Objects         : " + str(dicClassTimes["PickingUpAnObject"] +
+        #                                                 dicClassTimes["CarryingAnObject"] +
+        #                                                 dicClassTimes["LiftingAnObject"])
+        #     print "Placing Objects            : " + str(dicClassTimes["PuttingDownAnObject"])
+        #     print "Finding Objects            : " + str(dicClassTimes["FindingObjects"])
+        #     # print "Other Activities           : " + str(nOverallTime -
+        #     #                                             (dicClassTimes["PickingUpAnObject"] +
+        #     #                                              dicClassTimes["CarryingAnObject"] +
+        #     #                                              dicClassTimes["LiftingAnObject"] +
+        #     #                                              dicClassTimes["PuttingDownAnObject"] +
+        #     #                                              dicClassTimes["FindingObjects"] -
+        #     #                                              dicClassTimes["UIMAPerception"]))
+        #     print "--- Low Level ---"
+        #     print "Path Planning              : " + str(dicClassTimes["MotionPlanning"])
+        #     print "Motion Execution           : " + str(dicClassTimes["MotionExecution"])
+        #     print "Navigation                 : " + str(dicClassTimes["BaseMovement"])
+        #     print "Head Movement              : " + str(dicClassTimes["HeadMovement"])
+        #     print "Perception Queries         : " + str(dicClassTimes["UIMAPerception"])
+        #     print "Object Identity Resolution : " + str(dicClassTimes["ObjectIdentityResolution"])
+        #     print "Belief State Updates       : " + str(dicClassTimes["BeliefStateUpdate"])
 
     def timelyOrderedTasks(self, data):
         dicLinear = self.linearizeTaskTree(data)
