@@ -75,6 +75,8 @@ namespace beliefstate {
       
       bool extensionPresent(std::string strPath, std::string strExtension);
       virtual void consumeEvent(Event evEvent);
+      
+      void removeEmptyDirectory();
     };
   }
   

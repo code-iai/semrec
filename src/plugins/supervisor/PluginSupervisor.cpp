@@ -63,6 +63,19 @@ namespace beliefstate {
     }
     
     Result PLUGIN_CLASS::deinit() {
+      this->removeEmptyDirectory();
+      
+      return defaultResult();
+    }
+    
+    Result PLUGIN_CLASS::cycle() {
+      Result resCycle = defaultResult();
+      this->deployCycleData(resCycle);
+      
+      return resCycle;
+    }
+    
+    void PLUGIN_CLASS::removeEmptyDirectory() {
       // When shutting down, check for .owl files in the experiment
       // directory. If there are none, delete the entire experiment
       // directory. NOTE(winkler): This might get extended in order
@@ -101,15 +114,6 @@ namespace beliefstate {
 	std::string strSymlinkName = cfgsetCurrent.strBaseDataDirectory + "/" + cfgsetCurrent.strSymlinkName;
 	::remove(strSymlinkName.c_str());
       }
-      
-      return defaultResult();
-    }
-    
-    Result PLUGIN_CLASS::cycle() {
-      Result resCycle = defaultResult();
-      this->deployCycleData(resCycle);
-      
-      return resCycle;
     }
     
     bool PLUGIN_CLASS::extensionPresent(std::string strPath, std::string strExtension) {
@@ -161,6 +165,8 @@ namespace beliefstate {
 	  // shutting down an experiment.
 	  sleep(1);
 	}
+	
+	this->removeEmptyDirectory();
 	
 	ConfigSettings cfgsetCurrent = configSettings();
 	// Create base data directory
