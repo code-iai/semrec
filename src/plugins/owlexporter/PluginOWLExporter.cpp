@@ -102,9 +102,9 @@ namespace beliefstate {
 	
 	this->deployEvent(evSendOwlExporterVersion);
 	
-	m_mapMetaData["time-start"] = this->getTimeStampStr();
+	//m_mapMetaData["time-start"] = this->getTimeStampStr();
       } else if(evEvent.strEventName == "experiment-shutdown") {
-	m_mapMetaData["time-end"] = this->getTimeStampStr();
+	//m_mapMetaData["time-end"] = this->getTimeStampStr();
       } else if(evEvent.strEventName == "set-experiment-meta-data") {
 	if(evEvent.cdDesignator) {
 	  std::string strField = evEvent.cdDesignator->stringValue("field");
