@@ -868,6 +868,31 @@ namespace beliefstate {
       strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";timepoint_" + strTimepoint + "\">\n";
       strDot += "        <rdf:type rdf:resource=\"&knowrob;TimePoint\"/>\n";
       strDot += "    </owl:namedIndividual>\n\n";
+      
+      // Find earliest and latest timepoint
+      if(m_mapMetaData.find("time-start") == m_mapMetaData.end()) {
+	m_mapMetaData["time-start"] = strTimepoint;
+      } else {
+	float fTimeNew, fTimeOld;
+	sscanf(strTimepoint.c_str(), "%f", &fTimeNew);
+	sscanf(m_mapMetaData["time-start"].c_str(), "%f", &fTimeOld);
+	
+	if(fTimeNew < fTimeOld) {
+	  m_mapMetaData["time-start"] = strTimepoint;
+	}
+      }
+      
+      if(m_mapMetaData.find("time-end") == m_mapMetaData.end()) {
+	m_mapMetaData["time-end"] = strTimepoint;
+      } else {
+	float fTimeNew, fTimeOld;
+	sscanf(strTimepoint.c_str(), "%f", &fTimeNew);
+	sscanf(m_mapMetaData["time-end"].c_str(), "%f", &fTimeOld);
+	
+	if(fTimeNew > fTimeOld) {
+	  m_mapMetaData["time-end"] = strTimepoint;
+	}
+      }
     }
     
     return strDot;
