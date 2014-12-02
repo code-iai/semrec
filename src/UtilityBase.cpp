@@ -146,9 +146,9 @@ namespace beliefstate {
   std::string UtilityBase::getTimeStampStr(double dTime) {
     char cTimeBuffer[256];
     std::string strFormat = "%30." + this->str(m_nTimeFloatingPointPrecision) + "f";
-      
+    
     sprintf(cTimeBuffer, strFormat.c_str(), dTime);
-      
+    
     std::string strTime = cTimeBuffer;
     std::stringstream stsTrimmer;
     stsTrimmer << strTime;

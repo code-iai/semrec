@@ -336,31 +336,9 @@ namespace beliefstate {
 	      }
 	    }
 	  }
-	
-	  // Unify all timepoints
-	  //this->info("Unifying " + this->str((int)lstTimepointsSubnodes.size()) + " timepoint(s)");
 	  
-	  // TODO(winkler): The unification of timepoints is happening
-	  // in every recursive step right now. This is not necessary,
-	  // as only the final list of all gathered timepoints needs
-	  // to be unified after everything else has
-	  // finished. Unifying them in every step takes *huge*
-	  // amounts of time when having a lot of nodes/contexts. This
-	  // needs to be refactored ASAP.
-	  for(std::string strTimepointSubnode : lstTimepointsSubnodes) {
-	    bool bExists = false;
-	  
-	    for(std::string strTimepointNode : lstTimepoints) {
-	      if(strTimepointSubnode == strTimepointNode) {
-		bExists = true;
-		break;
-	      }
-	    }
-	  
-	    if(!bExists) {
-	      lstTimepoints.push_back(strTimepointSubnode);
-	    }
-	  }
+	  std::copy(lstTimepointsSubnodes.begin(), lstTimepointsSubnodes.end(),
+		    std::back_insert_iterator<std::list<std::string> >(lstTimepoints));
 	}
       } else {
 	this->fail("Timepoints for invalid node requested!");
@@ -877,7 +855,16 @@ namespace beliefstate {
     std::list<Node*> lstTrace;
     std::list<std::string> lstTimepoints = this->gatherTimepointsForNodes(this->nodes(), lstTrace);
     
+    // Unify all timepoints
+    std::list<std::string> lstTimepointsUnified;
+    
     for(std::string strTimepoint : lstTimepoints) {
+      if(std::find(lstTimepointsUnified.begin(), lstTimepointsUnified.end(), strTimepoint) == lstTimepointsUnified.end()) {
+	lstTimepointsUnified.push_back(strTimepoint);
+      }
+    }
+    
+    for(std::string strTimepoint : lstTimepointsUnified) {
       strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";timepoint_" + strTimepoint + "\">\n";
       strDot += "        <rdf:type rdf:resource=\"&knowrob;TimePoint\"/>\n";
       strDot += "    </owl:namedIndividual>\n\n";
@@ -949,6 +936,10 @@ namespace beliefstate {
     if(strName == "WITH-DESIGNATORS") {
       // Is this right? Or is there a more fitting type for that?
       strClass = "WithDesignators";
+    } else if(strName == "OPEN-GRIPPER") {
+      strClass = "CRAMGripperCommand";
+    } else if(strName == "CLOSE-GRIPPER") {
+      strClass = "CRAMGripperCommand";
     } else if(strName == "TAG") {
       strClass = "CRAMPlanTag";
     } else if(strName.substr(0, 5) == "GOAL-") {
