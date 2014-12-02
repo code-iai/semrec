@@ -98,7 +98,7 @@ namespace beliefstate {
 	evSendOwlExporterVersion.cdDesignator->setValue("field", "owl-exporter-version");
 	evSendOwlExporterVersion.cdDesignator->setValue("value", this->pluginVersion());
 	
-	m_mapRegisteredOWLNamespaces.clear();
+	//m_mapRegisteredOWLNamespaces.clear();
 	
 	this->deployEvent(evSendOwlExporterVersion);
 	

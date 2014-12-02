@@ -185,7 +185,9 @@ namespace beliefstate {
     this->addEntity(strNamespaceID, strNamespace + "#");
     
     for(std::pair<std::string, std::string> prEntity : m_mapRegisteredOWLNamespaces) {
-      this->addEntity(prEntity.first, prEntity.second);
+      if(prEntity.second != "") {
+	this->addEntity(prEntity.first, prEntity.second);
+      }
     }
   }
   
