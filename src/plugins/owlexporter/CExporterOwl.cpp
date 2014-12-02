@@ -312,9 +312,9 @@ namespace beliefstate {
 	      lstTimepointsSubnodes.push_back(ckvpFailure->stringValue("time-fail"));
 	    }
 	  }
-	
+	  
 	  // Gather image timepoints
-	  KeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
+	  KeyValuePair* ckvpImages = ndCurrent->metaInformation()->childForKey("images");
 	
 	  if(ckvpImages) {
 	    std::list<KeyValuePair*> lstImages = ckvpImages->children();
@@ -859,12 +859,15 @@ namespace beliefstate {
     
     // Unify all timepoints
     std::list<std::string> lstTimepointsUnified;
+    this->info("      Acquired " + this->str((int)lstTimepoints.size()) + " timepoint(s) for unification.");
     
     for(std::string strTimepoint : lstTimepoints) {
       if(std::find(lstTimepointsUnified.begin(), lstTimepointsUnified.end(), strTimepoint) == lstTimepointsUnified.end()) {
 	lstTimepointsUnified.push_back(strTimepoint);
       }
     }
+    
+    this->info("      Unification complete.");
     
     for(std::string strTimepoint : lstTimepointsUnified) {
       strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";timepoint_" + strTimepoint + "\">\n";
@@ -1135,31 +1138,31 @@ namespace beliefstate {
     std::string strOwl = "";
     
     // Assemble OWL source
-    this->info(" - Block: DocType");
+    this->info("   - Block: DocType");
     strOwl += this->generateDocTypeBlock();
-    this->info(" - Block: XMLNS");
+    this->info("   - Block: XMLNS");
     strOwl += this->generateXMLNSBlock(strNamespace);
-    this->info(" - Block: Imports");
+    this->info("   - Block: Imports");
     strOwl += this->generateOwlImports(strNamespace);
-    this->info(" - Block: PropDefs");
+    this->info("   - Block: Property Definitions");
     strOwl += this->generatePropertyDefinitions();
-    this->info(" - Block: ClassDefs");
+    this->info("   - Block: Class Definitions");
     strOwl += this->generateClassDefinitions();
-    this->info(" - Block: EvtIndivs");
+    this->info("   - Block: Event Individuals");
     strOwl += this->generateEventIndividuals(strNamespaceID);
-    this->info(" - Block: ObjIndivs");
+    this->info("   - Block: Object Individuals");
     strOwl += this->generateObjectIndividuals(strNamespaceID);
-    this->info(" - Block: ImgIndivs");
+    this->info("   - Block: Image Individuals");
     strOwl += this->generateImageIndividuals(strNamespaceID);
-    this->info(" - Block: DesigIndivs");
+    this->info("   - Block: Designator Individuals");
     strOwl += this->generateDesignatorIndividuals(strNamespaceID);
-    this->info(" - Block: FailIndivs");
+    this->info("   - Block: Failure Individuals");
     strOwl += this->generateFailureIndividuals(strNamespaceID);
-    this->info(" - Block: TPIndivs");
+    this->info("   - Block: Timepoint Individuals (this can take a while)");
     strOwl += this->generateTimepointIndividuals(strNamespaceID);
-    this->info(" - Meta Data");
+    this->info("   - Block: Meta Data Individual");
     strOwl += this->generateMetaDataIndividual(strNamespaceID);
-    this->info(" - Parameter Annotations");
+    this->info("   - Block: Parameter Annotations");
     strOwl += this->generateParameterAnnotationInformation(strNamespaceID);
     strOwl += "</rdf:RDF>\n";
     
