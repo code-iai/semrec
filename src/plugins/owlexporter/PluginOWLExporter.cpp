@@ -82,7 +82,7 @@ namespace beliefstate {
 	  
 	  if(strFormat == "owl") {
 	    if(m_mapMetaData.find("time-end") == m_mapMetaData.end()) {
-	      m_mapMetaData["time-end"] = this->getTimeStampStr();
+	      //m_mapMetaData["time-end"] = this->getTimeStampStr();
 	    }
 	    
 	    ServiceEvent seGetPlanTree = defaultServiceEvent("symbolic-plan-tree");
