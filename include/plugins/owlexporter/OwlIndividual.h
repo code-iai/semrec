@@ -5,6 +5,8 @@
 // System
 #include <string>
 #include <list>
+#include <algorithm>
+#include <iostream>
 
 
 namespace beliefstate {
@@ -22,6 +24,9 @@ namespace beliefstate {
     std::string m_strID;
     std::string m_strType;
     
+    static std::list<std::string> m_lstIssuedProperties;
+    static std::list<std::string> m_lstIssuedTypes;
+    
   protected:
   public:
     OwlIndividual();
@@ -34,9 +39,19 @@ namespace beliefstate {
     void addResourceProperty(std::string strTag, std::string strResource);
     void addContentProperty(std::string strTag, std::string strContent);
     
+    void issueProperty(std::string strProperty);
+    void issueType(std::string strType);
+    
     std::string indent(int nSpaces);
     
     std::string print(int nIndentation = 1, int nIndentationPerLevel = 4);
+    
+    static void resetIssuedProperties();
+    static void resetIssuedTypes();
+    static void resetIssuedInformation();
+    
+    static std::list<std::string> issuedProperties();
+    static std::list<std::string> issuedTypes();
   };
 }
 

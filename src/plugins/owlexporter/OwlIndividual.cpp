@@ -2,6 +2,10 @@
 
 
 namespace beliefstate {
+  std::list<std::string> OwlIndividual::m_lstIssuedProperties;
+  std::list<std::string> OwlIndividual::m_lstIssuedTypes;
+  
+  
   OwlIndividual::OwlIndividual() {
     //
   }
@@ -16,6 +20,8 @@ namespace beliefstate {
   
   void OwlIndividual::setType(std::string strType) {
     m_strType = strType;
+    
+    this->issueType(strType);
   }
   
   void OwlIndividual::addDataProperty(std::string strTag, std::string strDataType, std::string strContent) {
@@ -25,6 +31,8 @@ namespace beliefstate {
     opProperty.strContent = strContent;
     
     m_lstProperties.push_back(opProperty);
+    
+    this->issueProperty(strTag);
   }
   
   void OwlIndividual::addResourceProperty(std::string strTag, std::string strResource) {
@@ -33,6 +41,8 @@ namespace beliefstate {
     opProperty.strResource = strResource;
     
     m_lstProperties.push_back(opProperty);
+    
+    this->issueProperty(strTag);
   }
   
   void OwlIndividual::addContentProperty(std::string strTag, std::string strContent) {
@@ -41,6 +51,28 @@ namespace beliefstate {
     opProperty.strContent = strContent;
     
     m_lstProperties.push_back(opProperty);
+    
+    this->issueProperty(strTag);
+  }
+  
+  void OwlIndividual::issueProperty(std::string strProperty) {
+    std::string strPropertyFormatted = strProperty;
+    
+    size_t posColon = strPropertyFormatted.find(":");
+    if(posColon != std::string::npos) {
+      // Namespace found, convert it into short form
+      strPropertyFormatted = "&" + strPropertyFormatted.substr(0, posColon) + ";" + strPropertyFormatted.substr(posColon + 1);
+    }
+    
+    if(std::find(m_lstIssuedProperties.begin(), m_lstIssuedProperties.end(), strPropertyFormatted) == m_lstIssuedProperties.end()) {
+      m_lstIssuedProperties.push_back(strPropertyFormatted);
+    }
+  }
+  
+  void OwlIndividual::issueType(std::string strType) {
+    if(std::find(m_lstIssuedTypes.begin(), m_lstIssuedTypes.end(), strType) == m_lstIssuedTypes.end()) {
+      m_lstIssuedTypes.push_back(strType);
+    }
   }
   
   std::string OwlIndividual::indent(int nSpaces) {
@@ -88,5 +120,26 @@ namespace beliefstate {
     strOwl += this->indent(nIndentation * nIndentationPerLevel) + "\n";
     
     return strOwl;
+  }
+  
+  void OwlIndividual::resetIssuedProperties() {
+    m_lstIssuedProperties.clear();
+  }
+  
+  void OwlIndividual::resetIssuedTypes() {
+    m_lstIssuedTypes.clear();
+  }
+  
+  void OwlIndividual::resetIssuedInformation() {
+    OwlIndividual::resetIssuedProperties();
+    OwlIndividual::resetIssuedTypes();
+  }
+  
+  std::list<std::string> OwlIndividual::issuedProperties() {
+    return m_lstIssuedProperties;
+  }
+  
+  std::list<std::string> OwlIndividual::issuedTypes() {
+    return m_lstIssuedTypes;
   }
 }

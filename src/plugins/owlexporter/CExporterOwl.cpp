@@ -245,7 +245,8 @@ namespace beliefstate {
   std::string CExporterOwl::generatePropertyDefinitions() {
     std::string strDot = "    <!-- Property Definitions -->\n\n";
     
-    for(std::string strProperty : m_lstDefinedProperties) {
+    std::list<std::string> lstProperties = OwlIndividual::issuedProperties();
+    for(std::string strProperty : lstProperties) {
       strDot += "    <owl:ObjectProperty rdf:about=\"" + strProperty + "\"/>\n\n";
     }
     
@@ -353,8 +354,7 @@ namespace beliefstate {
   std::string CExporterOwl::generateClassDefinitions() {
     std::string strDot = "    <!-- Class Definitions -->\n\n";
     
-    std::list<std::string> lstClasses = this->gatherClassesForNodes(this->nodes());
-    lstClasses.push_back("&knowrob;TimePoint");
+    std::list<std::string> lstClasses = OwlIndividual::issuedTypes();
     
     for(std::string strClass : lstClasses) {
       strDot += "    <owl:Class rdf:about=\"" + strClass + "\"/>\n\n";
@@ -1151,6 +1151,7 @@ namespace beliefstate {
   
   std::string CExporterOwl::generateOwlStringForNodes(std::list<Node*> lstNodes, std::string strNamespaceID, std::string strNamespace) {
     std::string strOwl = "";
+    OwlIndividual::resetIssuedInformation();
     
     // Assemble OWL source
     this->info("   - Block: DocType");
@@ -1159,27 +1160,37 @@ namespace beliefstate {
     strOwl += this->generateXMLNSBlock(strNamespace);
     this->info("   - Block: Imports");
     strOwl += this->generateOwlImports(strNamespace);
+    
+    std::string strOwl2 = "";
+    this->info("   - Block: Event Individuals");
+    strOwl2 += this->generateEventIndividuals(strNamespaceID);
+    this->info("   - Block: Object Individuals");
+    strOwl2 += this->generateObjectIndividuals(strNamespaceID);
+    this->info("   - Block: Image Individuals");
+    strOwl2 += this->generateImageIndividuals(strNamespaceID);
+    this->info("   - Block: Designator Individuals");
+    strOwl2 += this->generateDesignatorIndividuals(strNamespaceID);
+    this->info("   - Block: Failure Individuals");
+    strOwl2 += this->generateFailureIndividuals(strNamespaceID);
+    this->info("   - Block: Timepoint Individuals (this can take a while)");
+    strOwl2 += this->generateTimepointIndividuals(strNamespaceID);
+    this->info("   - Block: Meta Data Individual");
+    strOwl2 += this->generateMetaDataIndividual(strNamespaceID);
+    this->info("   - Block: Parameter Annotations");
+    strOwl2 += this->generateParameterAnnotationInformation(strNamespaceID);
+    strOwl2 += "</rdf:RDF>\n";
+    
+    // NOTE(winkler): Doing this afterwards, as the other blocks being
+    // placed after them in the file actually issue classes and
+    // properties that need to be mentioned in the definitions (which
+    // are placed further up in the file). That's why we're shifting
+    // order here.
     this->info("   - Block: Property Definitions");
     strOwl += this->generatePropertyDefinitions();
     this->info("   - Block: Class Definitions");
     strOwl += this->generateClassDefinitions();
-    this->info("   - Block: Event Individuals");
-    strOwl += this->generateEventIndividuals(strNamespaceID);
-    this->info("   - Block: Object Individuals");
-    strOwl += this->generateObjectIndividuals(strNamespaceID);
-    this->info("   - Block: Image Individuals");
-    strOwl += this->generateImageIndividuals(strNamespaceID);
-    this->info("   - Block: Designator Individuals");
-    strOwl += this->generateDesignatorIndividuals(strNamespaceID);
-    this->info("   - Block: Failure Individuals");
-    strOwl += this->generateFailureIndividuals(strNamespaceID);
-    this->info("   - Block: Timepoint Individuals (this can take a while)");
-    strOwl += this->generateTimepointIndividuals(strNamespaceID);
-    this->info("   - Block: Meta Data Individual");
-    strOwl += this->generateMetaDataIndividual(strNamespaceID);
-    this->info("   - Block: Parameter Annotations");
-    strOwl += this->generateParameterAnnotationInformation(strNamespaceID);
-    strOwl += "</rdf:RDF>\n";
+    
+    strOwl += strOwl2;
     
     if(m_nThrowAndCatchFailureCounter != 0) {
       this->warn("Throw/Catch failure counter is != 0: '" + this->str(m_nThrowAndCatchFailureCounter) + "'");
