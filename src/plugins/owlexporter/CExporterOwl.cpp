@@ -300,13 +300,13 @@ namespace beliefstate {
 	  std::list<std::string> lstTimepointsSubnodes = this->gatherTimepointsForNodes(ndCurrent->subnodes(), lstSubTrace);
 	  lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-start"));
 	  lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-end"));
-	
+	  
 	  // Gather failure timepoints
-	  KeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
-	
+	  KeyValuePair* ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
+	  
 	  if(ckvpFailures) {
 	    std::list<KeyValuePair*> lstFailures = ckvpFailures->children();
-	  
+	    
 	    unsigned int unIndex = 0;
 	    for(KeyValuePair* ckvpFailure : lstFailures) {
 	      lstTimepointsSubnodes.push_back(ckvpFailure->stringValue("time-fail"));
@@ -315,7 +315,7 @@ namespace beliefstate {
 	  
 	  // Gather image timepoints
 	  KeyValuePair* ckvpImages = ndCurrent->metaInformation()->childForKey("images");
-	
+	  
 	  if(ckvpImages) {
 	    std::list<KeyValuePair*> lstImages = ckvpImages->children();
 	  
@@ -407,12 +407,14 @@ namespace beliefstate {
 	  
 	  // NOTE: Here, the generation code the the current node
 	  // begins.
-	  strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + ndCurrent->uniqueID() + "\">\n";
-	  strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
-	  strDot += "        <knowrob:taskContext rdf:datatype=\"&xsd;string\">" + ndCurrent->title() + "</knowrob:taskContext>\n";
-	  strDot += "        <knowrob:taskSuccess rdf:datatype=\"&xsd;boolean\">" + (ndCurrent->success() ? std::string("true") : std::string("false")) + "</knowrob:taskSuccess>\n";
-	  strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-start") + "\"/>\n";
-	  strDot += "        <knowrob:endTime rdf:resource=\"&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-end") + "\"/>\n";
+	  OwlIndividual oiIndividual;
+	  oiIndividual.setID("&" + strNamespace + ";" + ndCurrent->uniqueID());
+	  oiIndividual.setType(strOwlClass);
+	  
+	  oiIndividual.addDataProperty("knowrob:taskContext", "&xsd;string", ndCurrent->title());
+	  oiIndividual.addDataProperty("knowrob:taskSuccess", "&xsd;boolean", (ndCurrent->success() ? std::string("true") : std::string("false")));
+	  oiIndividual.addResourceProperty("knowrob:startTime", "&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-start"));
+	  oiIndividual.addResourceProperty("knowrob:endTime", "&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-end"));
 	  
 	  if(ndCurrent->title() == "GOAL-ACHIEVE") {
 	    std::list<KeyValuePair*> lstDescription = ndCurrent->description();
@@ -426,26 +428,26 @@ namespace beliefstate {
 	    }
 	    
 	    if(strPattern != "") {
-	      strDot += "        <knowrob:goalContext rdf:datatype=\"&xsd;string\">" + strPattern + "</knowrob:goalContext>\n";
+	      oiIndividual.addDataProperty("knowrob:goalContext", "&xsd;string", strPattern);
 	    }
 	  }
 	  
 	  std::list<Node*> lstSubnodes = ndCurrent->subnodes();
 	  for(Node* ndSubnode : lstSubnodes) {
 	    if(this->nodeDisplayable(ndSubnode)) {
-	      strDot += "        <knowrob:subAction rdf:resource=\"&" + strNamespace + ";" + ndSubnode->uniqueID() + "\"/>\n";
+	      oiIndividual.addResourceProperty("knowrob:subAction", "&" + strNamespace + ";" + ndSubnode->uniqueID());
 	    }
 	  }
 	  
 	  if(ndLastDisplayed) {
-	    strDot += "        <knowrob:previousAction rdf:resource=\"&" + strNamespace + ";" + ndLastDisplayed->uniqueID() + "\"/>\n";
+	    oiIndividual.addResourceProperty("knowrob:previousAction", "&" + strNamespace + ";" + ndLastDisplayed->uniqueID());
 	  }
 	  
 	  std::list<Node*>::iterator itPostEvent = itNode;
 	  itPostEvent++;
 	  while(itPostEvent != lstNodes.end()) {
 	    if(this->nodeDisplayable(*itPostEvent)) {
-	      strDot += "        <knowrob:nextAction rdf:resource=\"&" + strNamespace + ";" + (*itPostEvent)->uniqueID() + "\"/>\n";
+	      oiIndividual.addResourceProperty("knowrob:nextAction", "&" + strNamespace + ";" + (*itPostEvent)->uniqueID());
 	      break;
 	    }
 	    
@@ -481,12 +483,12 @@ namespace beliefstate {
 	      }
 	      
 	      std::string strObjectID = strDefClass + "_" + ckvpObject->stringValue("__id");
-	      strDot += "        <" + strDefProperty + " rdf:resource=\"" + strDefClassNamespace + strObjectID +"\"/>\n";
+	      oiIndividual.addResourceProperty(strDefProperty, strDefClassNamespace + strObjectID);
 	    }
 	  }
 	  
 	  // Image references here.
-	  KeyValuePair *ckvpImages = ndCurrent->metaInformation()->childForKey("images");
+	  KeyValuePair* ckvpImages = ndCurrent->metaInformation()->childForKey("images");
 	  
 	  if(ckvpImages) {
 	    std::list<KeyValuePair*> lstImages = ckvpImages->children();
@@ -496,12 +498,12 @@ namespace beliefstate {
 	      std::stringstream sts;
 	      sts << ndCurrent->uniqueID() << "_image_" << unIndex;
 	      
-	      strDot += "        <knowrob:capturedImage rdf:resource=\"&" + strNamespace + ";" + sts.str() +"\"/>\n";
+	      oiIndividual.addResourceProperty("knowrob:capturedImage", "&" + strNamespace + ";" + sts.str());
 	    }
 	  }
 	  
 	  // Failure references here.
-	  KeyValuePair *ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
+	  KeyValuePair* ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
 	  
 	  if(ckvpFailures) {
 	    std::list<KeyValuePair*> lstFailures = ckvpFailures->children();
@@ -510,13 +512,13 @@ namespace beliefstate {
 	    for(KeyValuePair* ckvpFailure : lstFailures) {
 	      std::stringstream sts;
 	      sts << ndCurrent->uniqueID() << "_failure_" << unIndex;
-	      strDot += "        <knowrob:eventFailure rdf:resource=\"&" + strNamespace + ";" + sts.str() + "\"/>\n";
+	      oiIndividual.addResourceProperty("knowrob:eventFailure", "&" + strNamespace + ";" + sts.str());
 	      m_nThrowAndCatchFailureCounter++;
 	    }
 	  }
 	  
 	  // Caught failure here.
-	  KeyValuePair *ckvpCaughtFailures = ndCurrent->metaInformation()->childForKey("caught_failures");
+	  KeyValuePair* ckvpCaughtFailures = ndCurrent->metaInformation()->childForKey("caught_failures");
 	  
 	  if(ckvpCaughtFailures) {
 	    std::list<KeyValuePair*> lstCaughtFailures = ckvpCaughtFailures->children();
@@ -528,7 +530,7 @@ namespace beliefstate {
 	      if(ndFailureEmitter) {
 		std::string strCaughtFailure = ndFailureEmitter->uniqueID() + "_" + ckvpCaughtFailure->stringValue("failure-id");
 		m_nThrowAndCatchFailureCounter--;
-		strDot += "        <knowrob:caughtFailure rdf:resource=\"&" + strNamespace + ";" + strCaughtFailure + "\"/>\n";
+		oiIndividual.addResourceProperty("knowrob:caughtFailure", "&" + strNamespace + ";" + strCaughtFailure);
 	      } else {
 		this->warn("No emitter for failure '" + ckvpCaughtFailure->stringValue("failure-id") + "'.");
 	      }
@@ -577,19 +579,20 @@ namespace beliefstate {
 			m_lstAnnotatedParameters.push_back(strKey);
 		      }
 		      
-		      strDot += "        <knowrob:" + strKey + ">" + sts.str() + "</knowrob:" + strKey + ">\n";
-		      strDot += "        <knowrob:annotatedParameterType rdf:datatype=\"&xsd;string\">" + strKey + "</knowrob:annotatedParameterType>\n";
+		      oiIndividual.addContentProperty("knowrob:" + strKey, sts.str());
+		      oiIndividual.addDataProperty("knowrob:annotatedParameterType", "&xsd;string", strKey);
 		    }
 		  }
 		}
 	      }
 	      
 	      std::string strDesigPurpose = this->resolveDesignatorAnnotationTagName(strAnnotation);
-	      strDot += "        <knowrob:" + strDesigPurpose + " rdf:resource=\"&" + strNamespace + ";" + strDesigID + "\"/>\n";
+	      oiIndividual.addResourceProperty("knowrob:" + strDesigPurpose, "&" + strNamespace + ";" + strDesigID);
 	    }
 	  }
 	  
-	  strDot += "    </owl:namedIndividual>\n\n";
+	  strDot += oiIndividual.print();
+	  
 	  ndLastDisplayed = ndCurrent;
 	}
       } else {
@@ -661,11 +664,13 @@ namespace beliefstate {
 	    
 	    std::string strFailureClass = this->failureClassForCondition(strCondition);
 	    
-	    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
-	    strDot += "        <rdf:type rdf:resource=\"&knowrob;" + strFailureClass + "\"/>\n";
-	    strDot += "        <rdfs:label rdf:datatype=\"&xsd;string\">" + this->owlEscapeString(strCondition) + "</rdfs:label>\n";
-	    strDot += "        <knowrob:startTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strTimestamp + "\"/>\n";
-	    strDot += "    </owl:namedIndividual>\n\n";
+	    OwlIndividual oiIndividual;
+	    oiIndividual.setID("&" + strNamespace + ";" + sts.str());
+	    oiIndividual.setType("&knowrob;" + strFailureClass);
+	    oiIndividual.addDataProperty("rdfs:label", "&xsd;string", this->owlEscapeString(strCondition));
+	    oiIndividual.addResourceProperty("knowrob:startTime", "&" + strNamespace + ";timepoint_" + strTimestamp);
+	    
+	    strDot += oiIndividual.print();
 	  }
 	}
 	
@@ -713,10 +718,12 @@ namespace beliefstate {
 	    std::string strObjectID = strDefClass + "_" + ckvpObject->stringValue("__id");
 	    
 	    if(find(m_lstExportedObjectIndividuals.begin(), m_lstExportedObjectIndividuals.end(), strObjectID) == m_lstExportedObjectIndividuals.end()) {
-	      strDot += "    <owl:namedIndividual rdf:about=\"" + strDefClassNamespace + strObjectID + "\">\n";
-	      strDot += "        <knowrob:designator rdf:resource=\"&" + strNamespace + ";" + strDesignatorID + "\"/>\n";
-	      strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
-	      strDot += "    </owl:namedIndividual>\n\n";
+	      OwlIndividual oiIndividual;
+	      oiIndividual.setID(strDefClassNamespace + strObjectID);
+	      oiIndividual.setType(strOwlClass);
+	      oiIndividual.addResourceProperty("knowrob:designator", "&" + strNamespace + ";" + strDesignatorID);
+	      
+	      strDot += oiIndividual.print();
 	      
 	      m_lstExportedObjectIndividuals.push_back(strObjectID);
 	    }
@@ -759,12 +766,14 @@ namespace beliefstate {
 	    std::string strTopic = ckvpImage->stringValue("origin");
 	    std::string strCaptureTime = ckvpImage->stringValue("time-capture");
 	    
-	    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + sts.str() + "\">\n";
-	    strDot += "        <knowrob:linkToImageFile rdf:datatype=\"&xsd;string\">" + strFilename + "</knowrob:linkToImageFile>\n";
-	    strDot += "        <knowrob:rosTopic rdf:datatype=\"&xsd;string\">" + strTopic + "</knowrob:rosTopic>\n";
-	    strDot += "        <knowrob:captureTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strCaptureTime + "\"/>\n";
-	    strDot += "        <rdf:type rdf:resource=\"" + strOwlClass + "\"/>\n";
-	    strDot += "    </owl:namedIndividual>\n\n";
+	    OwlIndividual oiIndividual;
+	    oiIndividual.setID("&" + strNamespace + ";" + sts.str());
+	    oiIndividual.setType(strOwlClass);
+	    oiIndividual.addDataProperty("knowrob:linkToImageFile", "&xsd;string", strFilename);
+	    oiIndividual.addDataProperty("knowrob:rosTopic", "&xsd;string", strTopic);
+	    oiIndividual.addResourceProperty("knowrob:captureTime", "&" + strNamespace + ";timepoint_" + strCaptureTime);
+	    
+	    strDot += oiIndividual.print();
 	  }
 	}
 	
@@ -791,22 +800,23 @@ namespace beliefstate {
     std::list<std::string> lstDesigIDs = this->designatorIDs();
     
     for(std::string strID : lstDesigIDs) {
-      strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + strID + "\">\n";
-      strDot += "        <rdf:type rdf:resource=\"&knowrob;" + m_strDefaultDesignatorClass + "\"/>\n";
+      OwlIndividual oiIndividual;
+      oiIndividual.setID("&" + strNamespace + ";" + strID);
+      oiIndividual.setType("&knowrob;" + m_strDefaultDesignatorClass);
       
       if(m_mapDesignators.find(strID) != m_mapDesignators.end()) {
 	std::string strTimeCreated = m_mapDesignators[strID]->childForKey("description")->stringValue("_time_created");
-	strDot += "        <knowrob:creationTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strTimeCreated + "\"/>\n";
+	oiIndividual.addResourceProperty("knowrob:creationTime", "&" + strNamespace + ";timepoint_" + strTimeCreated);
       }
       
       std::list<std::string> lstSuccessorIDs = this->successorDesignatorsForID(strID);
       for(std::string strID2 : lstSuccessorIDs) {
-	strDot += "        <knowrob:successorDesignator rdf:resource=\"&" + strNamespace + ";" + strID2 + "\"/>\n";
+	oiIndividual.addResourceProperty("knowrob:successorDesignator", "&" + strNamespace + ";" + strID2);
       }
       
       std::string strEquationTime = this->equationTimeForSuccessorID(strID);
       if(strEquationTime != "") {
-	strDot += "        <knowrob:equationTime rdf:resource=\"&" + strNamespace + ";timepoint_" + strEquationTime + "\"/>\n";
+	oiIndividual.addResourceProperty("knowrob:equationTime", "&" + strNamespace + ";timepoint_" + strEquationTime);
       }
       
       // NOTE(winkler): This is an index designator (i.e. `first in
@@ -817,11 +827,11 @@ namespace beliefstate {
 	
 	std::list<std::string> lstAllSuccessors = this->collectAllSuccessorDesignatorIDs(strID);
 	for(std::string strSuccessor : lstAllSuccessors) {
-	  strDot += "        <knowrob:equatedDesignator rdf:resource=\"&" + strNamespace + ";" + strSuccessor + "\"/>\n";
+	  oiIndividual.addResourceProperty("knowrob:equatedDesignator", "&" + strNamespace + ";" + strSuccessor);
 	}
       }
       
-      strDot += "    </owl:namedIndividual>\n\n";
+      strDot += oiIndividual.print();
     }
     
     return strDot;
@@ -870,9 +880,11 @@ namespace beliefstate {
     this->info("      Unification complete.");
     
     for(std::string strTimepoint : lstTimepointsUnified) {
-      strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";timepoint_" + strTimepoint + "\">\n";
-      strDot += "        <rdf:type rdf:resource=\"&knowrob;TimePoint\"/>\n";
-      strDot += "    </owl:namedIndividual>\n\n";
+      OwlIndividual oiIndividual;
+      oiIndividual.setID("&" + strNamespace + ";timepoint_" + strTimepoint);
+      oiIndividual.setType("&knowrob;TimePoint");
+      
+      strDot += oiIndividual.print();
       
       // Find earliest and latest timepoint
       if(m_mapMetaData.find("time-start") == m_mapMetaData.end()) {
@@ -907,12 +919,13 @@ namespace beliefstate {
     std::string strDot = "    <!-- Meta Data Individual -->\n\n";
     std::string strUniqueName = this->generateUniqueID("RobotExperiment_", 8);
     
-    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + strUniqueName + "\">\n";
-    strDot += "        <rdf:type rdf:resource=\"&knowrob;RobotExperiment\"/>\n";
+    OwlIndividual oiIndividual;
+    oiIndividual.setID("&" + strNamespace + ";" + strUniqueName);
+    oiIndividual.setType("&knowrob;RobotExperiment");
     
     std::list<Node*> lstRootNodes = this->rootNodes();
     for(Node* ndRoot : lstRootNodes) {
-      strDot += "        <knowrob:subAction rdf:resource=\"&" + strNamespace + ";" + ndRoot->uniqueID() + "\"/>\n";
+      oiIndividual.addResourceProperty("knowrob:subAction", "&" + strNamespace + ";" + ndRoot->uniqueID());
     }
     
     for(std::pair<std::string, std::string> prEntry : m_mapMetaData) {
@@ -929,9 +942,10 @@ namespace beliefstate {
 	}
       }
       
-      strDot += "        <knowrob:" + strCamelCaseKey + " rdf:datatype=\"&xsd;string\">" + prEntry.second + "</knowrob:" + strCamelCaseKey + ">\n";
+      oiIndividual.addDataProperty("knowrob:" + strCamelCaseKey, "&xsd;string", prEntry.second);
     }
-    strDot += "    </owl:namedIndividual>\n\n";
+    
+    strDot += oiIndividual.print();
     
     return strDot;
   }
@@ -940,14 +954,15 @@ namespace beliefstate {
     std::string strDot = "    <!-- Parameter Annotation Information Individual -->\n\n";
     std::string strUniqueName = this->generateUniqueID("AnnotationInformation_", 8);
     
-    strDot += "    <owl:namedIndividual rdf:about=\"&" + strNamespace + ";" + strUniqueName + "\">\n";
-    strDot += "        <rdf:type rdf:resource=\"&knowrob;AnnotationInformation\"/>\n";
+    OwlIndividual oiIndividual;
+    oiIndividual.setID("&" + strNamespace + ";" + strUniqueName);
+    oiIndividual.setType("&knowrob;AnnotationInformation");
     
     for(std::string strParameterAnnotation : m_lstAnnotatedParameters) {
-      strDot += "        <knowrob:annotatedParameterType rdf:datatype=\"&xsd;string\">" + strParameterAnnotation + "</knowrob:annotatedParameterType>\n";
+      oiIndividual.addDataProperty("knowrob:annotatedParameterType", "&xsd;string", strParameterAnnotation);
     }
     
-    strDot += "    </owl:namedIndividual>\n\n";
+    strDot += oiIndividual.print();
     
     return strDot;
   }

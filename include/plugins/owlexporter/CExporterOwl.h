@@ -51,6 +51,7 @@
 
 // Private
 #include <CExporterFileoutput.h>
+#include <plugins/owlexporter/OwlIndividual.h>
 
 
 namespace beliefstate {

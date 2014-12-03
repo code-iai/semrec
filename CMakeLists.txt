@@ -41,6 +41,7 @@ add_library(bs_plugin_prediction SHARED
   src/plugins/prediction/PluginPrediction.cpp
   src/plugins/prediction/DecisionTree.cpp
   src/plugins/owlexporter/CExporterOwl.cpp
+  src/plugins/owlexporter/OwlIndividual.cpp
   src/CExporter.cpp
   src/CExporterFileoutput.cpp
   src/Node.cpp
@@ -102,6 +103,7 @@ add_library(bs_plugin_owlexporter SHARED
   src/CExporter.cpp
   src/CExporterFileoutput.cpp
   src/plugins/owlexporter/CExporterOwl.cpp
+  src/plugins/owlexporter/OwlIndividual.cpp
   src/plugins/owlexporter/PluginOWLExporter.cpp)
 
 add_library(bs_plugin_dotexporter SHARED
