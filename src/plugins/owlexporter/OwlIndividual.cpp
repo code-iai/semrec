@@ -95,8 +95,10 @@ namespace beliefstate {
     strOwl += this->indent(nIndentation * nIndentationPerLevel) +
       "<owl:namedIndividual rdf:about=\"" + m_strID + "\">\n";
     
-    strOwl += this->indent((nIndentation + 1) * nIndentationPerLevel) +
-      "<rdf:type rdf:resource=\"" + m_strType + "\"/>\n";
+    if(m_strType != "") {
+      strOwl += this->indent((nIndentation + 1) * nIndentationPerLevel) +
+	"<rdf:type rdf:resource=\"" + m_strType + "\"/>\n";
+    }
     
     for(OwlProperty opProperty : m_lstProperties) {
       strOwl += this->indent((nIndentation + 1) * nIndentationPerLevel);
