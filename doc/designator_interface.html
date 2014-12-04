@@ -9,7 +9,7 @@
             <h3 class="int_title">Begin Context</h3>
             <div class="int_block">
                 <span class="int_desc">Start a new context with a given symbolic string identifier.</span>
-                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/begin_context</span></span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/operate</span></span>
                 <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
                 <table class="comm_fields">
                     <tr>
@@ -36,7 +36,7 @@
             <h3 class="int_title">End Context</h3>
             <div class="int_block">
                 <span class="int_desc">End a formerly started context given its integer identifier. This ends all other still open child contexts of this context and marks them as prematurely ended and associates their end time with this context's end time.</span>
-                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/end_context</span></span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/operate</span></span>
                 <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
                 <table class="comm_fields">
                     <tr>
@@ -53,7 +53,7 @@
             <h3 class="int_title">Export Files</h3>
             <div class="int_block">
                 <span class="int_desc">Export logged data. The type of data to store strongly depends on the plugins loaded. By default, the formats OWL, DOT, and META are accepted.</span>
-                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/operate</span></span>
                 <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
                 <table class="comm_fields">
                     <tr>
@@ -90,7 +90,7 @@
             <h3 class="int_title">Start New Experiment</h3>
             <div class="int_block">
                 <span class="int_desc">Start a new experiment and reinitialize loaded plugins for the new experiment.</span>
-                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/operate</span></span>
                 <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
                 <table class="comm_fields">
                     <tr>
@@ -107,7 +107,7 @@
             <h3 class="int_title">Add Object to Active Context</h3>
             <div class="int_block">
                 <span class="int_desc">Associate a given object designator to the currently active context.</span>
-                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/operate</span></span>
                 <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
                 <table class="comm_fields">
                     <tr>
@@ -146,7 +146,7 @@
             <h3 class="int_title">Set Experiment Metadata</h3>
             <div class="int_block">
                 <span class="int_desc">Set a metadata attribute for the active experiment, consisting of a field name and an associated value.</span>
-                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/operate</span></span>
                 <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
                 <table class="comm_fields">
                     <tr>
@@ -171,7 +171,7 @@
             <h3 class="int_title">Add Topic Image to Active Context</h3>
             <div class="int_block">
                 <span class="int_desc">Trigger capturing of an image from a ROS topic and associate it to the currently active context.</span>
-                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/operate</span></span>
                 <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
                 <table class="comm_fields">
                     <tr>
@@ -192,7 +192,7 @@
             <h3 class="int_title">Add Failure to Active Context</h3>
             <div class="int_block">
                 <span class="int_desc">Associate a symbolic failure to the active context. The context will automatically be marked as failed.</span>
-                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/operate</span></span>
                 <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
                 <table class="comm_fields">
                     <tr>
@@ -213,7 +213,7 @@
             <h3 class="int_title">Add Designator to Active Context</h3>
             <div class="int_block">
                 <span class="int_desc">Associate a designator to the active context.</span>
-                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/operate</span></span>
                 <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
                 <table class="comm_fields">
                     <tr>
@@ -256,7 +256,7 @@
             <h3 class="int_title">Equate two Designator</h3>
             <div class="int_block">
                 <span class="int_desc">Equate two designators with each other, effectively chaining them for symbolic reasoning.</span>
-                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/alter_context</span></span>
+                <span class="int_lbl_service">Service: <span class="int_text_highlight_service">/operate</span></span>
                 <span class="int_lbl_input">Input: <span class="int_text_highlight_block">Single Designator</span></span>
                 <table class="comm_fields">
                     <tr>
