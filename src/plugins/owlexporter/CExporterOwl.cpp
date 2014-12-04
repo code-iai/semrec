@@ -95,7 +95,6 @@ namespace beliefstate {
 	  }
 	}
 	
-	m_lstDefinedProperties.clear();
 	m_lstAnnotationPurposeMapping.clear();
 	
 	if(cfgConfig.exists("structure")) {
@@ -108,15 +107,6 @@ namespace beliefstate {
 	  
 	  if(m_strPropertyNamespace == "") {
 	    this->warn("You didn't specify the 'structure/property-namespace' parameter on the semantics descriptor file. Your OWL classes will have no namespace prepended. Is this intended?");
-	  }
-	  
-	  if(sStructure.exists("defined-properties")) {
-	    libconfig::Setting &sDefinedProperties = sStructure["defined-properties"];
-	    
-	    for(int nI = 0; nI < sDefinedProperties.getLength(); nI++) {
-	      std::string strProperty = sDefinedProperties[nI];
-	      m_lstDefinedProperties.push_back(m_strPropertyNamespace + strProperty);
-	    }
 	  }
 	  
 	  m_strDefaultDesignatorClass = "";
