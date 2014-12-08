@@ -107,7 +107,7 @@ namespace beliefstate {
   
   void CExporter::renewUniqueIDsForNode(Node *ndRenew) {
     std::string strNodeIDPrefix = this->nodeIDPrefix(ndRenew, "node_");
-    ndRenew->setUniqueID(this->generateUniqueID(strNodeIDPrefix, 8));
+    ndRenew->setUniqueID(this->generateUniqueID(strNodeIDPrefix));
     
     std::list<Node*> lstSubnodes = ndRenew->subnodes();
     for(Node* ndNode : lstSubnodes) {

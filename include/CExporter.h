@@ -85,8 +85,8 @@ namespace beliefstate {
     
     virtual bool runExporter(KeyValuePair* ckvpConfigurationOverlay);
     
-    std::string generateRandomIdentifier(std::string strPrefix, unsigned int unLength);
-    std::string generateUniqueID(std::string strPrefix, unsigned int unLength);
+    std::string generateRandomIdentifier(std::string strPrefix, unsigned int unLength = 16);
+    std::string generateUniqueID(std::string strPrefix, unsigned int unLength = 16);
     bool uniqueIDPresent(std::string strUniqueID);
     
     void renewUniqueIDs();

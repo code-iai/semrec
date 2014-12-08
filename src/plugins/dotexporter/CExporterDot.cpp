@@ -52,8 +52,8 @@ namespace beliefstate {
     int nMaxDetailLevel = this->configuration()->floatValue("max-detail-level");
     
     if(this->outputFilename() != "") {
-      std::string strGraphID = this->generateRandomIdentifier("plangraph_", 8);
-      std::string strToplevelID = this->generateUniqueID("node_", 8);
+      std::string strGraphID = this->generateRandomIdentifier("plangraph_");
+      std::string strToplevelID = this->generateUniqueID("node_");
       
       std::string strDot = "digraph " + strGraphID + " {\n";
       

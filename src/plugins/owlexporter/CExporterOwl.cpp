@@ -907,7 +907,7 @@ namespace beliefstate {
   
   std::string CExporterOwl::generateMetaDataIndividual(std::string strNamespace) {
     std::string strDot = "    <!-- Meta Data Individual -->\n\n";
-    std::string strUniqueName = this->generateUniqueID("RobotExperiment_", 8);
+    std::string strUniqueName = this->generateUniqueID("RobotExperiment_");
     
     OwlIndividual oiIndividual;
     oiIndividual.setID("&" + strNamespace + ";" + strUniqueName);
@@ -942,7 +942,7 @@ namespace beliefstate {
   
   std::string CExporterOwl::generateParameterAnnotationInformation(std::string strNamespace) {
     std::string strDot = "    <!-- Parameter Annotation Information Individual -->\n\n";
-    std::string strUniqueName = this->generateUniqueID("AnnotationInformation_", 8);
+    std::string strUniqueName = this->generateUniqueID("AnnotationInformation_");
     
     OwlIndividual oiIndividual;
     oiIndividual.setID("&" + strNamespace + ";" + strUniqueName);
