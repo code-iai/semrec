@@ -1,0 +1,386 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="style.css" />
+    </head>
+    
+    <body>
+        <div class="superblock">
+            <div class="block">
+                <div class="titlebar">
+                    <div class="title">Achieve object-in-hand</div>
+                    <div class="class">CRAMAchieve</div>
+                </div>
+                <div class="lbl-goalcontext">Goal Context:</div><div class="goalContext">(achieve (object-in-hand ?obj))</div>
+                
+                <div class="lbl-children">Children:</div>
+                <div class="children">
+                    <div class="block">
+                        <div class="titlebar">
+                            <div class="title">n-times 3</div>
+                            <div class="class">WithFailureHandling</div>
+                        </div>
+                        
+                        <div class="lbl-children">Children:</div>
+                        <div class="children">
+                            <div class="block">
+                                <div class="titlebar">
+                                    <div class="title">n-times 3</div>
+                                    <div class="class">WithFailureHandling</div>
+                                </div>
+                                
+                                <div class="lbl-children">Children:</div>
+                                <div class="children">
+                                    <div class="block-achieve">
+                                        <div class="achieve-titlebar">
+                                            <div class="title">Achieve perceive-object a</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="block">
+                                <div class="titlebar">
+                                    <div class="title">n-times 3</div>
+                                    <div class="class">WithFailureHandling</div>
+                                </div>
+                                
+                                <div class="lbl-children">Children:</div>
+                                <div class="children">
+                                    <div class="block">
+                                    <div class="titlebar">
+                                        <div class="title">at-location</div>
+                                        <div class="class">AtLocation</div>
+                                    </div>
+
+                                    <div class="lbl-children">Children:</div>
+                                        <div class="children">
+                                            <div class="block-achieve">
+                                                <div class="achieve-titlebar">
+                                                    <div class="title">Achieve object-picked</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="block">
+                <div class="titlebar">
+                    <div class="title">Achieve perceive-object a</div>
+                    <div class="class">CRAMAchieve</div>
+                </div>
+                <div class="lbl-goalcontext">Goal Context:</div><div class="goalContext">(achieve (object-in-hand ?obj))</div>
+                
+                <div class="lbl-children">Children:</div>
+                <div class="children">
+                    <div class="block-achieve">
+                        <div class="achieve-titlebar">
+                            <div class="title">Achieve perceive-object all</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="block">
+                <div class="titlebar">
+                    <div class="title">Achieve perceive-object all</div>
+                    <div class="class">CRAMAchieve</div>
+                </div>
+                <div class="lbl-goalcontext">Goal Context:</div><div class="goalContext">(perceive-object ?obj)</div>
+                
+                <div class="lbl-children">Children:</div>
+                <div class="children">
+                    <div class="block">
+                        <div class="titlebar">
+                            <div class="title">n-times 3</div>
+                            <div class="class">WithFailureHandling</div>
+                        </div>
+                        
+                        <div class="lbl-children">Children:</div>
+                        <div class="children">
+                            <div class="block">
+                                <div class="titlebar">
+                                    <div class="title">at-location</div>
+                                    <div class="class">AtLocation</div>
+                                </div>
+                                
+                                <div class="lbl-children">Children:</div>
+                                <div class="children">
+                                    <div class="block">
+                                        <div class="titlebar">
+                                        <div class="title">n-times 3</div>
+                                        <div class="class">WithFailureHandling</div>
+                                    </div>
+
+                                    <div class="lbl-children">Children:</div>
+                                        <div class="children">
+                                            <div class="block-achieve">
+                                                <div class="achieve-titlebar">
+                                                    <div class="title">Achieve object-picked</div>
+                                                </div>
+                                            </div>
+                                            <div class="block-achieve">
+                                                <div class="achieve-titlebar">
+                                                    <div class="title">Perform (to perceive)</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="block">
+                <div class="titlebar">
+                    <div class="title">Achieve object-picked</div>
+                    <div class="class">CRAMAchieve</div>
+                </div>
+                <div class="lbl-goalcontext">Goal Context:</div><div class="goalContext">(achieve (object-picked ?obj))</div>
+                
+                <div class="lbl-children">Children:</div>
+                <div class="children">
+                    <div class="block">
+                        <div class="titlebar">
+                            <div class="title">n-times 1</div>
+                            <div class="class">WithFailureHandling</div>
+                        </div>
+                        
+                        <div class="lbl-children">Children:</div>
+                        <div class="children">
+                            <div class="block-achieve">
+                                <div class="achieve-titlebar">
+                                    <div class="title">Achieve looking-at</div>
+                                </div>
+                            </div>
+                            <div class="block-achieve">
+                                <div class="achieve-titlebar">
+                                    <div class="title">Achieve perceive-object currently visible</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="block-achieve">
+                        <div class="achieve-titlebar">
+                            <div class="title">Perform (to grasp)</div>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <div class="titlebar">
+                            <div class="title">n-times 2</div>
+                            <div class="class">WithFailureHandling</div>
+                        </div>
+                        
+                        <div class="lbl-children">Children:</div>
+                        <div class="children">
+                            <div class="block-achieve">
+                                <div class="achieve-titlebar">
+                                    <div class="title">Perform (to lift)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="block">
+                        <div class="titlebar">
+                            <div class="title">n-times 10</div>
+                            <div class="class">WithFailureHandling</div>
+                        </div>
+                        
+                        <div class="lbl-children">Children:</div>
+                        <div class="children">
+                            <div class="block-achieve">
+                                <div class="achieve-titlebar">
+                                    <div class="title">Perform (to carry)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="block">
+                <div class="titlebar">
+                    <div class="title">Achieve looking-at</div>
+                    <div class="class">CRAMAchieve</div>
+                </div>
+                <div class="lbl-goalcontext">Goal Context:</div><div class="goalContext">(achieve (looking-at ?obj))</div>
+                
+                <div class="lbl-children">Children:</div>
+                <div class="children">
+                    <div class="block-achieve">
+                        <div class="achieve-titlebar">
+                            <div class="title">Perform (to see)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="block">
+                <div class="titlebar">
+                    <div class="title">Achieve object-put</div>
+                    <div class="class">CRAMAchieve</div>
+                </div>
+                <div class="lbl-goalcontext">Goal Context:</div><div class="goalContext">(achieve (object-put ?obj ?loc))</div>
+                
+                <div class="lbl-children">Children:</div>
+                <div class="children">
+                    <div class="block-achieve">
+                        <div class="achieve-titlebar">
+                            <div class="title">Achieve looking-at</div>
+                        </div>
+                    </div>
+                    
+                    <div class="block-achieve">
+                        <div class="achieve-titlebar">
+                            <div class="title">Perform (to put-down)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="titlebar">
+                            <div class="title">n-times 5</div>
+                            <div class="class">WithFailureHandling</div>
+                        </div>
+                        
+                        <div class="lbl-children">Children:</div>
+                        <div class="children">
+                            <div class="block-achieve">
+                                <div class="achieve-titlebar">
+                                    <div class="title">Perform (to park)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="block">
+                <div class="titlebar">
+                    <div class="title">Achieve object-placed-at</div>
+                    <div class="class">CRAMAchieve</div>
+                </div>
+                <div class="lbl-goalcontext">Goal Context:</div><div class="goalContext">(achieve (object-placed-at ?obj ?loc))</div>
+                
+                <div class="lbl-children">Children:</div>
+                <div class="children">
+                    <div class="block">
+                        <div class="titlebar">
+                            <div class="title">n-times 3</div>
+                            <div class="class">WithFailureHandling</div>
+                        </div>
+                        
+                        <div class="lbl-children">Children:</div>
+                        <div class="children">
+                            <div class="block">
+                                <div class="titlebar">
+                                    <div class="title">n-times 3</div>
+                                    <div class="class">WithFailureHandling</div>
+                                </div>
+                                
+                                <div class="lbl-children">Children:</div>
+                                <div class="children">
+                                    <div class="block">
+                                        <div class="titlebar">
+                                        <div class="title">at-location</div>
+                                        <div class="class">AtLocation</div>
+                                    </div>
+
+                                    <div class="lbl-children">Children:</div>
+                                        <div class="children">
+                                            <div class="block-achieve">
+                                                <div class="achieve-titlebar">
+                                                    <div class="title">Achieve object-put</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="block">
+                <div class="titlebar">
+                    <div class="title">Perform</div>
+                    <div class="class">CRAMPerform</div>
+                </div>
+                
+                <div class="lbl-children">Children:</div>
+                <div class="children">
+                    <div class="block">
+                        <div class="titlebar">
+                            <div class="title">Perform Action Designator</div>
+                            <div class="class">PerformActionDesignator</div>
+                        </div>
+                        
+                        <div class="lbl-properties">Properties:</div>
+                        <li class="properties">
+                            <ul class="properties">knowrob:designator = &lt;Performed action designator instance&gt;</ul>
+                        </li>
+                        
+                        <div class="lbl-additional">Changes Class based on designator content:</div>
+                        <ul class="properties">
+                            <li class="properties">(to grasp) = PickingUpAnObject</li>
+                            <li class="properties">(to lift) = LiftingAnObject</li>
+                            <li class="properties">(to carry) = CarryingAnObject</li>
+                            <li class="properties">(to perceive) = PerceivingObjects</li>
+                            <li class="properties">(to put-down) = PuttingDownAnObject</li>
+                            <li class="properties">(to park) = ParkingArms</li>
+                            <li class="properties">(to navigate) = Navigate</li>
+                        </ul>
+                        
+                        <div class="lbl-children">Children:</div>
+                        <div class="children">
+                            <div class="block">
+                                <div class="titlebar">
+                                    <div class="title">PerformOnProcessModule</div>
+                                    <div class="class">PerformOnProcessModule</div>
+                                </div>
+                                
+                                <div class="lbl-children">Children for (to perceive):</div>
+                                <div class="children">
+                                    <div class="block">
+                                        <div class="titlebar">
+                                            <div class="title">UIMAPerceive</div>
+                                            <div class="class">UIMAPerceive</div>
+                                        </div>
+                                        
+                                        <div class="lbl-properties">Properties:</div>
+                                        <ul class="properties">
+                                            <li class="properties">knowrob:requestDesignator = One request object designator</li>
+                                            <li class="properties">knowrob:responseDesignator = Multiple response object designators</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="block">
+                <div class="titlebar">
+                    <div class="title">Achieve perceive-object currently visible</div>
+                    <div class="class">CRAMAchieve</div>
+                </div>
+                <div class="lbl-goalcontext">Goal Context:</div><div class="goalContext">(achieve (perceive-object ?obj))</div>
+                
+                <div class="lbl-children">Children:</div>
+                <div class="children">
+                    <div class="block-achieve">
+                        <div class="achieve-titlebar">
+                            <div class="title">Perform (to perceive)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

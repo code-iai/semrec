@@ -1,0 +1,78 @@
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+body, a, div, span, td {
+    font-family: sans-serif;
+    font-size: 8pt;
+}
+
+div.block {
+    margin: 5px;
+    border: 1px solid black;
+}
+
+div.titlebar {
+    padding: 2px;
+    background-color: lightblue;
+}
+
+div.achieve-titlebar {
+    padding: 2px;
+    background-color: lightgrey;
+}
+
+div.title {
+    display: inline-block;
+    font-weight: 800;
+}
+
+div.class {
+    display: inline-block;
+    float: right;
+    color: grey;
+}
+
+div.goalContext {
+    display: inline-block;
+    font-style: italic;
+    margin: 3px;
+}
+
+div.superblock {
+    width: 500px;
+}
+
+div.lbl-children {
+    margin: 4px;
+}
+
+div.lbl-properties {
+    margin: 4px;
+}
+
+div.lbl-additional {
+    margin: 4px;
+}
+
+div.lbl-goalcontext {
+    display: inline-block;
+    margin: 4px;
+}
+
+div.block-achieve {
+    padding: 3px;
+    margin: 5px;
+    border: 1px dashed black;
+    text-align: center;
+    background-color: lightgrey;
+}
+
+li.properties {
+    list-style-type: none;
+}
+
+ul.properties {
+    padding-left: 15px;
+}
