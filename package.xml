@@ -3,7 +3,7 @@
 <package>
   
   <name>semrec</name>
-  <version>0.6.2</version>
+  <version>0.7.2</version>
   <description>Semantic Hierarchy Recorder system allowing detailed execution time logging of autonomously performed robot plans on cognitive agents</description>
   
   <maintainer email="winkler@cs.uni-bremen.de">Jan Winkler</maintainer>
