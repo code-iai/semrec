@@ -40,7 +40,7 @@
 #include <plugins/prediction/DecisionTree.h>
 
 
-namespace beliefstate {
+namespace semrec {
   DecisionTree::DecisionTree() {
     this->init();
   }

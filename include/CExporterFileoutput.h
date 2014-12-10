@@ -48,7 +48,7 @@
 #include <CExporter.h>
 
 
-namespace beliefstate {
+namespace semrec {
   class CExporterFileoutput : public CExporter {
   private:
   public:

@@ -37,11 +37,11 @@
 /** \author Jan Winkler */
 
 
-#include <Beliefstate.h>
+#include <SemanticHierarchyRecorder.h>
 
 
-namespace beliefstate {
-  Beliefstate::Beliefstate(int argc, char** argv) {
+namespace semrec {
+  SemanticHierarchyRecorder::SemanticHierarchyRecorder(int argc, char** argv) {
     m_psPlugins = NULL;
     m_bRun = true;
     m_argc = argc;
@@ -49,24 +49,24 @@ namespace beliefstate {
     m_bTerminalWindowResize = false;
     m_bCommandLineOutput = true;
     m_bDisplayConfigurationDetails = true;
-    m_strVersion = BS_VERSION_STRING;
+    m_strVersion = SR_VERSION_STRING;
     
     this->setRedirectOutput(false);
     
     this->setMessagePrefixLabel("core");
     
     m_lstConfigFileLocations.push_back(""); // Current directory
-    m_lstConfigFileLocations.merge(this->resolveDirectoryTokens("${HOME}/.beliefstate/")); // Home directory
+    m_lstConfigFileLocations.merge(this->resolveDirectoryTokens("${HOME}/.semrec/")); // Home directory
   }
   
-  Beliefstate::~Beliefstate() {
+  SemanticHierarchyRecorder::~SemanticHierarchyRecorder() {
   }
   
-  std::string Beliefstate::version() {
+  std::string SemanticHierarchyRecorder::version() {
     return m_strVersion;
   }
   
-  Result Beliefstate::init(std::string strConfigFile) {
+  Result SemanticHierarchyRecorder::init(std::string strConfigFile) {
     Result resInit = defaultResult();
     
     // Do the actual init here.
@@ -130,7 +130,7 @@ namespace beliefstate {
     
     // Additional checks to make the user aware of potential problems
     if(this->workspaceDirectories().size() == 0) {
-      this->warn("The workspace directory could not be resolved. This might cause problems, especially when trying to load plugins. Please ensure that your environment is set up properly. If everything seems alright, consider to override the workspace-dependent paths in a custom file (i.e. ~/.beliefstate/config.cfg).");
+      this->warn("The workspace directory could not be resolved. This might cause problems, especially when trying to load plugins. Please ensure that your environment is set up properly. If everything seems alright, consider to override the workspace-dependent paths in a custom file (i.e. ~/.semrec/config.cfg).");
     }
     
     if(resInit.bSuccess) {
@@ -140,7 +140,7 @@ namespace beliefstate {
     return resInit;
   }
   
-  Result Beliefstate::deinit() {
+  Result SemanticHierarchyRecorder::deinit() {
     Result resInit = defaultResult();
     
     if(m_psPlugins) {
@@ -150,7 +150,7 @@ namespace beliefstate {
     return resInit;
   }
   
-  bool Beliefstate::loadConfigFile(std::string strConfigFile) {
+  bool SemanticHierarchyRecorder::loadConfigFile(std::string strConfigFile) {
     if(this->fileExists(strConfigFile)) {
       libconfig::Config cfgConfig;
       
@@ -257,7 +257,7 @@ namespace beliefstate {
 	if(strSymlinkName == "" || strExperimentNameMask == "" || (strExperimentNameMask.find("%d") == std::string::npos && strExperimentNameMask.find("%s") == std::string::npos) || strBaseDataDirectory == "") {
 	  if(strBaseDataDirectory == "") {
 	    this->warn("The base data directory path is empty.");
-	    strBaseDataDirectory = this->resolveDirectoryTokens("${HOME}/bs_experimental_data").front();
+	    strBaseDataDirectory = this->resolveDirectoryTokens("${HOME}/sr_experimental_data").front();
 	    this->warn("Defaulting to: '" + strBaseDataDirectory + "'");
 	  }
 	  
@@ -415,7 +415,7 @@ namespace beliefstate {
     return false;
   }
   
-  bool Beliefstate::loadIndividualPluginConfigurationBranch(libconfig::Setting &sBranch, KeyValuePair* ckvpInto, std::string strConfigPath, bool bIgnorePluginField) {
+  bool SemanticHierarchyRecorder::loadIndividualPluginConfigurationBranch(libconfig::Setting &sBranch, KeyValuePair* ckvpInto, std::string strConfigPath, bool bIgnorePluginField) {
     for(int nJ = 0; nJ < sBranch.getLength(); nJ++) {
       if(sBranch.getType() != libconfig::Setting::TypeGroup) {
 	for(int nI = 0; nI < sBranch.getLength(); nI++) {
@@ -518,7 +518,7 @@ namespace beliefstate {
     return true;
   }
   
-  bool Beliefstate::spreadEvent(Event evEvent) {
+  bool SemanticHierarchyRecorder::spreadEvent(Event evEvent) {
     if(m_psPlugins->spreadEvent(evEvent) == 0) {
       ConfigSettings cfgSet = configSettings();
       if(cfgSet.bDisplayUnhandledEvents) {
@@ -542,7 +542,7 @@ namespace beliefstate {
     return true; // Event was received by some entity (e.g. plugin)
   }
   
-  void Beliefstate::spreadServiceEvent(ServiceEvent seServiceEvent) {
+  void SemanticHierarchyRecorder::spreadServiceEvent(ServiceEvent seServiceEvent) {
     if(m_psPlugins->spreadServiceEvent(seServiceEvent) == 0) {
       // The service event wasn't handled (i.e. there was no valid
       // receiver for it).
@@ -566,7 +566,7 @@ namespace beliefstate {
     }
   }
   
-  bool Beliefstate::cycle() {
+  bool SemanticHierarchyRecorder::cycle() {
     bool bContinue = true;
     
     if(m_bRun) {
@@ -725,32 +725,32 @@ namespace beliefstate {
     return bContinue;
   }
   
-  void Beliefstate::triggerShutdown() {
+  void SemanticHierarchyRecorder::triggerShutdown() {
     m_bRun = false;
   }
   
-  void Beliefstate::triggerTerminalResize() {
+  void SemanticHierarchyRecorder::triggerTerminalResize() {
     m_mtxTerminalResize.lock();
     m_bTerminalWindowResize = true;
     m_mtxTerminalResize.unlock();
   }
   
-  void Beliefstate::setBaseDataDirectory(std::string strBaseDataDirectory) {
+  void SemanticHierarchyRecorder::setBaseDataDirectory(std::string strBaseDataDirectory) {
     ConfigSettings cfgsetCurrent = configSettings();
     cfgsetCurrent.strBaseDataDirectory = strBaseDataDirectory;
     setConfigSettings(cfgsetCurrent);
   }
   
-  std::string Beliefstate::baseDataDirectory() {
+  std::string SemanticHierarchyRecorder::baseDataDirectory() {
     ConfigSettings cfgsetCurrent = configSettings();
     return cfgsetCurrent.strBaseDataDirectory;
   }
   
-  std::list<std::string> Beliefstate::workspaceDirectories() {
+  std::list<std::string> SemanticHierarchyRecorder::workspaceDirectories() {
     return m_lstWorkspaceDirectories;
   }
   
-  std::string Beliefstate::homeDirectory() {
+  std::string SemanticHierarchyRecorder::homeDirectory() {
     std::string strHome = "";
     
     char* cHome = getenv("HOME");
@@ -761,7 +761,7 @@ namespace beliefstate {
     return strHome;
   }
   
-  std::list<std::string> Beliefstate::resolveDirectoryTokens(std::string strSubject) {
+  std::list<std::string> SemanticHierarchyRecorder::resolveDirectoryTokens(std::string strSubject) {
     // First, make list of things to replace
     std::list< std::pair<std::string, bool> > lstTokens;
     
@@ -836,7 +836,7 @@ namespace beliefstate {
     return lstResolved;
   }
   
-  std::list<std::string> Beliefstate::findTokenReplacements(std::string strToken) {
+  std::list<std::string> SemanticHierarchyRecorder::findTokenReplacements(std::string strToken) {
     std::list<std::string> lstReplacements;
     
     if(strToken == "HOME") {
@@ -846,7 +846,7 @@ namespace beliefstate {
     return lstReplacements;
   }
   
-  bool Beliefstate::handleUnhandledEvent(Event evEvent) {
+  bool SemanticHierarchyRecorder::handleUnhandledEvent(Event evEvent) {
     if(evEvent.strEventName == "status-message") {
       StatusMessage msgStatus = evEvent.msgStatusMessage;
       
@@ -862,7 +862,7 @@ namespace beliefstate {
     return false;
   }
   
-  std::list<std::string> Beliefstate::findPrefixPaths(std::string strPathList, std::string strMatchingSuffix, std::string strDelimiter) {
+  std::list<std::string> SemanticHierarchyRecorder::findPrefixPaths(std::string strPathList, std::string strMatchingSuffix, std::string strDelimiter) {
     std::list<std::string> lstPathsReturn;
     
     while(strPathList.length() > 0) {

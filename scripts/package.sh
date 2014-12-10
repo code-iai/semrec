@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source ~/.bashrc
-PLANLOGGER_DIR=${HOME}/bs_experimental_data/
+PLANLOGGER_DIR=${HOME}/sr_experimental_data/
 cd ${PLANLOGGER_DIR}
 rm -Rf packaging
 mkdir -p packaging

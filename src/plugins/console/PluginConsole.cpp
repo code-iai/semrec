@@ -40,7 +40,7 @@
 #include <plugins/console/PluginConsole.h>
 
 
-namespace beliefstate {
+namespace semrec {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       this->setPluginVersion("0.1");

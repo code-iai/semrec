@@ -51,7 +51,7 @@
 using namespace designator_integration;
 
 
-namespace beliefstate {
+namespace semrec {
   /*! \brief Class describing a single node entity
     
     Nodes are the basic building block of task trees. They can have

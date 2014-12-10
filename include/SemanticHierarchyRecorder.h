@@ -37,8 +37,8 @@
 /** \author Jan Winkler */
 
 
-#ifndef __BELIEFSTATE_H__
-#define __BELIEFSTATE_H__
+#ifndef __SEMANTIC_HIERARCHY_RECORDER_H__
+#define __SEMANTIC_HIERARCHY_RECORDER_H__
 
 
 // System
@@ -57,12 +57,12 @@
 #include <Config.h>
 
 
-/*! \brief Main beliefstate system class
+/*! \brief Main recorder system class
   
   This class manages the distribution of messages and service events,
   triggers the loading of plugins, and loads configuration files. */
-namespace beliefstate {
-  class Beliefstate : public UtilityBase {
+namespace semrec {
+  class SemanticHierarchyRecorder : public UtilityBase {
   private:
     /*! \brief Internal pointer to the PluginSystem class instance
         used for loading and managing plugin instances. */
@@ -133,11 +133,11 @@ namespace beliefstate {
       \param argv The main argv variable supplied to main(), holding
       the actual available command line parameters issues when running
       the system. */
-    Beliefstate(int argc, char** argv);
+    SemanticHierarchyRecorder(int argc, char** argv);
     /*! \brief Destructor of the main belief state system class.
       
       Deletes all instances of internal objects. */
-    ~Beliefstate();
+    ~SemanticHierarchyRecorder();
     
     /*! \brief Returns the current version of the belief state system software.
       
@@ -210,7 +210,7 @@ namespace beliefstate {
     /*! \brief Spreads incoming system events to all subscribing plugins.
       
       System events are being accumulated in the system event queue
-      within the main Beliefstate class instance. They are then
+      within the main SemanticHierarchyRecorder class instance. They are then
       distributed among the plugins that subscribed to their specific
       event type.
       
@@ -235,7 +235,7 @@ namespace beliefstate {
       
       The main cycle function triggers processing of event pipelines,
       and forwards messages between plugins, utilizing functions
-      present in the beliefstate class. This function is being called
+      present in the SemanticHierarchyRecorder class. This function is being called
       from outside the function in a loop.
       
       \return Boolean signallig whether the current cycle completed
@@ -243,7 +243,7 @@ namespace beliefstate {
       inspection. */
     bool cycle();
     
-    /*! \brief Triggers the belief state system shutdown
+    /*! \brief Triggers the recorder system shutdown
       
       Sets the m_bRun class member to false, effectively letting the
       main loop cycle() method stop execution and return from its
@@ -280,4 +280,4 @@ namespace beliefstate {
 }
 
 
-#endif /* __BELIEFSTATE_H__ */
+#endif /* __SEMANTIC_HIERARCHY_RECORDER_H__ */

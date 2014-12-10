@@ -54,7 +54,7 @@
 #include <JSON.h>
 
 
-namespace beliefstate {
+namespace semrec {
   class DecisionTree : public UtilityBase {
   private:
     JSON* m_jsnDecisionTree;

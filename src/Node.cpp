@@ -40,7 +40,7 @@
 #include <Node.h>
 
 
-namespace beliefstate {
+namespace semrec {
   Node::Node() {
     this->init();
   }

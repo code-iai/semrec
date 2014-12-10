@@ -57,7 +57,7 @@
 using namespace designator_integration;
 
 
-namespace beliefstate {
+namespace semrec {
   namespace plugins {
     class Plugin : public ArbitraryMappingsHolder {
     private:

@@ -47,7 +47,7 @@
 #include <string>
 
 
-namespace beliefstate {
+namespace semrec {
   class Property {
   public:
     typedef enum {

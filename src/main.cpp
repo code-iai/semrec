@@ -48,7 +48,7 @@
 #include <string>
 
 // Private
-#include <BeliefstateROS.h>
+#include <SemanticHierarchyRecorderROS.h>
 
 
 // Storage of former signal handlers
@@ -57,12 +57,12 @@ Handler hdlrOldSIGWINCH = SIG_IGN;
 
 
 // Global variable for shutdown triggering
-beliefstate::BeliefstateROS* g_bsBeliefstate;
+semrec::SemanticHierarchyRecorderROS* g_srRecorder;
 
 
 void printHelp(std::string strExecutableName) {
-  std::cout << "Beliefstate System (version \033[1;37m" + g_bsBeliefstate->version() + "\033[0;37m) by Jan Winkler <winkler@cs.uni-bremen.de>" << std::endl;
-  std::cout << "Licensed under BSD. https://www.github.com/fairlight1337/beliefstate" << std::endl << std::endl;
+  std::cout << "Semantic Hierarchy Recorder System (version \033[1;37m" + g_srRecorder->version() + "\033[0;37m) by Jan Winkler <winkler@cs.uni-bremen.de>" << std::endl;
+  std::cout << "Licensed under BSD. https://www.github.com/code-iai/ros-semrec" << std::endl << std::endl;
   std::cout << "Usage: " << strExecutableName << " [options]" << std::endl << std::endl;
   
   std::cout << "Available options are:" << std::endl;
@@ -77,7 +77,7 @@ void catchHandler(int nSignum) {
   switch(nSignum) {
   case SIGTERM:
   case SIGINT: {
-    g_bsBeliefstate->triggerShutdown();
+    g_srRecorder->triggerShutdown();
   } break;
     
   case SIGWINCH: {
@@ -85,7 +85,7 @@ void catchHandler(int nSignum) {
       (*hdlrOldSIGWINCH)(SIGWINCH);
     }
     
-    g_bsBeliefstate->triggerTerminalResize();
+    g_srRecorder->triggerTerminalResize();
   } break;
     
   default:
@@ -94,7 +94,7 @@ void catchHandler(int nSignum) {
 }
 
 int main(int argc, char** argv) {
-  g_bsBeliefstate = new beliefstate::BeliefstateROS(argc, argv);
+  g_srRecorder = new semrec::SemanticHierarchyRecorderROS(argc, argv);
   
   // Read command line parameters
   int nC, option_index = 0;
@@ -122,14 +122,14 @@ int main(int argc, char** argv) {
   }
   
   if(bQuit == false) {
-    g_bsBeliefstate->info("Starting beliefstate system (version \033[1;37m" + g_bsBeliefstate->version() + "\033[0;37m).");
+    g_srRecorder->info("Starting semantic hierarchy recorder system (version \033[1;37m" + g_srRecorder->version() + "\033[0;37m).");
     
-    beliefstate::Result resInit = g_bsBeliefstate->init(strConfigFile);
+    semrec::Result resInit = g_srRecorder->init(strConfigFile);
     
     if(resInit.bSuccess) {
       // Catch SIGTERM and SIGINT and bind them to the callback function
       // catchSIGTERMandSIGINT. This will trigger the shutdown mechanism
-      // in the Beliefstate instance.
+      // in the semrec instance.
       struct sigaction action;
       memset(&action, 0, sizeof(struct sigaction));
       action.sa_handler = catchHandler;
@@ -139,23 +139,23 @@ int main(int argc, char** argv) {
       hdlrOldSIGWINCH = signal(SIGWINCH, SIG_IGN);
       sigaction(SIGWINCH, &action, NULL);
       
-      g_bsBeliefstate->info("Initialization complete, ready for action.", true);
-      while(g_bsBeliefstate->cycle()) {
+      g_srRecorder->info("Initialization complete, ready for action.", true);
+      while(g_srRecorder->cycle()) {
 	// Idle here at will.
 	usleep(10);
       }
     } else {
-      g_bsBeliefstate->fail("Initialization of the beliefstate system failed. Being a quitter.");
+      g_srRecorder->fail("Initialization of the recorder system failed. Being a quitter.");
     }
     
     std::cout << "\r";
-    g_bsBeliefstate->info("Exiting gracefully.");
-    g_bsBeliefstate->cycle();
+    g_srRecorder->info("Exiting gracefully.");
+    g_srRecorder->cycle();
     
-    g_bsBeliefstate->deinit();
-    g_bsBeliefstate->cycle();
+    g_srRecorder->deinit();
+    g_srRecorder->cycle();
     
-    delete g_bsBeliefstate;
+    delete g_srRecorder;
   }
   
   return EXIT_SUCCESS;

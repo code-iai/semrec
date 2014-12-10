@@ -59,7 +59,7 @@
 #include <UtilityBase.h>
 
 
-namespace beliefstate {
+namespace semrec {
   class ArbitraryMappingsHolder : public UtilityBase {
   private:
     std::list<KeyValuePair*> m_lstArbitraryMappings;

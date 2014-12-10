@@ -59,7 +59,7 @@
 #include <Plugin.h>
 
 
-namespace beliefstate {
+namespace semrec {
   namespace plugins {
     class PLUGIN_CLASS : public Plugin {
     private:

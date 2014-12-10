@@ -40,7 +40,7 @@
 #include <JSON.h>
 
 
-namespace beliefstate {
+namespace semrec {
   JSON::JSON() {
     m_prRootProperty = NULL;
   }

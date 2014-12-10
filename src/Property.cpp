@@ -40,7 +40,7 @@
 #include <Property.h>
 
 
-namespace beliefstate {
+namespace semrec {
   Property::Property(std::string strKey, PropertyType ptType) {
     m_strValue = "";
     m_dValue = 0.0f;

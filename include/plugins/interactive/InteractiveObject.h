@@ -52,7 +52,7 @@
 #include <ros/ros.h>
 
 
-namespace beliefstate {
+namespace semrec {
   typedef struct {
     std::string strLabel;
     std::string strIdentifier;

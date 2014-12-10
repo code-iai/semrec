@@ -37,21 +37,21 @@
 /** \author Jan Winkler */
 
 
-#include <BeliefstateROS.h>
+#include <SemanticHierarchyRecorderROS.h>
 
 
-namespace beliefstate {
-  BeliefstateROS::BeliefstateROS(int argc, char** argv) : Beliefstate(argc, argv) {
+namespace semrec {
+  SemanticHierarchyRecorderROS::SemanticHierarchyRecorderROS(int argc, char** argv) : SemanticHierarchyRecorder(argc, argv) {
     this->crawlROS();
     
-    m_lstConfigFileLocations.push_back(ros::package::getPath("beliefstate"));
+    m_lstConfigFileLocations.push_back(ros::package::getPath("semrec"));
   }
   
-  BeliefstateROS::~BeliefstateROS() {
+  SemanticHierarchyRecorderROS::~SemanticHierarchyRecorderROS() {
   }
   
-  std::list<std::string> BeliefstateROS::findTokenReplacements(std::string strToken) {
-    std::list<std::string> lstReplacements = this->Beliefstate::findTokenReplacements(strToken);
+  std::list<std::string> SemanticHierarchyRecorderROS::findTokenReplacements(std::string strToken) {
+    std::list<std::string> lstReplacements = this->SemanticHierarchyRecorder::findTokenReplacements(strToken);
     
     if(strToken.size() > 8) {
       if(strToken.substr(0, 8) == "PACKAGE ") {
@@ -71,7 +71,7 @@ namespace beliefstate {
     return lstReplacements;
   }
   
-  std::string BeliefstateROS::getROSPackagePath(std::string strPackageName, bool bQuiet) {
+  std::string SemanticHierarchyRecorderROS::getROSPackagePath(std::string strPackageName, bool bQuiet) {
     std::string strPath = "";
     m_rstRospack.setQuiet(bQuiet);
     m_rstRospack.find(strPackageName, strPath);
@@ -84,15 +84,15 @@ namespace beliefstate {
     return strPath;
   }
   
-  void BeliefstateROS::crawlROS(bool bForce) {
+  void SemanticHierarchyRecorderROS::crawlROS(bool bForce) {
     std::vector<std::string> vecSearchPaths;
     m_rstRospack.getSearchPathFromEnv(vecSearchPaths);
     
     m_rstRospack.crawl(vecSearchPaths, bForce);
   }
   
-  std::list<std::string> BeliefstateROS::workspaceDirectories() {
-    std::list<std::string> lstWorkspaceDirectories = this->Beliefstate::workspaceDirectories();
+  std::list<std::string> SemanticHierarchyRecorderROS::workspaceDirectories() {
+    std::list<std::string> lstWorkspaceDirectories = this->SemanticHierarchyRecorder::workspaceDirectories();
     
     const char* cROSWorkspace = getenv("ROS_WORKSPACE");
     const char* cCMAKEPrefixPath = getenv("CMAKE_PREFIX_PATH");

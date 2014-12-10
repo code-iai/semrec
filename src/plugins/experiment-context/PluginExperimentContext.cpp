@@ -40,7 +40,7 @@
 #include <plugins/experiment-context/PluginExperimentContext.h>
 
 
-namespace beliefstate {
+namespace semrec {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_expFileExporter = new CExporterFileoutput();

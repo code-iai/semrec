@@ -9,7 +9,7 @@
 #include <iostream>
 
 
-namespace beliefstate {
+namespace semrec {
   class OwlIndividual {
   public:
     typedef struct _OwlProperty {

@@ -40,7 +40,7 @@
 #include <plugins/gazebo/PluginGazebo.h>
 
 
-namespace beliefstate {
+namespace semrec {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       this->addDependency("ros");

@@ -55,7 +55,7 @@
 using namespace designator_integration;
 
 
-namespace beliefstate {
+namespace semrec {
   class PluginInstance;
   
   /*! \brief Enumeration of possible ServiceEvent types */

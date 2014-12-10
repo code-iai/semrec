@@ -58,7 +58,7 @@
 #include <highgui.h>
 
 
-namespace beliefstate {
+namespace semrec {
   class CImageCapturer {
   private:
     ros::Subscriber m_subImage;

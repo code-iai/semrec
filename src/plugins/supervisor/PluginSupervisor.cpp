@@ -40,7 +40,7 @@
 #include <plugins/supervisor/PluginSupervisor.h>
 
 
-namespace beliefstate {
+namespace semrec {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_bFirstExperiment = true;

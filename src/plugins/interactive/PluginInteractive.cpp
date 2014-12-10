@@ -40,7 +40,7 @@
 #include <plugins/interactive/PluginInteractive.h>
 
 
-namespace beliefstate {
+namespace semrec {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       this->addDependency("ros");
@@ -59,7 +59,7 @@ namespace beliefstate {
       Result resInit = defaultResult();
       
       // Initialize server
-      m_imsServer = new interactive_markers::InteractiveMarkerServer("interactive_beliefstate", "", false);
+      m_imsServer = new interactive_markers::InteractiveMarkerServer("interactive_semrec", "", false);
       
       // Subscribe to internal events
       this->setSubscribedToEvent("symbolic-add-object", true);

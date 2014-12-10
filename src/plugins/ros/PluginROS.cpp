@@ -40,7 +40,7 @@
 #include <plugins/ros/PluginROS.h>
 
 
-namespace beliefstate {
+namespace semrec {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_nhHandle = NULL;
@@ -83,7 +83,7 @@ namespace beliefstate {
 	std::string strROSNodeName = cdConfig->stringValue("node-name");
 	
 	if(strROSNodeName == "") {
-	  strROSNodeName = "beliefstate_ros";
+	  strROSNodeName = "semrec_ros";
 	}
 	
 	this->info("Starting ROS node '" + strROSNodeName + "'.");

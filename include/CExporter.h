@@ -54,7 +54,7 @@
 #include <UtilityBase.h>
 
 
-namespace beliefstate {
+namespace semrec {
   class CExporter : public UtilityBase {
   private:
     std::list<Node*> m_lstRootNodes;

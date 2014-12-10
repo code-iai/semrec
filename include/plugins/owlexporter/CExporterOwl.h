@@ -54,7 +54,7 @@
 #include <plugins/owlexporter/OwlIndividual.h>
 
 
-namespace beliefstate {
+namespace semrec {
   class CExporterOwl : public CExporterFileoutput {
   private:
     std::list< std::pair<std::string, std::string> > m_lstEntities;

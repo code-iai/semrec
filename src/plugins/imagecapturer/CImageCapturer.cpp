@@ -40,7 +40,7 @@
 #include <plugins/imagecapturer/CImageCapturer.h>
 
 
-namespace beliefstate {
+namespace semrec {
   CImageCapturer::CImageCapturer() {
     m_strImagesTopic = "";
   }

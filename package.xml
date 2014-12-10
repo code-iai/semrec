@@ -2,17 +2,17 @@
 
 <package>
   
-  <name>beliefstate</name>
+  <name>semrec</name>
   <version>0.6.2</version>
-  <description>Beliefstate System mainly for CRAM controlled Cognitive Agents</description>
+  <description>Semantic Hierarchy Recorder system allowing detailed execution time logging of autonomously performed robot plans on cognitive agents</description>
   
   <maintainer email="winkler@cs.uni-bremen.de">Jan Winkler</maintainer>
   
   <license>BSD</license>
   
-  <url type="website">https://www.github.com/fairlight1337/beliefstate</url>
+  <url type="website">https://www.github.com/code-iai/ros-semrec</url>
   <url type="website">http://www.cram-system.org/doc/logging/beliefstate</url>
-
+  
   <author email="winkler@cs.uni-bremen.de">Jan Winkler</author>
   
   <buildtool_depend>catkin</buildtool_depend>

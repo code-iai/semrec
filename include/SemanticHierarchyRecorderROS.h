@@ -37,8 +37,8 @@
 /** \author Jan Winkler */
 
 
-#ifndef __BELIEFSTATE_ROS_H__
-#define __BELIEFSTATE_ROS_H__
+#ifndef __SEMANTIC_HIERARCHY_RECORDER_ROS_H__
+#define __SEMANTIC_HIERARCHY_RECORDER_ROS_H__
 
 
 // System
@@ -49,18 +49,18 @@
 #include <rospack/rospack.h>
 
 // Private
-#include <Beliefstate.h>
+#include <SemanticHierarchyRecorder.h>
 
 
-namespace beliefstate {
-  class BeliefstateROS : public Beliefstate {
+namespace semrec {
+  class SemanticHierarchyRecorderROS : public SemanticHierarchyRecorder {
   private:
     std::mutex m_mtxRospackLock;
     rospack::Rospack m_rstRospack;
     
   public:
-    BeliefstateROS(int argc, char** argv);
-    ~BeliefstateROS();
+    SemanticHierarchyRecorderROS(int argc, char** argv);
+    ~SemanticHierarchyRecorderROS();
     
     virtual std::list<std::string> findTokenReplacements(std::string strToken);
     
@@ -95,4 +95,4 @@ namespace beliefstate {
 }
 
 
-#endif /* __BELIEFSTATE_ROS_H__ */
+#endif /* __SEMANTIC_HIERARCHY_RECORDER_ROS_H__ */

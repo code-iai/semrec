@@ -40,7 +40,7 @@
 #include <plugins/symboliclog/PluginSymbolicLog.h>
 
 
-namespace beliefstate {
+namespace semrec {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       this->addDependency("imagecapturer");

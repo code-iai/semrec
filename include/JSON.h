@@ -53,7 +53,7 @@
 #include <Property.h>
 
 
-namespace beliefstate {
+namespace semrec {
   class JSON {
   private:
     Property* m_prRootProperty;

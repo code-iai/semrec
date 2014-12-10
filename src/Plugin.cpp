@@ -40,7 +40,7 @@
 #include <Plugin.h>
 
 
-namespace beliefstate {
+namespace semrec {
   namespace plugins {
     Plugin::Plugin() {
       this->setPluginID(createPluginID());

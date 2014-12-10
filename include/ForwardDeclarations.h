@@ -49,7 +49,7 @@
 #include <mutex>
 
 
-namespace beliefstate {
+namespace semrec {
   // File system specific functions
   void deleteDirectory(std::string strPath, bool bEvenIfNonEmpty = true);
   

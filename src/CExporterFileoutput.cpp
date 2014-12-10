@@ -40,7 +40,7 @@
 #include <CExporterFileoutput.h>
 
 
-namespace beliefstate {
+namespace semrec {
   CExporterFileoutput::CExporterFileoutput() {
     this->setOutputFilename("");
   }

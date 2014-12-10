@@ -40,7 +40,7 @@
 #include <UtilityBase.h>
 
 
-namespace beliefstate {
+namespace semrec {
   bool UtilityBase::m_bRedirectOutput;
   
   

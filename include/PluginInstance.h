@@ -56,7 +56,7 @@
 #include <UtilityBase.h>
 
 
-namespace beliefstate {
+namespace semrec {
   class PluginInstance : public UtilityBase {
   private:
     void* m_vdLibHandle;

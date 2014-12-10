@@ -40,7 +40,7 @@
 #include <ArbitraryMappingsHolder.h>
 
 
-namespace beliefstate {
+namespace semrec {
   ArbitraryMappingsHolder::ArbitraryMappingsHolder() {
   }
   

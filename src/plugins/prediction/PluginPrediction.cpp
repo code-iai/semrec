@@ -40,7 +40,7 @@
 #include <plugins/prediction/PluginPrediction.h>
 
 
-namespace beliefstate {
+namespace semrec {
   namespace plugins {
     PLUGIN_CLASS::PLUGIN_CLASS() {
       m_jsnModel = NULL;

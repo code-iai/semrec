@@ -40,7 +40,7 @@
 #include <plugins/owlexporter/CExporterOwl.h>
 
 
-namespace beliefstate {
+namespace semrec {
   CExporterOwl::CExporterOwl() {
     m_strPropertyNamespace = "";
     m_strDefaultAnnotation = "";

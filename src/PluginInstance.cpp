@@ -40,7 +40,7 @@
 #include <PluginInstance.h>
 
 
-namespace beliefstate {
+namespace semrec {
   PluginInstance::PluginInstance() {
     m_strName = "";
     m_vdLibHandle = NULL;

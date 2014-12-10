@@ -1,7 +1,7 @@
 #include <plugins/owlexporter/OwlIndividual.h>
 
 
-namespace beliefstate {
+namespace semrec {
   std::list<std::string> OwlIndividual::m_lstIssuedProperties;
   std::list<std::string> OwlIndividual::m_lstIssuedTypes;
   

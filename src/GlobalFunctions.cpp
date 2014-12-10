@@ -40,7 +40,7 @@
 #include <ForwardDeclarations.h>
 
 
-namespace beliefstate {
+namespace semrec {
   static std::list<int> g_lstContextIDs;
   static std::list<int> g_lstPluginIDs;
   static ConfigSettings g_cfgsetSettings;

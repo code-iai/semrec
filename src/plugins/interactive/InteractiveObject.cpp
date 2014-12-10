@@ -40,7 +40,7 @@
 #include <plugins/interactive/InteractiveObject.h>
 
 
-namespace beliefstate {
+namespace semrec {
   InteractiveObject::InteractiveObject(std::string strName) {
     m_imsServer = NULL;
     

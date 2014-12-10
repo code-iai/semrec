@@ -52,7 +52,7 @@
 #include <ForwardDeclarations.h>
 
 
-namespace beliefstate {
+namespace semrec {
   class UtilityBase {
   private:
     static bool m_bRedirectOutput;

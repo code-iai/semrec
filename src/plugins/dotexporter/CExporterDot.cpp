@@ -40,7 +40,7 @@
 #include <plugins/dotexporter/CExporterDot.h>
 
 
-namespace beliefstate {
+namespace semrec {
   CExporterDot::CExporterDot() {
   }
   

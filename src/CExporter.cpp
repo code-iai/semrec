@@ -40,7 +40,7 @@
 #include <CExporter.h>
 
 
-namespace beliefstate {
+namespace semrec {
   CExporter::CExporter() {
     m_ckvpConfiguration = new KeyValuePair();
   }

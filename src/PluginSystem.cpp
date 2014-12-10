@@ -40,7 +40,7 @@
 #include <PluginSystem.h>
 
 
-namespace beliefstate {
+namespace semrec {
   PluginSystem::PluginSystem(int argc, char** argv) {
     m_argc = argc;
     m_argv = argv;
@@ -84,7 +84,7 @@ namespace beliefstate {
     }
     
     // Remove plugin prefix
-    std::string strPrefix = "libbs_plugin_";
+    std::string strPrefix = "libsr_plugin_";
     
     if(strPath.substr(0, strPrefix.size()) == strPrefix) {
       strPath = strPath.substr(strPrefix.size());
@@ -123,7 +123,7 @@ namespace beliefstate {
   
   Result PluginSystem::loadPluginLibrary(std::string strFilepath, bool bIsNameOnly) {
     PluginInstance* icLoad = NULL;
-    std::string strPrefix = "libbs_plugin_";
+    std::string strPrefix = "libsr_plugin_";
     std::string strSuffix = ".so";
     
     if(bIsNameOnly) {

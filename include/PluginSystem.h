@@ -54,7 +54,7 @@
 #include <UtilityBase.h>
 
 
-namespace beliefstate {
+namespace semrec {
   class PluginSystem : public UtilityBase {
   private:
     std::list<PluginInstance*> m_lstLoadedPlugins;
