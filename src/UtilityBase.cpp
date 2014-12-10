@@ -130,17 +130,13 @@ namespace semrec {
   }
   
   int UtilityBase::getTimeStamp() {
-    return std::time(0);
+    ros::Time t = ros::Time::now();
+    return t.sec + t.nsec*0.000000001;
   }
 
   double UtilityBase::getTimeStampPrecise() {
-    double dPreciseSeconds;
-    
-    std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
-    
-    dPreciseSeconds = ms.count() / 1000.0;
-    
-    return dPreciseSeconds;
+    ros::Time t = ros::Time::now();
+    return t.sec + t.nsec*0.000000001;
   }
 
   std::string UtilityBase::getTimeStampStr(double dTime) {
