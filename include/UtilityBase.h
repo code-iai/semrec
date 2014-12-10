@@ -92,7 +92,6 @@ namespace semrec {
       \param replace The string to use as a replacement */
     void replaceStringInPlace(std::string& subject, const std::string& search, const std::string& replace);
     
-    int getTimeStamp();
     double getTimeStampPrecise();
     std::string getTimeStampStr();
     std::string getTimeStampStr(double dTime);

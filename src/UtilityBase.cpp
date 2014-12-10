@@ -129,11 +129,6 @@ namespace semrec {
     }
   }
   
-  int UtilityBase::getTimeStamp() {
-    ros::Time t = ros::Time::now();
-    return t.sec + t.nsec*0.000000001;
-  }
-
   double UtilityBase::getTimeStampPrecise() {
     ros::Time t = ros::Time::now();
     return t.sec + t.nsec*0.000000001;
