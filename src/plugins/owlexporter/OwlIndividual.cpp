@@ -93,7 +93,7 @@ namespace semrec {
     }
     
     strOwl += this->indent(nIndentation * nIndentationPerLevel) +
-      "<owl:namedIndividual rdf:about=\"" + m_strID + "\">\n";
+      "<owl:NamedIndividual rdf:about=\"" + m_strID + "\">\n";
     
     if(m_strType != "") {
       strOwl += this->indent((nIndentation + 1) * nIndentationPerLevel) +
@@ -118,7 +118,7 @@ namespace semrec {
     }
     
     strOwl += this->indent(nIndentation * nIndentationPerLevel) +
-      "</owl:namedIndividual>\n";
+      "</owl:NamedIndividual>\n";
     strOwl += this->indent(nIndentation * nIndentationPerLevel) + "\n";
     
     return strOwl;
