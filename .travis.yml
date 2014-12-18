@@ -1,0 +1,35 @@
+language: cpp
+
+compiler:
+ - gcc
+
+before_install:
+ - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
+ - sudo apt-get update -qq
+ - sudo apt-get install -y git
+ - sudo apt-get install -y ros-indigo-desktop-full
+ - sudo apt-get install -y libglib2.0-0 libglib2.0-dev libjson-glib-1.0-0 libjson-glib-dev
+ - sudo rosdep init
+ - rosdep update
+ - echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
+ - source ~/.bashrc
+ - sudo apt-get install python-rosinstall
+ - mkdir -p ~/catkin_ws/src
+ - cd ~/catkin_ws/src
+ - catkin_init_workspace
+ - cd ~/catkin_ws
+ - catkin_make
+ - source devel/setup.bash
+ - cd ~/catkin_ws/src
+ - wstool set iai_common_msgs --git https://github.com/code-iai/iai_common_msgs.git
+ - wstool set designator_integration --git https://github.com/code-iai/designator_integration.git
+ - wstool update
+ - cd ~/catkin_ws
+ - catkin_make
+
+script:
+ - cd ~/catkin_ws/src
+ - wstool set semrec --git https://github.com/code-iai/ros-semrec
+ - wstool update semrec
+ - cd ~/catkin_ws
+ - catkin_make --pkg semrec
