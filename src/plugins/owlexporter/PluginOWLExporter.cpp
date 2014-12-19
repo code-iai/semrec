@@ -59,6 +59,7 @@ namespace semrec {
       this->setSubscribedToEvent("register-owl-namespace", true);
       this->setSubscribedToEvent("update-absolute-experiment-start-time", true);
       this->setSubscribedToEvent("update-absolute-experiment-end-time", true);
+      this->setSubscribedToEvent("start-new-experiment", true);
       
       return resInit;
     }
@@ -166,6 +167,8 @@ namespace semrec {
 	    }
 	  }
 	}
+      } else if(evEvent.strEventName == "start-new-experiment") {
+	m_mapMetaData.clear();
       }
     }
     
