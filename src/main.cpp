@@ -68,6 +68,7 @@ void printHelp(std::string strExecutableName) {
   std::cout << "Available options are:" << std::endl;
   std::cout << "  -h, --help\t\tPrint this help" << std::endl;
   std::cout << "  -c, --config <file>\tLoad config file <file> instead of the default one" << std::endl;
+  std::cout << "  -q, --quiet\t\tStart in quiet mode (command line output is suppressed)" << std::endl;
   std::cout << std::endl;
   
   std::cout << "Should any questions arise, feel free to send an email to winkler@cs.uni-bremen.de" << std::endl;
@@ -99,16 +100,22 @@ int main(int argc, char** argv) {
   // Read command line parameters
   int nC, option_index = 0;
   static struct option long_options[] = {{"config", required_argument, 0, 'c'},
-					 {"help",   no_argument,       0, 'h'},
-					 {0,        0,                 0, 0}};
+				         {"quiet",  no_argument,       0, 'q'},
+				         {"help",   no_argument,       0, 'h'},
+				         {0,        0,                 0, 0}};
   
   std::string strConfigFile = "";
   bool bQuit = false;
+  bool bQuiet = false;
   
-  while((nC = getopt_long(argc, argv, "c:h", long_options, &option_index)) != -1) {
+  while((nC = getopt_long(argc, argv, "c:qh", long_options, &option_index)) != -1) {
     switch(nC) {
     case 'c': {
       strConfigFile = std::string(optarg);
+    } break;
+      
+    case 'q': {
+      bQuiet = true;
     } break;
       
     case 'h': {
@@ -122,6 +129,8 @@ int main(int argc, char** argv) {
   }
   
   if(bQuit == false) {
+    g_srRecorder->setQuiet(bQuiet);
+    
     g_srRecorder->info("Starting semantic hierarchy recorder system (version \033[1;37m" + g_srRecorder->version() + "\033[0;37m).");
     
     semrec::Result resInit = g_srRecorder->init(strConfigFile);

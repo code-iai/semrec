@@ -56,6 +56,7 @@ namespace semrec {
   class UtilityBase {
   private:
     static bool m_bRedirectOutput;
+    static bool m_bQuiet;
     std::string m_strMessagePrefixLabel;
     bool m_bOnlyDisplayImportant;
     int m_nTimeFloatingPointPrecision;
@@ -63,6 +64,9 @@ namespace semrec {
   public:
     UtilityBase();
     ~UtilityBase();
+    
+    void setQuiet(bool bQuiet);
+    bool quiet();
     
     void setMessagePrefixLabel(std::string strMessagePrefixLabel);
     std::string messagePrefixLabel();

@@ -41,17 +41,25 @@
 
 
 namespace semrec {
-  bool UtilityBase::m_bRedirectOutput;
+  bool UtilityBase::m_bRedirectOutput = false;
+  bool UtilityBase::m_bQuiet = false;
   
   
   UtilityBase::UtilityBase() {
     m_strMessagePrefixLabel = "";
-    m_bRedirectOutput = false;
     m_bOnlyDisplayImportant = false;
     m_nTimeFloatingPointPrecision = 0;
   }
   
   UtilityBase::~UtilityBase() {
+  }
+  
+  void UtilityBase::setQuiet(bool bQuiet) {
+    m_bQuiet = bQuiet;
+  }
+  
+  bool UtilityBase::quiet() {
+    return m_bQuiet;
   }
   
   void UtilityBase::setMessagePrefixLabel(std::string strMessagePrefixLabel) {
@@ -63,7 +71,7 @@ namespace semrec {
   }
   
   void UtilityBase::coloredText(std::string strText, std::string strColorValue, bool bBold, bool bImportant) {
-    if(!m_bOnlyDisplayImportant || (m_bOnlyDisplayImportant && bImportant)) {
+    if((!m_bOnlyDisplayImportant || (m_bOnlyDisplayImportant && bImportant)) && !m_bQuiet) {
       StatusMessage msgStatus = queueMessage(strColorValue, bBold, this->messagePrefixLabel(), strText);
       
       if(!m_bRedirectOutput) {
