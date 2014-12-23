@@ -1,4 +1,4 @@
-Semantic Hierarchy Recorder [![Build Status](https://travis-ci.org/code-iai/ros-semrec.svg?branch=master)](https://travis-ci.org/code-iai/ros-semrec)
+[6~Semantic Hierarchy Recorder [![Build Status](https://travis-ci.org/code-iai/ros-semrec.svg?branch=master)](https://travis-ci.org/code-iai/ros-semrec)
 ===
 
 The semrec package supplies a ROS driven system with recording capabilities on low (sensor messages), and on high (symbolic) data level. Its sole idea is to keep track of the contexts in which a high level plan execution system performs actions, record its parameters, and give a detailed output about what happened during execution.
@@ -19,3 +19,20 @@ The plugin based architecture allows for relatively simple extension of the syst
 All necessary directories, and details of what to load and where to find plugins, is stored in a convenient config file (config.cfg). Directories are created automatically by the Semantic Hierarchy Recorder system as needed, and data associated with an active experiment is always stored in its respective folder.
 
 A more thorough documentation can be found here: http://cram-system.org/doc/logging/beliefstate
+
+
+### Immediate Usage Instructions
+
+Besides setup and operation of the recorder, you will find yourself in the situation that you want to nicely package the created logs and adjacent data.
+After first running the recorder and acquiring the logs you need, copy the files `package.sh` and `makedot.sh` from the `scripts` subfolder into your local experiment data folder (by default, this is `~/sr_experimental_data`). To package the most current experiment, now just run
+
+```bash
+$ ./package.sh
+```
+
+and the script will generate a `.tar.gz` file for you, denoting the current time and date, including the generated `.owl` file, possibly captured images, and the contents of your `mongodb` log (`roslog.tf`, `roslog.logged_designators` databases). If needed, adjust the script's inner workings to your needs. Per default, `makedot.sh` generates `.pdf` files from the logged `.dot` files if you have activated the `dotexporter` plugin. If not, this will print a failure, but will move on in packaging your logs.
+
+Afterwards, you will have two additional folders in your experiment data folder:
+
+ * `packaging` holds the raw files archived into the target `.tar.gz` file
+ * `results` holds all packaged logs so far
