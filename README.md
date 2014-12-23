@@ -1,4 +1,4 @@
-[6~Semantic Hierarchy Recorder [![Build Status](https://travis-ci.org/code-iai/ros-semrec.svg?branch=master)](https://travis-ci.org/code-iai/ros-semrec)
+Semantic Hierarchy Recorder [![Build Status](https://travis-ci.org/code-iai/ros-semrec.svg?branch=master)](https://travis-ci.org/code-iai/ros-semrec)
 ===
 
 The semrec package supplies a ROS driven system with recording capabilities on low (sensor messages), and on high (symbolic) data level. Its sole idea is to keep track of the contexts in which a high level plan execution system performs actions, record its parameters, and give a detailed output about what happened during execution.
