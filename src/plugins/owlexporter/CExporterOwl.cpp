@@ -813,7 +813,7 @@ namespace semrec {
       // chain') when a) there are successors, and b) it does not have
       // an equation time.
       if(lstSuccessorIDs.size() > 0 && strEquationTime == "") {
-	strDot += "\n        <!-- This is an index designator -->\n";
+	strDot += "    <!-- This is an index designator -->\n";
 	
 	std::list<std::string> lstAllSuccessors = this->collectAllSuccessorDesignatorIDs(strID);
 	for(std::string strSuccessor : lstAllSuccessors) {
