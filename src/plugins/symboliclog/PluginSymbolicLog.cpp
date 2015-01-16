@@ -435,7 +435,7 @@ namespace semrec {
 	      // Check if child designator exists
 	      KeyValuePair* ckvpDescChild = evEvent.cdDesignator->childForKey("description-child");
 	      
-	      if(this->ensureDesignatorPublished(ckvpDescChild->children(), strMemAddrParent, evEvent.cdDesignator->stringValue("type-child"), "", false, this->relativeActiveNode(evEvent))) {
+	      if(this->ensureDesignatorPublished(ckvpDescChild->children(), strMemAddrChild, evEvent.cdDesignator->stringValue("type-child"), "", false, this->relativeActiveNode(evEvent))) {
 		this->info("Added non-existant child-designator during 'equate'");
 	      }
 	      
