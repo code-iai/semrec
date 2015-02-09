@@ -143,6 +143,7 @@ namespace semrec {
 	Node* ndFormerParent = this->relativeActiveNode(evEvent);
 	Node* ndNew = this->addNode(strName, evEvent.nContextID, ndFormerParent);
 	ndNew->setDescription(evEvent.cdDesignator->description());
+	ndNew->metaInformation()->setValue(std::string("success"), 1);
 	
 	std::string strTimeStart = this->getTimeStampStr();
 	if(evEvent.cdDesignator->childForKey("_time-start")) {
@@ -335,6 +336,9 @@ namespace semrec {
 	  
 	  if(ndSubject) {
 	    // Adding a failure to a node also means to set its success state to 'false'.
+	    ndSubject->metaInformation()->setValue(std::string("success"), 0);
+	    ndSubject->setSuccess(false);
+	    
 	    std::string strCondition = evEvent.cdDesignator->stringValue("condition");
 	    std::string strTimeFail = this->getTimeStampStr();
 	    
@@ -342,7 +346,6 @@ namespace semrec {
 	    this->replaceStringInPlace(strFailureID, "-", "_");
 	    
 	    m_prLastFailure = std::make_pair(strFailureID, ndSubject);
-	    ndSubject->setSuccess(false);
 	    
 	    this->info("Added failure '" + m_prLastFailure.first + "' to active node (id " + this->str(ndSubject->id()) + "): '" + strCondition.c_str() + "'");
 	    
