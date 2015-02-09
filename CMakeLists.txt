@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(semrec)
 
-find_package(catkin REQUIRED COMPONENTS roscpp roslib rospack designator_integration designator_integration_msgs sensor_msgs cv_bridge interactive_markers visualization_msgs)
+find_package(catkin REQUIRED COMPONENTS roscpp roslib rospack designator_integration_cpp designator_integration_msgs sensor_msgs cv_bridge interactive_markers visualization_msgs)
 
 add_subdirectory(3rdparty)
 
@@ -18,7 +18,7 @@ endif()
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES sr_plugin_ros sr_plugin_gazebo sr_plugin_console sr_plugin_experiment_context sr_plugin_interactive sr_plugin_symboliclog sr_plugin_supervisor sr_plugin_owlexporter sr_plugin_dotexporter
-  CATKIN_DEPENDS roscpp roslib designator_integration designator_integration_msgs sensor_msgs cv_bridge interactive_markers visualization_msgs
+  CATKIN_DEPENDS roscpp roslib designator_integration_cpp designator_integration_msgs sensor_msgs cv_bridge interactive_markers visualization_msgs
 )
 
 include_directories(
