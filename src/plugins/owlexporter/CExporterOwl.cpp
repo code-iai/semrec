@@ -569,7 +569,13 @@ namespace semrec {
 			m_lstAnnotatedParameters.push_back(strKey);
 		      }
 		      
-		      oiIndividual.addContentProperty("knowrob:" + strKey, sts.str());
+		      std::string strNamespace = ckvpDesignator->stringValue("namespace");
+		      
+		      if(strNamespace == "") {
+			strNamespace = "knowrob";
+		      }
+		      
+		      oiIndividual.addContentProperty(strNamespace + ":" + strKey, sts.str());
 		      oiIndividual.addDataProperty("knowrob:annotatedParameterType", "&xsd;string", strKey);
 		    }
 		  }
