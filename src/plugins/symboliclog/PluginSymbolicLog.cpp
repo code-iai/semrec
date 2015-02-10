@@ -143,7 +143,9 @@ namespace semrec {
 	Node* ndFormerParent = this->relativeActiveNode(evEvent);
 	Node* ndNew = this->addNode(strName, evEvent.nContextID, ndFormerParent);
 	ndNew->setDescription(evEvent.cdDesignator->description());
-	ndNew->metaInformation()->setValue(std::string("success"), 1);
+	
+	// This means we're setting an implicit success for this node.
+	ndNew->setSuccess(true);
 	
 	std::string strTimeStart = this->getTimeStampStr();
 	if(evEvent.cdDesignator->childForKey("_time-start")) {
@@ -177,7 +179,6 @@ namespace semrec {
 	this->deployEvent(evSymbolicSetSubcontext);
       } else if(evEvent.strEventName == "end-context") {
 	int nID = (int)evEvent.cdDesignator->floatValue("_id");
-	
 	int nSuccess = (int)evEvent.cdDesignator->floatValue("_success");
 	Node* ndCurrent = this->relativeActiveNode(evEvent);
 	
@@ -186,14 +187,16 @@ namespace semrec {
 	    std::stringstream sts;
 	    sts << "Received stop context designator for ID " << nID << " (success: " << (nSuccess ? "yes" : "no") << ")";
 	    this->info(sts.str());
-	    
+
 	    // Set success only if no failures are present (in
 	    // which case the success is set to 'false' already)
 	    if(!ndCurrent->hasFailures()) {
 	      // NOTE(winkler): This would be the right spot to
 	      // forward the 'failed' condition towards all underlying
 	      // node structures (to signal that this branch failed).
-	      ndCurrent->metaInformation()->setValue(std::string("success"), nSuccess);
+	      ndCurrent->setSuccess(nSuccess);
+	    } else {
+	      ndCurrent->setSuccess(false);
 	    }
 	    
 	    std::string strTimeEnd = this->getTimeStampStr();
@@ -221,7 +224,9 @@ namespace semrec {
 		// Set success only if no failures are present (in
 		// which case the success is set to 'false' already)
 		if(!ndParent->hasFailures()) {
-		  ndParent->metaInformation()->setValue(std::string("success"), nSuccess);
+		  ndParent->setSuccess(nSuccess);
+		} else {
+		  ndParent->setSuccess(false);
 		}
 		
 		Event evSymbolicEndCtx = defaultEvent("symbolic-end-context");
@@ -258,8 +263,8 @@ namespace semrec {
 	    this->info(sts.str());
 	    
 	    std::string strTimeEnd = this->getTimeStampStr();
-	    Node *ndEndedPrematurely = NULL;
-	    Node *ndSearchTemp = ndCurrent;
+	    Node* ndEndedPrematurely = NULL;
+	    Node* ndSearchTemp = ndCurrent;
 	    
 	    while(ndSearchTemp) {
 	      ndSearchTemp->ensureProperty("time-end", strTimeEnd);
@@ -336,7 +341,6 @@ namespace semrec {
 	  
 	  if(ndSubject) {
 	    // Adding a failure to a node also means to set its success state to 'false'.
-	    ndSubject->metaInformation()->setValue(std::string("success"), 0);
 	    ndSubject->setSuccess(false);
 	    
 	    std::string strCondition = evEvent.cdDesignator->stringValue("condition");

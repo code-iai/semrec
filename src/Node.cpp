@@ -302,7 +302,11 @@ namespace semrec {
   }
   
   void Node::setSuccess(bool bSuccess) {
-    this->metaInformation()->setValue(std::string("success", (bSuccess ? 1 : 0)));
+    this->metaInformation()->setValue(std::string("success"), (bSuccess ? 1 : 0));
+  }
+  
+  void Node::setSuccess(int nSuccess) {
+    this->setSuccess(nSuccess == 0 ? false : true);
   }
   
   bool Node::success() {

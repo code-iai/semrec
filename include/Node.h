@@ -198,6 +198,7 @@ namespace semrec {
     void addDesignator(std::string strType, std::list<KeyValuePair*> lstDescription, std::string strUniqueID, std::string strAnnotation = "");
     
     void setSuccess(bool bSuccess);
+    void setSuccess(int nSuccess);
     bool success();
     
     Node* previousNode();
