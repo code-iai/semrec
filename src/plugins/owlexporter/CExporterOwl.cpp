@@ -193,7 +193,7 @@ namespace semrec {
     std::string strDot = "<!DOCTYPE rdf:RDF [\n";
     
     for(std::pair<std::string, std::string> prEntity : m_lstEntities) {
-      strDot += "    <!ENTITY " + prEntity.first + " \"" + prEntity.second + "\" >\n";
+      strDot += "    <!ENTITY " + prEntity.first + " \"" + prEntity.second + "\">\n";
     }
   
     strDot += "]>\n\n";
