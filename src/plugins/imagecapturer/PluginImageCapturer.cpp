@@ -56,7 +56,11 @@ namespace semrec {
       Result resInit = defaultResult();
       
       m_icapImageCapturer = new CImageCapturer();
-      m_icapImageCapturer->publishImages("/logged_images");
+      
+      Designator* cdConfig = this->getIndividualConfig();
+      m_icapImageCapturer->setTimeout(cdConfig->floatValue("timeout", 5.0f));
+      m_icapImageCapturer->publishImages(cdConfig->stringValue("image-publishing-topic", "/logged_images"));
+      
       this->setSubscribedToEvent("add-image-from-topic", true);
       
       return resInit;

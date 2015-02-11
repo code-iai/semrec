@@ -80,6 +80,7 @@ namespace semrec {
     bool captureFromTopic(std::string strTopicName, std::string &strFileName, std::string strWorkingDirectory, bool bUseFreeName = true);
     void imageCallback(const sensor_msgs::Image &imgData);
     
+    void setTimeout(double dTimeout);
     void publishImages(std::string strImagesTopic);
   };
 }

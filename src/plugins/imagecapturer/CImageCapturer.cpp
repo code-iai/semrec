@@ -91,7 +91,6 @@ namespace semrec {
     
     while(bGoon) {
       dTimeout -= 0.1;
-      
       ros::Duration(0.1).sleep();
       
       // NOTE(winkler): Is spinning actually necessary here? There is
@@ -150,7 +149,11 @@ namespace semrec {
       m_imgReceived = imgData;
     }
   }
-
+  
+  void CImageCapturer::setTimeout(double dTimeout) {
+    m_dTimeout = dTimeout;
+  }
+  
   void CImageCapturer::publishImages(std::string strImagesTopic) {
     m_strImagesTopic = strImagesTopic;
     ros::NodeHandle nh;

@@ -90,6 +90,7 @@ namespace semrec {
       
       this->setTimeFloatingPointPrecision((int)cdConfig->floatValue("time-precision"));
       
+      
       return resInit;
     }
     

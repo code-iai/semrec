@@ -422,8 +422,9 @@ namespace semrec {
 	  std::stringstream sts;
 	  sts << nI;
 	  
+	  std::string strConfigKeyPath = strConfigPath + (strConfigPath == "" ? "" : "/") + sts.str();
 	  if(m_bDisplayConfigurationDetails) {
-	    this->info(" - " + strConfigPath + (strConfigPath == "" ? "" : "/") + sts.str());
+	    this->info(" - " + strConfigKeyPath);
 	  }
 	  
 	  KeyValuePair* ckvpChild = ckvpInto->addChild(sts.str());
@@ -456,6 +457,9 @@ namespace semrec {
 	    bool bContent = sBranch[nI];
 	    ckvpInto->setValue(sts.str(), bContent);
 	  } break;
+	    
+	  default:
+	    this->warn("Unknown type in config file for key path '" + strConfigKeyPath + "'!");
 	  }
 	}
       } else {
@@ -480,9 +484,9 @@ namespace semrec {
 	    sBranch.lookupValue(strConfigDetailName, nContent);
 	    ckvpInto->setValue(strConfigDetailName, nContent);
 	  } break;
-		      
+	    
 	  case libconfig::Setting::TypeFloat: {
-	    int fContent;
+	    float fContent;
 	    sBranch.lookupValue(strConfigDetailName, fContent);
 	    ckvpInto->setValue(strConfigDetailName, fContent);
 	  } break;
