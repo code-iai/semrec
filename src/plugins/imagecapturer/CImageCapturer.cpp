@@ -88,7 +88,7 @@ namespace semrec {
     m_subImage = nh.subscribe(strTopicName, 1, &CImageCapturer::imageCallback, this);
     
     while(bGoon) {
-      nTimeout--;
+      dTimeout -= 0.1;
       
       ros::Duration(0.1).sleep();
       

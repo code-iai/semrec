@@ -71,6 +71,8 @@ namespace semrec {
     std::string m_strImagesTopic;
     ros::Publisher m_pubImages;
     
+    double m_dTimeout; // In seconds
+    
   public:
     CImageCapturer();
     ~CImageCapturer();
