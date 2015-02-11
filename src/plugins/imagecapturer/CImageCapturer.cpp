@@ -43,6 +43,7 @@
 namespace semrec {
   CImageCapturer::CImageCapturer() {
     m_strImagesTopic = "";
+    m_dTimeout = 3;
   }
   
   CImageCapturer::~CImageCapturer() {
@@ -79,8 +80,9 @@ namespace semrec {
   }
   
   bool CImageCapturer::captureFromTopic(std::string strTopicName, std::string& strFileName, std::string strWorkingDirectory, bool bUseFreeName) {
-    int nTimeout = 1000;
     bool bReturnvalue = false;
+    
+    double dTimeout = m_dTimeout;
     bool bGoon = true;
     m_bReceived = false;
     
@@ -100,7 +102,7 @@ namespace semrec {
       
       ros::spinOnce();
       
-      if(nTimeout <= 0 || m_bReceived) {
+      if(dTimeout <= 0 || m_bReceived) {
 	bGoon = false;
       }
     }
@@ -135,6 +137,7 @@ namespace semrec {
 	
 	bReturnvalue = true;
       } catch(cv_bridge::Exception& e) {
+	// Timeout reached
       }
     }
     
