@@ -92,6 +92,7 @@ namespace semrec {
 	    
 	    ConfigSettings cfgsetCurrent = configSettings();
 	    
+	    this->info("Waiting for image topic '" + strTopic + "'");
 	    if(m_icapImageCapturer->captureFromTopic(strTopic, strFilename, cfgsetCurrent.strExperimentDirectory)) {
 	      std::string strFilepath = cfgsetCurrent.strExperimentDirectory + strFilename;
 	      this->info("Wrote image from topic '" + strTopic + "' to file '" + strFilepath + "'");
@@ -106,7 +107,6 @@ namespace semrec {
 	      // (i.e. in the same directory). When moving all files
 	      // somewhere else, global paths would make finding of
 	      // files very difficult.
-	      evImage.nOpenRequestID = evEvent.nOpenRequestID;
 	      evImage.cdDesignator->setValue("filename", strFilename);
 	      
 	      m_mtxEventsStore.lock();
@@ -115,7 +115,7 @@ namespace semrec {
 	    } else {
 	      this->warn("Failed to capture image from topic '" + strTopic + "' and write it to '" + cfgsetCurrent.strExperimentDirectory + strFilename + "'.");
 	      
-	      Event evImage = eventInResponseTo(evEvent);
+	      Event evImage = eventInResponseTo(evEvent, "cancel-open-request");
 	      
 	      m_mtxEventsStore.lock();
 	      m_lstEvents.push_back(evImage);

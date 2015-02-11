@@ -74,6 +74,7 @@ namespace semrec {
       this->setSubscribedToEvent("symbolic-create-designator", true);
       this->setSubscribedToEvent("interactive-callback", true);
       this->setSubscribedToEvent("symbolic-add-image", true);
+      this->setSubscribedToEvent("cancel-open-request", true);
       
       if(cdConfig->floatValue("roslog-messages") != 0) {
 	this->setSubscribedToEvent("status-message", false);
@@ -320,6 +321,8 @@ namespace semrec {
 	this->closeRequestID(evEvent.nOpenRequestID);
       } else {
 	if(evEvent.strEventName == "symbolic-add-image") {
+	  this->closeRequestID(evEvent.nOpenRequestID);
+	} else if(evEvent.strEventName == "cancel-open-request") {
 	  this->closeRequestID(evEvent.nOpenRequestID);
 	} else if(evEvent.strEventName == "symbolic-create-designator") {
 	  if(evEvent.cdDesignator) {
