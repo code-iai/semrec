@@ -10,11 +10,13 @@ The semrec system is thought to be used on autonomous robot systems, keeping tra
 The plugin based architecture allows for relatively simple extension of the system. Current plugins included and integrated into the system are:
 
  * ROS interface (connect to the ROS environment, and expose services for starting/altering/ending contexts)
- * Symbolic Log facility (build a task tree with timing information, based on contexts delivered through the ROS interface)
+ * Symbolic Log facility (build a hierarchical task tree with timing information, based on contexts delivered through the ROS interface)
  * Supervisor component (to supervise the start/restart/end of experiments, in order to organize plan logs, and saved image data)
  * Exporters:
    * OWL Exporter (save the symbolic plan log in OWL format)
+   * DOT Exporter (save the symbolic plan log in DOT format)
  * Image Capturer (save images from any given ROS topic, and store them in the experiment data space)
+ * Prediction component (predict course of action given models of former plan executions)
 
 All necessary directories, and details of what to load and where to find plugins, is stored in a convenient config file (config.cfg). Directories are created automatically by the Semantic Hierarchy Recorder system as needed, and data associated with an active experiment is always stored in its respective folder.
 

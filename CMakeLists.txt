@@ -129,59 +129,46 @@ add_executable(semrec
 
 target_link_libraries(semrec
   sr_base_plugins
-  dl
-)
+  dl)
 
 target_link_libraries(sr_plugin_ros
-  sr_base_plugins
-)
+  sr_base_plugins)
 
 target_link_libraries(sr_plugin_prediction
   sr_base_plugins
-  ${PROJECT_SOURCE_DIR}/3rdparty/json-c/.libs/libjson-c.so
-)
+  ${PROJECT_SOURCE_DIR}/3rdparty/json-c/.libs/libjson-c.so)
 
 target_link_libraries(sr_plugin_gazebo
-  sr_base_plugins
-)
+  sr_base_plugins)
 
 target_link_libraries(sr_plugin_console
   sr_base_plugins
-  ncurses
-)
+  ncurses)
 
 target_link_libraries(sr_plugin_experiment_context
-  sr_base_plugins
-)
+  sr_base_plugins)
 
 target_link_libraries(sr_plugin_interactive
-  sr_base_plugins
-)
+  sr_base_plugins)
 
 target_link_libraries(sr_plugin_owlexporter
-  sr_base_plugins
-)
+  sr_base_plugins)
 
 target_link_libraries(sr_plugin_dotexporter
-  sr_base_plugins
-)
+  sr_base_plugins)
 
 target_link_libraries(sr_plugin_imagecapturer
-  sr_base_plugins
-)
+  sr_base_plugins)
 
 target_link_libraries(sr_plugin_supervisor
-  sr_base_plugins
-)
+  sr_base_plugins)
 
 install(TARGETS semrec
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
-  PATTERN ".svn" EXCLUDE
-)
+  PATTERN ".svn" EXCLUDE)
