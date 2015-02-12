@@ -138,8 +138,9 @@ namespace semrec {
   }
   
   double UtilityBase::getTimeStampPrecise() {
-    ros::Time t = ros::Time::now();
-    return t.sec + t.nsec*0.000000001;
+    ros::Time timeNow = ros::Time::now();
+    
+    return timeNow.toSec();
   }
 
   std::string UtilityBase::getTimeStampStr(double dTime) {
