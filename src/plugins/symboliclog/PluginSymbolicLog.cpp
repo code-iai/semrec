@@ -694,6 +694,10 @@ namespace semrec {
       case Designator::DesignatorType::LOCATION:
 	strType = "location";
 	break;
+
+      case Designator::DesignatorType::HUMAN:
+	strType = "human";
+	break;
 	
       default:
 	break;
@@ -843,6 +847,8 @@ namespace semrec {
 	edtType = Designator::DesignatorType::OBJECT;
       } else if(strType == "LOCATION") {
 	edtType = Designator::DesignatorType::LOCATION;
+      } else if(strType == "HUMAN") {
+	edtType = Designator::DesignatorType::HUMAN;
       }
       
       return this->makeDesignator(edtType, lstDescription);

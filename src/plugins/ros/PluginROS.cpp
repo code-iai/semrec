@@ -375,6 +375,10 @@ namespace semrec {
       case Designator::DesignatorType::LOCATION:
 	strDesigType = "LOCATION";
 	break;
+
+      case Designator::DesignatorType::HUMAN:
+	strDesigType = "HUMAN";
+	break;
 	
       default:
 	break;
