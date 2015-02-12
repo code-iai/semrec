@@ -243,6 +243,8 @@ namespace semrec {
 	// Signal global experiment start.
 	this->deployEvent(defaultEvent("experiment-start"));
       } else if(evEvent.strEventName == "startup-complete") {
+	this->coloredText("Initialization complete. You can start using the system now.", "32", true, true);
+	
 	this->deployEvent(defaultEvent("start-new-experiment"));
       } else if(evEvent.strEventName == "shutdown") {
 	this->deployEvent(defaultEvent("experiment-shutdown"));
