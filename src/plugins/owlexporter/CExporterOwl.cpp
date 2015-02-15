@@ -971,7 +971,6 @@ namespace semrec {
     }
     
     std::string strPlainPrefix = "knowrob";
-    std::string strPrefix = (bPrologSyntax ? strPlainPrefix + ":" : "&" + strPlainPrefix + ";");
     std::string strClass = "CRAMAction";
     
     if(strName == "WITH-DESIGNATORS") {
@@ -1100,8 +1099,13 @@ namespace semrec {
       strClass = "WithFailureHandling";
     } else if(strName == "WITH-POLICY") {
       strClass = "WithPolicy";
+    } else if(strName == "HUMAN-INTRUSION") {
+      strPlainPrefix = "saphari";
+      strClass = "HumanIntrusion";
     }
     
+    std::string strPrefix = (bPrologSyntax ? strPlainPrefix + ":" : "&" + strPlainPrefix + ";");
+
     return (bClassOnly ? "" : strPrefix) + (bPrologSyntax ? "'" + strClass + "'" : strClass);
   }
   
