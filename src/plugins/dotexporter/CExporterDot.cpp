@@ -95,7 +95,7 @@ namespace semrec {
       
       int nNodeCount = this->countNodes(m_lstNodes);
       
-      for(int nI = 0; nI < nNodeCount + 1; nI++) {
+      for(int nI = 1; nI < nNodeCount + 1; nI++) {
 	std::string strDot = "digraph " + strGraphID + " {\n";
 	strDot += "  " + strToplevelID + " [shape=doublecircle, style=bold, label=\"top-level\"];\n";
 	
@@ -104,12 +104,25 @@ namespace semrec {
 	
 	strDot += "}\n";
 	
-	if(!this->writeToFile(strDot, this->outputFilename() + "." + this->str(nI))) {
+	if(!this->writeToFile(strDot, this->outputFilename() + "." + this->str(nI - 1))) {
 	  bReturnvalue = false;
 	  
 	  break;
 	}
       }
+      
+      std::string strTimeTable = "";
+      int nIndex = 0;
+      
+      for(std::string strTime : m_lstTimeTableTimePoints) {
+	std::string strTimePoint = this->str(nIndex) + ", " + strTime;
+	
+	strTimeTable += strTimePoint + "\n";
+	
+	nIndex++;
+      }
+      
+      this->writeToFile(strTimeTable, this->outputFilename() + ".timetable.csv");
     }
     
     return bReturnvalue;
@@ -212,6 +225,11 @@ namespace semrec {
 	
 	if(nIndex > 0) {
 	  nIndex--;
+	  
+	  if(nIndex == 0) {
+	    // This stretch just ended
+	    m_lstTimeTableTimePoints.push_back(ndCurrent->metaInformation()->stringValue("time-start"));
+	  }
 	}
 	
 	strDot += "\n  " + strNodeID + " [shape=Mrecord, style=" + (bVisible ? "filled" : "invis") + ", fillcolor=\"" + strFillColor + "\", label=\"" + strLabel + "\"];\n";

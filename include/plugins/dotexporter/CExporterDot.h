@@ -51,6 +51,8 @@
 namespace semrec {
   class CExporterDot : public CExporterFileoutput {
   private:
+    std::list<std::string> m_lstTimeTableTimePoints;
+    
   public:
     CExporterDot();
     ~CExporterDot();
