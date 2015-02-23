@@ -54,6 +54,9 @@ namespace semrec {
       
       this->setSubscribedToEvent("export-planlog", true);
       
+      Designator* cdConfig = this->getIndividualConfig();
+      m_bCreateSequentialFiles = cdConfig->floatValue("create-sequential-files");
+      
       return resInit;
     }
     
@@ -118,6 +121,14 @@ namespace semrec {
 		  this->info("Successfully exported DOT file '" + expDot->outputFilename() + "'", true);
 		} else {
 		  this->warn("Failed to export to DOT file '" + expDot->outputFilename() + "'", true);
+		}
+		
+		if(m_bCreateSequentialFiles) {
+		  if(expDot->runSequentialExporter()) {
+		    this->info("Successfully exported DOT sequence", true);
+		  } else {
+		    this->warn("Failed to export to DOT sequence", true);
+		  }
 		}
 		
 		delete expDot;

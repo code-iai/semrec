@@ -66,6 +66,8 @@ namespace semrec {
   namespace plugins {
     class PLUGIN_CLASS : public Plugin {
     private:
+      bool m_bCreateSequentialFiles;
+      
     public:
       PLUGIN_CLASS();
       ~PLUGIN_CLASS();

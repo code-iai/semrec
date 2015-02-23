@@ -58,7 +58,6 @@ namespace semrec {
   class CExporter : public UtilityBase {
   private:
     std::list<Node*> m_lstRootNodes;
-    std::list<Node*> m_lstNodes;
     std::list< std::pair<std::string, std::string> > m_lstDesignatorIDs;
     std::list< std::pair<std::string, std::string> > m_lstDesignatorEquations;
   
@@ -67,6 +66,8 @@ namespace semrec {
     void renewUniqueIDsForNode(Node *ndRenew);
   
   protected:
+    std::list<Node*> m_lstNodes;
+    
     std::list< std::pair<std::string, std::string> > m_lstDesignatorEquationTimes;
   
   public:

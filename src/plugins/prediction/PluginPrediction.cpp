@@ -491,7 +491,7 @@ namespace semrec {
 	// Make sure there is a model present before diving into the
 	// tree.
 	if(m_jsnModel->rootProperty()) {
-	  // Make sure we are actually in a valid prediction state.
+	  // Make sure we actually are in a valid prediction state.
 	  if(m_lstPredictionStack.size() > 0) {
 	    PredictionTrack ptCurrent = m_lstPredictionStack.back();
 	    this->info("Predicting for class: '" + ptCurrent.strClass + "' at level " + this->str((int)m_lstPredictionStack.size()));

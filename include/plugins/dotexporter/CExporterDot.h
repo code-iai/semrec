@@ -55,10 +55,12 @@ namespace semrec {
     CExporterDot();
     ~CExporterDot();
     
+    int countNodes(std::list<Node*> lstNodes);
     virtual bool runExporter(KeyValuePair* ckvpConfigurationOverlay);
-    std::string generateDotStringForNodes(std::list<Node*> lstNodes, std::string strParentID);
-    std::string generateDotImagesStringForNode(Node* ndImages);
-    std::string generateDotObjectsStringForNode(Node* ndObjects);
+    bool runSequentialExporter();
+    std::string generateDotStringForNodes(std::list<Node*> lstNodes, std::string strParentID, int& nIndex);
+    std::string generateDotImagesStringForNode(Node* ndImages, bool bVisible = true);
+    std::string generateDotObjectsStringForNode(Node* ndObjects, bool bVisible = true);
     std::string generateDotStringForDescription(std::list<KeyValuePair*> lstDescription, int nTimeStart = -1, int nTimeEnd = -1);
     std::string dotEscapeString(std::string strValue);
   };

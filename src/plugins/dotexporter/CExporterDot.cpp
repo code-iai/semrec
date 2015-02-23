@@ -48,10 +48,10 @@ namespace semrec {
   }
   
   bool CExporterDot::runExporter(KeyValuePair* ckvpConfigurationOverlay) {
-    this->renewUniqueIDs();
-    int nMaxDetailLevel = this->configuration()->floatValue("max-detail-level");
-    
     if(this->outputFilename() != "") {
+      this->renewUniqueIDs();
+      int nMaxDetailLevel = this->configuration()->floatValue("max-detail-level");
+      
       std::string strGraphID = this->generateRandomIdentifier("plangraph_");
       std::string strToplevelID = this->generateUniqueID("node_");
       
@@ -59,7 +59,8 @@ namespace semrec {
       
       strDot += "  " + strToplevelID + " [shape=doublecircle, style=bold, label=\"top-level\"];\n";
       
-      strDot += this->generateDotStringForNodes(this->nodes(), strToplevelID);
+      int nMinusOne = -1;
+      strDot += this->generateDotStringForNodes(this->nodes(), strToplevelID, nMinusOne);
       
       strDot += "}\n";
       
@@ -67,6 +68,51 @@ namespace semrec {
     }
     
     return false;
+  }
+  
+  int CExporterDot::countNodes(std::list<Node*> lstNodes) {
+    int nCount = 0;
+    
+    for(Node* ndNode : lstNodes) {
+      nCount++;
+      
+      nCount += this->countNodes(ndNode->subnodes());
+    }
+    
+    return nCount;
+  }
+  
+  bool CExporterDot::runSequentialExporter() {
+    bool bReturnvalue = false;
+    
+    if(this->outputFilename() != "") {
+      this->renewUniqueIDs();
+      int nMaxDetailLevel = this->configuration()->floatValue("max-detail-level");
+      
+      std::string strGraphID = this->generateRandomIdentifier("plangraph_");
+      std::string strToplevelID = this->generateUniqueID("node_");
+      bReturnvalue = true;
+      
+      int nNodeCount = this->countNodes(m_lstNodes);
+      
+      for(int nI = 0; nI < nNodeCount + 1; nI++) {
+	std::string strDot = "digraph " + strGraphID + " {\n";
+	strDot += "  " + strToplevelID + " [shape=doublecircle, style=bold, label=\"top-level\"];\n";
+	
+	int nUseIndex = nI;
+	strDot += this->generateDotStringForNodes(this->nodes(), strToplevelID, nUseIndex);
+	
+	strDot += "}\n";
+	
+	if(!this->writeToFile(strDot, this->outputFilename() + "." + this->str(nI))) {
+	  bReturnvalue = false;
+	  
+	  break;
+	}
+      }
+    }
+    
+    return bReturnvalue;
   }
   
   std::string CExporterDot::generateDotStringForDescription(std::list<KeyValuePair*> lstDescription, int nTimeStart, int nTimeEnd) {
@@ -140,7 +186,7 @@ namespace semrec {
     return strDot;
   }
 
-  std::string CExporterDot::generateDotStringForNodes(std::list<Node*> lstNodes, std::string strParentID) {
+  std::string CExporterDot::generateDotStringForNodes(std::list<Node*> lstNodes, std::string strParentID, int& nIndex) {
     std::string strDot = "";
     
     for(Node* ndCurrent : lstNodes) {
@@ -162,19 +208,24 @@ namespace semrec {
 									  ndCurrent->metaInformation()->floatValue("time-start"),
 									  ndCurrent->metaInformation()->floatValue("time-end"));
 	std::string strLabel = "{" + this->dotEscapeString(ndCurrent->title()) + strParameters + "}";
+	bool bVisible = nIndex > 0 || nIndex == -1;
 	
-	strDot += "\n  " + strNodeID + " [shape=Mrecord, style=filled, fillcolor=\"" + strFillColor + "\", label=\"" + strLabel + "\"];\n";
-	strDot += "  edge [color=\"" + strEdgeColor + "\", label=\"\"];\n";
+	if(nIndex > 0) {
+	  nIndex--;
+	}
+	
+	strDot += "\n  " + strNodeID + " [shape=Mrecord, style=" + (bVisible ? "filled" : "invis") + ", fillcolor=\"" + strFillColor + "\", label=\"" + strLabel + "\"];\n";
+	strDot += "  edge [color=\"" + strEdgeColor + "\", label=\"\"" + (bVisible ? "" : ", style=invis") + "];\n";
 	strDot += "  " + strParentID + " -> " + strNodeID + ";\n";
 	
 	// Images
-	strDot += this->generateDotImagesStringForNode(ndCurrent);
+	strDot += this->generateDotImagesStringForNode(ndCurrent, bVisible);
 	
 	// Objects
-	strDot += this->generateDotObjectsStringForNode(ndCurrent);
+	strDot += this->generateDotObjectsStringForNode(ndCurrent, bVisible);
 	
 	// Subnodes
-	strDot += this->generateDotStringForNodes(ndCurrent->subnodes(), strNodeID);
+	strDot += this->generateDotStringForNodes(ndCurrent->subnodes(), strNodeID, nIndex);
       } else if(this->nodeHasValidDetailLevel(ndCurrent)) {
 	// Node has valid detail level. So the failed displayability
 	// was due to this and not due to a failed success/failure
@@ -182,14 +233,14 @@ namespace semrec {
 	// for their parent id.
 	
 	// Subnodes
-	strDot += this->generateDotStringForNodes(ndCurrent->subnodes(), strParentID);
+	strDot += this->generateDotStringForNodes(ndCurrent->subnodes(), strParentID, nIndex);
       }
     }
     
     return strDot;
   }
   
-  std::string CExporterDot::generateDotImagesStringForNode(Node *ndImages) {
+  std::string CExporterDot::generateDotImagesStringForNode(Node *ndImages, bool bVisible) {
     std::string strDot = "";
     
     KeyValuePair *ckvpImages = ndImages->metaInformation()->childForKey("images");
@@ -205,16 +256,16 @@ namespace semrec {
 	std::stringstream sts;
 	sts << ndImages->uniqueID() << "_image_" << unIndex;
 	
-	strDot += "  " + sts.str() + " [shape=box, label=\"" + strOrigin + "\", width=\"6cm\", height=\"6cm\", fixedsize=true, imagescale=true, image=\"" + strFilename + "\"];\n";
-	strDot += "  edge [color=\"black\", label=\"camera image\"];\n";
+	strDot += "  " + sts.str() + " [" + (bVisible ? "" : "style=invis, ") + "shape=box, label=\"" + strOrigin + "\", width=\"6cm\", height=\"6cm\", fixedsize=true, imagescale=true, image=\"" + strFilename + "\"];\n";
+	strDot += "  edge [" + (bVisible ? "" : std::string("style=invis, ")) + "color=\"black\", label=\"camera image\"];\n";
 	strDot += "  " + sts.str() + " -> " + ndImages->uniqueID() + ";\n";
       }
     }
     
     return strDot;
   }
-
-  std::string CExporterDot::generateDotObjectsStringForNode(Node *ndObjects) {
+  
+  std::string CExporterDot::generateDotObjectsStringForNode(Node *ndObjects, bool bVisible) {
     std::string strDot = "";
     
     KeyValuePair *ckvpObjects = ndObjects->metaInformation()->childForKey("objects");
@@ -244,8 +295,8 @@ namespace semrec {
 	std::string strTitle = strObjectID;
 	std::string strLabel = "{" + this->dotEscapeString(strTitle) + strParameters + "}";
 	
-	strDot += "  " + strObjectID + " [shape=Mrecord, label=\"" + strLabel + "\"];\n";
-	strDot += "  edge [color=\"black\", label=\"" + strDefProperty + "\"];\n";
+	strDot += "  " + strObjectID + " [" + (bVisible ? "" : "style=invis, ") + "shape=Mrecord, label=\"" + strLabel + "\"];\n";
+	strDot += "  edge [" + (bVisible ? "" : std::string("style=invis, ")) + "color=\"black\", label=\"" + strDefProperty + "\"];\n";
 	strDot += "  " + strObjectID + " -> " + ndObjects->uniqueID() + ";\n";
       }
     }
