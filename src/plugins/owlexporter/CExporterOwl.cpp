@@ -938,7 +938,12 @@ namespace semrec {
 	}
       }
       
-      oiIndividual.addDataProperty("knowrob:" + strCamelCaseKey, "&xsd;string", prEntry.second);
+      if(strCamelCaseKey == "timeEnd" || strCamelCaseKey == "timeStart") {
+	// Special handling for timepoints as they mark specific timepoint individuals
+	oiIndividual.addResourceProperty("knowrob:" + (strCamelCaseKey == "timeStart" ? std::string("startTime") : std::string("endTime")), "&" + strNamespace + ";" + "timepoint_" + std::string(prEntry.second));
+      } else {
+	oiIndividual.addDataProperty("knowrob:" + strCamelCaseKey, "&xsd;string", prEntry.second);
+      }
     }
     
     strDot += oiIndividual.print();
