@@ -104,7 +104,10 @@ namespace semrec {
 	
 	strDot += "}\n";
 	
-	if(!this->writeToFile(strDot, this->outputFilename() + "." + this->str(nI - 1))) {
+	char acPaddedIndex[80];
+	sprintf(acPaddedIndex, "%08d", nI - 1);
+	
+	if(!this->writeToFile(strDot, this->outputFilename() + "." + std::string(acPaddedIndex))) {
 	  bReturnvalue = false;
 	  
 	  break;
