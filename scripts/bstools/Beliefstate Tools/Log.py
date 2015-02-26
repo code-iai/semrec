@@ -7,3 +7,9 @@ class Log:
 
     def getOwlData(self):
         return self.owlData
+    
+    def setDesignatorData(self, desigData):
+        self.desigData = desigData
+    
+    def getDesignatorData(self):
+        return self.desigData

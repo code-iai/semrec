@@ -69,7 +69,7 @@ class OwlIndividual:
             arrSubs.append(sub.split("#")[1])
         
         return arrSub
-    
+
     def annotatedParameterValues(self, strParam):
         return self.tagNodeValues("knowrob:" + strParam)
     
@@ -105,10 +105,18 @@ class OwlIndividual:
         
         return arrFailures
     
+    def taskSuccess(self):
+        success = self.tagNodeValues("knowrob:taskSuccess")[0]
+        
+        if success == "true":
+            return True
+        
+        return False
+    
     def timeSpan(self):
         timeStart = self.tagAttributeValues("knowrob:startTime", "rdf:resource")
         timeEnd = self.tagAttributeValues("knowrob:endTime", "rdf:resource")
-
+        
         if len(timeStart) > 0 and len(timeEnd) > 0:
             return [timeStart[0].split("#")[1].split("_")[1], timeEnd[0].split("#")[1].split("_")[1]]
 
@@ -117,7 +125,7 @@ class OwlIndividual:
 
         if arrTimespan:
             if len(arrTimespan) == 2:
-                return int(arrTimespan[1]) - int(arrTimespan[0])
+                return float(arrTimespan[1]) - float(arrTimespan[0])
 
         return 0
 
@@ -142,8 +150,8 @@ class OwlReader:
         return self.crawlOwl(parse(strFile))
     
     def crawlOwl(self, domOwl):
-        arrIndividuals = domOwl.getElementsByTagName("owl:namedIndividual")
-
+        arrIndividuals = domOwl.getElementsByTagName("owl:NamedIndividual")
+        
         arrOwlTaskTreeIndividuals = {}
         arrOwlDesignatorIndividuals = {}
         arrOwlAuxIndividuals = {}
