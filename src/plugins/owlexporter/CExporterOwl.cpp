@@ -1197,8 +1197,8 @@ namespace semrec {
     
     strOwl += strOwl2;
     
-    if(m_nThrowAndCatchFailureCounter != 0) {
-      this->warn("Throw/Catch failure counter is != 0: '" + this->str(m_nThrowAndCatchFailureCounter) + "'");
+    if(m_nThrowAndCatchFailureCounter > 0) {
+      this->warn("Throw/Catch failure counter is > 0: '" + this->str(m_nThrowAndCatchFailureCounter) + "'");
     }
     
     return strOwl;
