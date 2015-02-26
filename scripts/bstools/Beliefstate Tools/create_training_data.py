@@ -5,9 +5,14 @@ import sys
 
 sys.setrecursionlimit(100000)
 restypescnt = {}
+paramvals = {}
+ignore_params = ["_time_created"]
 
 
-def recurse(f, indiv_class, individual, level = 0):
+def collectTagNames(individual):
+    print individual
+
+def recurse(f, indiv_class, individual, level = 0, scout = False):
     strLine = ""
     
     strLine += indiv_class
@@ -16,6 +21,15 @@ def recurse(f, indiv_class, individual, level = 0):
     for indiv in individual["individuals"]:
         strLineIndividual = strLine
         
+        if scout:
+            for param in individual["individuals"][indiv]["parameters"]:
+                if not param in ignore_params:
+                    if not param in paramvals:
+                        paramvals[param] = []
+                    
+                    if not individual["individuals"][indiv]["parameters"][param] in paramvals[param]:
+                        paramvals[param].append(individual["individuals"][indiv]["parameters"][param])
+        
         if individual["individuals"][indiv]["failure"] == "":
             strLineIndividual += ", Success"
         else:
@@ -23,20 +37,21 @@ def recurse(f, indiv_class, individual, level = 0):
         
         params_found = False
         for param in model["parameters"]:
-            if param in individual["individuals"][indiv]["parameters"]:
-                params_found = True
-                strLineIndividual += ", " + individual["individuals"][indiv]["parameters"][param]
-            else:
-                strLineIndividual += ", ?"
+            if not param in ignore_params:
+                if param in individual["individuals"][indiv]["parameters"]:
+                    params_found = True
+                    strLineIndividual += ", " + individual["individuals"][indiv]["parameters"][param]
+                else:
+                    strLineIndividual += ", ?"
         
         strLineIndividual += "\n"
         
-        if params_found:
-            f.write(strLineIndividual)
+        if not scout:
+            if params_found:
+                f.write(strLineIndividual)
     
     for subtype in individual["subTypes"]:
-        recurse(f, subtype, individual["subTypes"][subtype], level + 1)
-
+        recurse(f, subtype, individual["subTypes"][subtype], level + 1, scout)
 
 def collectTaskTypes(task):
     types = []
@@ -76,6 +91,17 @@ def collectResults(task):
     
     return results
 
+def isParameterNumeric(param):
+    is_numeric = True
+    
+    if param in paramvals:
+        for paramval in paramvals[param]:
+            if not paramval.isnumeric():
+                is_numeric = False
+                break
+    
+    return is_numeric
+
 with open("generalized_model.pkl", "r") as f:
     model = pickle.load(f)
 
@@ -96,11 +122,15 @@ with open("training_data.arff", "wb") as f:
     f.write(strline)
     
     f.write("@attribute Level NUMERIC\n")
-
+    
     dicResultTypes = collectResults(model["model"])
     dicResultTypes.append("Success");
     
     f.write("@attribute Result {")
+
+    indiv_class = model["model"].keys()[0]
+    recurse(f, indiv_class, model["model"][indiv_class], 0, True)
+    print paramvals
     
     strline = "";
     for tasktype in dicResultTypes:
@@ -112,17 +142,24 @@ with open("training_data.arff", "wb") as f:
     strline += "}\n"
     f.write(strline)
     
-    for param in model["parameters"]:
-        if param == "TAGNAME":
-            f.write("@attribute " + param + " {PICK, PERCEIVE, NAVIGATE, GRASP, PLACE, TEST-FIND-OBJECT}\n")
-        elif param == "OBJ-TYPE":
-            f.write("@attribute " + param + " {PANCAKEMIX, SPATULA, MUESLI, DINNERPLATE, KETCHUP}\n")
+    for param in paramvals:
+        f.write("@attribute " + param + " ")
+        
+        if isParameterNumeric(param):
+            f.write("NUMERIC")
         else:
-            f.write("@attribute " + param + " NUMERIC\n")
-
+            nominallist = ""
+            for paramval in paramvals[param]:
+                if nominallist != "":
+                    nominallist += ", "
+                
+                nominallist += paramval
+            f.write("{" + nominallist + "}")
+        
+        f.write("\n")
+    
     f.write("\n@data\n")
     
-    indiv_class = model["model"].keys()[0]
-    recurse(f, indiv_class, model["model"][indiv_class])
+    recurse(f, indiv_class, model["model"][indiv_class], 0, False)
     
     print restypescnt

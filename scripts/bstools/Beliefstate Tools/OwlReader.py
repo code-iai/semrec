@@ -105,6 +105,14 @@ class OwlIndividual:
         
         return arrFailures
     
+    def caughtFailures(self):
+        caught_pre = self.tagAttributeValues("knowrob:caughtFailure", "rdf:resource")
+        arrCaughtFailures = []
+        for caught_failure in caught_pre:
+            arrCaughtFailures.append(caught_failure.split("#")[1])
+        
+        return arrCaughtFailures
+    
     def taskSuccess(self):
         success = self.tagNodeValues("knowrob:taskSuccess")[0]
         

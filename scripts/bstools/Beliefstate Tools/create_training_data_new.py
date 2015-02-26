@@ -40,6 +40,10 @@ class TrainingData:
         self.dicAttributeCollections = {}
         self.arrDataSets = []
         self.arrIgnoredAttributes = []
+        self.strFirstAttribute = ""
+    
+    def selectFirstAttribute(self, strAttribute):
+        self.strFirstAttribute = strAttribute
     
     def addIgnoredParameter(self, strIgnoredAttribute):
         self.arrIgnoredAttributes.append(strIgnoredAttribute)
@@ -47,15 +51,18 @@ class TrainingData:
     def isAttributeIgnored(self, strIgnoredAttribute):
         return strIgnoredAttribute in self.arrIgnoredAttributes
     
-    def addValueToAttribute(self, strAttribute, idValue):
+    def registerAttribute(self, strAttribute):
         if not strAttribute in self.dicAttributeCollections:
             self.dicAttributeCollections[strAttribute] = []
+    
+    def addValueToAttribute(self, strAttribute, idValue):
+        self.registerAttribute(strAttribute)
         
         if not idValue in self.dicAttributeCollections[strAttribute]:
             self.dicAttributeCollections[strAttribute].append(idValue)
     
     def isAttributeNumeric(self, strAttribute):
-        bIsNumeric = True
+        bIsNumeric = len(self.dicAttributeCollections[strAttribute]) > 0
         
         if strAttribute in self.dicAttributeCollections:
             for idValue in self.dicAttributeCollections[strAttribute]:
@@ -103,21 +110,29 @@ class TrainingData:
     def assembleAttributeLines(self):
         dicLines = []
         
+        if self.strFirstAttribute != "":
+            dicLines.append(self.assembleAttributeLine(self.strFirstAttribute))
+        
         for strAttribute in self.dicAttributeCollections:
-            if not self.isAttributeIgnored(strAttribute):
-                dicLines.append(self.assembleAttributeLine(strAttribute))
+            if self.strFirstAttribute == "" or (self.strFirstAttribute != "" and self.strFirstAttribute != strAttribute):
+                if not self.isAttributeIgnored(strAttribute):
+                    dicLines.append(self.assembleAttributeLine(strAttribute))
         
         return dicLines
     
     def assembleDataSetLine(self, dsDataSet):
         strLine = ""
         
+        if self.strFirstAttribute != "":
+            strLine += dsDataSet.getAttributeValue(self.strFirstAttribute)
+        
         for strAttribute in self.dicAttributeCollections:
-            if not self.isAttributeIgnored(strAttribute):
-                if strLine != "":
-                    strLine += ", "
-                
-                strLine += dsDataSet.getAttributeValue(strAttribute)
+            if self.strFirstAttribute == "" or (self.strFirstAttribute != "" and self.strFirstAttribute != strAttribute):
+                if not self.isAttributeIgnored(strAttribute):
+                    if strLine != "":
+                        strLine += ", "
+                    
+                    strLine += dsDataSet.getAttributeValue(strAttribute)
         
         return strLine
     
@@ -149,30 +164,55 @@ class OwlToTrainingDataConverter:
         self.tdTrainingData = TrainingData()
         self.rdrLog = LogReader()
         
+        self.arrIgnoredTasks = []
         self.arrAnnotatedParameters = []
+    
+    def setTaskIgnored(self, strTask):
+        if not strTask in self.arrIgnoredTasks:
+            self.arrIgnoredTasks.append(strTask)
     
     def addTrackedParameter(self, strParameter):
         self.arrAnnotatedParameters.append(strParameter)
     
-    def convertOwlToTrainingData(self, strLogDirectory):
-        self.logData = self.rdrLog.loadLog(strLogDirectory)
-        self.owlData = self.logData.getOwlData()
-        self.designatorData = self.logData.getDesignatorData()
-        
-        self.tti = self.owlData["task-tree-individuals"]
-        self.di = self.owlData["designator-individuals"]
-        self.meta = self.owlData["metadata"]
-        self.annotation = self.owlData["annotation"]
-        
-        for strParameter in self.annotation.tagNodeValues("knowrob:annotatedParameterType"):
-            self.addTrackedParameter(strParameter)
-        
+    def convertOwlToTrainingData(self, arrLogDirectories):
         self.addTrackedParameter("taskContext")
+        
+        self.setTaskIgnored(u"WITH-FAILURE-HANDLING")
+        self.setTaskIgnored(u"WITH-DESIGNATORS")
+        self.setTaskIgnored(u"TAG")
+        self.setTaskIgnored(u"UIMA-PERCEIVE")
+        self.setTaskIgnored(u"GOAL-MONITOR-ACTION")
+        self.setTaskIgnored(u"GOAL-ACHIEVE")
+        self.setTaskIgnored(u"GOAL-PERFORM")
+        self.setTaskIgnored(u"GOAL-PERFORM-ON-PROCESS-MODULE")
+        self.setTaskIgnored(u"PERFORM-ACTION-DESIGNATOR")
+        self.setTaskIgnored(u"REPLACEABLE-FUNCTION-NAVIGATE")
+        
+        self.tdTrainingData.registerAttribute(u"Result")
+        self.tdTrainingData.selectFirstAttribute(u"Result")
         
         self.tdTrainingData.addIgnoredParameter("_time_created")
         self.tdTrainingData.setRelation("PlanExecution")
-        self.walkTree(self.meta)
-        self.tdTrainingData.writeTrainingDataToFile(sys.argv[2])
+        
+        for strLogDirectory in arrLogDirectories:
+            self.logData = self.rdrLog.loadLog(strLogDirectory)
+            self.owlData = self.logData.getOwlData()
+            self.designatorData = self.logData.getDesignatorData()
+            
+            self.tti = self.owlData["task-tree-individuals"]
+            self.di = self.owlData["designator-individuals"]
+            self.meta = self.owlData["metadata"]
+            self.annotation = self.owlData["annotation"]
+            
+            for strParameter in self.annotation.tagNodeValues("knowrob:annotatedParameterType"):
+                self.addTrackedParameter(strParameter)
+        
+            self.walkTree(self.meta)
+        
+        self.tdTrainingData.writeTrainingDataToFile(sys.argv[1])
+    
+    def isTaskIgnored(self, strTask):
+        return strTask in self.arrIgnoredTasks
     
     def walkTree(self, ndOriginNode, dsOrigin = DataSet()):
         for strParameter in self.arrAnnotatedParameters:
@@ -181,21 +221,29 @@ class OwlToTrainingDataConverter:
             if len(arrParameters) > 0:
                 dsOrigin.setAttributeValue(strParameter, arrParameters[0])
         
-        arrFailures = ndOriginNode.failures()
-        if len(arrFailures) == 0:
-            dsOrigin.setAttributeValue("Result", u"Success")
-        else:
-            desigFailure = self.tti[arrFailures[0]]
-            dsOrigin.setAttributeValue("Result", desigFailure.type())
+        #dsOrigin.setAttributeValue(u"Duration", unicode(ndOriginNode.time()))
         
-        dsOrigin.setAttributeValue("Duration", unicode(ndOriginNode.time()))
-        
-        self.tdTrainingData.addDataSet(dsOrigin)
         arrSubActions = ndOriginNode.subActions()
         
+        strSubResult = u"Success"
         for strSubAction in arrSubActions:
-            self.walkTree(self.tti[strSubAction], dsOrigin.copy())
+            strSubResultTemp = self.walkTree(self.tti[strSubAction], dsOrigin.copy())
+            
+            if strSubResultTemp != u"Success":
+                strSubResult = strSubResultTemp
+        
+        arrFailures = ndOriginNode.failures()
+        if len(arrFailures) == 0:
+            dsOrigin.setAttributeValue(u"Result", strSubResult)
+        else:
+            desigFailure = self.tti[arrFailures[0]]
+            dsOrigin.setAttributeValue(u"Result", desigFailure.type())
+        
+        if not self.isTaskIgnored(dsOrigin.getAttributeValue(u"taskContext")):
+            self.tdTrainingData.addDataSet(dsOrigin)
+        
+        return dsOrigin.getAttributeValue(u"Result")
 
 
 ottdcConverter = OwlToTrainingDataConverter()
-ottdcConverter.convertOwlToTrainingData(sys.argv[1])
+ottdcConverter.convertOwlToTrainingData(sys.argv[2:])
