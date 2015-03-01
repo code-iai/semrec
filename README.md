@@ -1,13 +1,34 @@
 Semantic Hierarchy Recorder [![Build Status](https://travis-ci.org/code-iai/semrec.svg?branch=master)](https://travis-ci.org/code-iai/semrec)
 ===
 
-The semrec package supplies a ROS driven system with recording capabilities on low (sensor messages), and on high (symbolic) data level. Its sole idea is to keep track of the contexts in which a high level plan execution system performs actions, record its parameters, and give a detailed output about what happened during execution.
+The semrec package supplies a ROS driven system with recording
+capabilities on low (sensor messages), and on high (symbolic) data
+level. Its sole idea is to keep track of the contexts in which a high
+level plan execution system performs actions, record its parameters,
+and give a detailed output about what happened during execution.
 
-Using low level timing information (timestamps), information from different sources can be combined and associated. Given a plan structure, for example images taken from a camera during specific times can be associated with symbolic events.
+Using low level timing information (timestamps), information from
+different sources can be combined and associated. Given a plan
+structure, for example images taken from a camera during specific
+times can be associated with symbolic events.
 
-The semrec system is thought to be used on autonomous robot systems, keeping track of what they do, why they to it (situational context), and what happened during or after their performance.
+The semrec system is thought to be used on autonomous robot systems,
+keeping track of what they do, why they to it (situational context),
+and what happened during or after their performance.
 
-The plugin based architecture allows for relatively simple extension of the system. Current plugins included and integrated into the system are:
+
+Development Activity [![Stories in Ready](https://badge.waffle.io/code-iai/semrec.png?label=ready&title=Ready)](http://waffle.io/code-iai/semrec)
+===
+
+[![Throughput Graph](https://graphs.waffle.io/code-iai/semrec/throughput.svg)](https://waffle.io/code-iai/semrec/metrics) 
+
+
+Plugin-based Extension
+===
+
+The plugin based architecture allows for relatively simple extension
+of the system. Current plugins included and integrated into the system
+are:
 
  * ROS interface (connect to the ROS environment, and expose services for starting/altering/ending contexts)
  * Symbolic Log facility (build a hierarchical task tree with timing information, based on contexts delivered through the ROS interface)
@@ -38,11 +59,3 @@ Afterwards, you will have two additional folders in your experiment data folder:
 
  * `packaging` holds the raw files archived into the target `.tar.gz` file
  * `results` holds all packaged logs so far
-
-
-Development Activity
-===
-
-[![Stories in Ready](https://badge.waffle.io/code-iai/semrec.png?label=ready&title=Ready)](http://waffle.io/code-iai/semrec)
-
-[![Throughput Graph](https://graphs.waffle.io/code-iai/semrec/throughput.svg)](https://waffle.io/code-iai/semrec/metrics) 
