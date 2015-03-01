@@ -38,3 +38,11 @@ Afterwards, you will have two additional folders in your experiment data folder:
 
  * `packaging` holds the raw files archived into the target `.tar.gz` file
  * `results` holds all packaged logs so far
+
+
+Development Activity
+===
+
+[![Stories in Ready](https://badge.waffle.io/code-iai/semrec.png?label=ready&title=Ready)](http://waffle.io/code-iai/semrec)
+
+[![Throughput Graph](https://graphs.waffle.io/code-iai/semrec/throughput.svg)](https://waffle.io/code-iai/semrec/metrics) 
