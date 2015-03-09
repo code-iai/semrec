@@ -46,6 +46,11 @@ A more thorough documentation can be found here: http://cram-system.org/doc/logg
 
 ### Immediate Usage Instructions
 
+To compile `semrec`, you will need to install the following (Ubuntu) dependencies:
+```bash
+$ sudo apt-get install libncurses5-dev automake autoconf
+```
+
 Besides setup and operation of the recorder, you will find yourself in the situation that you want to nicely package the created logs and adjacent data.
 After first running the recorder and acquiring the logs you need, copy the files `package.sh` and `makedot.sh` from the `scripts` subfolder into your local experiment data folder (by default, this is `~/sr_experimental_data`). To package the most current experiment, now just run
 
