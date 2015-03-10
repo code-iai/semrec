@@ -719,6 +719,10 @@ namespace semrec {
 	      oiIndividual.setType(strOwlClass);
 	      oiIndividual.addResourceProperty("knowrob:designator", "&" + strNamespace + ";" + strDesignatorID);
 	      
+	      if(ckvpObject->childForKey("path-to-cad-model")) {
+		oiIndividual.addDataProperty("knowrob:pathToCadModel", "&xsd;string", ckvpObject->stringValue("path-to-cad-model"));
+	      }
+	      
 	      strDot += oiIndividual.print();
 	      
 	      m_lstExportedObjectIndividuals.push_back(strObjectID);

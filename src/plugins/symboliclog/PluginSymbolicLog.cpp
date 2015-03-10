@@ -313,9 +313,9 @@ namespace semrec {
 	      Node* ndSubject = this->relativeActiveNode(evEvent);
 	      if(ndSubject) {
 		ndSubject->addImage(strTopic, strFilepath, strTimeImage);
-	      
+		
 		this->info("Added image to active node (id " + this->str(ndSubject->id()) + "): '" + strFilepath + "'");
-	      
+		
 		Event evSymbolicAddImage = defaultEvent("symbolic-add-image");
 		evSymbolicAddImage.lstNodes.push_back(ndSubject);
 		evSymbolicAddImage.cdDesignator = new Designator();
@@ -497,7 +497,7 @@ namespace semrec {
 	      if(!bDesigExists) { // Object does not yet exist. Add it symbolically.
 		this->info("Adding non-existant object-designator to current context");
 		
-		KeyValuePair *ckvpDesc = evEvent.cdDesignator->childForKey("description");
+		KeyValuePair* ckvpDesc = evEvent.cdDesignator->childForKey("description");
 		std::list<KeyValuePair*> lstDescription = ckvpDesc->children();
 		
 		Designator* cdTemp = new Designator(Designator::DesignatorType::OBJECT, lstDescription);
@@ -530,6 +530,10 @@ namespace semrec {
 	      
 	      if(evEvent.cdDesignator->childForKey("property")) {
 		ckvpDesc->setValue(std::string("_property"), evEvent.cdDesignator->stringValue("property"));
+	      }
+	      
+	      if(evEvent.cdDesignator->childForKey("path-to-cad-model")) {
+		ckvpDesc->setValue("_pathtocadmodel", evEvent.cdDesignator->stringValue("path-to-cad-model"));
 	      }
 	      
 	      ndSubject->addObject(ckvpDesc->children());
