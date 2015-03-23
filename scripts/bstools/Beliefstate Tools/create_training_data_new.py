@@ -188,6 +188,15 @@ class OwlToTrainingDataConverter:
         self.setTaskIgnored(u"PERFORM-ACTION-DESIGNATOR")
         self.setTaskIgnored(u"REPLACEABLE-FUNCTION-NAVIGATE")
         
+        self.setTaskIgnored(u"AT-LOCATION")
+        self.setTaskIgnored(u"VOLUNTARY-BODY-MOVEMENT-ARMS")
+        self.setTaskIgnored(u"MOTION-PLANNING")
+        self.setTaskIgnored(u"MOTION-EXECUTION")
+        self.setTaskIgnored(u"PUTDOWN")
+        self.setTaskIgnored(u"VOLUNTARY-BODY-MOVEMENT-HEAD")
+        self.setTaskIgnored(u"OPEN-GRIPPER")
+        self.setTaskIgnored(u"CLOSE-GRIPPER")
+        
         self.tdTrainingData.registerAttribute(u"Result")
         self.tdTrainingData.selectFirstAttribute(u"Result")
         
