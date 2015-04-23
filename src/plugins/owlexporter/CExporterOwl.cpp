@@ -536,6 +536,19 @@ namespace semrec {
 	    unsigned int unIndex = 0;
 	    for(KeyValuePair* ckvpDesignator : lstDesignators) {
 	      std::string strAnnotation = ckvpDesignator->stringValue("annotation");
+	      
+	      if(this->resolveDesignatorAnnotationTagName(strAnnotation) == "speechActDetails") {
+		KeyValuePair* kvpSpeechAct = ckvpDesignator->childForKey("description");
+		
+		oiIndividual.addDataProperty("knowrob:sender", "&xsd;string", kvpSpeechAct->stringValue("sender"));
+		oiIndividual.addDataProperty("knowrob:receiver", "&xsd;string", kvpSpeechAct->stringValue("receiver"));
+		oiIndividual.addDataProperty("knowrob:content", "&xsd;string", kvpSpeechAct->stringValue("content"));
+		
+		if(kvpSpeechAct->childForKey("in-reply-to")) {
+		  oiIndividual.addDataProperty("knowrob:in-reply-to", "&xsd;string", kvpSpeechAct->stringValue("in-reply-to"));
+		}
+	      }
+	      
 	      std::string strDesigID = ckvpDesignator->stringValue("id");
 	      
 	      m_mapDesignators[strDesigID] = ckvpDesignator;
@@ -983,8 +996,9 @@ namespace semrec {
     std::string strClass = "CRAMAction";
     
     if(strName == "WITH-DESIGNATORS") {
-      // Is this right? Or is there a more fitting type for that?
       strClass = "WithDesignators";
+    } else if(strName == "SPEECH-ACT") {
+      strClass = "SpeechAct";
     } else if(strName == "OPEN-GRIPPER") {
       strClass = "CRAMGripperCommand";
     } else if(strName == "CLOSE-GRIPPER") {
@@ -999,7 +1013,7 @@ namespace semrec {
       /*
 	PREVENT
 	MAINTAIN
-	INFORM (speech act, add information to belief state from outside)
+	INFORM (add information to belief state from outside)
       */
       
       if(strGoal == "PERCEIVE-OBJECT") {
