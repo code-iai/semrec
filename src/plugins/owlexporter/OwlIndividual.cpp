@@ -4,6 +4,8 @@
 namespace semrec {
   std::list<std::string> OwlIndividual::m_lstIssuedProperties;
   std::list<std::string> OwlIndividual::m_lstIssuedTypes;
+  std::map<std::string, std::string> s_mapStaticResources;
+  std::map<std::string, std::string> s_mapStaticProperties;
   
   
   OwlIndividual::OwlIndividual() {
@@ -13,7 +15,15 @@ namespace semrec {
   OwlIndividual::~OwlIndividual() {
     //
   }
-
+  
+  void OwlIndividual::addStaticResource(std::string strKey, std::string strResource) {
+    s_mapStaticResources[strKey] = strResource;
+  }
+  
+  void OwlIndividual::addStaticProperty(std::string strKey, std::string strProperty) {
+    s_mapStaticProperties[strKey] = strProperty;
+  }
+  
   void OwlIndividual::setID(std::string strID) {
     m_strID = strID;
   }
@@ -115,6 +125,18 @@ namespace semrec {
       }
       
       strOwl += "\n";
+    }
+    
+    // Add static resources
+    for(std::pair<std::string, std::string> prResource : s_mapStaticResources) {
+      strOwl += this->indent((nIndentation + 1) * nIndentationPerLevel);
+      strOwl += "<knowrob:" + prResource.first + " rdf:resource=\"" + prResource.second + "\"/>";
+    }
+    
+    // Add static properties
+    for(std::pair<std::string, std::string> prProperty : s_mapStaticProperties) {
+      strOwl += this->indent((nIndentation + 1) * nIndentationPerLevel);
+      strOwl += "<knowrob:" + prProperty.first + " rdf:datatype=\"&xsd;string\">" + prProperty.second + "</knowrob:" + prProperty.first + ">\n";
     }
     
     strOwl += this->indent(nIndentation * nIndentationPerLevel) +

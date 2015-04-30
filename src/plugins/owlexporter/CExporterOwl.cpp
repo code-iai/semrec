@@ -53,6 +53,11 @@ namespace semrec {
   
   void CExporterOwl::setMetaData(std::map<std::string, std::string> mapMetaData) {
     m_mapMetaData = mapMetaData;
+    
+    // NOTE(winkler): This is a hack and needs to be resolved later.
+    if(mapMetaData.find("robot") != mapMetaData.end()) {
+      OwlIndividual::addStaticProperty("robot", mapMetaData["robot"]);
+    }
   }
   
   bool CExporterOwl::loadSemanticsDescriptorFile(std::string strFilepath) {
@@ -540,8 +545,25 @@ namespace semrec {
 	      if(this->resolveDesignatorAnnotationTagName(strAnnotation) == "speechActDetails") {
 		KeyValuePair* kvpSpeechAct = ckvpDesignator->childForKey("description");
 		
-		oiIndividual.addDataProperty("knowrob:sender", "&xsd;string", kvpSpeechAct->stringValue("sender"));
-		oiIndividual.addDataProperty("knowrob:receiver", "&xsd;string", kvpSpeechAct->stringValue("receiver"));
+		std::string strSender = kvpSpeechAct->stringValue("sender");
+		std::string strReceiver = kvpSpeechAct->stringValue("receiver");
+		
+		if(strSender == "PR2") {
+		  oiIndividual.addResourceProperty("knowrob:sender", "http://knowrob.org/kb/PR2.owl#PR2");
+		} else if(strSender == "Boxy") {
+		  oiIndividual.addResourceProperty("knowrob:sender", "http://knowrob.org/kb/Boxy.owl#boxy_robot1");
+		} else {
+		  oiIndividual.addDataProperty("knowrob:sender", "&xsd;string", strSender);
+		}
+		
+		if(strReceiver == "PR2") {
+		  oiIndividual.addResourceProperty("knowrob:receiver", "http://knowrob.org/kb/PR2.owl#PR2");
+		} else if(strReceiver == "Boxy") {
+		  oiIndividual.addResourceProperty("knowrob:receiver", "http://knowrob.org/kb/Boxy.owl#boxy_robot1");
+		} else {
+		  oiIndividual.addDataProperty("knowrob:receiver", "&xsd;string", strReceiver);
+		}
+		
 		oiIndividual.addDataProperty("knowrob:content", "&xsd;string", kvpSpeechAct->stringValue("content"));
 		
 		if(kvpSpeechAct->childForKey("in-reply-to")) {

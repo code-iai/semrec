@@ -7,6 +7,7 @@
 #include <list>
 #include <algorithm>
 #include <iostream>
+#include <map>
 
 
 namespace semrec {
@@ -20,6 +21,9 @@ namespace semrec {
     } OwlProperty;
     
   private:
+    static std::map<std::string, std::string> s_mapStaticResources;
+    static std::map<std::string, std::string> s_mapStaticProperties;
+    
     std::list<OwlProperty> m_lstProperties;
     std::string m_strID;
     std::string m_strType;
@@ -31,6 +35,9 @@ namespace semrec {
   public:
     OwlIndividual();
     ~OwlIndividual();
+    
+    static void addStaticResource(std::string strKey, std::string strResource);
+    static void addStaticProperty(std::string strKey, std::string strProperty);
     
     void setID(std::string strID);
     void setType(std::string strType);
