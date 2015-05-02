@@ -4,8 +4,8 @@
 namespace semrec {
   std::list<std::string> OwlIndividual::m_lstIssuedProperties;
   std::list<std::string> OwlIndividual::m_lstIssuedTypes;
-  std::map<std::string, std::string> s_mapStaticResources;
-  std::map<std::string, std::string> s_mapStaticProperties;
+  std::map<std::string, std::string> OwlIndividual::s_mapStaticResources;
+  std::map<std::string, std::string> OwlIndividual::s_mapStaticProperties;
   
   
   OwlIndividual::OwlIndividual() {
