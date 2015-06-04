@@ -91,6 +91,8 @@ namespace semrec {
     std::string getROSPackagePath(std::string strPackageName, bool bQuiet = true);
     std::string rospackCommand(std::string strCmd, bool bQuiet = true);
     void crawlROS(bool bForce = false);
+    
+    std::vector<std::string> getAdditionalSearchPaths() override;
   };
 }
 

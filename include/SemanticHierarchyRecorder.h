@@ -276,6 +276,8 @@ namespace semrec {
     bool handleUnhandledEvent(Event evEvent);
     
     std::list<std::string> findPrefixPaths(std::string strPathList, std::string strMatchingSuffix, std::string strDelimiter = ":");
+    
+    virtual std::vector<std::string> getAdditionalSearchPaths();
   };
 }
 

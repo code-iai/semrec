@@ -346,6 +346,13 @@ namespace semrec {
 	  }
 	}
 	
+	std::vector<std::string> vecAdditionalSearchPaths = this->getAdditionalSearchPaths();
+	for(std::string strPath : vecAdditionalSearchPaths) {
+	  m_psPlugins->addPluginSearchPath(strPath);
+	  
+	  bSearchPathsSet = true;
+	}
+	
 	// Check if any search paths were set
 	if(bSearchPathsSet == false) {
 	  this->warn("You didn't specify any search paths. This will prevent the system");
@@ -893,5 +900,11 @@ namespace semrec {
     }
     
     return lstPathsReturn;
+  }
+  
+  std::vector<std::string> SemanticHierarchyRecorder::getAdditionalSearchPaths() {
+    std::vector<std::string> vecEmpty;
+    
+    return vecEmpty;
   }
 }

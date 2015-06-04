@@ -129,4 +129,12 @@ namespace semrec {
     
     return lstWorkspaceDirectories;
   }
+  
+  std::vector<std::string> SemanticHierarchyRecorderROS::getAdditionalSearchPaths() {
+    std::vector<std::string> vecPaths = this->SemanticHierarchyRecorder::getAdditionalSearchPaths();
+    
+    ros::package::getPlugins("semrec", "plugin_path", vecPaths);
+    
+    return vecPaths;
+  }
 }
