@@ -92,7 +92,7 @@ namespace semrec {
     std::string rospackCommand(std::string strCmd, bool bQuiet = true);
     void crawlROS(bool bForce = false);
     
-    std::vector<std::string> getAdditionalSearchPaths() override;
+    virtual std::vector<std::string> getAdditionalSearchPaths();
   };
 }
 
