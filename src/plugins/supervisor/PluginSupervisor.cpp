@@ -87,32 +87,36 @@ namespace semrec {
       Designator* cdIndivConfig = this->getIndividualConfig();
       ConfigSettings cfgsetCurrent = configSettings();
       
-      KeyValuePair* ckvpExtensions = cdIndivConfig->childForKey("experiment-validation-extensions");
+      KeyValuePair* ckvpCleanup = cdIndivConfig->childForKey("cleanup-directory");
       
-      std::list<KeyValuePair*> lstChildren = ckvpExtensions->children();
-      std::list<std::string> lstExtensions;
+      if(ckvpCleanup->floatValue() != 0) {
+	KeyValuePair* ckvpExtensions = cdIndivConfig->childForKey("experiment-validation-extensions");
       
-      for(KeyValuePair* ckvpChild : lstChildren) {
-	lstExtensions.push_back(ckvpChild->stringValue());
-      }
+	std::list<KeyValuePair*> lstChildren = ckvpExtensions->children();
+	std::list<std::string> lstExtensions;
       
-      bool bAnyPresent = false;
-      for(std::string strExt : lstExtensions) {
-	if(this->extensionPresent(cfgsetCurrent.strExperimentDirectory, strExt)) {
-	  bAnyPresent = true;
-	  
-	  break;
+	for(KeyValuePair* ckvpChild : lstChildren) {
+	  lstExtensions.push_back(ckvpChild->stringValue());
 	}
-      }
       
-      if(!bAnyPresent) {
-	// No validation extensions found in experiment directory.
-	this->info("Cleaning up directory, as no valid experiment data was found. If this is not what you expected, change your 'experiment-validation-extensions' parameter in the 'supervisor' plugin configuration.");
+	bool bAnyPresent = false;
+	for(std::string strExt : lstExtensions) {
+	  if(this->extensionPresent(cfgsetCurrent.strExperimentDirectory, strExt)) {
+	    bAnyPresent = true;
+	  
+	    break;
+	  }
+	}
+      
+	if(!bAnyPresent) {
+	  // No validation extensions found in experiment directory.
+	  this->info("Cleaning up directory, as no valid experiment data was found. If this is not what you expected, change your 'experiment-validation-extensions' parameter in the 'supervisor' plugin configuration.");
 	
-	deleteDirectory(cfgsetCurrent.strExperimentDirectory);
+	  deleteDirectory(cfgsetCurrent.strExperimentDirectory);
 	
-	std::string strSymlinkName = cfgsetCurrent.strBaseDataDirectory + "/" + cfgsetCurrent.strSymlinkName;
-	::remove(strSymlinkName.c_str());
+	  std::string strSymlinkName = cfgsetCurrent.strBaseDataDirectory + "/" + cfgsetCurrent.strSymlinkName;
+	  ::remove(strSymlinkName.c_str());
+	}
       }
     }
     
