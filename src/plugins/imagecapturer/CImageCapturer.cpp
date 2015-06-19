@@ -58,6 +58,11 @@ namespace semrec {
     
     return false;
   }
+
+  static inline bool isDepthImage(const std::string& encoding) {
+    return encoding == sensor_msgs::image_encodings::TYPE_32FC1 ||
+           encoding == sensor_msgs::image_encodings::TYPE_64FC1;
+  }
   
   void CImageCapturer::freeFilename(std::string& strFileName, std::string strWorkingDirectory) {
     int nIndex = 0;
@@ -114,6 +119,10 @@ namespace semrec {
       try {
 	if(sensor_msgs::image_encodings::isColor(m_imgReceived.encoding)) {
 	  cv_ptr = cv_bridge::toCvCopy(m_imgReceived, sensor_msgs::image_encodings::BGR8);
+  } else if(isDepthImage(m_imgReceived.encoding)) {
+    cv_ptr = cv_bridge::toCvCopy(m_imgReceived);
+    cv::convertScaleAbs(cv_ptr->image, cv_ptr->image, 100.0, 0.0);
+    cv_ptr->encoding = sensor_msgs::image_encodings::MONO8;
 	} else {
 	  cv_ptr = cv_bridge::toCvCopy(m_imgReceived, sensor_msgs::image_encodings::MONO8);
 	}
