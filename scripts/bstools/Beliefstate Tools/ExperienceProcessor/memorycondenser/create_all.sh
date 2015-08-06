@@ -5,7 +5,7 @@ for mode in "experiences" "condensed" "deduced"; do
     
     ./memorycondenser.py ${mode} > temp_${mode}.dot
     dot -Tpdf temp_${mode}.dot > final_${mode}.pdf
-    #rm temp_${mode}.dot
+    rm temp_${mode}.dot
     
     echo "Created 'final_${mode}.pdf'"
     
