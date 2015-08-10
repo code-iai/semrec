@@ -124,7 +124,6 @@ class MemoryCondenser:
         result = {"tree": tree,
                   "parameters": parameters}
         
-        #print self.findPaths(result["tree"], "REPLACEABLE-FUNCTION-ACTION-4")
         print result
     
     def sortComparatorActionTime(self, action1, action2):
@@ -169,27 +168,6 @@ class MemoryCondenser:
             dicContexts[context]["children"] = self.condenseNodesByContext(all_children)
         
         return dicContexts
-    
-    def findPaths(self, condensed, target_context):
-        arr_final_path_nodes = self.findFinalPathNodes(condensed, target_context)
-        
-        
-        
-        return arr_final_path_nodes
-    
-    def expandTreeSequence(self, condensed):
-        pass
-    
-    def findFinalPathNodes(self, condensed, target_context):
-        arr_final_path_nodes = []
-        
-        for context in condensed:
-            if context == target_context:
-                arr_final_path_nodes += condensed[context]["nodes"]
-            else:
-                arr_final_path_nodes += self.findPaths(condensed[context]["children"], target_context)
-        
-        return arr_final_path_nodes
     
     def generalizeExperiences(self):
         self.generalizedExperience = {}
@@ -320,15 +298,13 @@ class MemoryCondenser:
             start_nodes += metaData.subActions()
             self.tti.update(owlData["task-tree-individuals"])
         
-        #start_subnodes = []
-        #for node in start_nodes:
-        #    start_subnodes.append(self.tti[node].subActions())
-        
         print self.generalizeNodes(start_nodes)
     
     def injectExperiences(self, deduced = False, data = False):
         self.arrInjected = {}
         self.tti = {}
+        
+        root_action_count = 0
         
         for experience in self.arrExperiences:
             owlData = experience.getOwlData()
@@ -337,6 +313,7 @@ class MemoryCondenser:
             
             for node in metaData.subActions():
                 self.injectExperienceNode(node, self.arrInjected)
+                root_action_count = root_action_count + 1
         
         for experience in self.arrExperiences:
             owlData = experience.getOwlData()
@@ -345,9 +322,12 @@ class MemoryCondenser:
             
             for node in metaData.subActions():
                 self.checkForOptionalInjectedNodes(self.tti[node].taskContext(), self.arrInjected)
+            
+            for node in metaData.subActions():
+                self.checkForTerminalStateOccurrences(self.tti[node].taskContext(), self.arrInjected)
         
         if deduced:
-            self.printDeduced(dot = not data)
+            self.printDeduced(dot = not data, root_action_count = root_action_count)
         else:
             self.printInjected(dot = not data)
     
@@ -389,20 +369,50 @@ class MemoryCondenser:
             if next_action in frame and not next_action == ctx:
                 self.checkForOptionalInjectedNodes(next_action, frame, frame[ctx]["instances"])
     
-    def printDeduced(self, dot = False):
+    def checkForTerminalStateOccurrences(self, ctx, frame):
+        child_instances = 0
+        next_instances = 0
+        
+        if frame[ctx]["terminal-state"] == "true":
+            for child in frame[ctx]["children"]:
+                if frame[ctx]["children"][child]["start-state"] == "true":
+                    child_instances = child_instances + frame[ctx]["children"][child]["instances"]
+            
+            for next_action in frame[ctx]["next-actions"]:
+                if next_action in frame and not next_action == ctx:
+                    next_instances = next_instances + frame[next_action]["instances"]
+            
+            terminal_instances = frame[ctx]["instances"] - (child_instances + next_instances)
+            
+            if terminal_instances > 0:
+                frame[ctx]["terminal-instances"] = terminal_instances
+            else:
+                frame[ctx]["terminal-instances"] = 0
+        else:
+            frame[ctx]["terminal-state"] = "false"
+            frame[ctx]["terminal-instances"] = 0
+        
+        for child in frame[ctx]["children"]:
+            self.checkForTerminalStateOccurrences(child, frame[ctx]["children"])
+        
+        for next_action in frame[ctx]["next-actions"]:
+            if next_action in frame and not next_action == ctx:
+                self.checkForTerminalStateOccurrences(next_action, frame)
+    
+    def printDeduced(self, dot = False, root_action_count = 1):
         # TODO: Extend this to use all top-level nodes in case they
         # are different
-        deduced = self.expandPathways(self.arrInjected.keys()[0], self.arrInjected)
+        deduced = self.expandPathways(self.arrInjected.keys()[0], self.arrInjected, root_action_count)
         
         if dot:
             self.printDotDeduced(deduced)
         else:
             print deduced
     
-    def expandPathways(self, ctx, nodes):
+    def expandPathways(self, ctx, nodes, root_action_count):
         expanded_pathways = []
         
-        current_node = [{"node": ctx, "instances": nodes[ctx]["instances"]}]
+        current_node = [{"node": ctx, "instances": nodes[ctx]["instances"], "rel-occ" : (float(nodes[ctx]["instances"]) / float(root_action_count)), "rel-term" : (float(nodes[ctx]["terminal-instances"]) / float(nodes[ctx]["instances"]))}]
         children = self.getStartNodes(nodes[ctx]["children"])
         
         had_non_optional_children = False
@@ -410,7 +420,7 @@ class MemoryCondenser:
             if not children[child]["optional"] == "true":
                 had_non_optional_children = True
             
-            child_pathways = self.expandPathways(child, nodes[ctx]["children"])
+            child_pathways = self.expandPathways(child, nodes[ctx]["children"], nodes[ctx]["instances"])
             
             for child_pathway in child_pathways:
                 expanded_pathways.append(current_node + child_pathway)
@@ -427,7 +437,7 @@ class MemoryCondenser:
                 if not nodes[next_action]["optional"] == "true":
                     had_non_optional_next_actions = True
                 
-                expanded_next_pathways = self.expandPathways(next_action, nodes)
+                expanded_next_pathways = self.expandPathways(next_action, nodes, nodes[ctx]["instances"])
                 
                 for expanded_next_pathway in expanded_next_pathways:
                     for expanded_pathway in expanded_pathways:
@@ -435,7 +445,6 @@ class MemoryCondenser:
         
         if not had_non_optional_next_actions:
             final_pathways = final_pathways + expanded_pathways
-            # NO! This overwrites the next actions!
         
         return final_pathways
     
@@ -447,101 +456,6 @@ class MemoryCondenser:
                 start_nodes[node] = nodes[node]
         
         return start_nodes
-    
-    def deducePathways(self, nodes):
-        pathways = []
-        
-        start_nodes = self.getStartNodes(nodes)
-        had_non_optional_start_nodes = False
-        
-        for node in start_nodes:
-            if not start_nodes[node]["optional"] == "true":
-                had_non_optional_start_nodes = True
-            
-            children_pathways = self.findNewChildPathways(node, start_nodes)
-            # NOTE: This is the next actions handling bit, and it
-            # doesn't scale to more than one next action yet. To fix
-            # this, it needs to recurse into the list of those (as
-            # each action can have multiple next actions, effectively
-            # spreading into a tree).
-            
-            na_pw = self.deduceNextActionPathways(node, nodes, children_pathways)
-            
-            pathways = pathways + na_pw
-        
-        if not had_non_optional_start_nodes and len(nodes) > 0:
-            pathways.append([])
-        
-        return pathways
-    
-    def findNewChildPathways(self, node, nodes):
-        new_pathways = []
-        sub_pathways = []
-        
-        if len(nodes[node]["children"]) > 0:
-            sub_pathways = self.deducePathways(nodes[node]["children"])
-            #print "AND WE GOT THESE SUB PATHWAYS:"
-            #for pathway in sub_pathways:
-            #    for item in pathway:
-            #        print "  " + item["node"]
-                
-            #    print
-        
-        if len(sub_pathways) > 0:
-            for sub_pathway in sub_pathways:
-                new_pathway = [{"node": node, "instances": nodes[node]["instances"]}] + sub_pathway
-                new_pathways.append(new_pathway)
-        else:
-            new_pathways = [[{"node": node, "instances": nodes[node]["instances"]}]]
-        
-        return new_pathways
-    
-    def deduceNextActionPathways(self, node, nodes, new_pathways):
-        next_actions = nodes[node]["next-actions"]
-        extended_pathways = []
-        had_valid_next_actions = False
-        had_non_optional_next_action = False
-        
-        if len(next_actions) > 0:
-            for next_action in next_actions:
-                if next_action != node:
-                    had_valid_next_actions = True
-                    
-                    if not nodes[next_action]["optional"] == "true":
-                        had_non_optional_next_action = True
-                    
-                    extended_pathways_post = []
-                    for new_pathway in new_pathways:
-                        extended_pathways_pre = [new_pathway + [{"node": next_action, "instances": nodes[next_action]["instances"]}]]
-                        next_pathways = self.deducePathways(nodes[next_action]["children"])
-                        
-                        if len(next_pathways) > 0:
-                            for extended_pathway in extended_pathways_pre:
-                                for next_pathway in next_pathways:
-                                    extended_pathways_post = extended_pathways_post + [extended_pathway + next_pathway]
-                        else:
-                            extended_pathways_post = extended_pathways_pre
-                    
-                    # go on into the next next actions here
-                    next_next_pathways = self.deduceNextActionPathways(next_action, nodes, extended_pathways_post);
-                    
-                    # print "-- NNP --" 
-                    # for next_next_pathway in next_next_pathways:
-                    #     for item in next_next_pathway:
-                    #         print "  " + item["node"]
-                        
-                    #     print
-                    
-                    extended_pathways = extended_pathways + next_next_pathways# + extended_pathways_post
-        
-        if len(extended_pathways) == 0:
-            extended_pathways = new_pathways
-        
-        if had_valid_next_actions:
-            if not had_non_optional_next_action:
-                extended_pathways = extended_pathways + new_pathways
-        
-        return extended_pathways
     
     def printInjected(self, dot = False):
         if dot:
@@ -564,6 +478,13 @@ class MemoryCondenser:
             self.counterdot = self.counterdot + 1
             
             dot += "  " + child_id + " [shape=box, label=\"" + child + " (" + str(children[child]["instances"]) + ")\"]\n"
+            
+            if children[child]["terminal-state"] == "true":
+                if children[child]["terminal-instances"] > 0:
+                    dot += "    ts_" + str(self.counterdot) + " [shape=doublecircle, label=\"" + str(children[child]["terminal-instances"]) + "\"]\n"
+                    dot += "    edge [style=dashed, arrowhead=normal, arrowtail=none, label=\"terminal\"]\n"
+                    dot += "    " + child_id + " -> " + "ts_" + str(self.counterdot) + "\n"
+            
             dot += self.printInjectedChildren(children[child]["children"], child_id)
             
             if parent:
@@ -579,12 +500,6 @@ class MemoryCondenser:
                         dot += "  edge [style=dashed, arrowhead=none, arrowtail=none, label=\"\"]\n"
                 
                 dot += "  " + parent + " -> " + child_id + "\n"
-            
-            # if children[child]["terminal-state"] == "true":
-            #     dot += "  node_terminal_state_" + str(self.counterdot) + " [shape=doublecircle, label=\"\"]\n"
-            #     dot += "  edge [arrowhead=none, arrowtail=none, label=\"\"]\n"
-            #     dot += "  " + child_id + " -> node_terminal_state_" + str(self.counterdot) + "\n"
-            #     self.counterdot = self.counterdot + 1
             
             for na in children[child]["next-actions"]:
                 if parent:
@@ -618,11 +533,15 @@ class MemoryCondenser:
         print dot
     
     def expScore(self, exp):
-        acc_score = 0
+        acc_score = 1.0
         
         for item in exp:
             instances = item["instances"]
-            acc_score = acc_score + float(instances) / float(len(exp)) #float(len(self.arrExperiences))
+            rel_occ = item["rel-occ"]
+            acc_score = acc_score * rel_occ
+        
+        last_item = exp[len(exp) - 1]
+        acc_score = acc_score * last_item["rel-term"]
         
         return acc_score
     
@@ -640,7 +559,6 @@ class MemoryCondenser:
     def printDotDeduced(self, deduced):
         counter = 0
         subgraphcounter = 0
-        all_first = True
         
         dot = "digraph deduced {\n"
         dot += "  label=\"Deduced Possible Action Paths\"\n"
@@ -657,10 +575,7 @@ class MemoryCondenser:
         deduced.sort(self.expScoreCmp)
         
         for line in deduced:
-            if all_first:
-                all_first = False
-            else:
-                dot += "  \n"
+            dot += "  \n"
             
             dot += "  subgraph cluster_" + str(subgraphcounter) + " {\n"
             dot += "    pencolor=transparent;\n"
@@ -668,22 +583,33 @@ class MemoryCondenser:
             subgraphcounter = subgraphcounter + 1
             
             first = True
+            acc_score = 1.0
+            
             for item in line:
                 instances = item["instances"]
                 node = item["node"]
+                rel_occ = item["rel-occ"]
                 
-                acc_score = acc_score + instances
+                acc_score = acc_score * rel_occ
                 
                 if not first:
                     dot += "    node_" + str(counter - 1) + " -> node_" + str(counter) + "\n"
                 else:
                     first = False
                 
-                dot += "    node_" + str(counter) + " [shape=box, label=\"" + node + " (" + str(instances) + ")\"]\n"
+                dot += "    node_" + str(counter) + " [shape=box, label=\"" + node + " (" + str(round(rel_occ, 2)) + ")\"]\n"
                 counter = counter + 1
             
+            last_item = line[len(line) - 1]
+            
+            dot += "    ts_" + str(counter - 1) + " [shape=doublecircle, label=\"" + str(round(last_item["rel-term"], 2)) + "\"]\n"
+            dot += "    edge [style=dashed, arrowhead=normal, arrowtail=none, label=\"\"]\n"
+            dot += "    node_" + str(counter - 1) + " -> " + "ts_" + str(counter - 1) + "\n"
+            
+            acc_score = acc_score * last_item["rel-term"]
+            
             dot += "    \n"
-            dot += "    label=\"Score: " + str(round(float(self.expScore(line)) / float(highest_score), 2)) + "\";\n"
+            dot += "    label=\"Score: " + str(round(acc_score, 2)) + "\";\n"
             dot += "    labeljust=center;\n"
             dot += "    labelloc=top;\n"
             dot += "  }\n"
