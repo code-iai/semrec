@@ -22,7 +22,7 @@ class MCController:
                     print_data = True
             
             if sys.argv[1] == "experiences":
-                self.mcCondenser.printDotExperiences()
+                self.mcCondenser.printExperiences(dot=not print_data)
             elif sys.argv[1] == "condensed":
                 self.mcCondenser.injectExperiences(data=print_data)
             elif sys.argv[1] == "deduced":

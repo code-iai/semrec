@@ -49,7 +49,7 @@ class MemoryCondenser:
     def condenseNodes(self, strParentNode, arrNodes, nLevel = 0):
         arrTypes = {}
         arrIndividuals = {}
-         
+        
         for strNode in arrNodes:
             owlNode = self.tti[strNode]
             ident = owlNode.taskContext()
@@ -228,9 +228,47 @@ class MemoryCondenser:
         
         return dot
     
-    def printDotExperiences(self):
+    def printExperiences(self, dot):
         for experience in self.arrExperiences:
-            self.printDotExperience(experience)
+            if dot:
+                self.printExperience(experience)
+            else:
+                self.printRawExperience(experience)
+    
+    def printRawExperience(self, experience):
+        owlData = experience.getOwlData()
+        metaData = owlData["metadata"]
+        start_nodes = metaData.subActions()
+        self.t_tti = owlData["task-tree-individuals"]
+        
+        for node in start_nodes:
+            self.printRawExperienceNode(node)
+    
+    def printRawExperienceNode(self, node, level = 0):
+        indent = "   " * level
+        owl = self.t_tti[node]
+        
+        parameters = owl.annotatedParameters()
+        param_str = "("
+        first = True
+        
+        for parameter in parameters:
+            if not parameter == "_time_created":
+                if first == True:
+                    first = False
+                else:
+                    param_str = param_str + ", "
+                
+                key_str = parameter[10:] if parameter[:10] == "parameter-" else parameter
+                param_str = param_str + key_str + "=" + parameters[parameter][0]
+        
+        param_str = param_str + ")"
+        
+        print indent + owl.taskContext() + " " + param_str
+        
+        if len(owl.subActions()) > 0:
+            for node in owl.subActions():
+                self.printRawExperienceNode(node, level + 1)
     
     def printDotExperience(self, experience):
         owlData = experience.getOwlData()
