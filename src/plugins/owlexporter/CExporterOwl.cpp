@@ -849,7 +849,7 @@ namespace semrec {
 	strDesignatorClass = "CRAMObjectDesignator";
       }
       
-      oiIndividual.setType("&knowrob;" + );
+      oiIndividual.setType("&knowrob;" + strDesignatorClass);
       
       if(m_mapDesignators.find(strID) != m_mapDesignators.end()) {
 	std::string strTimeCreated = m_mapDesignators[strID]->childForKey("description")->stringValue("_time_created");
