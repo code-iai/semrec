@@ -837,7 +837,19 @@ namespace semrec {
     for(std::string strID : lstDesigIDs) {
       OwlIndividual oiIndividual;
       oiIndividual.setID("&" + strNamespace + ";" + strID);
-      oiIndividual.setType("&knowrob;" + m_strDefaultDesignatorClass);
+      
+      std::string strDesignatorClass = m_strDefaultDesignatorClass;
+      if(m_mapDesignators[strID]->stringValue("type") == "ACTION") {
+	strDesignatorClass = "CRAMActionDesignator";
+      } else if(m_mapDesignators[strID]->stringValue("type") == "LOCATION") {
+	strDesignatorClass = "CRAMLocationDesignator";
+      } else if(m_mapDesignators[strID]->stringValue("type") == "HUMAN") {
+	strDesignatorClass = "CRAMHumanDesignator";
+      } else if(m_mapDesignators[strID]->stringValue("type") == "OBJECT") {
+	strDesignatorClass = "CRAMObjectDesignator";
+      }
+      
+      oiIndividual.setType("&knowrob;" + );
       
       if(m_mapDesignators.find(strID) != m_mapDesignators.end()) {
 	std::string strTimeCreated = m_mapDesignators[strID]->childForKey("description")->stringValue("_time_created");
