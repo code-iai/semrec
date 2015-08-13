@@ -231,7 +231,7 @@ class MemoryCondenser:
     def printExperiences(self, dot):
         for experience in self.arrExperiences:
             if dot:
-                self.printExperience(experience)
+                self.printDotExperience(experience)
             else:
                 self.printRawExperience(experience)
     
@@ -373,7 +373,15 @@ class MemoryCondenser:
         ctx = self.tti[node].taskContext()
         
         if not ctx in frame:
-            frame[ctx] = {"children": {}, "next-actions" : [], "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0}
+            params = self.tti[node].annotatedParameters()
+            params_fixed = {}
+            
+            for param in params:
+                if not param == "_time_created":
+                    key_str = param[10:] if param[:10] == "parameter-" else param
+                    params_fixed[key_str] = params[param][0]
+            
+            frame[ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": params_fixed}
         
         frame[ctx]["instances"] = frame[ctx]["instances"] + 1
         
@@ -383,10 +391,22 @@ class MemoryCondenser:
             self.injectExperienceNode(sub, frame[ctx]["children"])
         
         if self.tti[node].nextAction():
-            nextCtx = self.tti[self.tti[node].nextAction()].taskContext()
+            next_node = self.tti[node].nextAction()
+            nextCtx = self.tti[next_node].taskContext()
             
             if not nextCtx in frame[ctx]["next-actions"] and not rootlevel:
-                frame[ctx]["next-actions"].append(nextCtx)
+                if not nextCtx in frame[ctx]["next-actions"]:
+                    frame[ctx]["next-actions"][nextCtx] = []
+                
+                params = self.tti[next_node].annotatedParameters()
+                params_fixed = {}
+                
+                for param in params:
+                    if not param == "_time_created":
+                        key_str = param[10:] if param[:10] == "parameter-" else param
+                        params_fixed[key_str] = params[param][0]
+                
+                frame[ctx]["next-actions"][nextCtx].append(params_fixed)
         else:
             if len(self.tti[node].subActions()) == 0:
                 frame[ctx]["terminal-state"] = "true"
@@ -450,7 +470,7 @@ class MemoryCondenser:
     def expandPathways(self, ctx, nodes, root_action_count):
         expanded_pathways = []
         
-        current_node = [{"node": ctx, "instances": nodes[ctx]["instances"], "rel-occ" : (float(nodes[ctx]["instances"]) / float(root_action_count)), "rel-term" : (float(nodes[ctx]["terminal-instances"]) / float(nodes[ctx]["instances"]))}]
+        current_node = [{"node": ctx, "instances": nodes[ctx]["instances"], "rel-occ" : (float(nodes[ctx]["instances"]) / float(root_action_count)), "rel-term" : (float(nodes[ctx]["terminal-instances"]) / float(nodes[ctx]["instances"])), "invocations": nodes[ctx]["invocations"]}]
         children = self.getStartNodes(nodes[ctx]["children"])
         
         had_non_optional_children = False
@@ -504,6 +524,7 @@ class MemoryCondenser:
     def printInjectedChildren(self, children, parent = None):
         dot = ""
         edge_pointers = {}
+        next_action_parameters = {}
         ids = {}
         
         parent_id = parent
@@ -528,7 +549,8 @@ class MemoryCondenser:
             if parent:
                 if children[child]["start-state"] == "true":
                     if children[child]["optional"] == "true":
-                        dot += "  edge [style=solid, arrowhead=normal, arrowtail=none, label=\"optional\"]\n"
+                        dot += "  edge [style=solid, arrowhead=normal, arrowtail=none, label=\"optional\"]\n"#      this->drawTextureScaled(srdRenderer, m_tmManager->texture("normal"), 200, 200);
+
                     else:
                         dot += "  edge [style=solid, arrowhead=normal, arrowtail=none, label=\"\"]\n"
                 else:
@@ -543,16 +565,37 @@ class MemoryCondenser:
                 if parent:
                     if not na in edge_pointers:
                         edge_pointers[na] = []
+                        next_action_parameters[na] = {}
+                    
+                    if not child_id in next_action_parameters[na]:
+                        next_action_parameters[na][child_id] = []
                     
                     edge_pointers[na].append(child_id)
+                    #next_action_parameters[na][child_id].append(children[child]["next-actions"][na])
         
+        #print "!"
+        #print next_action_parameters
         for child in children:
             child_id = ids[child]
             
             if child in edge_pointers:
                 for target in edge_pointers[child]:
+                    param_str = ""
+                    # for param_sets in next_action_parameters[child][target]:
+                    #     for param_set in param_sets:
+                    #         first_p = True
+                    #         for p in param_set:
+                    #             if first_p:
+                    #                 first_p = False
+                    #             else:
+                    #                 param_str = param_str + ", "
+                                
+                    #             param_str = param_str + p + " = " + param_set[p]
+                            
+                    #         param_str = param_str + "\\n"
+                    
                     dot += "  {rank=same; " + child_id + " " + target + "}\n"
-                    dot += "  edge [style=solid, arrowhead=empty, arrowtail=none, label=\"\"]\n"
+                    dot += "  edge [style=solid, arrowhead=empty, arrowtail=none, label=\"" + param_str + "\"]\n"
                     dot += "  " + target + " -> " + child_id + "\n"
         
         return dot
@@ -562,6 +605,7 @@ class MemoryCondenser:
         self.edge_pointers = {}
         
         dot = "digraph condensed {\n"
+        dot += "  graph []\n"#ranksep=0.5#nodesep=0.5#pad=0.5
         dot += "  label=\"Condensed Experience Graph\"\n"
         dot += "  labeljust=center\n"
         dot += "  labelloc=top\n"

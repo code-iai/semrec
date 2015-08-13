@@ -37,9 +37,16 @@ if __name__ == "__main__":
     #mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-07-31_13-17-25/cram_log.owl", "")
     #mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-05_13-53-18/cram_log.owl", "")
     #mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-05_18-41-58/cram_log.owl", "")
-    mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-05_18-43-28/cram_log.owl", "")
+    
+    #mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-05_18-43-28/cram_log.owl", "")
+    
     #mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-06_12-09-35/cram_log.owl", "")
     #mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-06_12-13-09/cram_log.owl", "")
-
+    
+    #mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-11_08-53-13/cram_log.owl", "")
+    
+    #mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-11_08-55-17/cram_log.owl", "")
+    
+    mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-11_08-57-56/cram_log.owl", "")
     
     mcctrl.start()
