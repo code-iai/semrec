@@ -839,14 +839,21 @@ namespace semrec {
       oiIndividual.setID("&" + strNamespace + ";" + strID);
       
       std::string strDesignatorClass = m_strDefaultDesignatorClass;
-      if(m_mapDesignators[strID]->stringValue("type") == "ACTION") {
-	strDesignatorClass = "CRAMActionDesignator";
-      } else if(m_mapDesignators[strID]->stringValue("type") == "LOCATION") {
-	strDesignatorClass = "CRAMLocationDesignator";
-      } else if(m_mapDesignators[strID]->stringValue("type") == "HUMAN") {
-	strDesignatorClass = "CRAMHumanDesignator";
-      } else if(m_mapDesignators[strID]->stringValue("type") == "OBJECT") {
-	strDesignatorClass = "CRAMObjectDesignator";
+      
+      if(m_mapDesignators.find(strID) != m_mapDesignators.end()) {
+	if(m_mapDesignators[strID] != NULL) {
+	  if(m_mapDesignators[strID]->childForKey("type")) {
+	    if(m_mapDesignators[strID]->stringValue("type") == "ACTION") {
+	      strDesignatorClass = "CRAMActionDesignator";
+	    } else if(m_mapDesignators[strID]->stringValue("type") == "LOCATION") {
+	      strDesignatorClass = "CRAMLocationDesignator";
+	    } else if(m_mapDesignators[strID]->stringValue("type") == "HUMAN") {
+	      strDesignatorClass = "CRAMHumanDesignator";
+	    } else if(m_mapDesignators[strID]->stringValue("type") == "OBJECT") {
+	      strDesignatorClass = "CRAMObjectDesignator";
+	    }
+	  }
+	}
       }
       
       oiIndividual.setType("&knowrob;" + strDesignatorClass);
