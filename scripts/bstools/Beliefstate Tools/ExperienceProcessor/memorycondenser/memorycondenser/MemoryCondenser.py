@@ -381,7 +381,10 @@ class MemoryCondenser:
                     key_str = param[10:] if param[:10] == "parameter-" else param
                     params_fixed[key_str] = params[param][0]
             
-            frame[ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": params_fixed}
+            if not ctx in frame:
+                frame[ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": params_fixed}
+            else:
+                frmae[ctx]["invocations"].append(params_fixed)
         
         frame[ctx]["instances"] = frame[ctx]["instances"] + 1
         
@@ -390,23 +393,34 @@ class MemoryCondenser:
         for sub in sub_nodes:
             self.injectExperienceNode(sub, frame[ctx]["children"])
         
-        if self.tti[node].nextAction():
-            next_node = self.tti[node].nextAction()
-            nextCtx = self.tti[next_node].taskContext()
-            
-            if not nextCtx in frame[ctx]["next-actions"] and not rootlevel:
-                if not nextCtx in frame[ctx]["next-actions"]:
-                    frame[ctx]["next-actions"][nextCtx] = []
+        next_node = self.tti[node].nextAction()
+        
+        if next_node:
+            current_ctx = ctx
+            while next_node:
+                nextCtx = self.tti[next_node].taskContext()
                 
-                params = self.tti[next_node].annotatedParameters()
-                params_fixed = {}
+                if not current_ctx in frame:
+                    frame[current_ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": {}}
                 
-                for param in params:
-                    if not param == "_time_created":
-                        key_str = param[10:] if param[:10] == "parameter-" else param
-                        params_fixed[key_str] = params[param][0]
-                
-                frame[ctx]["next-actions"][nextCtx].append(params_fixed)
+                if not nextCtx in frame[current_ctx]["next-actions"] and not rootlevel:
+                    if not nextCtx in frame[current_ctx]["next-actions"]:
+                        frame[current_ctx]["next-actions"][nextCtx] = []
+                    
+                    params = self.tti[next_node].annotatedParameters()
+                    params_fixed = {}
+                    
+                    for param in params:
+                        if not param == "_time_created":
+                            key_str = param[10:] if param[:10] == "parameter-" else param
+                            params_fixed[key_str] = params[param][0]
+                    
+                    frame[current_ctx]["next-actions"][nextCtx].append(params_fixed)
+                    
+                    next_node = self.tti[next_node].nextAction()
+                    current_ctx = nextCtx
+                else:
+                    next_node = None
         else:
             if len(self.tti[node].subActions()) == 0:
                 frame[ctx]["terminal-state"] = "true"
