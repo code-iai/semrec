@@ -417,10 +417,8 @@ class MemoryCondenser:
                     
                     frame[current_ctx]["next-actions"][nextCtx].append(params_fixed)
                     
-                    next_node = self.tti[next_node].nextAction()
-                    current_ctx = nextCtx
-                else:
-                    next_node = None
+                next_node = self.tti[next_node].nextAction()
+                current_ctx = nextCtx
         else:
             if len(self.tti[node].subActions()) == 0:
                 frame[ctx]["terminal-state"] = "true"
