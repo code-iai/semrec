@@ -837,11 +837,11 @@ namespace semrec {
     for(std::string strID : lstDesigIDs) {
       OwlIndividual oiIndividual;
       oiIndividual.setID("&" + strNamespace + ";" + strID);
-      
+
       std::string strDesignatorClass = m_strDefaultDesignatorClass;
       
       if(m_mapDesignators.find(strID) != m_mapDesignators.end()) {
-	if(m_mapDesignators[strID] != NULL) {
+	if(m_mapDesignators[strID]) {
 	  if(m_mapDesignators[strID]->childForKey("type")) {
 	    if(m_mapDesignators[strID]->stringValue("type") == "ACTION") {
 	      strDesignatorClass = "CRAMActionDesignator";
