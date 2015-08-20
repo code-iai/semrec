@@ -359,10 +359,10 @@ class MemoryCondenser:
             self.tti.update(owlData["task-tree-individuals"])
             
             for node in metaData.subActions():
-                self.checkForOptionalInjectedNodes(self.tti[node].taskContext(), self.arrInjected)
+                self.checkForTerminalStateOccurrences(self.tti[node].taskContext(), self.arrInjected)
             
             for node in metaData.subActions():
-                self.checkForTerminalStateOccurrences(self.tti[node].taskContext(), self.arrInjected)
+                self.checkForOptionalInjectedNodes(self.tti[node].taskContext(), self.arrInjected)
         
         if deduced:
             self.printDeduced(dot = not data, root_action_count = root_action_count)
@@ -384,7 +384,7 @@ class MemoryCondenser:
             if not ctx in frame:
                 frame[ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": params_fixed}
             else:
-                frmae[ctx]["invocations"].append(params_fixed)
+                frame[ctx]["invocations"].append(params_fixed)
         
         frame[ctx]["instances"] = frame[ctx]["instances"] + 1
         
@@ -404,18 +404,19 @@ class MemoryCondenser:
                     frame[current_ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": {}}
                 
                 if not nextCtx in frame[current_ctx]["next-actions"] and not rootlevel:
-                    if not nextCtx in frame[current_ctx]["next-actions"]:
-                        frame[current_ctx]["next-actions"][nextCtx] = []
-                    
-                    params = self.tti[next_node].annotatedParameters()
-                    params_fixed = {}
-                    
-                    for param in params:
-                        if not param == "_time_created":
-                            key_str = param[10:] if param[:10] == "parameter-" else param
-                            params_fixed[key_str] = params[param][0]
-                    
-                    frame[current_ctx]["next-actions"][nextCtx].append(params_fixed)
+                    if not nextCtx == current_ctx:
+                        if not nextCtx in frame[current_ctx]["next-actions"]:
+                            frame[current_ctx]["next-actions"][nextCtx] = []
+                        
+                        params = self.tti[next_node].annotatedParameters()
+                        params_fixed = {}
+                        
+                        for param in params:
+                            if not param == "_time_created":
+                                key_str = param[10:] if param[:10] == "parameter-" else param
+                                params_fixed[key_str] = params[param][0]
+                        
+                        frame[current_ctx]["next-actions"][nextCtx].append(params_fixed)
                     
                 next_node = self.tti[next_node].nextAction()
                 current_ctx = nextCtx
@@ -427,51 +428,68 @@ class MemoryCondenser:
             if self.tti[node].previousAction() == None:
                 frame[ctx]["start-state"] = "true"
     
-    def checkForOptionalInjectedNodes(self, ctx, frame, parent_instances = -1):
-        if frame[ctx]["instances"] < parent_instances:
-            frame[ctx]["optional"] = "true"
-        
-        for child in frame[ctx]["children"]:
-            if frame[ctx]["children"][child]["start-state"] == "true":
-                self.checkForOptionalInjectedNodes(child, frame[ctx]["children"], frame[ctx]["instances"])
-        
-        for next_action in frame[ctx]["next-actions"]:
-            if next_action in frame and not next_action == ctx:
-                self.checkForOptionalInjectedNodes(next_action, frame, frame[ctx]["instances"])
-    
-    def checkForTerminalStateOccurrences(self, ctx, frame):
-        child_instances = 0
-        next_instances = 0
-        
-        if frame[ctx]["terminal-state"] == "true":
+    def checkForOptionalInjectedNodes(self, ctx, frame, parent_instances = -1, came_from = None):
+        if not "check-optional" in frame[ctx]:
+            frame[ctx]["check-optional"] = "done"
+            
+            came_from_terminates = False
+            came_from_valid = True
+            if came_from:
+                if came_from == ctx:
+                    came_from_valid = False
+                
+                if frame[came_from]["terminal-state"] == "true":
+                    came_from_terminates = True
+            
+            if came_from_valid == True:
+                if frame[ctx]["instances"] < parent_instances or came_from_terminates:
+                    frame[ctx]["optional"] = "true"
+            
             for child in frame[ctx]["children"]:
                 if frame[ctx]["children"][child]["start-state"] == "true":
-                    child_instances = child_instances + frame[ctx]["children"][child]["instances"]
+                    self.checkForOptionalInjectedNodes(child, frame[ctx]["children"], frame[ctx]["instances"])
             
             for next_action in frame[ctx]["next-actions"]:
                 if next_action in frame and not next_action == ctx:
-                    next_instances = next_instances + frame[next_action]["instances"]
+                    self.checkForOptionalInjectedNodes(next_action, frame, frame[ctx]["instances"], ctx)
+    
+    def checkForTerminalStateOccurrences(self, ctx, frame):
+        if not "check-terminal" in frame[ctx]:
+            frame[ctx]["check-terminal"] = "done"
             
-            terminal_instances = frame[ctx]["instances"] - (child_instances + next_instances)
+            child_instances = 0
+            next_instances = 0
             
-            if terminal_instances > 0:
-                frame[ctx]["terminal-instances"] = terminal_instances
+            if frame[ctx]["terminal-state"] == "true":
+                for child in frame[ctx]["children"]:
+                    if frame[ctx]["children"][child]["start-state"] == "true":
+                        child_instances = child_instances + frame[ctx]["children"][child]["instances"]
+                
+                for next_action in frame[ctx]["next-actions"]:
+                    if next_action in frame and not next_action == ctx:
+                        next_instances = next_instances + frame[next_action]["instances"]
+                
+                terminal_instances = frame[ctx]["instances"] - (child_instances + next_instances)
+                
+                if terminal_instances > 0:
+                    frame[ctx]["terminal-instances"] = terminal_instances
+                else:
+                    frame[ctx]["terminal-instances"] = 0
             else:
+                frame[ctx]["terminal-state"] = "false"
                 frame[ctx]["terminal-instances"] = 0
-        else:
-            frame[ctx]["terminal-state"] = "false"
-            frame[ctx]["terminal-instances"] = 0
-        
-        for child in frame[ctx]["children"]:
-            self.checkForTerminalStateOccurrences(child, frame[ctx]["children"])
-        
-        for next_action in frame[ctx]["next-actions"]:
-            if next_action in frame and not next_action == ctx:
-                self.checkForTerminalStateOccurrences(next_action, frame)
+            
+            for child in frame[ctx]["children"]:
+                self.checkForTerminalStateOccurrences(child, frame[ctx]["children"])
+            
+            for next_action in frame[ctx]["next-actions"]:
+                if next_action in frame and not next_action == ctx:
+                    self.checkForTerminalStateOccurrences(next_action, frame)
     
     def printDeduced(self, dot = False, root_action_count = 1):
         # TODO: Extend this to use all top-level nodes in case they
         # are different
+        self.global_ctx_counter = 0
         deduced = self.expandPathways(self.arrInjected.keys()[0], self.arrInjected, root_action_count)
         
         if dot:
@@ -479,44 +497,51 @@ class MemoryCondenser:
         else:
             print deduced
     
-    def expandPathways(self, ctx, nodes, root_action_count):
+    def expandPathways(self, ctx, nodes, root_action_count, trace = []):
         expanded_pathways = []
         
-        current_node = [{"node": ctx, "instances": nodes[ctx]["instances"], "rel-occ" : (float(nodes[ctx]["instances"]) / float(root_action_count)), "rel-term" : (float(nodes[ctx]["terminal-instances"]) / float(nodes[ctx]["instances"])), "invocations": nodes[ctx]["invocations"]}]
-        children = self.getStartNodes(nodes[ctx]["children"])
+        if not "uid" in nodes[ctx]:
+            nodes[ctx]["uid"] = self.global_ctx_counter
+            self.global_ctx_counter = self.global_ctx_counter + 1
         
-        had_non_optional_children = False
-        for child in children:
-            if not children[child]["optional"] == "true":
-                had_non_optional_children = True
+        if not nodes[ctx]["uid"] in trace:
+            current_node = [{"node": ctx, "instances": nodes[ctx]["instances"], "rel-occ" : (float(nodes[ctx]["instances"]) / float(root_action_count)), "rel-term" : (float(nodes[ctx]["terminal-instances"]) / float(nodes[ctx]["instances"])), "invocations": nodes[ctx]["invocations"]}]
+            children = self.getStartNodes(nodes[ctx]["children"])
             
-            child_pathways = self.expandPathways(child, nodes[ctx]["children"], nodes[ctx]["instances"])
+            had_non_optional_children = False
+            for child in children:
+                if not children[child]["optional"] == "true":
+                    had_non_optional_children = True
+                    
+                child_pathways = self.expandPathways(child, nodes[ctx]["children"], nodes[ctx]["instances"], trace + [nodes[ctx]["uid"]])
+                
+                for child_pathway in child_pathways:
+                    expanded_pathways.append(current_node + child_pathway)
+                    
+            if not had_non_optional_children:
+                expanded_pathways.append(current_node)
+                
+            next_actions = nodes[ctx]["next-actions"]
+            final_pathways = []
             
-            for child_pathway in child_pathways:
-                expanded_pathways.append(current_node + child_pathway)
-        
-        if not had_non_optional_children:
-            expanded_pathways.append(current_node)
-        
-        next_actions = nodes[ctx]["next-actions"]
-        final_pathways = []
-        
-        had_non_optional_next_actions = False
-        for next_action in next_actions:
-            if next_action != ctx:
-                if not nodes[next_action]["optional"] == "true":
-                    had_non_optional_next_actions = True
+            had_non_optional_next_actions = False
+            for next_action in next_actions:
+                if next_action != ctx:
+                    if not nodes[next_action]["optional"] == "true":
+                        had_non_optional_next_actions = True
+                        
+                    expanded_next_pathways = self.expandPathways(next_action, nodes, nodes[ctx]["instances"], trace + [nodes[ctx]["uid"]])
+                    
+                    for expanded_next_pathway in expanded_next_pathways:
+                        for expanded_pathway in expanded_pathways:
+                            final_pathways = final_pathways + [expanded_pathway + expanded_next_pathway]
+                            
+            if not had_non_optional_next_actions:
+                final_pathways = final_pathways + expanded_pathways
                 
-                expanded_next_pathways = self.expandPathways(next_action, nodes, nodes[ctx]["instances"])
-                
-                for expanded_next_pathway in expanded_next_pathways:
-                    for expanded_pathway in expanded_pathways:
-                        final_pathways = final_pathways + [expanded_pathway + expanded_next_pathway]
-        
-        if not had_non_optional_next_actions:
-            final_pathways = final_pathways + expanded_pathways
-        
-        return final_pathways
+            return final_pathways
+        else:
+            return []
     
     def getStartNodes(self, nodes):
         start_nodes = {}
@@ -538,6 +563,7 @@ class MemoryCondenser:
         edge_pointers = {}
         next_action_parameters = {}
         ids = {}
+        optionals = {}
         
         parent_id = parent
         if not parent:
@@ -546,9 +572,14 @@ class MemoryCondenser:
         for child in children:
             child_id = "node_" + child.replace("-", "_") + "_" + str(self.counterdot)
             ids[child] = child_id
+            
             self.counterdot = self.counterdot + 1
             
-            dot += "  " + child_id + " [shape=box, label=\"" + child + " (" + str(children[child]["instances"]) + ")\"]\n"
+            label = child
+            if label[:21] == "REPLACEABLE-FUNCTION-":
+                label = label[21:]
+            
+            dot += "  " + child_id + " [shape=box, label=\"" + label + " (" + str(children[child]["instances"]) + ")\"]\n"
             
             if children[child]["terminal-state"] == "true":
                 if children[child]["terminal-instances"] > 0:
@@ -605,6 +636,12 @@ class MemoryCondenser:
                     #             param_str = param_str + p + " = " + param_set[p]
                             
                     #         param_str = param_str + "\\n"
+                    #if next_action_parameters[
+                    
+                    if children[child]["optional"] == "true":
+                        param_str = "optional"
+                    else:
+                        param_str = ""
                     
                     dot += "  {rank=same; " + child_id + " " + target + "}\n"
                     dot += "  edge [style=solid, arrowhead=empty, arrowtail=none, label=\"" + param_str + "\"]\n"
@@ -683,6 +720,10 @@ class MemoryCondenser:
                 instances = item["instances"]
                 node = item["node"]
                 rel_occ = item["rel-occ"]
+                
+                # Correct node label
+                if node[:21] == "REPLACEABLE-FUNCTION-":
+                    node = node[21:]
                 
                 acc_score = acc_score * rel_occ
                 
