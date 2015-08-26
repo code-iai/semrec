@@ -2,7 +2,6 @@
 
 import sys
 import json
-import pickle
 
 
 from OwlReader import OwlReader
@@ -382,7 +381,7 @@ class MemoryCondenser:
                 params_fixed[key_str] = params[param][0]
         
         if not ctx in frame:
-            frame[ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": params_fixed}
+            frame[ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": [params_fixed]}
         else:
             frame[ctx]["invocations"].append(params_fixed)
         
@@ -401,7 +400,7 @@ class MemoryCondenser:
                 nextCtx = self.tti[next_node].taskContext()
                 
                 if not current_ctx in frame:
-                    frame[current_ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": {}}
+                    frame[current_ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": []}
                 
                 if not nextCtx in frame[current_ctx]["next-actions"] and not rootlevel:
                     if not nextCtx == current_ctx:
@@ -492,8 +491,12 @@ class MemoryCondenser:
         self.global_ctx_counter = 0
         deduced = self.expandPathways(self.arrInjected.keys()[0], self.arrInjected, root_action_count)
         
-        with open("deduced.pkl", "w") as f:
-            pickle.dump(deduced, f, pickle.HIGHEST_PROTOCOL)
+        fixed_deduced = []
+        for d in deduced:
+            fixed_deduced.append(d[2:])
+        
+        with open("deduced_experiences.json", "w") as f:
+            json.dump(fixed_deduced, f)
         
         if dot:
             self.printDotDeduced(deduced)
