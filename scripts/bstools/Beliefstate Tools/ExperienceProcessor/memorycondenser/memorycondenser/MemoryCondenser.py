@@ -2,6 +2,7 @@
 
 import sys
 import json
+import pickle
 
 
 from OwlReader import OwlReader
@@ -491,6 +492,9 @@ class MemoryCondenser:
         # are different
         self.global_ctx_counter = 0
         deduced = self.expandPathways(self.arrInjected.keys()[0], self.arrInjected, root_action_count)
+        
+        with open("deduced.pkl", "w") as f:
+            pickle.dump(deduced, f, pickle.HIGHEST_PROTOCOL)
         
         if dot:
             self.printDotDeduced(deduced)
