@@ -374,14 +374,17 @@ class MemoryCondenser:
         
         params = self.tti[node].annotatedParameters()
         params_fixed = {}
+        call_pattern = ""
         
         for param in params:
-            if not param == "_time_created":
+            if not param == "_time_created" and not param == "CALLPATTERN":
                 key_str = param[10:] if param[:10] == "parameter-" else param
                 params_fixed[key_str] = params[param][0]
+            elif param == "CALLPATTERN":
+                call_pattern = params[param][0]
         
         if not ctx in frame:
-            frame[ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": [params_fixed]}
+            frame[ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": [params_fixed], "call-pattern": call_pattern}
         else:
             frame[ctx]["invocations"].append(params_fixed)
         
@@ -399,8 +402,12 @@ class MemoryCondenser:
             while next_node:
                 nextCtx = self.tti[next_node].taskContext()
                 
+                call_pattern = self.tti[next_node].annotatedParameterValue("CALLPATTERN")
+                if not call_pattern:
+                    call_pattern = ""
+                
                 if not current_ctx in frame:
-                    frame[current_ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": []}
+                    frame[current_ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": [], "call-pattern": call_pattern}
                 
                 if not nextCtx in frame[current_ctx]["next-actions"] and not rootlevel:
                     if not nextCtx == current_ctx:
@@ -511,7 +518,7 @@ class MemoryCondenser:
             self.global_ctx_counter = self.global_ctx_counter + 1
         
         if not nodes[ctx]["uid"] in trace:
-            current_node = [{"node": ctx, "instances": nodes[ctx]["instances"], "rel-occ" : (float(nodes[ctx]["instances"]) / float(root_action_count)), "rel-term" : (float(nodes[ctx]["terminal-instances"]) / float(nodes[ctx]["instances"])), "invocations": nodes[ctx]["invocations"]}]
+            current_node = [{"node": ctx, "instances": nodes[ctx]["instances"], "rel-occ" : (float(nodes[ctx]["instances"]) / float(root_action_count)), "rel-term" : (float(nodes[ctx]["terminal-instances"]) / float(nodes[ctx]["instances"])), "invocations": nodes[ctx]["invocations"], "call-pattern": nodes[ctx]["call-pattern"]}]
             children = self.getStartNodes(nodes[ctx]["children"])
             
             had_non_optional_children = False

@@ -58,7 +58,7 @@ if __name__ == "__main__":
     #mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-20_07-28-28/cram_log.owl", "")
     #mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-20_09-37-28/cram_log.owl", "")
     #mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-20_11-54-45/cram_log.owl", "")
-    mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-20_12-03-56/cram_log.owl", "")
-
+    #mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-20_12-03-56/cram_log.owl", "")
+    mcctrl.loadMemory("/home/winkler/sr_experimental_data/exp-2015-08-26_13-20-16/cram_log.owl", "")
     
     mcctrl.start()
