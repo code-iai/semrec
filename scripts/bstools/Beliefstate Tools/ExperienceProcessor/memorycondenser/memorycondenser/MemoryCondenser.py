@@ -373,19 +373,18 @@ class MemoryCondenser:
     def injectExperienceNode(self, node, frame, rootlevel = False):
         ctx = self.tti[node].taskContext()
         
+        params = self.tti[node].annotatedParameters()
+        params_fixed = {}
+        
+        for param in params:
+            if not param == "_time_created":
+                key_str = param[10:] if param[:10] == "parameter-" else param
+                params_fixed[key_str] = params[param][0]
+        
         if not ctx in frame:
-            params = self.tti[node].annotatedParameters()
-            params_fixed = {}
-            
-            for param in params:
-                if not param == "_time_created":
-                    key_str = param[10:] if param[:10] == "parameter-" else param
-                    params_fixed[key_str] = params[param][0]
-            
-            if not ctx in frame:
-                frame[ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": params_fixed}
-            else:
-                frame[ctx]["invocations"].append(params_fixed)
+            frame[ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": params_fixed}
+        else:
+            frame[ctx]["invocations"].append(params_fixed)
         
         frame[ctx]["instances"] = frame[ctx]["instances"] + 1
         
