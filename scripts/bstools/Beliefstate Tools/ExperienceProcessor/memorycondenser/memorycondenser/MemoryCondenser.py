@@ -370,7 +370,7 @@ class MemoryCondenser:
         else:
             self.printInjected(dot = not data)
     
-    def injectExperienceNode(self, node, frame, rootlevel = False):
+    def injectExperienceNode(self, node, frame, rootlevel = False, invocation_path = {}):
         ctx = self.tti[node].taskContext()
         
         params = self.tti[node].annotatedParameters()
@@ -384,18 +384,22 @@ class MemoryCondenser:
             elif param == "CALLPATTERN":
                 call_pattern = params[param][0]
         
+        new_invocation_path = invocation_path.copy()
+        
         if not ctx in frame:
-            frame[ctx] = {"children": {}, "next-actions" : {}, "uid" : self.uid_counter, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": [params_fixed], "call-pattern": call_pattern}
+            new_invocation_path.update({self.uid_counter: params_fixed})
+            frame[ctx] = {"children": {}, "next-actions" : {}, "uid" : self.uid_counter, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": [new_invocation_path], "call-pattern": call_pattern}
             self.uid_counter = self.uid_counter + 1
         else:
-            frame[ctx]["invocations"].append(params_fixed)
+            new_invocation_path.update({frame[ctx]["uid"]: params_fixed})
+            frame[ctx]["invocations"].append(new_invocation_path)
         
         frame[ctx]["instances"] = frame[ctx]["instances"] + 1
         
         sub_nodes = self.tti[node].subActions()
         
         for sub in sub_nodes:
-            self.injectExperienceNode(sub, frame[ctx]["children"])
+            self.injectExperienceNode(sub, frame[ctx]["children"], False, new_invocation_path)
         
         next_node = self.tti[node].nextAction()
         
@@ -503,7 +507,13 @@ class MemoryCondenser:
         
         fixed_deduced = []
         for d in deduced:
-            fixed_deduced.append(d[2:])
+            fixed_singular = d[2:]
+            for step in fixed_singular:
+                for invocation in step["invocations"]:
+                    invocation.pop(0, 0)
+                    invocation.pop(1, 0)
+            
+            fixed_deduced.append(fixed_singular)
         
         with open("deduced_experiences.json", "w") as f:
             json.dump(fixed_deduced, f)
@@ -515,10 +525,6 @@ class MemoryCondenser:
     
     def expandPathways(self, ctx, nodes, root_action_count, trace = []):
         expanded_pathways = []
-        
-        #if not "uid" in nodes[ctx]:
-        #    nodes[ctx]["uid"] = self.global_ctx_counter
-        #    self.global_ctx_counter = self.global_ctx_counter + 1
         
         if not nodes[ctx]["uid"] in trace:
             current_node = [{"node": ctx, "instances": nodes[ctx]["instances"], "uid": nodes[ctx]["uid"], "rel-occ": (float(nodes[ctx]["instances"]) / float(root_action_count)), "rel-term": (float(nodes[ctx]["terminal-instances"]) / float(nodes[ctx]["instances"])), "invocations": nodes[ctx]["invocations"], "call-pattern": nodes[ctx]["call-pattern"]}]
