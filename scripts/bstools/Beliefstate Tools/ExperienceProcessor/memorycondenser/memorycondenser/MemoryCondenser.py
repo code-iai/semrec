@@ -605,8 +605,7 @@ class MemoryCondenser:
             if parent:
                 if children[child]["start-state"] == "true":
                     if children[child]["optional"] == "true":
-                        dot += "  edge [style=solid, arrowhead=normal, arrowtail=none, label=\"optional\"]\n"#      this->drawTextureScaled(srdRenderer, m_tmManager->texture("normal"), 200, 200);
-
+                        dot += "  edge [style=solid, arrowhead=normal, arrowtail=none, label=\"optional\"]\n"
                     else:
                         dot += "  edge [style=solid, arrowhead=normal, arrowtail=none, label=\"\"]\n"
                 else:
