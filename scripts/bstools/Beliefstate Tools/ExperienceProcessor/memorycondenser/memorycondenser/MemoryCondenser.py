@@ -341,6 +341,7 @@ class MemoryCondenser:
     def injectExperiences(self, deduced = False, data = False):
         self.arrInjected = {}
         self.tti = {}
+        self.uid_counter = 0;
         
         root_action_count = 0
         
@@ -384,7 +385,8 @@ class MemoryCondenser:
                 call_pattern = params[param][0]
         
         if not ctx in frame:
-            frame[ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": [params_fixed], "call-pattern": call_pattern}
+            frame[ctx] = {"children": {}, "next-actions" : {}, "uid" : self.uid_counter, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": [params_fixed], "call-pattern": call_pattern}
+            self.uid_counter = self.uid_counter + 1
         else:
             frame[ctx]["invocations"].append(params_fixed)
         
@@ -407,7 +409,8 @@ class MemoryCondenser:
                     call_pattern = ""
                 
                 if not current_ctx in frame:
-                    frame[current_ctx] = {"children": {}, "next-actions" : {}, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": [], "call-pattern": call_pattern}
+                    frame[current_ctx] = {"children": {}, "next-actions" : {}, "uid" : self.uid_counter, "terminal-state": "false", "start-state": "false", "optional": "false", "instances": 0, "invocations": [], "call-pattern": call_pattern}
+                    self.uid_counter = self.uid_counter + 1
                 
                 if not nextCtx in frame[current_ctx]["next-actions"] and not rootlevel:
                     if not nextCtx == current_ctx:
@@ -513,12 +516,12 @@ class MemoryCondenser:
     def expandPathways(self, ctx, nodes, root_action_count, trace = []):
         expanded_pathways = []
         
-        if not "uid" in nodes[ctx]:
-            nodes[ctx]["uid"] = self.global_ctx_counter
-            self.global_ctx_counter = self.global_ctx_counter + 1
+        #if not "uid" in nodes[ctx]:
+        #    nodes[ctx]["uid"] = self.global_ctx_counter
+        #    self.global_ctx_counter = self.global_ctx_counter + 1
         
         if not nodes[ctx]["uid"] in trace:
-            current_node = [{"node": ctx, "instances": nodes[ctx]["instances"], "rel-occ" : (float(nodes[ctx]["instances"]) / float(root_action_count)), "rel-term" : (float(nodes[ctx]["terminal-instances"]) / float(nodes[ctx]["instances"])), "invocations": nodes[ctx]["invocations"], "call-pattern": nodes[ctx]["call-pattern"]}]
+            current_node = [{"node": ctx, "instances": nodes[ctx]["instances"], "uid": nodes[ctx]["uid"], "rel-occ": (float(nodes[ctx]["instances"]) / float(root_action_count)), "rel-term": (float(nodes[ctx]["terminal-instances"]) / float(nodes[ctx]["instances"])), "invocations": nodes[ctx]["invocations"], "call-pattern": nodes[ctx]["call-pattern"]}]
             children = self.getStartNodes(nodes[ctx]["children"])
             
             had_non_optional_children = False
@@ -592,7 +595,7 @@ class MemoryCondenser:
             if label[:21] == "REPLACEABLE-FUNCTION-":
                 label = label[21:]
             
-            dot += "  " + child_id + " [shape=box, label=\"" + label + " (" + str(children[child]["instances"]) + ")\"]\n"
+            dot += "  " + child_id + " [shape=box, label=\"" + label + " (" + str(children[child]["uid"]) + " / " + str(children[child]["instances"]) + ")\"]\n"
             
             if children[child]["terminal-state"] == "true":
                 if children[child]["terminal-instances"] > 0:
