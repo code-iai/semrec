@@ -98,6 +98,18 @@ namespace semrec {
     }
     
     if(bConfigLoaded) {
+      std::string strPlugins = "";
+      
+      for(std::string strPlugin : m_lstPluginsToLoad) {
+	if(strPlugins != "") {
+	  strPlugins += ", ";
+	}
+	
+	strPlugins += strPlugin;
+      }
+      
+      this->info("Loading plugins: " + strPlugins);
+      
       // Messages are distributed through the event system from now
       // on.
       this->setRedirectOutput(true);
