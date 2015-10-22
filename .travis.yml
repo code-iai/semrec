@@ -21,7 +21,8 @@ before_install:
  - dpkg -L python-catkin-pkg
  - rosdep update
  - echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
- - echo "PYTHON_EXECUTABLE=/usr/bin/python" >> ~/.bashrc
+ - echo "export PYTHON_EXECUTABLE=/usr/bin/python" >> ~/.bashrc
+ - echo "export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages" >> ~/.bashrc
  - source ~/.bashrc
  - source /opt/ros/indigo/setup.bash
  - mkdir -p ~/catkin_ws/src
