@@ -27,6 +27,9 @@ before_install:
  - catkin_init_workspace
  - wstool init
  - cd ~/catkin_ws
+ - sudo updatedb
+ - echo $PYTHONPATH
+ - locate catkin_pkg
  - catkin_make
  - source devel/setup.bash
  - cd ~/catkin_ws/src
