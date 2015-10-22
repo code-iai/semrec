@@ -11,13 +11,14 @@ before_install:
  - wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | sudo apt-key add -
  - sudo apt-get update -qq
  - sudo apt-get install -y git
- - sudo apt-get install -y ros-indigo-ros-base python-catkin-tools python-catkin-pkg python-pip --force-yes
+ - sudo apt-get install -y ros-indigo-ros-base python-catkin-tools python-catkin-pkg --force-yes
  - sudo apt-get install -y ros-indigo-geometry-msgs ros-indigo-sensor-msgs ros-indigo-cv-bridge ros-indigo-interactive-markers ros-indigo-visualization-msgs ros-indigo-std-msgs ros-indigo-shape-msgs ros-indigo-actionlib-msgs ros-indigo-common-msgs --force-yes
  - sudo apt-get install -y libglib2.0-0 libglib2.0-dev libjson-glib-1.0-0 libjson-glib-dev libconfig++8-dev libjson-c-dev libjson-c2
  - sudo apt-get install -y python-rosinstall
  - sudo rosdep init
- - sudo pip install --upgrade pip
- - sudo pip install catkin_pkg
+ - which python
+ - python -V
+ - dpkg -L python-catkin-pkg
  - rosdep update
  - echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
  - source ~/.bashrc
