@@ -16,7 +16,8 @@ before_install:
  - sudo apt-get install -y libglib2.0-0 libglib2.0-dev libjson-glib-1.0-0 libjson-glib-dev libconfig++8-dev libjson-c-dev libjson-c2
  - sudo apt-get install -y python-rosinstall
  - sudo rosdep init
- - pip install catkin_pkg
+ - sudo pip install --upgrade pip
+ - sudo pip install catkin_pkg
  - rosdep update
  - echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
  - source ~/.bashrc
