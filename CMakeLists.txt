@@ -3,8 +3,6 @@ project(semrec)
 
 find_package(catkin REQUIRED COMPONENTS roscpp roslib rospack designator_integration_cpp designator_integration_msgs sensor_msgs cv_bridge interactive_markers visualization_msgs)
 
-add_subdirectory(3rdparty)
-
 set(COMPILE_DEBUG 0)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -23,8 +21,7 @@ catkin_package(
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  include
-  3rdparty)
+  include)
 
 add_library(sr_base_plugins)
 set_target_properties(sr_base_plugins PROPERTIES LINKER_LANGUAGE C)
@@ -48,8 +45,8 @@ add_library(sr_plugin_prediction SHARED
   src/JSON.cpp
   src/Property.cpp)
 
-add_dependencies(sr_plugin_prediction
-  git-clone-json-c)
+#add_dependencies(sr_plugin_prediction
+#  )#git-clone-json-c)
 
 add_library(sr_plugin_ros SHARED
   src/GlobalFunctions.cpp
@@ -136,7 +133,7 @@ target_link_libraries(sr_plugin_ros
 
 target_link_libraries(sr_plugin_prediction
   sr_base_plugins
-  ${PROJECT_SOURCE_DIR}/3rdparty/json-c/.libs/libjson-c.so)
+  )#${PROJECT_SOURCE_DIR}/3rdparty/json-c/.libs/libjson-c.so)
 
 target_link_libraries(sr_plugin_gazebo
   sr_base_plugins)
