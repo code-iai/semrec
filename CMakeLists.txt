@@ -7,9 +7,9 @@ set(COMPILE_DEBUG 0)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
   if(COMPILE_DEBUG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -pg")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pg")
   else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -O2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2")
   endif()
 endif()
 
@@ -44,9 +44,6 @@ add_library(sr_plugin_prediction SHARED
   src/Node.cpp
   src/JSON.cpp
   src/Property.cpp)
-
-#add_dependencies(sr_plugin_prediction
-#  )#git-clone-json-c)
 
 add_library(sr_plugin_ros SHARED
   src/GlobalFunctions.cpp
@@ -132,8 +129,7 @@ target_link_libraries(sr_plugin_ros
   sr_base_plugins)
 
 target_link_libraries(sr_plugin_prediction
-  sr_base_plugins
-  )#${PROJECT_SOURCE_DIR}/3rdparty/json-c/.libs/libjson-c.so)
+  sr_base_plugins)
 
 target_link_libraries(sr_plugin_gazebo
   sr_base_plugins)
