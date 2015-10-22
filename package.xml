@@ -28,9 +28,7 @@
   <build_depend>autoconf</build_depend>
   <build_depend>automake</build_depend>
   <build_depend>libncurses-dev</build_depend>
-  
-  <build_depend>libjson-c-dev</build_depend>
-  <build_depend>libjson-c2</build_depend>
+  <build_depend>libjson0-dev</build_depend>
   
   <run_depend>roslib</run_depend>
   <run_depend>roscpp</run_depend>
@@ -43,5 +41,6 @@
   <run_depend>autoconf</run_depend>
   <run_depend>automake</run_depend>
   <run_depend>libncurses-dev</run_depend>
+  <run_depend>libjson0-dev</run_depend>
 
 </package>
