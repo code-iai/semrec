@@ -84,12 +84,12 @@ namespace semrec {
       // Information supply services
       this->setOffersService("symbolic-plan-tree", true);
       this->setOffersService("symbolic-plan-context", true);
+      this->setOffersService("resolve-designator-memory-address", true);
       
       Designator* cdConfig = this->getIndividualConfig();
       std::string strSemanticsDescriptorFile = cdConfig->stringValue("semantics-descriptor-file");
       
       this->setTimeFloatingPointPrecision((int)cdConfig->floatValue("time-precision"));
-      
       
       return resInit;
     }
@@ -100,20 +100,28 @@ namespace semrec {
     
     Result PLUGIN_CLASS::cycle() {
       Result resCycle = defaultResult();
-      
-      m_mtxEventsStore.lock();
-      resCycle.lstEvents = m_lstEvents;
-      m_lstEvents.clear();
-      m_mtxEventsStore.unlock();
+      this->deployCycleData(resCycle);
       
       return resCycle;
     }
     
     Event PLUGIN_CLASS::consumeServiceEvent(ServiceEvent seServiceEvent) {
-      Event evReturn = defaultEvent();
+      Event evReturn = this->Plugin::consumeServiceEvent(seServiceEvent);
       
       if(seServiceEvent.siServiceIdentifier == SI_REQUEST) {
-	if(seServiceEvent.strServiceName == "symbolic-plan-tree") {
+	if(seServiceEvent.strServiceName == "resolve-designator-memory-address") {
+	  ServiceEvent seResponse = eventInResponseTo(seServiceEvent);
+	  Designator* cdRequest = seServiceEvent.cdDesignator;
+	  
+	  seResponse.bPreserve = true;
+	  Designator* cdResponse = new Designator();
+	  cdResponse->setType(Designator::DesignatorType::ACTION);
+	  
+	  cdResponse->setValue("id", this->getDesignatorID(cdRequest->stringValue("memory-address")));
+	  
+	  seResponse.cdDesignator = cdResponse;
+	  this->deployServiceEvent(seResponse);
+	} else if(seServiceEvent.strServiceName == "symbolic-plan-tree") {
 	  // Requested the whole symbolic plan log
 	  evReturn.lstNodes = m_lstNodes;
 	  evReturn.lstRootNodes = m_lstRootNodes;
