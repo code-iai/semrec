@@ -521,7 +521,7 @@ namespace semrec {
 		Event evAddedDesignator = defaultEvent("symbolic-add-designator");
 		evAddedDesignator.cdDesignator = new Designator(cdTemp);
 		evAddedDesignator.lstNodes.push_back(ndSubject);
-		evAddedDesignator.strAnnotation = evEvent.cdDesignator->stringValue("annotation");
+		evAddedDesignator.strAnnotation = evEvent.cdDesignator->stringValue("_annotation");
 		
 		this->deployEvent(evAddedDesignator);
 	      }
@@ -781,35 +781,35 @@ namespace semrec {
 	this->info("Added '" + strType + "' designator (addr=" + strMemoryAddress + ") to context (id " + this->str(ndRelative->id()) + "): '" + strUniqueID + "', annotation: '" + strAnnotation + "'");
       }
       
+      desigCurrent->setValue("_id", strUniqueID);
+      
+      if(strAnnotation != "") {
+	desigCurrent->setValue("_annotation", strAnnotation);
+      }
+      
       if(!bDesigExists) {
-	desigCurrent->setValue("_id", strUniqueID);
-	
-	if(strAnnotation != "") {
-	  desigCurrent->setValue("_annotation", strAnnotation);
-	}
-	
 	// First, symbolically create the designator
 	Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
 	evLoggedDesignator.cdDesignator = new Designator(desigCurrent);
 	evLoggedDesignator.strAnnotation = strAnnotation;
 	
 	this->deployEvent(evLoggedDesignator);
-	
-	// Second, symbolically add it to the current event
-	Event evAddedDesignator = defaultEvent("symbolic-add-designator");
-	evAddedDesignator.cdDesignator = new Designator(desigCurrent);
-	evAddedDesignator.strAnnotation = strAnnotation;
-	evAddedDesignator.lstNodes.push_back(ndRelative);
-	
-	this->deployEvent(evAddedDesignator);
-	
-	// Thirdly, recurse through possibly nested designators,
-	// looking for a ''_designator_memory_address'' field being
-	// set.
-	this->setNestedDesignatorUniqueIDs(desigCurrent);
-	
-	bReturn = true;
       }
+      
+      // Second, symbolically add it to the current event
+      Event evAddedDesignator = defaultEvent("symbolic-add-designator");
+      evAddedDesignator.cdDesignator = new Designator(desigCurrent);
+      evAddedDesignator.strAnnotation = strAnnotation;
+      evAddedDesignator.lstNodes.push_back(ndRelative);
+      
+      this->deployEvent(evAddedDesignator);
+      
+      // Thirdly, recurse through possibly nested designators,
+      // looking for a ''_designator_memory_address'' field being
+      // set.
+      this->setNestedDesignatorUniqueIDs(desigCurrent);
+      
+      bReturn = true;
       
       if(bDeleteMe) {
 	delete desigCurrent;
