@@ -1124,15 +1124,30 @@ namespace semrec {
 	  } else if(strTo == "PARK") {
 	    // Specializer: Putting down.
 	    strClass = "ParkingArms";
+	  } else if(strTo == "REACH") {
+	    // Specializer: Reaching.
+	    strClass = "Reaching";
+	  } else if(strTo == "RELEASE") {
+	    // Specializer: Reaching.
+	    strClass = "ReleasingGraspOfSomething";
+	  } else if(strTo == "CLAMP") {
+	    // Specializer: Reaching.
+	    strClass = "GraspingSomething";
+	  } else if(strTo == "MOVE") {
+	    // Specializer: Reaching.
+	    strClass = "VoluntaryBodyMovement";
 	  } else if(strType == "NAVIGATION") {
 	    // Specializer: Navigating.
 	    strClass = "Navigate";
 	  } else {
 	    // Fallback.
+            std::cout << "\n\n No suitable description for perform-action-designator: " << strTo << " \n\n" << std::endl;
+         
 	    bSpecializedDesignator = false;
 	  }
 	} else {
 	  // Fallback.
+          std::cout << "\n\n No description for perform-action-designator! \n\n" << std::endl;
 	  bSpecializedDesignator = false;
 	}
 	
@@ -1143,6 +1158,10 @@ namespace semrec {
       }
     } else if(strName == "UIMA-PERCEIVE") {
       strClass = "UIMAPerception"; // NOTE(winkler): was 'VisualPerception'
+    } else if(strName == "GRASP-OBJECT") {
+      strClass = "PickingUpAnObject";
+    } else if(strName == "PUT-DOWN-OBJECT") {
+      strClass = "PuttingDownAnObject";
     } else if(strName == "FIND-OBJECTS") {
       strClass = "FindingObjects";
     } else if(strName == "OBJECT-IDENTITY-RESOLUTION") {
