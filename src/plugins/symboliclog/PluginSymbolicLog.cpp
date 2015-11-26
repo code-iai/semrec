@@ -521,7 +521,7 @@ namespace semrec {
 		Event evAddedDesignator = defaultEvent("symbolic-add-designator");
 		evAddedDesignator.cdDesignator = new Designator(cdTemp);
 		evAddedDesignator.lstNodes.push_back(ndSubject);
-		evAddedDesignator.strAnnotation = evEvent.cdDesignator->stringValue("_annotation");
+		evAddedDesignator.strAnnotation = evEvent.cdDesignator->stringValue("annotation");
 		
 		this->deployEvent(evAddedDesignator);
 	      }
