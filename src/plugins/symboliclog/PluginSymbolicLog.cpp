@@ -794,6 +794,11 @@ namespace semrec {
 	evLoggedDesignator.strAnnotation = strAnnotation;
 	
 	this->deployEvent(evLoggedDesignator);
+	
+	// Recurse through possibly nested designators,
+	// looking for a ''_designator_memory_address'' field being
+	// set.
+	this->setNestedDesignatorUniqueIDs(desigCurrent);
       }
       
       // Second, symbolically add it to the current event
@@ -803,11 +808,6 @@ namespace semrec {
       evAddedDesignator.lstNodes.push_back(ndRelative);
       
       this->deployEvent(evAddedDesignator);
-      
-      // Thirdly, recurse through possibly nested designators,
-      // looking for a ''_designator_memory_address'' field being
-      // set.
-      this->setNestedDesignatorUniqueIDs(desigCurrent);
       
       bReturn = true;
       
