@@ -824,11 +824,18 @@ namespace semrec {
       
       if(ckvpParent->childForKey("_designator_memory_address")) {
 	strMemAddr = ckvpParent->childForKey("_designator_memory_address")->stringValue();
-	Designator* desigCurrent = this->makeDesignator("", ckvpParent->children());
-	std::string strID = this->getUniqueDesignatorID(strMemAddr, desigCurrent);
-	delete desigCurrent;
 	
-	ckvpParent->setValue("_id", strID);
+	// NOTE(winkler): Commenting these out for now; they might be
+	// related to the fact that nested designators don't get
+	// published by `PluginROS` (through
+	// `ensureDesignatorPublished`). This should fix that, as
+	// `ensureDesignatorPublished` is generating a unique ID for
+	// the designator all by itself.
+	/*Designator* desigCurrent = this->makeDesignator("", ckvpParent->children());
+	  std::string strID = this->getUniqueDesignatorID(strMemAddr, desigCurrent);
+	  delete desigCurrent;
+	  ckvpParent->setValue("_id", strID);*/
+	
 	bIsDesignator = true;
       }
       
