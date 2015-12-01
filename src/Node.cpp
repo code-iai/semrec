@@ -215,7 +215,17 @@ namespace semrec {
     
     return ckvpObject->key();
   }
-  
+
+  std::string Node::addHuman(std::list<KeyValuePair*> lstDescription) {
+    KeyValuePair* ckvpObject = this->addDescriptionListItem("humans", "human");
+    
+    for(KeyValuePair* ckvpPair : lstDescription) {
+      ckvpObject->addChild(ckvpPair->copy());
+    }
+    
+    return ckvpObject->key();
+  }
+
   std::string Node::addFailure(std::string strCondition, std::string strTimestamp) {
     KeyValuePair* ckvpFailure = this->addDescriptionListItem("failures", "failure");
     

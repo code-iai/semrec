@@ -75,6 +75,7 @@ namespace semrec {
       // Extra information assertion
       this->setSubscribedToEvent("add-designator", true);
       this->setSubscribedToEvent("add-object", true);
+      this->setSubscribedToEvent("add-human", true);
       this->setSubscribedToEvent("add-failure", true);
       this->setSubscribedToEvent("catch-failure", true);
       this->setSubscribedToEvent("rethrow-failure", true);
@@ -573,6 +574,76 @@ namespace semrec {
 	      ckvpMenuPickObject->setValue("parameter", strObjName);
 	      
 	      this->deployEvent(evSymAddObj);
+	    } else {
+	      this->warn("No node context available. Cannot add object while on top-level.");
+	    }
+	  }
+	}
+      } else if(evEvent.strEventName == "add-human") {
+	if(evEvent.cdDesignator) {
+	  KeyValuePair* ckvpDesc = evEvent.cdDesignator->childForKey("description");
+	  
+	  if(ckvpDesc) {
+	    Node* ndSubject = this->relativeActiveNode(evEvent);
+	    
+	    if(ndSubject) {
+	      std::string strType = evEvent.cdDesignator->stringValue("type");
+	      std::string strMemAddr = evEvent.cdDesignator->stringValue("memory-address");
+	      
+	      bool bDesigExists = (this->getDesignatorID(strMemAddr) != "");
+	      
+	      Designator* desigCurrent = this->makeDesignator(strType, ckvpDesc->children());
+	      std::string strUniqueID = this->getUniqueDesignatorID(strMemAddr, desigCurrent);
+	      delete desigCurrent;
+	      
+	      if(!bDesigExists) { // Human does not yet exist. Add it symbolically.
+		this->info("Adding non-existant human-designator to current context");
+		
+		KeyValuePair* ckvpDesc = evEvent.cdDesignator->childForKey("description");
+		std::list<KeyValuePair*> lstDescription = ckvpDesc->children();
+		
+		Designator* cdTemp = new Designator(Designator::DesignatorType::HUMAN, lstDescription);
+		cdTemp->setValue("_id", strUniqueID);
+		
+		// First, symbolically create the designator
+		Event evLoggedDesignator = defaultEvent("symbolic-create-designator");
+		evLoggedDesignator.cdDesignator = cdTemp;
+		
+		this->deployEvent(evLoggedDesignator);
+		
+		// Second, symbolically add it to the current event
+		Event evAddedDesignator = defaultEvent("symbolic-add-designator");
+		evAddedDesignator.cdDesignator = new Designator(cdTemp);
+		evAddedDesignator.lstNodes.push_back(ndSubject);
+		evAddedDesignator.strAnnotation = evEvent.cdDesignator->stringValue("annotation");
+		
+		this->deployEvent(evAddedDesignator);
+	      }
+	      
+	      ckvpDesc->setValue("__id", strUniqueID);
+	      
+	      if(evEvent.cdDesignator->childForKey("class")) {
+		ckvpDesc->setValue(std::string("_class"), evEvent.cdDesignator->stringValue("class"));
+		
+		if(evEvent.cdDesignator->childForKey("classnamespace")) {
+		  ckvpDesc->setValue(std::string("_classnamespace"), evEvent.cdDesignator->stringValue("classnamespace"));
+		}
+	      }
+	      
+	      if(evEvent.cdDesignator->childForKey("property")) {
+		ckvpDesc->setValue(std::string("_property"), evEvent.cdDesignator->stringValue("property"));
+	      }
+	      
+	      if(evEvent.cdDesignator->childForKey("tf-prefix")) {
+		ckvpDesc->setValue("_tfprefix", evEvent.cdDesignator->stringValue("tf-prefix"));
+	      }
+
+	      if(evEvent.cdDesignator->childForKey("srdl-component")) {
+		ckvpDesc->setValue("_srdlcomponent", evEvent.cdDesignator->stringValue("srdl-component"));
+	      }
+      
+	      ndSubject->addHuman(ckvpDesc->children());
+	      this->info("Added human (" + strUniqueID + ") to active node (id " + this->str(ndSubject->id()) + ").");
 	    } else {
 	      this->warn("No node context available. Cannot add object while on top-level.");
 	    }

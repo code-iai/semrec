@@ -190,6 +190,7 @@ namespace semrec {
     KeyValuePair* addDescriptionListItem(std::string strDomain, std::string strPrefix);
     std::string addImage(std::string strOrigin, std::string strFilename, std::string strTimestamp);
     std::string addObject(std::list<KeyValuePair*> lstDescription);
+    std::string addHuman(std::list<KeyValuePair*> lstDescription);
     std::string addFailure(std::string strCondition, std::string strTimestamp);
     std::string catchFailure(std::string strFailureID, Node* ndEmitter, std::string strTimestamp);
     void removeCaughtFailure(std::string strFailureID);

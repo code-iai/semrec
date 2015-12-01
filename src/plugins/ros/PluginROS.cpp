@@ -280,6 +280,8 @@ namespace semrec {
 	    evAlterContext.strEventName = "equate-designators";
 	  } else if(strCommand == "add-object") {
 	    evAlterContext.strEventName = "add-object";
+	  } else if(strCommand == "add-human") {
+	    evAlterContext.strEventName = "add-human";
 	  } else if(strCommand == "export-planlog") {
 	    evAlterContext.strEventName = "export-planlog";
 	  } else if(strCommand == "start-new-experiment") {

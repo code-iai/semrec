@@ -66,7 +66,7 @@ namespace semrec {
     std::string m_strDefaultAnnotation;
     std::map<std::string, std::string> m_mapMetaData;
     std::list<std::string> m_lstAnnotatedParameters;
-    std::list<std::string> m_lstExportedObjectIndividuals;
+    std::list<std::string> m_lstExportedObjectIndividuals, m_lstExportedHumanIndividuals;
     std::map<std::string, std::string> m_mapRegisteredOWLNamespaces;
     std::map<std::string, KeyValuePair*> m_mapDesignators;
     int m_nThrowAndCatchFailureCounter;
@@ -93,6 +93,8 @@ namespace semrec {
     std::string generateEventIndividuals(std::string strNamespace);
     std::string generateObjectIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace);
     std::string generateObjectIndividuals(std::string strNamespace);
+    std::string generateHumanIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace);
+    std::string generateHumanIndividuals(std::string strNamespace);
     std::string generateImageIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace);
     std::string generateImageIndividuals(std::string strNamespace);
     std::string generateDesignatorIndividuals(std::string strNamespace);
@@ -105,6 +107,7 @@ namespace semrec {
     
     std::string owlClassForNode(Node *ndNode, bool bClassOnly = false, bool bPrologSyntax = false);
     std::string owlClassForObject(KeyValuePair *ckvpObject);  
+    std::string owlClassForHuman(KeyValuePair *ckvpObject);  
     virtual std::string nodeIDPrefix(Node* ndInQuestion, std::string strProposition);
     
     virtual bool runExporter(KeyValuePair* ckvpConfigurationOverlay);

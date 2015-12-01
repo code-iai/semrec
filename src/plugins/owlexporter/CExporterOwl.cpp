@@ -481,7 +481,36 @@ namespace semrec {
 	      oiIndividual.addResourceProperty(strDefProperty, strDefClassNamespace + strObjectID);
 	    }
 	  }
+
+	  // Human references here.
+	  KeyValuePair* ckvpHumans = ndCurrent->metaInformation()->childForKey("humans");
 	  
+	  if(ckvpHumans) {
+	    std::list<KeyValuePair*> lstHumans = ckvpHumans->children();
+	    
+	    unsigned int unIndex = 0;
+	    for(KeyValuePair* ckvpHuman : lstHumans) {
+	      std::string strDefClass = ckvpHuman->stringValue("_class");
+	      std::string strDefClassNamespace = ckvpHuman->stringValue("_classnamespace");
+	      std::string strDefProperty = ckvpHuman->stringValue("_property");
+	      
+	      if(strDefClass == "") {
+		strDefClass = "human";
+	      }
+	      
+	      if(strDefProperty == "") {
+	        strDefProperty = "knowrob:detectedPerson";
+	      }
+	      
+	      if(strDefClassNamespace == "") {
+		strDefClassNamespace = "&" + strNamespace + ";";
+	      }
+	      
+	      std::string strObjectID = strDefClass + "_" + ckvpHuman->stringValue("__id");
+	      oiIndividual.addResourceProperty(strDefProperty, strDefClassNamespace + strObjectID);
+	    }
+	  }
+  
 	  // Image references here.
 	  KeyValuePair* ckvpImages = ndCurrent->metaInformation()->childForKey("images");
 	  
@@ -661,6 +690,10 @@ namespace semrec {
   std::string CExporterOwl::owlClassForObject(KeyValuePair *ckvpObject) {
     return "&knowrob;HumanScaleObject";
   }
+
+  std::string CExporterOwl::owlClassForHuman(KeyValuePair *ckvpObject) {
+    return "&knowrob;Person";
+  }
   
   std::string CExporterOwl::failureClassForCondition(std::string strCondition) {
     std::string strFailureClass = m_strDefaultConditionMapping;
@@ -714,6 +747,77 @@ namespace semrec {
     return strDot;
   }
   
+  std::string CExporterOwl::generateHumanIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace) {
+    std::string strDot = "";
+    
+    for(Node* ndCurrent : lstNodes) {
+      if(ndCurrent) {
+	KeyValuePair* ckvpHumans = ndCurrent->metaInformation()->childForKey("humans");
+	
+	if(ckvpHumans) {
+	  std::list<KeyValuePair*> lstHumans = ckvpHumans->children();
+	  
+	  unsigned int unIndex = 0;
+	  for(KeyValuePair* ckvpHuman : lstHumans) {
+	    std::string strDesignatorID = ckvpHuman->stringValue("__id");
+	    
+	    std::string strDefClass = ckvpHuman->stringValue("_class");
+	    std::string strDefClassNamespace = ckvpHuman->stringValue("_classnamespace");
+	    
+	    std::string strOwlClass = strDefClass;
+	    if(strOwlClass == "") {
+	      strOwlClass = this->owlClassForHuman(ckvpHuman);
+	    } else {
+	      strOwlClass = strDefClassNamespace + strDefClass;
+	    }
+	    
+	    if(strDefClass == "") {
+	      strDefClass = "human";
+	    }
+	    
+	    if(strDefClassNamespace == "") {
+	      strDefClassNamespace = "&" + strNamespace + ";";
+	    }
+	    
+	    std::string strHumanID = strDefClass + "_" + ckvpHuman->stringValue("__id");
+	    
+	    if(find(m_lstExportedHumanIndividuals.begin(), m_lstExportedHumanIndividuals.end(), strHumanID) == m_lstExportedHumanIndividuals.end()) {
+	      OwlIndividual oiIndividual;
+	      oiIndividual.setID(strDefClassNamespace + strHumanID);
+	      oiIndividual.setType(strOwlClass);
+	      oiIndividual.addResourceProperty("knowrob:designator", "&" + strNamespace + ";" + strDesignatorID);
+
+              if(ckvpHuman->childForKey("_srdlcomponent")) {
+       	        oiIndividual.addResourceProperty("srdl2-comp:subComponent", ckvpHuman->stringValue("_srdlcomponent"));
+              }
+	      
+	      if(ckvpHuman->childForKey("_tfprefix")) {
+		oiIndividual.addDataProperty("srdl2-comp:tfPrefix", "&xsd;string", ckvpHuman->stringValue("_tfprefix"));
+	      }
+	      
+	      strDot += oiIndividual.print();
+	      
+	      m_lstExportedHumanIndividuals.push_back(strHumanID);
+	    }
+	  }
+	}
+	
+	strDot += this->generateHumanIndividualsForNodes(ndCurrent->subnodes(), strNamespace);
+      } else {
+	this->fail("Generation of human individual for node with invalid content requested!");
+      }
+    }
+    
+    return strDot;
+  }
+  
+  std::string CExporterOwl::generateHumanIndividuals(std::string strNamespace) {
+    std::string strDot = "    <!-- Human Individuals -->\n\n";
+    strDot += this->generateHumanIndividualsForNodes(this->nodes(), strNamespace);
+    
+    return strDot;
+  }
+
   std::string CExporterOwl::generateObjectIndividualsForNodes(std::list<Node*> lstNodes, std::string strNamespace) {
     std::string strDot = "";
     
@@ -1198,7 +1302,8 @@ namespace semrec {
   bool CExporterOwl::runExporter(KeyValuePair* ckvpConfigurationOverlay) {
     m_lstAnnotatedParameters.clear();
     m_lstExportedObjectIndividuals.clear();
-    
+    m_lstExportedHumanIndividuals.clear();
+   
     m_nThrowAndCatchFailureCounter = 0;
     
     this->info("Renewing unique IDs");
@@ -1252,6 +1357,8 @@ namespace semrec {
     strOwl2 += this->generateEventIndividuals(strNamespaceID);
     this->info("   - Block: Object Individuals");
     strOwl2 += this->generateObjectIndividuals(strNamespaceID);
+    this->info("   - Block: Human Individuals");
+    strOwl2 += this->generateHumanIndividuals(strNamespaceID);
     this->info("   - Block: Image Individuals");
     strOwl2 += this->generateImageIndividuals(strNamespaceID);
     this->info("   - Block: Designator Individuals");
