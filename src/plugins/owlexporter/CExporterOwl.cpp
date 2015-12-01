@@ -1185,8 +1185,11 @@ namespace semrec {
     } else if(strName == "HUMAN-INTRUSION") {
       strPlainPrefix = "saphari";
       strClass = "HumanIntrusion";
+    } else if(strName == "PERCEIVE-HUMAN") {
+      strPlainPrefix = "knowrob_cram";
+      strClass = "PerceivePerson";
     }
-    
+   
     std::string strPrefix = (bPrologSyntax ? strPlainPrefix + ":" : "&" + strPlainPrefix + ";");
 
     return (bClassOnly ? "" : strPrefix) + (bPrologSyntax ? "'" + strClass + "'" : strClass);
