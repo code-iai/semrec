@@ -149,7 +149,7 @@ namespace semrec {
     void PLUGIN_CLASS::consumeEvent(Event evEvent) {
       if(evEvent.strEventName == "begin-context") {
 	std::string strName = evEvent.cdDesignator->stringValue("_name");
-	
+
 	Node* ndFormerParent = this->relativeActiveNode(evEvent);
 	Node* ndNew = this->addNode(strName, evEvent.nContextID, ndFormerParent);
 	ndNew->setDescription(evEvent.cdDesignator->description());
@@ -191,13 +191,13 @@ namespace semrec {
 	int nID = (int)evEvent.cdDesignator->floatValue("_id");
 	int nSuccess = (int)evEvent.cdDesignator->floatValue("_success");
 	Node* ndCurrent = this->relativeActiveNode(evEvent);
-	
+        
 	if(ndCurrent) {
-	  if(ndCurrent->id() == nID || evEvent.cdDesignator->childForKey("_relative_context_id")) {
+	  if(ndCurrent->id() == nID) {
 	    std::stringstream sts;
 	    sts << "Received stop context designator for ID " << nID << " (success: " << (nSuccess ? "yes" : "no") << ")";
 	    this->info(sts.str());
-
+            
 	    // Set success only if no failures are present (in
 	    // which case the success is set to 'false' already)
 	    if(!ndCurrent->hasFailures()) {
@@ -214,10 +214,10 @@ namespace semrec {
 	      strTimeEnd = this->getTimeStampStr(evEvent.cdDesignator->floatValue("_time-end"));
 	    }
 	    ndCurrent->metaInformation()->setValue(std::string("time-end"), strTimeEnd);
-	    
+
 	    Node* ndParent = ndCurrent->parent();
 	    Node* ndParentLastValid = NULL;
-	    this->setNodeAsActive(ndParent);
+            this->setNodeAsActive(ndParent);
 	    
 	    while(ndParent) {
 	      ndParentLastValid = ndParent;
@@ -259,7 +259,7 @@ namespace semrec {
 	      evUpdateExperimentTime.lstNodes.push_back(ndParentLastValid);
 	      this->deployEvent(evUpdateExperimentTime);
 	    }
-	    
+
 	    evUpdateExperimentTime = defaultEvent("update-absolute-experiment-end-time");
 	    evUpdateExperimentTime.lstNodes.push_back(ndCurrent);
 	    this->deployEvent(evUpdateExperimentTime);
@@ -267,6 +267,39 @@ namespace semrec {
 	    Event evSymbolicEndCtx = defaultEvent("symbolic-end-context");
 	    evSymbolicEndCtx.lstNodes.push_back(ndCurrent);
 	    this->deployEvent(evSymbolicEndCtx);
+          } else if(evEvent.cdDesignator->childForKey("_relative_context_id")) {
+            // assert: contextID != nID
+            int contextID = ((int) evEvent.cdDesignator->floatValue("_relative_context_id"));
+
+            this->info("Received stop node designator for ID" + this->str(nID) + 
+                " together with relative-context-id " + this->str(contextID));
+
+            Node* ndTarget = this->nodeByID(nID);
+            
+            if(ndTarget) {
+	      // Set success only if no failures are present (in
+      	      // which case the success is set to 'false' already)
+	      if(!ndTarget->hasFailures()) {
+	        // NOTE(winkler): This would be the right spot to
+	        // forward the 'failed' condition towards all underlying
+	        // node structures (to signal that this branch failed).
+	        ndTarget->setSuccess(nSuccess);
+	      } else {
+	        ndTarget->setSuccess(false);
+	      }
+	    
+              // record end-time
+	      std::string strTimeEnd = this->getTimeStampStr();
+	      if(evEvent.cdDesignator->childForKey("_time-end")) {
+	        strTimeEnd = this->getTimeStampStr(evEvent.cdDesignator->floatValue("_time-end"));
+	      }
+	      ndTarget->metaInformation()->setValue(std::string("time-end"), strTimeEnd);
+
+              // if the active node was stopped, designate the relative context node as new active node
+              if(this->activeNode() == ndTarget)
+                this->setNodeAsActive(nodeByID(contextID));
+            } else 
+              this->warn("Could not find node to with ID " + this->str(nID));
 	  } else {
 	    std::stringstream sts;
 	    sts << "Received stop node designator for ID " << nID << " while ID " << ndCurrent->id() << " is active.";
