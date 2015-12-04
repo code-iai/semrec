@@ -1290,6 +1290,9 @@ namespace semrec {
       strClass = "WithFailureHandling";
     } else if(strName == "WITH-POLICY") {
       strClass = "WithPolicy";
+    } else if(strName == "PERCEIVE-OBJECT") {
+      strPlainPrefix = "knowrob_cram";
+      strClass = "PerceiveObject";
     } else if(strName == "HUMAN-INTRUSION") {
       strPlainPrefix = "saphari";
       strClass = "HumanIntrusion";
