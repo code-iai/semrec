@@ -298,6 +298,15 @@ namespace semrec {
               // if the active node was stopped, designate the relative context node as new active node
               if(this->activeNode() == ndTarget)
                 this->setNodeAsActive(nodeByID(contextID));
+
+              Event evUpdateExperimentTime;
+              evUpdateExperimentTime = defaultEvent("update-absolute-experiment-end-time");
+              evUpdateExperimentTime.lstNodes.push_back(ndTarget);
+              this->deployEvent(evUpdateExperimentTime);
+              
+              Event evSymbolicEndCtx = defaultEvent("symbolic-end-context");
+              evSymbolicEndCtx.lstNodes.push_back(ndTarget);
+              this->deployEvent(evSymbolicEndCtx);
             } else 
               this->warn("Could not find node to with ID " + this->str(nID));
 	  } else {
