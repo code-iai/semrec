@@ -21,7 +21,7 @@ catkin_package(
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  include)
+  include/semrec)
 
 add_library(sr_base_plugins)
 set_target_properties(sr_base_plugins PROPERTIES LINKER_LANGUAGE C)

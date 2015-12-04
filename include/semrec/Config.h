@@ -41,7 +41,7 @@
 #define __CONFIG_H__
 
 
-#define SR_VERSION_STRING "0.73 iai"
+#define SR_VERSION_STRING "0.74 iai"
 
 
 #endif /* __CONFIG_H__ */
