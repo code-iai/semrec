@@ -37,6 +37,7 @@ before_install:
  - wstool set designator_integration --git https://github.com/code-iai/designator_integration.git -y
  - wstool update
  - cd ~/catkin_ws
+ - rosdep install
  - catkin_make
 
 script:
