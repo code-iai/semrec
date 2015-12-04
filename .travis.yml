@@ -37,7 +37,6 @@ before_install:
  - wstool set designator_integration --git https://github.com/code-iai/designator_integration.git -y
  - wstool update
  - cd ~/catkin_ws
- - rosdep install semrec
  - catkin_make
 
 script:
@@ -45,4 +44,5 @@ script:
  - wstool set semrec --git https://github.com/code-iai/ros-semrec -y
  - wstool update semrec
  - cd ~/catkin_ws
+ - rosdep install semrec
  - catkin_make --pkg semrec -j1
