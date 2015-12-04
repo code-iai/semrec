@@ -48,10 +48,10 @@
 #include <string>
 
 // Private
-#include <ForwardDeclarations.h>
-#include <Types.h>
-#include <PluginInstance.h>
-#include <UtilityBase.h>
+#include <semrec/ForwardDeclarations.h>
+#include <semrec/Types.h>
+#include <semrec/PluginInstance.h>
+#include <semrec/UtilityBase.h>
 
 
 namespace semrec {

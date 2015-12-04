@@ -49,7 +49,7 @@
 #include <rospack/rospack.h>
 
 // Private
-#include <SemanticHierarchyRecorder.h>
+#include <semrec/SemanticHierarchyRecorder.h>
 
 
 namespace semrec {

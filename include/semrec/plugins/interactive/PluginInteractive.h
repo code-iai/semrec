@@ -58,10 +58,10 @@
 #include <designator_integration_msgs/DesignatorCommunication.h>
 
 // Private
-#include <Types.h>
-#include <ForwardDeclarations.h>
-#include <Plugin.h>
-#include <plugins/interactive/InteractiveObject.h>
+#include <semrec/Types.h>
+#include <semrec/ForwardDeclarations.h>
+#include <semrec/Plugin.h>
+#include <semrec/plugins/interactive/InteractiveObject.h>
 
 
 namespace semrec {

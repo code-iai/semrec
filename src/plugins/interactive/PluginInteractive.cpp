@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <plugins/interactive/PluginInteractive.h>
+#include <semrec/plugins/interactive/PluginInteractive.h>
 
 
 namespace semrec {

@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <plugins/experiment-context/PluginExperimentContext.h>
+#include <semrec/plugins/experiment-context/PluginExperimentContext.h>
 
 
 namespace semrec {

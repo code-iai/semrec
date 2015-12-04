@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <plugins/imagecapturer/CImageCapturer.h>
+#include <semrec/plugins/imagecapturer/CImageCapturer.h>
 
 
 namespace semrec {

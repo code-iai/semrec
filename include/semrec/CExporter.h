@@ -50,8 +50,8 @@
 #include <designators/KeyValuePair.h>
 
 // Private
-#include <Node.h>
-#include <UtilityBase.h>
+#include <semrec/Node.h>
+#include <semrec/UtilityBase.h>
 
 
 namespace semrec {

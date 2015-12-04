@@ -50,8 +50,8 @@
 #include <libconfig.h++>
 
 // Private
-#include <CExporterFileoutput.h>
-#include <plugins/owlexporter/OwlIndividual.h>
+#include <semrec/CExporterFileoutput.h>
+#include <semrec/plugins/owlexporter/OwlIndividual.h>
 
 
 namespace semrec {

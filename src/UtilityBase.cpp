@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <UtilityBase.h>
+#include <semrec/UtilityBase.h>
 
 
 namespace semrec {

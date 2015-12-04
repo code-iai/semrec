@@ -48,7 +48,7 @@
 #include <string>
 
 // Private
-#include <SemanticHierarchyRecorderROS.h>
+#include <semrec/SemanticHierarchyRecorderROS.h>
 
 
 // Storage of former signal handlers

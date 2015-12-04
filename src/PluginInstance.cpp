@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <PluginInstance.h>
+#include <semrec/PluginInstance.h>
 
 
 namespace semrec {

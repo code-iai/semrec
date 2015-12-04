@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <plugins/prediction/PluginPrediction.h>
+#include <semrec/plugins/prediction/PluginPrediction.h>
 
 
 namespace semrec {

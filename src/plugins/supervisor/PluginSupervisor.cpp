@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <plugins/supervisor/PluginSupervisor.h>
+#include <semrec/plugins/supervisor/PluginSupervisor.h>
 
 
 namespace semrec {

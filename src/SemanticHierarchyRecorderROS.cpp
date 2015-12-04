@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <SemanticHierarchyRecorderROS.h>
+#include <semrec/SemanticHierarchyRecorderROS.h>
 
 
 namespace semrec {

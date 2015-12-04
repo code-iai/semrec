@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <ArbitraryMappingsHolder.h>
+#include <semrec/ArbitraryMappingsHolder.h>
 
 
 namespace semrec {

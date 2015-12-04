@@ -1,4 +1,4 @@
-#include <plugins/owlexporter/OwlIndividual.h>
+#include <semrec/plugins/owlexporter/OwlIndividual.h>
 
 
 namespace semrec {

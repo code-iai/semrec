@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <ForwardDeclarations.h>
+#include <semrec/ForwardDeclarations.h>
 
 
 namespace semrec {

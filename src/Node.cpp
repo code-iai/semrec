@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <Node.h>
+#include <semrec/Node.h>
 
 
 namespace semrec {

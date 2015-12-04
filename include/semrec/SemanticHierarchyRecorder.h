@@ -50,11 +50,11 @@
 #include <mutex>
 
 // Private
-#include <ForwardDeclarations.h>
-#include <Types.h>
-#include <PluginSystem.h>
-#include <UtilityBase.h>
-#include <Config.h>
+#include <semrec/ForwardDeclarations.h>
+#include <semrec/Types.h>
+#include <semrec/PluginSystem.h>
+#include <semrec/UtilityBase.h>
+#include <semrec/Config.h>
 
 
 /*! \brief Main recorder system class

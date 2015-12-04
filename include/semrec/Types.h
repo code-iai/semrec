@@ -49,7 +49,7 @@
 #include <map>
 
 // Private
-#include <Node.h>
+#include <semrec/Node.h>
 
 
 using namespace designator_integration;

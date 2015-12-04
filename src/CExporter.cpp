@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <CExporter.h>
+#include <semrec/CExporter.h>
 
 
 namespace semrec {

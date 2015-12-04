@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <plugins/console/PluginConsole.h>
+#include <semrec/plugins/console/PluginConsole.h>
 
 
 namespace semrec {

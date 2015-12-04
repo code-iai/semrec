@@ -50,10 +50,10 @@
 #include <thread>
 
 // Private
-#include <Types.h>
-#include <ForwardDeclarations.h>
-#include <Plugin.h>
-#include <UtilityBase.h>
+#include <semrec/Types.h>
+#include <semrec/ForwardDeclarations.h>
+#include <semrec/Plugin.h>
+#include <semrec/UtilityBase.h>
 
 
 namespace semrec {

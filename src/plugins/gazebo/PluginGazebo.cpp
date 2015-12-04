@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <plugins/gazebo/PluginGazebo.h>
+#include <semrec/plugins/gazebo/PluginGazebo.h>
 
 
 namespace semrec {

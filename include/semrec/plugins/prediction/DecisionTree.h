@@ -49,9 +49,9 @@
 #include <designators/KeyValuePair.h>
 
 // Private
-#include <Property.h>
-#include <UtilityBase.h>
-#include <JSON.h>
+#include <semrec/Property.h>
+#include <semrec/UtilityBase.h>
+#include <semrec/JSON.h>
 
 
 namespace semrec {

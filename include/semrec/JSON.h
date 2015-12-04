@@ -50,7 +50,7 @@
 #include <json-c/json.h>
 
 // Private
-#include <Property.h>
+#include <semrec/Property.h>
 
 
 namespace semrec {

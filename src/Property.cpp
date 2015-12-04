@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <Property.h>
+#include <semrec/Property.h>
 
 
 namespace semrec {

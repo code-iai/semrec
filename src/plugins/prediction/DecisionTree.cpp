@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <plugins/prediction/DecisionTree.h>
+#include <semrec/plugins/prediction/DecisionTree.h>
 
 
 namespace semrec {

@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <JSON.h>
+#include <semrec/JSON.h>
 
 
 namespace semrec {

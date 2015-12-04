@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <plugins/owlexporter/PluginOWLExporter.h>
+#include <semrec/plugins/owlexporter/PluginOWLExporter.h>
 
 
 namespace semrec {

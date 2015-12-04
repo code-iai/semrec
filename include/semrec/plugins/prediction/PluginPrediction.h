@@ -57,16 +57,16 @@
 #include <designator_integration_msgs/DesignatorCommunication.h>
 
 // OWL Exporter for ontology
-#include <plugins/owlexporter/CExporterOwl.h>
+#include <semrec/plugins/owlexporter/CExporterOwl.h>
 
 // Private
-#include <Types.h>
-#include <ForwardDeclarations.h>
-#include <Plugin.h>
-#include <Property.h>
-#include <JSON.h>
-#include <Node.h>
-#include <plugins/prediction/DecisionTree.h>
+#include <semrec/Types.h>
+#include <semrec/ForwardDeclarations.h>
+#include <semrec/Plugin.h>
+#include <semrec/Property.h>
+#include <semrec/JSON.h>
+#include <semrec/Node.h>
+#include <semrec/plugins/prediction/DecisionTree.h>
 
 
 namespace semrec {

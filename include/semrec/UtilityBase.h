@@ -48,8 +48,8 @@
 #include <chrono>
 
 // Private
-#include <Types.h>
-#include <ForwardDeclarations.h>
+#include <semrec/Types.h>
+#include <semrec/ForwardDeclarations.h>
 
 
 namespace semrec {

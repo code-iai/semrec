@@ -49,9 +49,9 @@
 #include <sstream>
 
 // Private
-#include <Types.h>
-#include <ForwardDeclarations.h>
-#include <ArbitraryMappingsHolder.h>
+#include <semrec/Types.h>
+#include <semrec/ForwardDeclarations.h>
+#include <semrec/ArbitraryMappingsHolder.h>
 
 
 using namespace designator_integration;

@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <plugins/ros/PluginROS.h>
+#include <semrec/plugins/ros/PluginROS.h>
 
 
 namespace semrec {

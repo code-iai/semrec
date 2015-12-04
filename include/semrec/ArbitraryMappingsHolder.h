@@ -54,9 +54,9 @@
 #include <designators/Designator.h>
 
 // Private
-#include <Types.h>
-#include <ForwardDeclarations.h>
-#include <UtilityBase.h>
+#include <semrec/Types.h>
+#include <semrec/ForwardDeclarations.h>
+#include <semrec/UtilityBase.h>
 
 
 namespace semrec {

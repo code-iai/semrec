@@ -45,7 +45,7 @@
 #include <string>
 
 // Private
-#include <CExporterFileoutput.h>
+#include <semrec/CExporterFileoutput.h>
 
 
 namespace semrec {

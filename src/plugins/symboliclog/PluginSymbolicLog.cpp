@@ -37,7 +37,7 @@
 /** \author Jan Winkler */
 
 
-#include <plugins/symboliclog/PluginSymbolicLog.h>
+#include <semrec/plugins/symboliclog/PluginSymbolicLog.h>
 
 
 namespace semrec {

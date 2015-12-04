@@ -54,9 +54,9 @@
 #include <algorithm>
 
 // Private
-#include <Types.h>
-#include <ForwardDeclarations.h>
-#include <Plugin.h>
+#include <semrec/Types.h>
+#include <semrec/ForwardDeclarations.h>
+#include <semrec/Plugin.h>
 
 
 namespace semrec {

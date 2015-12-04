@@ -43,10 +43,10 @@
 
 // System
 #include <ftw.h>
+#include <mutex>
 
 // Private
-#include <Types.h>
-#include <mutex>
+#include <semrec/Types.h>
 
 
 namespace semrec {
