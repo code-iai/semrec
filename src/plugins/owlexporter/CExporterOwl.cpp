@@ -1232,13 +1232,17 @@ namespace semrec {
 	    // Specializer: Reaching.
 	    strClass = "Reaching";
 	  } else if(strTo == "RELEASE") {
-	    // Specializer: Reaching.
+	    // Specializer: Releasing.
 	    strClass = "ReleasingGraspOfSomething";
 	  } else if(strTo == "CLAMP") {
-	    // Specializer: Reaching.
+	    // Specializer: Clamping.
 	    strClass = "GraspingSomething";
+	  } else if((strTo == "OPEN") && 
+                    (ckvpDescription->stringValue("BODYPART") == "GRIPPER")) {
+	    // Specializer: Opening Gripper.
+	    strClass = "CRAMGripperCommand";
 	  } else if(strTo == "MOVE") {
-	    // Specializer: Reaching.
+	    // Specializer: Moving.
 	    strClass = "VoluntaryBodyMovement";
 	  } else if(strType == "NAVIGATION") {
 	    // Specializer: Navigating.
