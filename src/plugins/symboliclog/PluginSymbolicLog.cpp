@@ -639,7 +639,7 @@ namespace semrec {
 	      delete desigCurrent;
 	      
 	      if(!bDesigExists) { // Human does not yet exist. Add it symbolically.
-		this->info("Adding non-existant human-designator to current context");
+		this->info("Adding non-existant human-designator to context with ID " + this->str(ndSubject->id()));
 		
 		KeyValuePair* ckvpDesc = evEvent.cdDesignator->childForKey("description");
 		std::list<KeyValuePair*> lstDescription = ckvpDesc->children();
@@ -685,7 +685,7 @@ namespace semrec {
 	      }
       
 	      ndSubject->addHuman(ckvpDesc->children());
-	      this->info("Added human (" + strUniqueID + ") to active node (id " + this->str(ndSubject->id()) + ").");
+	      this->info("Added human (" + strUniqueID + ") to node (id " + this->str(ndSubject->id()) + ").");
 	    } else {
 	      this->warn("No node context available. Cannot add object while on top-level.");
 	    }
