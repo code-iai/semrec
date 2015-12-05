@@ -426,7 +426,27 @@ namespace semrec {
 	      oiIndividual.addDataProperty("knowrob:goalContext", "&xsd;string", strPattern);
 	    }
 	  }
-	  
+
+	  if(ndCurrent->title() == "HUMAN-INTRUSION") {
+            this->info("writing out human intrusion.");
+	    std::list<KeyValuePair*> lstDescription = ndCurrent->description();
+	    std::string strBodypart = "";
+	    
+	    for(KeyValuePair* ckvpNow : lstDescription) {
+	      if(ckvpNow->key() == "_BODYPART") {
+                this->info("found bodypart.");
+		oiIndividual.addDataProperty("knowrob:bodypart", "&xsd;string", ckvpNow->stringValue());
+		continue;
+	      }
+	      if(ckvpNow->key() == "_HUMANDESIG") {
+                this->info("found human desig.");
+		oiIndividual.addResourceProperty("knowrob:designator", 
+                    "&" + strNamespace + ";" + ckvpNow->stringValue());
+		continue;
+	      }
+	    }
+	  }
+  
 	  std::list<Node*> lstSubnodes = ndCurrent->subnodes();
 	  for(Node* ndSubnode : lstSubnodes) {
 	    if(this->nodeDisplayable(ndSubnode)) {
