@@ -435,7 +435,7 @@ namespace semrec {
 	    for(KeyValuePair* ckvpNow : lstDescription) {
 	      if(ckvpNow->key() == "_BODYPART") {
                 this->info("found bodypart.");
-		oiIndividual.addDataProperty("knowrob:bodypart", "&xsd;string", ckvpNow->stringValue());
+		oiIndividual.addDataProperty("knowrob:bodyPartsUsed", "&xsd;string", ckvpNow->stringValue());
 		continue;
 	      }
 	      if(ckvpNow->key() == "_HUMANDESIG") {
