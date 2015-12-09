@@ -274,6 +274,10 @@ namespace semrec {
 		  
 		  this->info("Timing information found: " + sts.str());
 		  
+		  m_mapMetaData["time-start"] = strEarliest;
+		  m_mapMetaData["time-end"] = strLatest;
+		  expOwl->setMetaData(m_mapMetaData);
+		  
 		  this->info("Exporting OWL file to '" + expOwl->outputFilename() + "'", true);
 		  
 		  if(expOwl->runExporter(NULL)) {
