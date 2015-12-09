@@ -158,11 +158,11 @@ namespace semrec {
 	    std::string strOld = m_mapMetaData["time-end"];
 	    std::string strNew = evEvent.lstNodes.front()->metaInformation()->stringValue("time-end");
 	    
-	    float fOld, fNew;
-	    sscanf(strOld.c_str(), "%f", &fOld);
-	    sscanf(strNew.c_str(), "%f", &fNew);
+	    double dOld, dNew;
+	    sscanf(strOld.c_str(), "%lf", &dOld);
+	    sscanf(strNew.c_str(), "%lf", &dNew);
 	    
-	    if(fNew > fOld) {
+	    if(dNew > dOld) {
 	      m_mapMetaData["time-end"] = strNew;
 	    }
 	  }
@@ -230,6 +230,49 @@ namespace semrec {
 		  ConfigSettings cfgsetCurrent = configSettings();
 		  expOwl->setOutputFilename(cfgsetCurrent.strExperimentDirectory + seServiceEvent.cdDesignator->stringValue("filename"));
 		  expOwl->setRegisteredOWLNamespaces(m_mapRegisteredOWLNamespaces);
+		  
+		  double dEarliest = -1;
+		  std::string strEarliest = "";
+		  double dLatest = -1;
+		  std::string strLatest = "";
+		  
+		  for(Node* ndRoot : evCar.lstRootNodes) {
+		    if(strEarliest == "") {
+		      strEarliest = ndRoot->metaInformation()->stringValue("time-start");
+		      sscanf(strEarliest.c_str(), "%lf", &dEarliest);
+		    } else {
+		      std::string strEarliestTemp = ndRoot->metaInformation()->stringValue("time-start");
+		      double dEarliestTemp;
+		      sscanf(strEarliestTemp.c_str(), "%lf", &dEarliestTemp);
+		      
+		      if(dEarliestTemp < dEarliest) {
+			strEarliest = strEarliestTemp;
+			dEarliest = dEarliestTemp;
+		      }
+		    }
+		    
+		    if(strLatest == "") {
+		      strLatest = ndRoot->metaInformation()->stringValue("time-end");
+		      sscanf(strLatest.c_str(), "%lf", &dLatest);
+		    } else {
+		      std::string strLatestTemp = ndRoot->metaInformation()->stringValue("time-end");
+		      double dLatestTemp;
+		      sscanf(strLatestTemp.c_str(), "%lf", &dLatestTemp);
+		      
+		      if(dLatestTemp < dLatest) {
+			strLatest = strLatestTemp;
+			dLatest = dLatestTemp;
+		      }
+		    }
+		  }
+		  
+		  std::stringstream sts;
+		  sts.precision(17);
+		  sts << dEarliest;
+		  sts << " / ";
+		  sts << dLatest;
+		  
+		  this->info("Timing information found: " + sts.str());
 		  
 		  this->info("Exporting OWL file to '" + expOwl->outputFilename() + "'", true);
 		  
