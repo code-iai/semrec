@@ -446,6 +446,34 @@ namespace semrec {
 	      }
 	    }
 	  }
+
+          // NOTE FROM GEORG: This is a feature that I introduced specifically for the 
+          // final review of SAPHARI. I think it needs to be improved, but time has not
+          // permitted a refactoring. Sorry!
+          // 
+          // The intention: We had a semantic map with individuals of objects, i.e.
+          // baskets full of sorted objects, that we would reference to assert goals for
+          // the robot at runtime. By generating an Individual of type &saphari;SaphariTaskDescription
+          // which points to one of these individuals in the semantic mal we would
+          // select the task for the robot. The following code block points to such an
+          // basket individual for the task description event.
+          //
+          // What could be improved: Have formal representations for goal states in
+          // Knowrob, and then a dedicated channel in semrec+knowrob_cram for asserting
+          // such goals.
+          if(ndCurrent->title() == "SEMANTIC-MAP-TARGET-OBJECT"){
+            this->info("linking to target object in semantic map");
+            std::list<KeyValuePair*> lstDescription = ndCurrent->description();
+
+            for(KeyValuePair* ckvpNow : lstDescription) {
+              if(ckvpNow->key() == "_TARGETOBJECT") {
+                this->info("found target object");
+                oiIndividual.addResourceProperty("knowrob:objectActedOn", ckvpNow->stringValue());
+                continue;
+              }
+            }
+          }
+
   
 	  std::list<Node*> lstSubnodes = ndCurrent->subnodes();
 	  for(Node* ndSubnode : lstSubnodes) {
