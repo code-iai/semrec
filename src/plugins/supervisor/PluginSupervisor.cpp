@@ -227,6 +227,9 @@ namespace semrec {
 	  this->info("Symlink set accordingly.");
 	} else {
 	  this->fail("Unable to set current experiment symlink!");
+	  
+	  // TODO: Trigger a shutdown signal to tell semrec that this
+	  // event produced an unrecoverable failure.
 	}
 	
 	Designator* cdConfig = this->getIndividualConfig();
