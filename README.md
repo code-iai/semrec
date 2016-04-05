@@ -48,7 +48,7 @@ A more thorough documentation can be found here: http://cram-system.org/doc/logg
 
 To compile `semrec`, you will need to install the following (Ubuntu) dependencies:
 ```bash
-$ sudo apt-get install libncurses5-dev automake autoconf
+$ sudo apt-get install libncurses5-dev automake autoconf libconfig++8-dev libjson0-dev
 ```
 
 Besides setup and operation of the recorder, you will find yourself in the situation that you want to nicely package the created logs and adjacent data.
