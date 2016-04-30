@@ -1003,6 +1003,8 @@ namespace semrec {
 	      strDesignatorClass = "CRAMHumanDesignator";
 	    } else if(m_mapDesignators[strID]->stringValue("type") == "OBJECT") {
 	      strDesignatorClass = "CRAMObjectDesignator";
+	    } else if(m_mapDesignators[strID]->stringValue("type") == "DESIGNATOR") {
+	      strDesignatorClass = "CRAMDesignator";
 	    }
 	  }
 	}
@@ -1347,6 +1349,12 @@ namespace semrec {
     } else if(strName == "PERCEIVE-HUMAN") {
       strPlainPrefix = "knowrob_cram";
       strClass = "PerceivePerson";
+    } else if(strName == "UNSCREWING-PART") { // Chemlab Context
+      strPlainPrefix = "chemlab_actions";
+      strClass = "UnscrewingPart";
+    } else if(strName == "SCREWING-PART") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "ScrewingPart";
     }
    
     std::string strPrefix = (bPrologSyntax ? strPlainPrefix + ":" : "&" + strPlainPrefix + ";");
