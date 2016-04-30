@@ -152,7 +152,63 @@ namespace semrec {
 	    }
 	  }
 	}
+
+	//m_lstAnnotationPurposeMapping.clear();
 	
+	if(cfgConfig.exists("chemlab-context-mappings")) {
+	  libconfig::Setting &chemlabContextMappings = cfgConfig.lookup("chemlab-context-mappings");
+	  
+	  m_strPropertyNamespace = "";
+	  if(chemlabContextMappings.exists("property-namespace")) {
+	    chemlabContextMappings.lookupValue("property-namespace", m_strPropertyNamespace);
+	  }
+	  
+	  if(m_strPropertyNamespace == "") {
+	    this->warn("You didn't specify the 'chemlab-context-mappings/property-namespace' parameter on the semantics descriptor file.");
+            this->warn("Your OWL classes will have no namespace prepended. Is this intended?");
+	  }
+	  
+	  m_strDefaultDesignatorClass = "";
+	  if(chemlabContextMappings.exists("default-designator-class")) {
+	    chemlabContextMappings.lookupValue("default-designator-class", m_strDefaultDesignatorClass);
+	  }
+	  
+	  if(m_strDefaultDesignatorClass == "") {
+	    this->warn("You didn't specify the 'chemlab-context-mappings/default-designator-class' parameter in the semantics descriptor file.");
+            this->warn("Your default designators will have no OWL class, resulting in an invalid OWL file. Is this intended?");
+	  }
+	  
+	  m_strDefaultAnnotation = "";
+	  if(chemlabContextMappings.exists("default-annotation-purpose")) {
+	    chemlabContextMappings.lookupValue("default-annotation-purpose", m_strDefaultAnnotation);
+	  }
+	  
+	  if(m_strDefaultAnnotation == "") {
+	    this->warn("You didn't specify the 'structure/default-annotation-purpose' parameter on the semantics descriptor file.");
+            this->warn("Your designator attachments without a defined annotation will be empty and produce a faulty OWL file. Is this intended?");
+	  }
+	  
+	  if(chemlabContextMappings.exists("annotation-purposes")) {
+	    libconfig::Setting &chemlabContextPurposes = chemlabContextMappings["annotation-purposes"];
+	    
+	    for(int nI = 0; nI < chemlabContextPurposes.getLength(); nI++) {
+	      libconfig::Setting &chemlabContextPurpose = chemlabContextPurposes[nI];
+	      
+	      std::string strFrom;
+	      std::string strTo;
+	      
+	      chemlabContextPurpose.lookupValue("from", strFrom);
+	      chemlabContextPurpose.lookupValue("to", strTo);
+	      
+	      if(strFrom != "" && strTo != "") {
+                // For a moment add these mappings tot he default ones - merge them with the
+		m_lstAnnotationPurposeMapping.push_back(std::make_pair(strFrom, strTo));
+	      } else {
+		this->warn("Invalid annotation purpose mapping: '" + strFrom + "' -> '" + strTo + "'. Discarding.");
+	      }
+	    }
+	  }
+	}
 	return true;
       } catch(libconfig::ParseException e) {
         std::stringstream sts;
