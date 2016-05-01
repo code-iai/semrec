@@ -1405,6 +1405,30 @@ namespace semrec {
     } else if(strName == "PERCEIVE-HUMAN") {
       strPlainPrefix = "knowrob_cram";
       strClass = "PerceivePerson";
+    } else if(strName == "LOOK-AT-LOCATION") {
+      strPlainPrefix = "knowrob_cram";
+      strClass = "LookAtLocation";
+    } else if(strName == "NAVIGATE-AT-LOCATION") {
+      strPlainPrefix = "knowrob_cram";
+      strClass = "NavigateAtLocation";
+    } else if(strName == "SINGULAR-ARM-MOVED-AT-LOCATION") {
+      strPlainPrefix = "knowrob_cram";
+      strClass = "ArmMovement";
+    } else if(strName == "DUAL-ARM-MOVED-AT-LOCATION") {
+      strPlainPrefix = "knowrob_cram";
+      strClass = "ArmMovement";
+    } else if(strName == "SINGULAR-ARM-REACH-UNREACH") {
+      strPlainPrefix = "knowrob_cram";
+      strClass = "ArmMovement";
+    } else if(strName == "DUAL-ARM-REACH-UNREACH") {
+      strPlainPrefix = "knowrob_cram";
+      strClass = "ArmMovement";
+    } else if(strName == "SINGULAR-GRIPPER-GRIPP") {
+      strPlainPrefix = "knowrob_cram";
+      strClass = "GripperMovement";
+    } else if(strName == "DUAL-GRIPPER-GRIPP") {
+      strPlainPrefix = "knowrob_cram";
+      strClass = "GrippersMovements";
     } else if(strName == "UNSCREWING-PART") { // Chemlab Context
       strPlainPrefix = "chemlab_actions";
       strClass = "UnscrewingPart";
