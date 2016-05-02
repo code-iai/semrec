@@ -1407,14 +1407,14 @@ namespace semrec {
       strClass = "PerceivePerson";
     } else if(strName == "LOOK-AT-LOCATION") {
       strPlainPrefix = "knowrob_cram";
-      strClass = "LookAtLocation";
+      strClass = "HeadMovement";
     } else if(strName == "NAVIGATE-AT-LOCATION") {
       strPlainPrefix = "knowrob_cram";
-      strClass = "NavigateAtLocation";
+      strClass = "BaseMovement";
     } else if(strName == "SINGULAR-ARM-MOVED-AT-LOCATION") {
       strPlainPrefix = "knowrob_cram";
       strClass = "ArmMovement";
-    } else if(strName == "DUAL-ARM-MOVED-AT-LOCATION") {
+    } else if(strName == "DUAL-ARM-MOVED-AT-LOCATIONS") {
       strPlainPrefix = "knowrob_cram";
       strClass = "ArmMovement";
     } else if(strName == "SINGULAR-ARM-REACH-UNREACH") {
@@ -1428,13 +1428,67 @@ namespace semrec {
       strClass = "GripperMovement";
     } else if(strName == "DUAL-GRIPPER-GRIPP") {
       strPlainPrefix = "knowrob_cram";
-      strClass = "GrippersMovements";
-    } else if(strName == "UNSCREWING-PART") { // Chemlab Context
+      strClass = "GrippersMovement";
+    } 
+      else if(strName == "CHEMLAB-CONTEXT") { // Chemlab context
       strPlainPrefix = "chemlab_actions";
-      strClass = "UnscrewingPart";
-    } else if(strName == "SCREWING-PART") {
+      strClass = "ChemlabContext";
+    }
+      else if(strName == "PLAN-QUERY") {
       strPlainPrefix = "chemlab_actions";
-      strClass = "ScrewingPart";
+      strClass = "PlanQuery";
+    } 
+      else if(strName == "TESTING-PH-VALUE") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "TestingPHValue";
+    }
+      else if(strName == "NEUTRALIZING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Neutralizing";
+    } 
+      else if(strName == "USING-DRY-ICE") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "UsingDryIce";
+    } 
+      else if(strName == "POURING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Pouring";
+    }
+      else if(strName == "PIPETTING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Pipetting";
+    } else if(strName == "ASPIRATING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Aspirating";
+    } else if(strName == "DISPENSING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Dispensing";
+    }  
+      else if(strName == "OPERATING-ELECTRICAL-DEVICE") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "OperatingElectricalDevice";
+    } else if(strName == "SWITCHING-ON-ELECTRICAL-DEVICE") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "TurningOnElectricalDevice";
+    } else if(strName == "SWITCHING-OFF-ELECTRICAL-DEVICE") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "TurningOffElectricalDevice";
+    } 
+      else if(strName == "USING-MEASURING-CUP") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "UsingMeasuringCup";
+    } 
+      else if(strName == "PREPARING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Preparing";
+    } 
+      else if(strName == "STORING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Storing";
+    } 
+      else if(strName == "MOVING-OBJECT-AT-LOCATION") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "MovingObjectAtLocation";
     }
    
     std::string strPrefix = (bPrologSyntax ? strPlainPrefix + ":" : "&" + strPlainPrefix + ";");
