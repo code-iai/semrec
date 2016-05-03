@@ -1397,7 +1397,7 @@ namespace semrec {
     } else if(strName == "WITH-POLICY") {
       strClass = "WithPolicy";
     } else if(strName == "PERCEIVE-OBJECT") {
-      strPlainPrefix = "knowrob_cram";
+      strPlainPrefix = "knowrob";
       strClass = "PerceiveObject";
     } else if(strName == "HUMAN-INTRUSION") {
       strPlainPrefix = "saphari";
@@ -1406,29 +1406,29 @@ namespace semrec {
       strPlainPrefix = "knowrob_cram";
       strClass = "PerceivePerson";
     } else if(strName == "LOOK-AT-LOCATION") {
-      strPlainPrefix = "knowrob_cram";
+      strPlainPrefix = "knowrob";
       strClass = "HeadMovement";
     } else if(strName == "NAVIGATE-AT-LOCATION") {
-      strPlainPrefix = "knowrob_cram";
+      strPlainPrefix = "knowrob";
       strClass = "BaseMovement";
     } else if(strName == "SINGULAR-ARM-MOVED-AT-LOCATION") {
-      strPlainPrefix = "knowrob_cram";
+      strPlainPrefix = "knowrob";
       strClass = "ArmMovement";
     } else if(strName == "DUAL-ARM-MOVED-AT-LOCATIONS") {
-      strPlainPrefix = "knowrob_cram";
+      strPlainPrefix = "knowrob";
       strClass = "ArmMovement";
     } else if(strName == "SINGULAR-ARM-REACH-UNREACH") {
-      strPlainPrefix = "knowrob_cram";
+      strPlainPrefix = "knowrob";
       strClass = "ArmMovement";
     } else if(strName == "DUAL-ARM-REACH-UNREACH") {
-      strPlainPrefix = "knowrob_cram";
+      strPlainPrefix = "knowrob";
       strClass = "ArmMovement";
     } else if(strName == "SINGULAR-GRIPPER-GRIPP") {
-      strPlainPrefix = "knowrob_cram";
+      strPlainPrefix = "knowrob";
       strClass = "GripperMovement";
     } else if(strName == "DUAL-GRIPPER-GRIPP") {
-      strPlainPrefix = "knowrob_cram";
-      strClass = "GrippersMovement";
+      strPlainPrefix = "knowrob";
+      strClass = "GripperMovement";
     } 
       else if(strName == "CHEMLAB-CONTEXT") { // Chemlab context
       strPlainPrefix = "chemlab_actions";
@@ -1465,14 +1465,14 @@ namespace semrec {
       strClass = "Dispensing";
     }  
       else if(strName == "OPERATING-ELECTRICAL-DEVICE") {
-      strPlainPrefix = "chemlab_actions";
-      strClass = "OperatingElectricalDevice";
+      strPlainPrefix = "knowrob";
+      strClass = "HandlingADevice";
     } else if(strName == "SWITCHING-ON-ELECTRICAL-DEVICE") {
-      strPlainPrefix = "chemlab_actions";
-      strClass = "TurningOnElectricalDevice";
+      strPlainPrefix = "knowrob";
+      strClass = "TurningOnPoweredDevice";
     } else if(strName == "SWITCHING-OFF-ELECTRICAL-DEVICE") {
-      strPlainPrefix = "chemlab_actions";
-      strClass = "TurningOffElectricalDevice";
+      strPlainPrefix = "knowrob";
+      strClass = "TurningOffPoweredDevice";
     } 
       else if(strName == "USING-MEASURING-CUP") {
       strPlainPrefix = "chemlab_actions";
