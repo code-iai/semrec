@@ -58,6 +58,16 @@ using namespace designator_integration;
 namespace semrec {
   class PluginInstance;
   
+  typedef struct {
+    typedef enum {
+      Property = 0,
+      Resource = 1
+    } Type;
+    
+    Type tpType;
+    std::string strValue;
+  } MappedMetaData;
+  
   /*! \brief Enumeration of possible ServiceEvent types */
   typedef enum {
     /*! \brief This is a service request */

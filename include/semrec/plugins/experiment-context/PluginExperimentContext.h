@@ -66,7 +66,7 @@ namespace semrec {
   namespace plugins {
     class PLUGIN_CLASS : public Plugin {
     private:
-      std::map<std::string, std::string> m_mapValues;
+      std::map<std::string, MappedMetaData> m_mapValues;
       CExporterFileoutput* m_expFileExporter;
       ros::Publisher m_pubMetadata;
       

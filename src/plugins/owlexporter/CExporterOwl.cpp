@@ -51,12 +51,12 @@ namespace semrec {
   CExporterOwl::~CExporterOwl() {
   }
   
-  void CExporterOwl::setMetaData(std::map<std::string, std::string> mapMetaData) {
+  void CExporterOwl::setMetaData(std::map<std::string, MappedMetaData> mapMetaData) {
     m_mapMetaData = mapMetaData;
     
     // NOTE(winkler): This is a hack and needs to be resolved later.
     if(mapMetaData.find("robot") != mapMetaData.end()) {
-      OwlIndividual::addStaticProperty("robot", mapMetaData["robot"]);
+      OwlIndividual::addStaticProperty("robot", mapMetaData["robot"].strValue);
     }
   }
   
@@ -1094,26 +1094,26 @@ namespace semrec {
       
       // Find earliest and latest timepoint
       if(m_mapMetaData.find("time-start") == m_mapMetaData.end()) {
-	m_mapMetaData["time-start"] = strTimepoint;
+	m_mapMetaData["time-start"] = {MappedMetaData::Property, strTimepoint};
       } else {
 	float fTimeNew, fTimeOld;
 	sscanf(strTimepoint.c_str(), "%f", &fTimeNew);
-	sscanf(m_mapMetaData["time-start"].c_str(), "%f", &fTimeOld);
+	sscanf(m_mapMetaData["time-start"].strValue.c_str(), "%f", &fTimeOld);
 	
 	if(fTimeNew < fTimeOld) {
-	  m_mapMetaData["time-start"] = strTimepoint;
+	  m_mapMetaData["time-start"] = {MappedMetaData::Property, strTimepoint};
 	}
       }
       
       if(m_mapMetaData.find("time-end") == m_mapMetaData.end()) {
-	m_mapMetaData["time-end"] = strTimepoint;
+	m_mapMetaData["time-end"] = {MappedMetaData::Property, strTimepoint};
       } else {
 	float fTimeNew, fTimeOld;
 	sscanf(strTimepoint.c_str(), "%f", &fTimeNew);
-	sscanf(m_mapMetaData["time-end"].c_str(), "%f", &fTimeOld);
+	sscanf(m_mapMetaData["time-end"].strValue.c_str(), "%f", &fTimeOld);
 	
 	if(fTimeNew > fTimeOld) {
-	  m_mapMetaData["time-end"] = strTimepoint;
+	  m_mapMetaData["time-end"] = {MappedMetaData::Property, strTimepoint};
 	}
       }
     }
@@ -1134,7 +1134,7 @@ namespace semrec {
       oiIndividual.addResourceProperty("knowrob:subAction", "&" + strNamespace + ";" + ndRoot->uniqueID());
     }
     
-    for(std::pair<std::string, std::string> prEntry : m_mapMetaData) {
+    for(std::pair<std::string, MappedMetaData> prEntry : m_mapMetaData) {
       std::string strCamelCaseKey = prEntry.first;
       int nCharCount = prEntry.first.length();
       
@@ -1150,9 +1150,13 @@ namespace semrec {
       
       if(strCamelCaseKey == "timeEnd" || strCamelCaseKey == "timeStart") {
 	// Special handling for timepoints as they mark specific timepoint individuals
-	oiIndividual.addResourceProperty("knowrob:" + (strCamelCaseKey == "timeStart" ? std::string("startTime") : std::string("endTime")), "&" + strNamespace + ";" + "timepoint_" + std::string(prEntry.second));
+	oiIndividual.addResourceProperty("knowrob:" + (strCamelCaseKey == "timeStart" ? std::string("startTime") : std::string("endTime")), "&" + strNamespace + ";" + "timepoint_" + std::string(prEntry.second.strValue));
       } else {
-	oiIndividual.addDataProperty("knowrob:" + strCamelCaseKey, "&xsd;string", prEntry.second);
+	if(prEntry.second.tpType == MappedMetaData::Resource) {
+	  oiIndividual.addResourceProperty("knowrob:" + strCamelCaseKey, "&" + strNamespace + ";" + prEntry.second.strValue);
+	} else {
+	  oiIndividual.addDataProperty("knowrob:" + strCamelCaseKey, "&xsd;string", prEntry.second.strValue);
+	}
       }
     }
     

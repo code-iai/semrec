@@ -110,10 +110,13 @@ namespace semrec {
 	if(evEvent.cdDesignator) {
 	  std::string strField = evEvent.cdDesignator->stringValue("field");
 	  std::string strValue = evEvent.cdDesignator->stringValue("value");
+	  std::string strType = evEvent.cdDesignator->stringValue("type");
+	  
+	  MappedMetaData::Type mtType = (strType == "resource" ? MappedMetaData::Resource : MappedMetaData::Property);
 	  
 	  if(strField != "") {
-	    this->info("Set meta data field '" + strField + "' to '" + strValue + "'");
-	    m_mapMetaData[strField] = strValue;
+	    this->info("Set meta data field '" + strField + "' to '" + strValue + "' (" + (mtType == MappedMetaData::Resource ? "resource" : "property") + ")");
+	    m_mapMetaData[strField] = {mtType, strValue};
 	  }
 	}
       } else if(evEvent.strEventName == "register-owl-namespace") {
@@ -132,10 +135,10 @@ namespace semrec {
 	if(evEvent.lstNodes.size() > 0) {
 	  if(m_mapMetaData.find("time-start") == m_mapMetaData.end()) {
 	    // First entry
-	    m_mapMetaData["time-start"] = evEvent.lstNodes.front()->metaInformation()->stringValue("time-start");
+	    m_mapMetaData["time-start"] = {MappedMetaData::Property, evEvent.lstNodes.front()->metaInformation()->stringValue("time-start")};
 	  } else {
 	    // Update if necessary
-	    std::string strOld = m_mapMetaData["time-start"];
+	    std::string strOld = m_mapMetaData["time-start"].strValue;
 	    std::string strNew = evEvent.lstNodes.front()->metaInformation()->stringValue("time-start");
 	    
 	    float fOld, fNew;
@@ -143,7 +146,7 @@ namespace semrec {
 	    sscanf(strNew.c_str(), "%f", &fNew);
 	    
 	    if(fNew < fOld) {
-	      m_mapMetaData["time-start"] = strNew;
+	      m_mapMetaData["time-start"] = {MappedMetaData::Property, strNew};
 	    }
 	  }
 	}
@@ -152,10 +155,10 @@ namespace semrec {
 	  // Every end time overwrites any already existing value, as
 	  // it always happens after.
 	  if(m_mapMetaData.find("time-end") == m_mapMetaData.end()) {
-	    m_mapMetaData["time-end"] = evEvent.lstNodes.front()->metaInformation()->stringValue("time-end");
+	    m_mapMetaData["time-end"] = {MappedMetaData::Property, evEvent.lstNodes.front()->metaInformation()->stringValue("time-end")};
 	  } else {
 	    // Update if necessary
-	    std::string strOld = m_mapMetaData["time-end"];
+	    std::string strOld = m_mapMetaData["time-end"].strValue;
 	    std::string strNew = evEvent.lstNodes.front()->metaInformation()->stringValue("time-end");
 	    
 	    double dOld, dNew;
@@ -163,7 +166,7 @@ namespace semrec {
 	    sscanf(strNew.c_str(), "%lf", &dNew);
 	    
 	    if(dNew > dOld) {
-	      m_mapMetaData["time-end"] = strNew;
+	      m_mapMetaData["time-end"] = {MappedMetaData::Property, strNew};
 	    }
 	  }
 	}
@@ -274,8 +277,8 @@ namespace semrec {
 		  
 		  this->info("Timing information found: " + sts.str());
 		  
-		  m_mapMetaData["time-start"] = strEarliest;
-		  m_mapMetaData["time-end"] = strLatest;
+		  m_mapMetaData["time-start"] = {MappedMetaData::Property, strEarliest};
+		  m_mapMetaData["time-end"] = {MappedMetaData::Property, strLatest};
 		  expOwl->setMetaData(m_mapMetaData);
 		  
 		  this->info("Exporting OWL file to '" + expOwl->outputFilename() + "'", true);

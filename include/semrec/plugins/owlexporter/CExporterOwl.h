@@ -64,7 +64,7 @@ namespace semrec {
     std::list< std::pair<std::string, std::string> > m_lstAnnotationPurposeMapping;
     std::string m_strPropertyNamespace;
     std::string m_strDefaultAnnotation;
-    std::map<std::string, std::string> m_mapMetaData;
+    std::map<std::string, MappedMetaData> m_mapMetaData;
     std::list<std::string> m_lstAnnotatedParameters;
     std::list<std::string> m_lstExportedObjectIndividuals, m_lstExportedHumanIndividuals;
     std::map<std::string, std::string> m_mapRegisteredOWLNamespaces;
@@ -79,7 +79,7 @@ namespace semrec {
     
     std::list<std::string> gatherClassesForNodes(std::list<Node*> lstNodes);
     std::list<std::string> gatherTimepointsForNodes(std::list<Node*> lstNodes, std::list<Node*> lstTrace);
-    void setMetaData(std::map<std::string, std::string> mapMetaData);
+    void setMetaData(std::map<std::string, MappedMetaData> mapMetaData);
     
     bool loadSemanticsDescriptorFile(std::string strFilepath);
     
