@@ -85,10 +85,13 @@ namespace semrec {
 	if(evEvent.cdDesignator) {
 	  std::string strField = evEvent.cdDesignator->stringValue("field");
 	  std::string strValue = evEvent.cdDesignator->stringValue("value");
+	  std::string strType = evEvent.cdDesignator->stringValue("type");
+	  
+	  MappedMetaData::Type mtType = (strType == "resource" ? MappedMetaData::Resource : MappedMetaData::Property);
 	  
 	  if(strField != "") {
-	    this->info("Set '" + strField + "' to '" + strValue + "'");
-	    m_mapValues[strField] = strValue;
+	    this->info("Set " + std::string(mtType == MappedMetaData::Resource ? "resource" : "property") + " '" + strField + "' to '" + strValue + "'");
+	    m_mapValues[strField] = {mtType, strValue};
 	  }
 	}
       } else if(evEvent.strEventName == "export-planlog") {
@@ -102,7 +105,7 @@ namespace semrec {
 	  this->info("Experiment Context Plugin exporting meta-data");
 	  
 	  if(m_mapValues.find("time-end") == m_mapValues.end()) {
-	    m_mapValues["time-end"] = this->getTimeStampStr();
+	    m_mapValues["time-end"] = {MappedMetaData::Property, this->getTimeStampStr()};
 	  }
 	  
 	  ConfigSettings cfgsetCurrent = configSettings();
@@ -111,9 +114,9 @@ namespace semrec {
 	  std::string strMetaXML = "";
 	  strMetaXML += "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\n";
 	  strMetaXML += "<meta-data>\n";
-	  for(std::pair<std::string, std::string> prEntry : m_mapValues) {
-	    strMetaXML += "  <" + prEntry.first + ">" + prEntry.second + "</" + prEntry.first + ">\n";
-	    cdMeta->setValue(prEntry.first, prEntry.second);
+	  for(std::pair<std::string, MappedMetaData> prEntry : m_mapValues) {
+	    strMetaXML += "  <" + prEntry.first + ">" + prEntry.second.strValue + "</" + prEntry.first + ">\n";
+	    cdMeta->setValue(prEntry.first, prEntry.second.strValue);
 	  }
 	  strMetaXML += "</meta-data>\n";
 	  
@@ -134,14 +137,14 @@ namespace semrec {
 	  // Only the first node counts, as the first node represents
 	  // the earliest time.
 	  if(m_mapValues.find("time-start") == m_mapValues.end()) {
-	    m_mapValues["time-start"] = evEvent.lstNodes.front()->metaInformation()->stringValue("time-start");
+	    m_mapValues["time-start"] = {MappedMetaData::Property, evEvent.lstNodes.front()->metaInformation()->stringValue("time-start")};
 	  }
 	}
       } else if(evEvent.strEventName == "update-absolute-experiment-end-time") {
 	if(evEvent.lstNodes.size() > 0) {
 	  // Every end time overwrites any already existing value, as
 	  // it always happens after.
-	  m_mapValues["time-end"] = evEvent.lstNodes.front()->metaInformation()->stringValue("time-end");
+	  m_mapValues["time-end"] = {MappedMetaData::Property, evEvent.lstNodes.front()->metaInformation()->stringValue("time-end")};
 	}
       }
     }
