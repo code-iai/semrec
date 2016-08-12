@@ -69,6 +69,7 @@ void printHelp(std::string strExecutableName) {
   std::cout << "  -h, --help\t\tPrint this help" << std::endl;
   std::cout << "  -c, --config <file>\tLoad config file <file> instead of the default one" << std::endl;
   std::cout << "  -q, --quiet\t\tStart in quiet mode (command line output is suppressed)" << std::endl;
+  std::cout << "  -s, --signify\t\tPrint single message when init is done (for automation)" << std::endl;
   std::cout << std::endl;
   
   std::cout << "Should any questions arise, feel free to send an email to winkler@cs.uni-bremen.de" << std::endl;
@@ -99,16 +100,18 @@ int main(int argc, char** argv) {
   
   // Read command line parameters
   int nC, option_index = 0;
-  static struct option long_options[] = {{"config", required_argument, 0, 'c'},
-				         {"quiet",  no_argument,       0, 'q'},
-				         {"help",   no_argument,       0, 'h'},
-				         {0,        0,                 0, 0}};
+  static struct option long_options[] = {{"config",  required_argument, 0, 'c'},
+				         {"quiet",   no_argument,       0, 'q'},
+				         {"help",    no_argument,       0, 'h'},
+					 {"signify", no_argument,       0, 's'},
+				         {0,         0,                 0, 0}};
   
   std::string strConfigFile = "";
   bool bQuit = false;
   bool bQuiet = false;
+  bool bSignify = false;
   
-  while((nC = getopt_long(argc, argv, "c:qh", long_options, &option_index)) != -1) {
+  while((nC = getopt_long(argc, argv, "c:qhs", long_options, &option_index)) != -1) {
     switch(nC) {
     case 'c': {
       strConfigFile = std::string(optarg);
@@ -121,6 +124,10 @@ int main(int argc, char** argv) {
     case 'h': {
       printHelp(std::string(argv[0]));
       bQuit = true;
+    } break;
+      
+    case 's': {
+      bSignify = true;
     } break;
       
     default: {
@@ -149,6 +156,11 @@ int main(int argc, char** argv) {
       sigaction(SIGWINCH, &action, NULL);
       
       g_srRecorder->info("Initialization complete, ready for action.", true);
+      
+      if(bSignify) {
+	std::cout << "Signify: semrec init complete (version " + g_srRecorder->version() << ")" << std::endl;
+      }
+      
       while(g_srRecorder->cycle()) {
 	// Idle here at will.
 	usleep(10);
