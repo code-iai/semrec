@@ -27,7 +27,7 @@
   <build_depend>visualization_msgs</build_depend>
   <build_depend>autoconf</build_depend>
   <build_depend>automake</build_depend>
-  <build_depend>libncurses-dev</build_depend>
+  <build_depend>libncurses5-dev</build_depend>
   <build_depend>libjson0-dev</build_depend>
   <build_depend>libconfig++-dev</build_depend>
   
@@ -41,7 +41,7 @@
   <run_depend>visualization_msgs</run_depend>
   <run_depend>autoconf</run_depend>
   <run_depend>automake</run_depend>
-  <run_depend>libncurses-dev</run_depend>
+  <run_depend>libncurses5-dev</run_depend>
   <run_depend>libjson0-dev</run_depend>
   <run_depend>libconfig++-dev</run_depend>
 

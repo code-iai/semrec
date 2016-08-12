@@ -152,7 +152,63 @@ namespace semrec {
 	    }
 	  }
 	}
+
+	//m_lstAnnotationPurposeMapping.clear();
 	
+	if(cfgConfig.exists("chemlab-context-mappings")) {
+	  libconfig::Setting &chemlabContextMappings = cfgConfig.lookup("chemlab-context-mappings");
+	  
+	  m_strPropertyNamespace = "";
+	  if(chemlabContextMappings.exists("property-namespace")) {
+	    chemlabContextMappings.lookupValue("property-namespace", m_strPropertyNamespace);
+	  }
+	  
+	  if(m_strPropertyNamespace == "") {
+	    this->warn("You didn't specify the 'chemlab-context-mappings/property-namespace' parameter on the semantics descriptor file.");
+            this->warn("Your OWL classes will have no namespace prepended. Is this intended?");
+	  }
+	  
+	  m_strDefaultDesignatorClass = "";
+	  if(chemlabContextMappings.exists("default-designator-class")) {
+	    chemlabContextMappings.lookupValue("default-designator-class", m_strDefaultDesignatorClass);
+	  }
+	  
+	  if(m_strDefaultDesignatorClass == "") {
+	    this->warn("You didn't specify the 'chemlab-context-mappings/default-designator-class' parameter in the semantics descriptor file.");
+            this->warn("Your default designators will have no OWL class, resulting in an invalid OWL file. Is this intended?");
+	  }
+	  
+	  m_strDefaultAnnotation = "";
+	  if(chemlabContextMappings.exists("default-annotation-purpose")) {
+	    chemlabContextMappings.lookupValue("default-annotation-purpose", m_strDefaultAnnotation);
+	  }
+	  
+	  if(m_strDefaultAnnotation == "") {
+	    this->warn("You didn't specify the 'structure/default-annotation-purpose' parameter on the semantics descriptor file.");
+            this->warn("Your designator attachments without a defined annotation will be empty and produce a faulty OWL file. Is this intended?");
+	  }
+	  
+	  if(chemlabContextMappings.exists("annotation-purposes")) {
+	    libconfig::Setting &chemlabContextPurposes = chemlabContextMappings["annotation-purposes"];
+	    
+	    for(int nI = 0; nI < chemlabContextPurposes.getLength(); nI++) {
+	      libconfig::Setting &chemlabContextPurpose = chemlabContextPurposes[nI];
+	      
+	      std::string strFrom;
+	      std::string strTo;
+	      
+	      chemlabContextPurpose.lookupValue("from", strFrom);
+	      chemlabContextPurpose.lookupValue("to", strTo);
+	      
+	      if(strFrom != "" && strTo != "") {
+                // For a moment add these mappings tot he default ones - merge them with the
+		m_lstAnnotationPurposeMapping.push_back(std::make_pair(strFrom, strTo));
+	      } else {
+		this->warn("Invalid annotation purpose mapping: '" + strFrom + "' -> '" + strTo + "'. Discarding.");
+	      }
+	    }
+	  }
+	}
 	return true;
       } catch(libconfig::ParseException e) {
         std::stringstream sts;
@@ -1003,6 +1059,8 @@ namespace semrec {
 	      strDesignatorClass = "CRAMHumanDesignator";
 	    } else if(m_mapDesignators[strID]->stringValue("type") == "OBJECT") {
 	      strDesignatorClass = "CRAMObjectDesignator";
+	    } else if(m_mapDesignators[strID]->stringValue("type") == "DESIGNATOR") {
+	      strDesignatorClass = "CRAMDesignator";
 	    }
 	  }
 	}
@@ -1343,7 +1401,7 @@ namespace semrec {
     } else if(strName == "WITH-POLICY") {
       strClass = "WithPolicy";
     } else if(strName == "PERCEIVE-OBJECT") {
-      strPlainPrefix = "knowrob_cram";
+      strPlainPrefix = "knowrob";
       strClass = "PerceiveObject";
     } else if(strName == "HUMAN-INTRUSION") {
       strPlainPrefix = "saphari";
@@ -1351,6 +1409,90 @@ namespace semrec {
     } else if(strName == "PERCEIVE-HUMAN") {
       strPlainPrefix = "knowrob_cram";
       strClass = "PerceivePerson";
+    } else if(strName == "LOOK-AT-LOCATION") {
+      strPlainPrefix = "knowrob";
+      strClass = "HeadMovement";
+    } else if(strName == "NAVIGATE-AT-LOCATION") {
+      strPlainPrefix = "knowrob";
+      strClass = "BaseMovement";
+    } else if(strName == "SINGULAR-ARM-MOVED-AT-LOCATION") {
+      strPlainPrefix = "knowrob";
+      strClass = "ArmMovement";
+    } else if(strName == "DUAL-ARM-MOVED-AT-LOCATIONS") {
+      strPlainPrefix = "knowrob";
+      strClass = "ArmMovement";
+    } else if(strName == "SINGULAR-ARM-REACH-UNREACH") {
+      strPlainPrefix = "knowrob";
+      strClass = "ArmMovement";
+    } else if(strName == "DUAL-ARM-REACH-UNREACH") {
+      strPlainPrefix = "knowrob";
+      strClass = "ArmMovement";
+    } else if(strName == "SINGULAR-GRIPPER-GRIPP") {
+      strPlainPrefix = "knowrob";
+      strClass = "GripperMovement";
+    } else if(strName == "DUAL-GRIPPER-GRIPP") {
+      strPlainPrefix = "knowrob";
+      strClass = "GripperMovement";
+    } 
+      else if(strName == "CHEMLAB-CONTEXT") { // Chemlab context
+      strPlainPrefix = "chemlab_actions";
+      strClass = "ChemlabContext";
+    }
+      else if(strName == "PLAN-QUERY") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "PlanQuery";
+    } 
+      else if(strName == "TESTING-PH-VALUE") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "TestingPHValue";
+    }
+      else if(strName == "NEUTRALIZING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Neutralizing";
+    } 
+      else if(strName == "USING-DRY-ICE") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "UsingDryIce";
+    } 
+      else if(strName == "POURING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Pouring";
+    }
+      else if(strName == "PIPETTING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Pipetting";
+    } else if(strName == "ASPIRATING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Aspirating";
+    } else if(strName == "DISPENSING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Dispensing";
+    }  
+      else if(strName == "OPERATING-ELECTRICAL-DEVICE") {
+      strPlainPrefix = "knowrob";
+      strClass = "HandlingADevice";
+    } else if(strName == "SWITCHING-ON-ELECTRICAL-DEVICE") {
+      strPlainPrefix = "knowrob";
+      strClass = "TurningOnPoweredDevice";
+    } else if(strName == "SWITCHING-OFF-ELECTRICAL-DEVICE") {
+      strPlainPrefix = "knowrob";
+      strClass = "TurningOffPoweredDevice";
+    } 
+      else if(strName == "USING-MEASURING-CUP") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "UsingMeasuringCup";
+    } 
+      else if(strName == "PREPARING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Preparing";
+    } 
+      else if(strName == "STORING") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "Storing";
+    } 
+      else if(strName == "MOVING-OBJECT-AT-LOCATION") {
+      strPlainPrefix = "chemlab_actions";
+      strClass = "MovingObjectAtLocation";
     }
    
     std::string strPrefix = (bPrologSyntax ? strPlainPrefix + ":" : "&" + strPlainPrefix + ";");
