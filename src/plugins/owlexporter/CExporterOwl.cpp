@@ -515,8 +515,8 @@ namespace semrec {
 	      }
 	      
 	      if(strDefProperty == "") {
-		if(strOwlClass == "&knowrob;VisualPerception") {
-		  strDefProperty = "knowrob:detectedObject";
+		if(strOwlClass == "&knowrob;UIMAPerception"){ //VisualPerception") {
+		  strDefProperty = "knowrob:perceptionResult"; //detectedObject";
 		} else {
 		  strDefProperty = "knowrob:objectActedOn";
 		}
