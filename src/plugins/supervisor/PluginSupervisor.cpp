@@ -221,6 +221,13 @@ namespace semrec {
 	evSetExpNameMeta.cdDesignator->setValue("value", strNewExp);
 	this->deployEvent(evSetExpNameMeta);
 	
+	Event evSetExpSysTimeMeta = defaultEvent("set-experiment-meta-data");
+	evSetExpSysTimeMeta.cdDesignator = new Designator();
+	evSetExpSysTimeMeta.cdDesignator->setType(Designator::DesignatorType::ACTION);
+	evSetExpSysTimeMeta.cdDesignator->setValue("field", "time-start-system");
+	evSetExpSysTimeMeta.cdDesignator->setValue("value", this->getSystemTimeStampStr());
+	this->deployEvent(evSetExpSysTimeMeta);
+	
 	std::string strSymlink = cfgsetCurrent.strBaseDataDirectory + "/" + cfgsetCurrent.strSymlinkName;
 	remove(strSymlink.c_str());
 	if(symlink(strNewName.c_str(), strSymlink.c_str()) == 0) {

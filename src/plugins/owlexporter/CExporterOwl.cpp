@@ -410,6 +410,7 @@ namespace semrec {
 	  oiIndividual.addDataProperty("knowrob:taskSuccess", "&xsd;boolean", (ndCurrent->success() ? std::string("true") : std::string("false")));
 	  oiIndividual.addResourceProperty("knowrob:startTime", "&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-start"));
 	  oiIndividual.addResourceProperty("knowrob:endTime", "&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-end"));
+	  oiIndividual.addResourceProperty("knowrob:startTimeSystem", "&" + strNamespace + ";timepoint_" + ndCurrent->metaInformation()->stringValue("time-start-system"));
 	  
 	  if(ndCurrent->title() == "GOAL-ACHIEVE") {
 	    std::list<KeyValuePair*> lstDescription = ndCurrent->description();
