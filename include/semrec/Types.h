@@ -66,6 +66,7 @@ namespace semrec {
     
     Type tpType;
     std::string strValue;
+    bool bIgnoreNamespace;
   } MappedMetaData;
   
   /*! \brief Enumeration of possible ServiceEvent types */
@@ -76,7 +77,7 @@ namespace semrec {
     SI_RESPONSE
   } ServiceIdentifier;
   
-  /*! \brief Enumeration of possible ServiceEvent modificator flags */
+  /*! \brief Enumeration of possible ServiceEvent modifier flags */
   typedef enum {
     /*! \brief Only return the first response for this service request */
     SM_FIRST_RESULT,

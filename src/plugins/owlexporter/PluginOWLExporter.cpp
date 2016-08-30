@@ -111,12 +111,22 @@ namespace semrec {
 	  std::string strField = evEvent.cdDesignator->stringValue("field");
 	  std::string strValue = evEvent.cdDesignator->stringValue("value");
 	  std::string strType = evEvent.cdDesignator->stringValue("type");
+	  std::string strIgnoreNamespace = evEvent.cdDesignator->stringValue("ignore-namespace");
+	  
+	  bool bIgnoreNamespace = (strIgnoreNamespace != "");
 	  
 	  MappedMetaData::Type mtType = (strType == "resource" ? MappedMetaData::Resource : MappedMetaData::Property);
 	  
 	  if(strField != "") {
-	    this->info("Set meta data field '" + strField + "' to '" + strValue + "' (" + (mtType == MappedMetaData::Resource ? "resource" : "property") + ")");
-	    m_mapMetaData[strField] = {mtType, strValue};
+	    std::string strPrintType = (mtType == MappedMetaData::Resource ? "resource" : "property");
+	    std::string strNSIgnoreMessage = "";
+	    
+	    if(mtType == MappedMetaData::Resource) {
+	      strNSIgnoreMessage = (bIgnoreNamespace ? "" : "not ") + std::string("ignoring namespace");
+	    }
+	    
+	    this->info("Set meta data field '" + strField + "' to '" + strValue + "' (" + strPrintType + "), " + strNSIgnoreMessage);
+	    m_mapMetaData[strField] = {mtType, strValue, bIgnoreNamespace};
 	  }
 	}
       } else if(evEvent.strEventName == "register-owl-namespace") {

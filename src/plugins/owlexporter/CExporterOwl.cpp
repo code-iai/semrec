@@ -1154,7 +1154,12 @@ namespace semrec {
 	oiIndividual.addResourceProperty("knowrob:" + (strCamelCaseKey == "timeStart" ? std::string("startTime") : std::string("endTime")), "&" + strNamespace + ";" + "timepoint_" + std::string(prEntry.second.strValue));
       } else {
 	if(prEntry.second.tpType == MappedMetaData::Resource) {
-	  oiIndividual.addResourceProperty("knowrob:" + strCamelCaseKey, "&" + strNamespace + ";" + prEntry.second.strValue);
+	  std::string strUseNamespace = "";
+	  if(!prEntry.second.bIgnoreNamespace) {
+	    strUseNamespace = "&" + strNamespace + ";";
+	  }
+	  
+	  oiIndividual.addResourceProperty("knowrob:" + strCamelCaseKey, strUseNamespace + prEntry.second.strValue);
 	} else {
 	  oiIndividual.addDataProperty("knowrob:" + strCamelCaseKey, "&xsd;string", prEntry.second.strValue);
 	}
