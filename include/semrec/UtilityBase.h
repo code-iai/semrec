@@ -100,7 +100,7 @@ namespace semrec {
     double getSystemTimeStampPrecise();
     std::string getTimeStampStr();
     std::string getSystemTimeStampStr();
-    std::string getTimeStampStr(double dTime);
+    std::string getTimeStampStr(double dTime, int nPrecision = -1);
     
     std::string str(float fValue);
     std::string str(double dValue);

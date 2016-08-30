@@ -150,9 +150,13 @@ namespace semrec {
     return (double)(millis / 1000.0);
   }
   
-  std::string UtilityBase::getTimeStampStr(double dTime) {
+  std::string UtilityBase::getTimeStampStr(double dTime, int nPrecision) {
+    if(nPrecision == -1) {
+      nPrecision = m_nTimeFloatingPointPrecision;
+    }
+    
     char cTimeBuffer[256];
-    std::string strFormat = "%30." + this->str(m_nTimeFloatingPointPrecision) + "f";
+    std::string strFormat = "%30." + this->str(nPrecision) + "f";
     
     sprintf(cTimeBuffer, strFormat.c_str(), dTime);
     
@@ -170,7 +174,7 @@ namespace semrec {
   }
   
   std::string UtilityBase::getSystemTimeStampStr() {
-    return this->getTimeStampStr(this->getSystemTimeStampPrecise());
+    return this->getTimeStampStr(this->getSystemTimeStampPrecise(), 3);
   }
   
   std::string UtilityBase::str(float fValue) {
