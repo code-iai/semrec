@@ -142,7 +142,14 @@ namespace semrec {
     
     return timeNow.toSec();
   }
-
+  
+  double UtilityBase::getSystemTimeStampPrecise() {
+    auto now = std::chrono::high_resolution_clock::now();
+    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+    
+    return (double)(millis / 1000.0);
+  }
+  
   std::string UtilityBase::getTimeStampStr(double dTime) {
     char cTimeBuffer[256];
     std::string strFormat = "%30." + this->str(m_nTimeFloatingPointPrecision) + "f";
@@ -160,6 +167,10 @@ namespace semrec {
   
   std::string UtilityBase::getTimeStampStr() {
     return this->getTimeStampStr(this->getTimeStampPrecise());
+  }
+  
+  std::string UtilityBase::getSystemTimeStampStr() {
+    return this->getTimeStampStr(this->getSystemTimeStampPrecise());
   }
   
   std::string UtilityBase::str(float fValue) {

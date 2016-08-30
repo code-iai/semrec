@@ -203,7 +203,10 @@ namespace semrec {
 	    if(!ndCurrent->hasFailures()) {
 	      // NOTE(winkler): This would be the right spot to
 	      // forward the 'failed' condition towards all underlying
-	      // node structures (to signal that this branch failed).
+	      // node structures (to signal that this branch
+	      // failed). Although come to think of it, the sub node
+	      // structures could actually have been successful and
+	      // its just this higher level node that failed.
 	      ndCurrent->setSuccess(nSuccess);
 	    } else {
 	      ndCurrent->setSuccess(false);

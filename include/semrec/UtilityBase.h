@@ -97,7 +97,9 @@ namespace semrec {
     void replaceStringInPlace(std::string& subject, const std::string& search, const std::string& replace);
     
     double getTimeStampPrecise();
+    double getSystemTimeStampPrecise();
     std::string getTimeStampStr();
+    std::string getSystemTimeStampStr();
     std::string getTimeStampStr(double dTime);
     
     std::string str(float fValue);
