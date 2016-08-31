@@ -1203,9 +1203,11 @@ namespace semrec {
     } else if(strName == "SPEECH-ACT") {
       strClass = "SpeechAct";
     } else if(strName == "OPEN-GRIPPER") {
-      strClass = "CRAMGripperCommand";
+      //strClass = "CRAMGripperCommand";
+      strClass = "OpeningAGripper";
     } else if(strName == "CLOSE-GRIPPER") {
-      strClass = "CRAMGripperCommand";
+      //strClass = "CRAMGripperCommand";
+      strClass = "ClosingAGripper";
     } else if(strName == "TAG") {
       strClass = "CRAMPlanTag";
     } else if(strName.substr(0, 5) == "GOAL-") {
@@ -1279,7 +1281,7 @@ namespace semrec {
 	    strClass = "CarryingAnObject";
 	  } else if(strTo == "PERCEIVE") {
 	    // Specializer: Perceiving.
-	    strClass = "PerceivingObjects";
+	    strClass = "VisualPerception";
 	  } else if(strTo == "PUT-DOWN") {
 	    // Specializer: Putting down.
 	    strClass = "PuttingDownAnObject";
@@ -1291,14 +1293,14 @@ namespace semrec {
 	    strClass = "Reaching";
 	  } else if(strTo == "RELEASE") {
 	    // Specializer: Releasing.
-	    strClass = "ReleasingGraspOfSomething";
+	    strClass = "ReleasingTheGraspOfSomething";
 	  } else if(strTo == "CLAMP") {
 	    // Specializer: Clamping.
 	    strClass = "GraspingSomething";
 	  } else if((strTo == "OPEN") && 
                     (ckvpDescription->stringValue("BODYPART") == "GRIPPER")) {
 	    // Specializer: Opening Gripper.
-	    strClass = "CRAMGripperCommand";
+	    strClass = "OpeningAGripper";
 	  } else if(strTo == "MOVE") {
 	    // Specializer: Moving.
 	    strClass = "VoluntaryBodyMovement";
@@ -1308,7 +1310,7 @@ namespace semrec {
 	  } else {
 	    // Fallback.
             std::cout << "\n\n No suitable description for perform-action-designator: " << strTo << " \n\n" << std::endl;
-         
+	    
 	    bSpecializedDesignator = false;
 	  }
 	} else {
@@ -1323,7 +1325,7 @@ namespace semrec {
 	}
       }
     } else if(strName == "UIMA-PERCEIVE") {
-      strClass = "UIMAPerception"; // NOTE(winkler): was 'VisualPerception'
+      strClass = "UIMAPerception";
     } else if(strName == "GRASP-OBJECT") {
       strClass = "PickingUpAnObject";
     } else if(strName == "PUT-DOWN-OBJECT") {
@@ -1357,10 +1359,12 @@ namespace semrec {
     } else if(strName == "PERCEIVE-HUMAN") {
       strPlainPrefix = "knowrob_cram";
       strClass = "PerceivePerson";
+    } else if(strName == "LOWER_OBJECT") {
+      strClass = "LoweringAnObject";
     }
-   
+    
     std::string strPrefix = (bPrologSyntax ? strPlainPrefix + ":" : "&" + strPlainPrefix + ";");
-
+    
     return (bClassOnly ? "" : strPrefix) + (bPrologSyntax ? "'" + strClass + "'" : strClass);
   }
   
