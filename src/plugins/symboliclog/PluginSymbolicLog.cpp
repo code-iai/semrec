@@ -322,6 +322,10 @@ namespace semrec {
 	    Node* ndSearchTemp = ndCurrent;
 	    
 	    while(ndSearchTemp) {
+	      Event evSymbolicEndCtx = defaultEvent("symbolic-end-context");
+	      evSymbolicEndCtx.lstNodes.push_back(ndSearchTemp);
+	      this->deployEvent(evSymbolicEndCtx);
+	      
 	      ndSearchTemp->ensureProperty("time-end", strTimeEnd);
 	      
 	      Event evUpdateExperimentTime = defaultEvent("update-absolute-experiment-end-time");
