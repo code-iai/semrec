@@ -710,7 +710,6 @@ namespace semrec {
 		  
 		  if(strProperty != "") {
 		    if(strURI != "") {
-		      this->info("Annotating resource property: '" + strNamespace + ":" + strProperty + "' = '" + strURI + "'");
 		      oiIndividual.addResourceProperty(strNamespace + ":" + strProperty, strURI);
 		    } else {
 		      this->warn("Cannot annotate resource property: Field 'uri' missing.");
