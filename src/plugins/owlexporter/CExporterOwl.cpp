@@ -693,10 +693,33 @@ namespace semrec {
 		    }
 		  }
 		}
+		
+		std::string strDesigPurpose = this->resolveDesignatorAnnotationTagName(strAnnotation);
+		oiIndividual.addResourceProperty("knowrob:" + strDesigPurpose, "&" + strNamespace + ";" + strDesigID);
+	      } else if(strAnnotation == "resource-annotation") {
+		KeyValuePair* ckvpChildren = ckvpDesignator->childForKey("description");
+		
+		if(ckvpChildren) {
+		  std::string strNamespace = ckvpChildren->stringValue("namespace");
+		  std::string strProperty = ckvpChildren->stringValue("property");
+		  std::string strURI = ckvpChildren->stringValue("uri");
+		  
+		  if(strNamespace == "") {
+		    strNamespace = "knowrob";
+		  }
+		  
+		  if(strProperty != "") {
+		    if(strURI != "") {
+		      this->info("Annotating resource property: '" + strNamespace + ":" + strProperty + "' = '" + strURI + "'");
+		      oiIndividual.addResourceProperty(strNamespace + ":" + strProperty, strURI);
+		    } else {
+		      this->warn("Cannot annotate resource property: Field 'uri' missing.");
+		    }
+		  } else {
+		    this->warn("Cannot annotate resource property: Field 'property' missing.");
+		  }
+		}		
 	      }
-	      
-	      std::string strDesigPurpose = this->resolveDesignatorAnnotationTagName(strAnnotation);
-	      oiIndividual.addResourceProperty("knowrob:" + strDesigPurpose, "&" + strNamespace + ";" + strDesigID);
 	    }
 	  }
 	  
