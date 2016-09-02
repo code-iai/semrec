@@ -296,6 +296,7 @@ namespace semrec {
 	  std::list<std::string> lstTimepointsSubnodes = this->gatherTimepointsForNodes(ndCurrent->subnodes(), lstSubTrace);
 	  lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-start"));
 	  lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-end"));
+	  lstTimepointsSubnodes.push_back(ndCurrent->metaInformation()->stringValue("time-start-system"));
 	  
 	  // Gather failure timepoints
 	  KeyValuePair* ckvpFailures = ndCurrent->metaInformation()->childForKey("failures");
