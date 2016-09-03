@@ -112,6 +112,7 @@ namespace semrec {
 	      // somewhere else, global paths would make finding of
 	      // files very difficult.
 	      evImage.cdDesignator->setValue("filename", strFilename);
+	      evImage.cdDesignator->setValue("absolute-path", strFilepath);
 	      
 	      m_mtxEventsStore.lock();
 	      m_lstEvents.push_back(evImage);
