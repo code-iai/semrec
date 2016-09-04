@@ -1018,8 +1018,6 @@ namespace semrec {
       
       Event evSetSuccess = defaultEvent("symbolic-set-node-success");
       evSetSuccess.lstNodes.push_back(ndNode);
-      evSetSuccess.cdDesignator = new Designator();
-      evSetSuccess.cdDesignator->setValue("success", bSuccess);
       this->deployEvent(evSetSuccess);
     }
   }
