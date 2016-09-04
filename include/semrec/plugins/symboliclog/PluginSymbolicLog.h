@@ -107,6 +107,8 @@ namespace semrec {
       
       Node* nodeByID(int nID);
       Node* relativeActiveNode(Event evEvent);
+      
+      void setNodeSuccess(Node* ndNode, bool bSuccess);
     };
   }
   

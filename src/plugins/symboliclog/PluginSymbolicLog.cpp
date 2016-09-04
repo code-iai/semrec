@@ -155,7 +155,7 @@ namespace semrec {
 	ndNew->setDescription(evEvent.cdDesignator->description());
 	
 	// This means we're setting an implicit success for this node.
-	ndNew->setSuccess(true);
+	this->setNodeSuccess(ndNew, true);
 	
 	std::string strTimeStart = this->getTimeStampStr();
 	if(evEvent.cdDesignator->childForKey("_time-start")) {
@@ -207,9 +207,9 @@ namespace semrec {
 	      // failed). Although come to think of it, the sub node
 	      // structures could actually have been successful and
 	      // its just this higher level node that failed.
-	      ndCurrent->setSuccess(nSuccess);
+	      this->setNodeSuccess(ndCurrent, nSuccess);
 	    } else {
-	      ndCurrent->setSuccess(false);
+	      this->setNodeSuccess(ndCurrent, false);
 	    }
 	    
 	    std::string strTimeEnd = this->getTimeStampStr();
@@ -237,9 +237,9 @@ namespace semrec {
 		// Set success only if no failures are present (in
 		// which case the success is set to 'false' already)
 		if(!ndParent->hasFailures()) {
-		  ndParent->setSuccess(nSuccess);
+		  this->setNodeSuccess(ndParent, nSuccess);
 		} else {
-		  ndParent->setSuccess(false);
+		  this->setNodeSuccess(ndParent, false);
 		}
 		
 		Event evSymbolicEndCtx = defaultEvent("symbolic-end-context");
@@ -286,9 +286,9 @@ namespace semrec {
 	        // NOTE(winkler): This would be the right spot to
 	        // forward the 'failed' condition towards all underlying
 	        // node structures (to signal that this branch failed).
-	        ndTarget->setSuccess(nSuccess);
+		this->setNodeSuccess(ndTarget, nSuccess);
 	      } else {
-	        ndTarget->setSuccess(false);
+		this->setNodeSuccess(ndTarget, false);
 	      }
 	    
               // record end-time
@@ -400,7 +400,7 @@ namespace semrec {
 	  
 	  if(ndSubject) {
 	    // Adding a failure to a node also means to set its success state to 'false'.
-	    ndSubject->setSuccess(false);
+	    this->setNodeSuccess(ndSubject, false);
 	    
 	    std::string strCondition = evEvent.cdDesignator->stringValue("condition");
 	    std::string strTimeFail = this->getTimeStampStr();
@@ -1011,6 +1011,16 @@ namespace semrec {
       }
       
       return ndSubject;
+    }
+    
+    void PLUGIN_CLASS::setNodeSuccess(Node* ndNode, bool bSuccess) {
+      ndNode->setSuccess(bSuccess);
+      
+      Event evSetSuccess = defaultEvent("symbolic-set-node-success");
+      evSetSuccess.lstNodes.push_back(ndNode);
+      evSetSuccess.cdDesignator = new Designator();
+      evSetSuccess.cdDesignator->setValue("success", bSuccess);
+      this->deployEvent(evSetSuccess);
     }
   }
   
