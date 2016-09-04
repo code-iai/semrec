@@ -267,6 +267,8 @@ namespace semrec {
 	    evUpdateExperimentTime.lstNodes.push_back(ndCurrent);
 	    this->deployEvent(evUpdateExperimentTime);
 	    
+	    this->setNodeSuccess(ndCurrent, ndCurrent->success());
+	    
 	    Event evSymbolicEndCtx = defaultEvent("symbolic-end-context");
 	    evSymbolicEndCtx.lstNodes.push_back(ndCurrent);
 	    this->deployEvent(evSymbolicEndCtx);
