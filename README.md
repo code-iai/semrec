@@ -17,10 +17,13 @@ keeping track of what they do, why they to it (situational context),
 and what happened during or after their performance.
 
 
-Development Activity [![Stories in Ready](https://badge.waffle.io/code-iai/semrec.png?label=ready&title=Ready)](http://waffle.io/code-iai/semrec)
+External Plugin Repository
 ===
 
-[![Throughput Graph](https://graphs.waffle.io/code-iai/semrec/throughput.svg)](https://waffle.io/code-iai/semrec/metrics) 
+For additional functionality, consider downloading the
+[semrec_plugins](https://github.com/code-iai/semrec_plugins.git)
+repository. Place it in your ROS workspace and compile as usual, the
+plugins will automatically be available.
 
 
 Plugin-based Extension
@@ -32,16 +35,16 @@ are:
 
  * ROS interface (connect to the ROS environment, and expose services for starting/altering/ending contexts)
  * Symbolic Log facility (build a hierarchical task tree with timing information, based on contexts delivered through the ROS interface)
- * Supervisor component (to supervise the start/restart/end of experiments, in order to organize plan logs, and saved image data)
  * Exporters:
    * OWL Exporter (save the symbolic plan log in OWL format)
    * DOT Exporter (save the symbolic plan log in DOT format)
- * Image Capturer (save images from any given ROS topic, and store them in the experiment data space)
  * Prediction component (predict course of action given models of former plan executions)
 
-All necessary directories, and details of what to load and where to find plugins, is stored in a convenient config file (config.cfg). Directories are created automatically by the Semantic Hierarchy Recorder system as needed, and data associated with an active experiment is always stored in its respective folder.
-
-A more thorough documentation can be found here: http://cram-system.org/doc/logging/beliefstate
+All necessary directories, and details of what to load and where to
+find plugins, is stored in a convenient config file
+(config.cfg). Directories are created automatically by the Semantic
+Hierarchy Recorder system as needed, and data associated with an
+active experiment is always stored in its respective folder.
 
 
 ### Immediate Usage Instructions
