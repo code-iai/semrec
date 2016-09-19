@@ -15,7 +15,7 @@ endif()
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES sr_plugin_ros sr_plugin_gazebo sr_plugin_console sr_plugin_experiment_context sr_plugin_interactive sr_plugin_symboliclog sr_plugin_supervisor sr_plugin_owlexporter sr_plugin_dotexporter
+  LIBRARIES sr_plugin_ros sr_plugin_symboliclog sr_plugin_owlexporter sr_plugin_dotexporter
   CATKIN_DEPENDS roscpp roslib designator_integration_cpp designator_integration_msgs sensor_msgs cv_bridge interactive_markers visualization_msgs
 )
 
@@ -23,18 +23,25 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   include)
 
-add_library(sr_base_plugins)
-set_target_properties(sr_base_plugins PROPERTIES LINKER_LANGUAGE C)
+add_library(sr_base_plugin
+  src/GlobalFunctions.cpp
+  src/Plugin.cpp)
+
+add_library(sr_exporter_plugin
+  src/CExporter.cpp
+  src/CExporterFileoutput.cpp)
 
 
-target_link_libraries(sr_base_plugins
+set_target_properties(sr_base_plugin PROPERTIES LINKER_LANGUAGE C)
+set_target_properties(sr_exporter_plugin PROPERTIES LINKER_LANGUAGE C)
+
+
+target_link_libraries(sr_base_plugin
   ${catkin_LIBRARIES}
   config++
 )
 
 add_library(sr_plugin_prediction SHARED
-  src/GlobalFunctions.cpp
-  src/Plugin.cpp
   src/plugins/prediction/PluginPrediction.cpp
   src/plugins/prediction/DecisionTree.cpp
   src/plugins/owlexporter/CExporterOwl.cpp
@@ -46,53 +53,13 @@ add_library(sr_plugin_prediction SHARED
   src/Property.cpp)
 
 add_library(sr_plugin_ros SHARED
-  src/GlobalFunctions.cpp
-  src/Plugin.cpp
   src/plugins/ros/PluginROS.cpp)
 
-add_library(sr_plugin_gazebo SHARED
-  src/GlobalFunctions.cpp
-  src/Plugin.cpp
-  src/plugins/gazebo/PluginGazebo.cpp)
-
-add_library(sr_plugin_console SHARED
-  src/GlobalFunctions.cpp
-  src/Plugin.cpp
-  src/plugins/console/PluginConsole.cpp)
-
-add_library(sr_plugin_experiment_context SHARED
-  src/GlobalFunctions.cpp
-  src/CExporter.cpp
-  src/CExporterFileoutput.cpp
-  src/Plugin.cpp
-  src/plugins/experiment-context/PluginExperimentContext.cpp)
-
-add_library(sr_plugin_interactive SHARED
-  src/GlobalFunctions.cpp
-  src/Plugin.cpp
-  src/plugins/interactive/PluginInteractive.cpp
-  src/plugins/interactive/InteractiveObject.cpp)
-
 add_library(sr_plugin_symboliclog SHARED
-  src/GlobalFunctions.cpp
-  src/Plugin.cpp
   src/Node.cpp
   src/plugins/symboliclog/PluginSymbolicLog.cpp)
 
-add_library(sr_plugin_supervisor SHARED
-  src/GlobalFunctions.cpp
-  src/Plugin.cpp
-  src/plugins/supervisor/PluginSupervisor.cpp)
-
-add_library(sr_plugin_imagecapturer SHARED
-  src/GlobalFunctions.cpp
-  src/Plugin.cpp
-  src/plugins/imagecapturer/CImageCapturer.cpp
-  src/plugins/imagecapturer/PluginImageCapturer.cpp)
-
 add_library(sr_plugin_owlexporter SHARED
-  src/GlobalFunctions.cpp
-  src/Plugin.cpp
   src/Node.cpp
   src/CExporter.cpp
   src/CExporterFileoutput.cpp
@@ -101,8 +68,6 @@ add_library(sr_plugin_owlexporter SHARED
   src/plugins/owlexporter/PluginOWLExporter.cpp)
 
 add_library(sr_plugin_dotexporter SHARED
-  src/GlobalFunctions.cpp
-  src/Plugin.cpp
   src/Node.cpp
   src/CExporter.cpp
   src/CExporterFileoutput.cpp
@@ -113,48 +78,30 @@ add_executable(semrec
   src/UtilityBase.cpp
   src/ArbitraryMappingsHolder.cpp
   src/main.cpp
-  src/GlobalFunctions.cpp
   src/PluginSystem.cpp
   src/PluginInstance.cpp
-  src/Plugin.cpp
   src/Node.cpp
   src/SemanticHierarchyRecorder.cpp
   src/SemanticHierarchyRecorderROS.cpp)
 
 target_link_libraries(semrec
-  sr_base_plugins
+  sr_base_plugin
   dl)
 
+target_link_libraries(sr_exporter_plugin
+  sr_base_plugin)
+
 target_link_libraries(sr_plugin_ros
-  sr_base_plugins)
+  sr_base_plugin)
 
 target_link_libraries(sr_plugin_prediction
-  sr_base_plugins)
-
-target_link_libraries(sr_plugin_gazebo
-  sr_base_plugins)
-
-target_link_libraries(sr_plugin_console
-  sr_base_plugins
-  ncurses)
-
-target_link_libraries(sr_plugin_experiment_context
-  sr_base_plugins)
-
-target_link_libraries(sr_plugin_interactive
-  sr_base_plugins)
+  sr_base_plugin)
 
 target_link_libraries(sr_plugin_owlexporter
-  sr_base_plugins)
+  sr_exporter_plugin)
 
 target_link_libraries(sr_plugin_dotexporter
-  sr_base_plugins)
-
-target_link_libraries(sr_plugin_imagecapturer
-  sr_base_plugins)
-
-target_link_libraries(sr_plugin_supervisor
-  sr_base_plugins)
+  sr_exporter_plugin)
 
 install(TARGETS semrec
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
