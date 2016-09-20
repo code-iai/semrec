@@ -64,6 +64,7 @@ namespace semrec {
       std::list<std::string> m_lstDependencies;
       std::string m_strName;
       std::string m_strVersion;
+      bool m_bIsDeprecated;
       int m_nID;
       bool m_bRunCycle;
       std::mutex m_mtxRunCycle;
@@ -102,6 +103,9 @@ namespace semrec {
       bool developmentPlugin();
       void setPluginVersion(std::string strVersion);
       std::string pluginVersion();
+      
+      void setIsDeprecated(bool bIsDeprecated);
+      bool isDeprecated();
       
       void setSubscribedToEvent(std::string strEventName, bool bSubscribed);
       bool subscribedToEvent(std::string strEventName);

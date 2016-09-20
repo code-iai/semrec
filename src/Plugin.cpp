@@ -234,6 +234,14 @@ namespace semrec {
       return m_strVersion;
     }
     
+    void Plugin::setIsDeprecated(bool bIsDeprecated) {
+      m_bIsDeprecated = bIsDeprecated;
+    }
+    
+    bool Plugin::isDeprecated() {
+      return m_bIsDeprecated;
+    }
+    
     std::string Plugin::pluginIdentifierString(bool bBold) {
       return colorSpecifierForID(this->pluginID(), bBold) +
 	"[" + this->pluginName() + "/" + this->str(this->pluginID()) + "]";

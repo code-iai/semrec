@@ -92,6 +92,10 @@ namespace semrec {
 	
 	this->info("Loaded plugin '" + m_strName + "'" + (strVersionString == "" ? "" : " (version: " + strVersionString + ")"));
 	m_piInstance->setPluginName(m_strName);
+	
+	if(m_piInstance->isDeprecated()) {
+	  this->warn("This plugin has been declared deprecated by one of its authors. It may not work properly or will stop working properly in the near future.");
+	}
       } else {
 	resLoad.riResultIdentifier = RI_PLUGIN_LOADING_FAILED;
 	resLoad.bSuccess = false;
