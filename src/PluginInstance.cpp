@@ -85,7 +85,7 @@ namespace semrec {
 	}
 	
 	// Remove plugin prefix
-	std::string strPrefix = "libbs_plugin_";
+	std::string strPrefix = "libsr_plugin_";
 	m_strName = m_strName.substr(strPrefix.size());
 	
 	std::string strVersionString = m_piInstance->pluginVersion();
