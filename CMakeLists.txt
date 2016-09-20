@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(semrec)
 
-find_package(catkin REQUIRED COMPONENTS roscpp roslib rospack designator_integration_cpp designator_integration_msgs sensor_msgs cv_bridge interactive_markers visualization_msgs)
+find_package(catkin REQUIRED COMPONENTS roscpp roslib rospack designator_integration_cpp designator_integration_msgs)
 
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES
-  CATKIN_DEPENDS roscpp roslib designator_integration_cpp designator_integration_msgs sensor_msgs cv_bridge interactive_markers visualization_msgs)
+  CATKIN_DEPENDS roscpp roslib designator_integration_cpp designator_integration_msgs)
 
 set(COMPILE_DEBUG 0)
 

@@ -21,10 +21,6 @@
   <build_depend>roscpp</build_depend>
   <build_depend>designator_integration_cpp</build_depend>
   <build_depend>designator_integration_msgs</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>cv_bridge</build_depend>
-  <build_depend>interactive_markers</build_depend>
-  <build_depend>visualization_msgs</build_depend>
   <build_depend>autoconf</build_depend>
   <build_depend>automake</build_depend>
   <build_depend>libncurses-dev</build_depend>
@@ -35,10 +31,6 @@
   <run_depend>roscpp</run_depend>
   <run_depend>designator_integration_cpp</run_depend>
   <run_depend>designator_integration_msgs</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-  <run_depend>cv_bridge</run_depend>
-  <run_depend>interactive_markers</run_depend>
-  <run_depend>visualization_msgs</run_depend>
   <run_depend>autoconf</run_depend>
   <run_depend>automake</run_depend>
   <run_depend>libncurses-dev</run_depend>
