@@ -755,7 +755,7 @@ namespace semrec {
       
       if(bSetAsActive) {
 	this->setNodeAsActive(ndNew);
-	this->info("The new context's name is '" + strName + "' (now active)");
+	this->info("The new context's name is '" + strName + "' (now active, ID " + this->str(nContextID) + ")");
       } else {
 	this->info("The new context's name is '" + strName + "'");
       }
@@ -900,7 +900,7 @@ namespace semrec {
       if(bAdd) {
 	ndRelative->addDesignator(strType, desigCurrent->children(), strUniqueID, strAnnotation);
 	
-	this->info("Added '" + strType + "' designator (addr=" + strMemoryAddress + ") to context (id " + this->str(ndRelative->id()) + "): '" + strUniqueID + "', annotation: '" + strAnnotation + "'");
+	this->info("Added '" + strType + "' designator (addr=" + strMemoryAddress + ") to context (ID " + this->str(ndRelative->id()) + "): '" + strUniqueID + "', annotation: '" + strAnnotation + "'");
       }
       
       desigCurrent->setValue("_id", strUniqueID);

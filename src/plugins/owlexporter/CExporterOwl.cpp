@@ -448,7 +448,7 @@ namespace semrec {
 	      }
 	    }
 	  }
-
+	  
           // NOTE FROM GEORG: This is a feature that I introduced specifically for the 
           // final review of SAPHARI. I think it needs to be improved, but time has not
           // permitted a refactoring. Sorry!
@@ -620,8 +620,9 @@ namespace semrec {
 	    unsigned int unIndex = 0;
 	    for(KeyValuePair* ckvpDesignator : lstDesignators) {
 	      std::string strAnnotation = ckvpDesignator->stringValue("annotation");
+	      std::string strDesigPurpose = this->resolveDesignatorAnnotationTagName(strAnnotation);
 	      
-	      if(this->resolveDesignatorAnnotationTagName(strAnnotation) == "speechActDetails") {
+	      if(strDesigPurpose == "speechActDetails") {
 		KeyValuePair* kvpSpeechAct = ckvpDesignator->childForKey("description");
 		
 		std::string strSender = kvpSpeechAct->stringValue("sender");
@@ -719,6 +720,14 @@ namespace semrec {
 		    this->warn("Cannot annotate resource property: Field 'property' missing.");
 		  }
 		}		
+	      } else {
+		std::string strNamespace = ckvpDesignator->stringValue("namespace");
+		
+		if(strNamespace == "") {
+		  strNamespace = "knowrob";
+		}
+		
+		oiIndividual.addResourceProperty("knowrob:" + strDesigPurpose, "&" + strNamespace + ";" + strDesigID);
 	      }
 	    }
 	  }
@@ -1332,13 +1341,13 @@ namespace semrec {
 	    strClass = "Navigate";
 	  } else {
 	    // Fallback.
-            std::cout << "\n\n No suitable description for perform-action-designator: " << strTo << " \n\n" << std::endl;
+            std::cerr << "\n\n No suitable description for perform-action-designator: " << strTo << " \n\n" << std::endl;
 	    
 	    bSpecializedDesignator = false;
 	  }
 	} else {
 	  // Fallback.
-          std::cout << "\n\n No description for perform-action-designator! \n\n" << std::endl;
+          std::cerr << "\n\n No description for perform-action-designator! \n\n" << std::endl;
 	  bSpecializedDesignator = false;
 	}
 	
