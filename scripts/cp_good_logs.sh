@@ -37,7 +37,7 @@ for ARCHIVE_FILE in *.tar.gz; do
     
     all_good=true
     
-    for required_file in $REQUIRED_FILE; do
+    for required_file in $REQUIRED_FILES; do
 	if [ ! -f "$DIR_TEMP/$required_file" ]; then
 	    all_good=false
 	fi
