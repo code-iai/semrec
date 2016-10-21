@@ -73,6 +73,7 @@ void printHelp(std::string strExecutableName) {
   std::cout << std::endl;
   
   std::cout << "Should any questions arise, feel free to send an email to winkler@cs.uni-bremen.de" << std::endl;
+  std::cout << "Get the source here: https://github.com/code-iai/semrec" << std::endl;
 }
 
 void catchHandler(int nSignum) {
@@ -143,15 +144,17 @@ int main(int argc, char** argv) {
     semrec::Result resInit = g_srRecorder->init(strConfigFile);
     
     if(resInit.bSuccess) {
-      // Catch SIGTERM and SIGINT and bind them to the callback function
-      // catchSIGTERMandSIGINT. This will trigger the shutdown mechanism
-      // in the semrec instance.
+      // Catch SIGTERM and SIGINT and bind them to the callback
+      // function `catchHandler`. This will trigger the shutdown
+      // mechanism in the global semrec instance.
       struct sigaction action;
       memset(&action, 0, sizeof(struct sigaction));
       action.sa_handler = catchHandler;
       sigaction(SIGTERM, &action, NULL);
       sigaction(SIGINT, &action, NULL);
       
+      // Catch SIGWINCH to tell semrec about terminal resizes, and
+      // store the original signal handler to invoke it, too.
       hdlrOldSIGWINCH = signal(SIGWINCH, SIG_IGN);
       sigaction(SIGWINCH, &action, NULL);
       
